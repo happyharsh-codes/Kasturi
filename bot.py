@@ -1,7 +1,8 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from datetime import datetime , UTC
 from json import dump, load
+from random import randint
 
 class Bot:
 
@@ -9,9 +10,16 @@ class Bot:
         self.client = client
         self.kelly = kelly
 
+    @tasks.loop(seconds=3600)
+    async def mood_swings(self):
+        self.kelly.mood["happy"] -= 5
+        self.kelly.mood["busy"] -= 5
+        self.kelly.mood["sleepy"] += randint(1,15)
+
     async def on_ready(self):
         print(f"Bot is ready. Logged in as {self.client.user}")
         print("We are ready to go!")
+        self.mood_swings.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
 
     async def on_message(self, message: discord.Message):

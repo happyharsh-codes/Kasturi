@@ -10,7 +10,10 @@ class Fun(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def joke(self, ctx):
-        await ctx.send("This command is yet to be made :/")
+        joke = choice(DATA["jokes"])
+        emoji = choice(["laugh", "gigle", "blush", "bweh", "chips", "juice"])
+        emoji = EMOJI[f"kelly{emoji}"]
+        await ctx.send(f"{emoji} **|** {joke}")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )

@@ -1,9 +1,8 @@
 from res.cogs.__init__ import* 
-import random, asyncio
 
 async def has_not_profile(client, ctx):
     code = 'i will work under kelly'
-    emoji = ''
+    emoji = EMOJI[f"kelly{choice(["blush", "thinking", "laugh", "gigle", "waiting", "idontcare"])}"]
     await ctx.reply(f"**{emoji} | Kelly:** you dont even have a profile\n |         Type this to create new profile `{code}`")
     try:
         msg = await client.wait_for("message", check= lambda x: x.author.id == ctx.author.id, timeout= 120)
@@ -17,6 +16,7 @@ async def has_not_profile(client, ctx):
             dump(profiles, f, indent=4)
         await ctx.send(f"{ctx.author.mention} your profile is successfully created. You can start playing now\nUse `k help` to get help on more `game` commands")
     else:
+        emoji = EMOJI[f"kelly{choice(["annoyed", "laugh", "gigle", "waiting", "idontcare", "chips", "bweh", "bweh"])}"]
         await msg.reply(f"**{emoji} | Kelly:** you dont even do a single thing properly disgusting!! Dont ever come to me again")
 
 
@@ -37,7 +37,7 @@ class Games(commands.Cog):
             await has_not_profile(self.client, ctx)
             return
         amt = data.get("cash")
-        emoji = ""
+        emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
         await ctx.reply(f"**{emoji} | Kelly:** {ctx.author.name} you have ₹{amt} cash {EMOJI.get("cash")}")
 
     @commands.command(aliases=[])
@@ -50,7 +50,7 @@ class Games(commands.Cog):
         if data is None:
             await ctx.send("Your profile not found")
         amt = data.get("gems")
-        emoji = ""
+        emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
         await ctx.reply(f"**{emoji} | Kelly:** {ctx.author.name} you have {EMOJI.get("gem")} {amt} gems")
 
     @commands.command(aliases=[])
@@ -95,7 +95,8 @@ class Games(commands.Cog):
             await ctx.send("Given User profile not found")
         if  isinstance(item, int):
             if item <= 0:
-                await ctx.send(f"**.. | Kelly: **Invalid Cash amount")
+                emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
+                await ctx.send(f"**{emoji} | Kelly: **Invalid Cash amount")
                 return
             user_cash = user_profile.get("cash")
             if user_cash >= item:
@@ -103,12 +104,15 @@ class Games(commands.Cog):
                 profiles[str(ctx.author.id)]["cash"] -= item
                 with open("res/server/profiles.json", "w") as f:
                     dump(profiles, f, indent=4)
-                await ctx.send(f"**.. | Kelly: **{ctx.author.mention} gave ₹{item} to {self.client.get_user(user).mention}")
+                emoji = EMOJI[f"kelly{choice(["heart", "owolove", "salute"])}"]
+                await ctx.send(f"**{emoji} | Kelly: **{ctx.author.mention} gave ₹{item} to {self.client.get_user(user).mention}")
             else:
-                await ctx.send(f"**.. | Kelly: **You dont own that much money what are you doing")
+                emoji = EMOJI[f"kelly{choice(["thinking", "bweh", "watching"])}"]
+                await ctx.send(f"**{emoji} | Kelly: **You dont own that much money what are you doing")
         if item in DATA["inv_items"]:
             if amount <= 0:
-                await ctx.send(f"**.. | Kelly: **Invalid amount given")
+                emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
+                await ctx.send(f"**{emoji} | Kelly: **Invalid amount given")
                 return
             if user_profile["inv"][item] >= amount:
                 profiles[str(ctx.author.id)]["inv"][item] -= amount
@@ -116,11 +120,14 @@ class Games(commands.Cog):
                     profiles[str(user)]["inv"][item] += amount
                 else:
                     profiles[str(user)]["inv"][item] = amount
+                emoji = EMOJI[f"kelly{choice(["heart", "owolove"])}"]
                 await ctx.send(f"**.. | Kelly: **{ctx.author.mention} gave {amount} {item.capitalize()} {EMOJI.get(item)} to {self.client.get_user(user).mention}")
             else:
-                await ctx.send(f"**.. | Kelly: **You dont even own that much item what are you doing")
+                emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
+                await ctx.send(f"**{emoji} | Kelly: **You dont even own that much item what are you doing")
         else:
-            await ctx.reply(f"**.. | Kelly: **Invalid item given")
+            emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
+            await ctx.reply(f"**{emoji} | Kelly: **Invalid item given")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -148,7 +155,7 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def craft(self, ctx, item, amt=1):
-        emoji = ""
+        emoji = EMOJI[f"kelly{choice(["hiding", "ok", "fight", "interesting", "owolove", "interesting", "thinking", "bored", "interesting"])}"]
         if item not in DATA["craft"]:
             await ctx.send(f"**{emoji} | Kelly:** that isnt a craftable item")
             return
@@ -199,10 +206,9 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def beg(self, ctx):
-        cash = random.randint(0, 1000)
-        sign = random.choice(["$", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹"])
+        cash = randint(0, 1000)
+        sign = choice(["$", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹"])
         value = 1
-        await ctx.send(f"You got {sign}{cash}")
         with open("res/server/profiles.json", "r") as f:
             profiles = load(f)
         if str(ctx.author.id) not in profiles:
@@ -213,6 +219,7 @@ class Games(commands.Cog):
                 value = 86
             profiles[str(ctx.author.id)]["cash"] += cash * value
 
+        await ctx.send(f"You got {sign}{cash}")
         
 
 
