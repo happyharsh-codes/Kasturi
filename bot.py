@@ -1,14 +1,16 @@
 import discord
 from discord.ext import commands, tasks
-from datetime import datetime , UTC
+from datetime import datetime , UTC, timedelta
 from json import dump, load
 from random import randint
+import time
 
 class Bot:
 
     def __init__(self, client, kelly):
         self.client = client
         self.kelly = kelly
+        self.last_requeset = datetime.now()
 
     @tasks.loop(seconds=3600)
     async def mood_swings(self):
@@ -23,6 +25,7 @@ class Bot:
         #await self.client.change_presence(activity=discord.Game(name=""))
 
     async def on_message(self, message: discord.Message):
+        start = time.time()
         if self.client.user == message.author or message.author.bot:
             return
         with open("res/server/server_settings.json", "r") as f:
@@ -58,7 +61,7 @@ class Bot:
                 original = await message.channel.fetch_message(message.reference.message_id)
                 if original.author.id == self.client.user.id:
                     print(f"Reply to Kelly detected: {message.content}")
-                    await self.kelly.kellyProcess(message)
+                    await self.kelly.kellyQuery(message)
                     return
             except discord.NotFound:
                 pass  # original message not found (maybe deleted)
@@ -68,7 +71,12 @@ class Bot:
         if not message.content.lower().startswith(("k ", "k", "kelly", "kelly ", "kasturi", "kasturi ")):
             return
         print("Processing command on message: "+ message.content)
-        await self.kelly.kellyProcess(message)
+        if datetime.now() < self.last_request + timedelta(seconds=15):
+            delay = self.last_request + timedelta(seconds=15)- datetime.now()
+            time.sleep(delay.second)
+        self.last_request = datetime.now()
+        await self.kelly.kellyQuery(message)
+        await message.channel.send("Latency: ", time.time()-start)
         return
 
     async def on_guild_join(self, guild: discord.Guild):
