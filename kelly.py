@@ -9,6 +9,11 @@ from datetime import datetime, UTC
 import os
 import asyncio
 from json import load, dump
+import threading
+
+def run_web():
+    server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
+    server.serve_forever()
 
 intents = discord.Intents(messages = True, moderation = True, guilds = True, dm_messages = True, members = True, presences = True, dm_reactions = True, reactions = True, emojis = True, emojis_and_stickers = True, message_content = True)
 client = commands.Bot(command_prefix=None,case_insensetive=True,help_command=None,intents=intents)
@@ -32,7 +37,7 @@ if __name__ == "__main__":
     kelly = Kelly("kelly", client)
 
     bot = Bot(client, kelly)
-
+    threading.Thread(target=run_web).start()
     asyncio.run(start())
 
 
