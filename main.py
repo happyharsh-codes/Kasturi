@@ -10,6 +10,7 @@ import os
 import asyncio
 from json import load, dump
 import flask
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
 
 def run_web():
