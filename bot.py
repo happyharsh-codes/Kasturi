@@ -10,7 +10,7 @@ class Bot:
     def __init__(self, client, kelly):
         self.client = client
         self.kelly = kelly
-        self.last_requeset = datetime.now()
+        self.last_request = datetime.now()
 
     @tasks.loop(seconds=3600)
     async def mood_swings(self):
