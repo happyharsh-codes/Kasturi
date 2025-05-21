@@ -45,7 +45,7 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def gems(self, ctx):
-        with open("res\server\profiles.json", "r") as f:
+        with open("res/server/profiles.json", "r") as f:
             data = load(f).get(str(ctx.author.id))
         if data is None:
             await ctx.send("Your profile not found")
