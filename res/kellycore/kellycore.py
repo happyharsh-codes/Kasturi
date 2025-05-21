@@ -49,7 +49,7 @@ class Kelly:
                 messages.append(UserMessage(user[1]))
                 messages2.append({"user":user[1]})
             else:
-                messages.append(AssistantMesssge(user[1]))
+                messages.append(AssistantMessage(user[1]))
                 messages2.append({"assistant":user[1]})
         messages.append(UserMessage(usermessage))
         messages2.append({"user": usermessage})
