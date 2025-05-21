@@ -96,11 +96,11 @@ class Kelly:
             chats = load(f)
         with open("res/kellycore/kellymemory/chats.json", "w") as f:
             if str(id) not in chats:
-                chats[str(id)] = f"User: {user_message}\nKelly: {kelly_message}"
+                chats[str(id)] = [f"User: {user_message}\nKelly: {kelly_message}"]
             else:
                 chats[str(id)].append(f"User: {user_message}\nKelly: {kelly_message}")
                 if len(chats[str(id)]) > 8:
-                    chats[str(id)].pop(1)
+                    chats[str(id)].pop(0)
             dump(chats, f, indent=4)
 
     async def kellyQuery(self, message: discord.Message):
