@@ -41,8 +41,20 @@ class Kelly:
         print(error)
 
     def getResponse(self, usermessage, prompt, assistant=""):
+        messages= [SystemMessage(prompt)]
+        messages2 = [{"system": prompt}]
+        for msg in assistant.split("\n"):
+            user = msg.split(":")
+            if user[0] == "User":
+                messages.append(UserMessage(user[1]))
+                messages2.append({"user":user[1]})
+            else:
+                messages.append(AssistantMesssge(user[1]))
+                messages2.append({"assistant":user[1]})
+        messages.append(UserMessage(usermessage))
+        messages2.append({"user": usermessage})
         response = self.client2.complete(
-            messages= [SystemMessage(prompt), UserMessage(usermessage), AssistantMessage(assistant)],
+            messages= messages,
             temperature=1.0,
             top_p=1.0,
             max_tokens=200,
@@ -52,7 +64,7 @@ class Kelly:
             print("Model Changed")
             response = self.client1.chat.completions.create(
                 model= "deepseek/deepseek-prover-v2:free",
-                messages=[{"role": "system", "content": prompt},{"role": "user", "content": usermessage},{"role": "assistant", "content": assistant}],
+                messages= messages2,
                 max_tokens=200,
                 top_p=1.0
             )
@@ -96,9 +108,9 @@ class Kelly:
             chats = load(f)
         with open("res/kellycore/kellymemory/chats.json", "w") as f:
             if str(id) not in chats:
-                chats[str(id)] = [f"User: {user_message}\nKelly: {kelly_message}"]
+                chats[str(id)] = [f"User:{user_message}\nKelly:{kelly_message}"]
             else:
-                chats[str(id)].append(f"User: {user_message}\nKelly: {kelly_message}")
+                chats[str(id)].append(f"User:{user_message}\nKelly:{kelly_message}")
                 if len(chats[str(id)]) > 8:
                     chats[str(id)].pop(0)
             dump(chats, f, indent=4)
