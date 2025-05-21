@@ -173,7 +173,7 @@ class Kelly:
         self.logTask(datetime.datetime.now(), message, kelly_reply, result)
 
     def getEmoji(self, user_message, kelly_message):
-        emoji = ["tired","acting","annoyed","blush","bored","bweh","cheekspull","chips","cry","droolling","embaress","fight","gigle","handraise","heart","hiding","idontcare","interesting","juice","laugh","ok","owolove","pat","popcorn""salute","simping","sleeping","thinking","vibing","watching","yawn"]
+        emoji = ["tired","acting","annoyed","blush","bored","bweh","cheekspull","chips","cry","droolling","embaress","fight","gigle","handraise","heart","hiding","idontcare","interesting","juice","laugh","ok","owolove","pat","popcorn","salute","simping","sleeping","thinking","vibing","watching","yawn"]
         prompt = f"Select one emoji from the list based on user message and kelly response\n{emoji}\nResponse should be only single element from list"
         reply_emoji = self.getResponse("kelly:" + kelly_message, prompt, "user:" + user_message)
         if reply_emoji not in emoji:
