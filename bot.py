@@ -37,10 +37,10 @@ class Bot:
                 if message.channel.permissions_for(message.author).manage_channels:
                     with open("res/server/server_settings.json", "r") as f:
                         data = load(f)
-                    with open("res/server/server_settings.json", "w") as f:
                         if message.channel.id in data[str(message.guild.id)]["allowed_channels"]:
                             await message.channel.send("Ayo this channel is already activated !! haha")
                             return
+                    with open("res/server/server_settings.json", "w") as f:
                         data[str(message.guild.id)]["allowed_channels"].append(message.channel.id)
                         dump(data , f, indent=4)
                     await message.channel.send(embed=discord.Embed(title="Channel Activated",description=f"<#{message.channel.id}> was succesfully activated !! Start talking with Kelly now.\n\n Use {self.client.user.mention} activate to use me in other channels too!!", color= discord.Colour.green()))
