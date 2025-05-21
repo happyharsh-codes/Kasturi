@@ -45,6 +45,7 @@ class Kelly:
         messages2 = [{"system": prompt}]
         for msg in assistant.split("\n"):
             user = msg.split(":")
+            print(user, msg)
             if user[0] == "User":
                 messages.append(UserMessage(user[1]))
                 messages2.append({"user":user[1]})
