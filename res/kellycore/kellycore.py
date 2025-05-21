@@ -43,15 +43,18 @@ class Kelly:
     def getResponse(self, usermessage, prompt, assistant=""):
         messages= [SystemMessage(prompt)]
         messages2 = [{"system": prompt}]
-        for msg in assistant.split("\n"):
-            user = msg.split(":")
-            print(user, msg)
-            if user[0] == "User":
-                messages.append(UserMessage(user[1]))
-                messages2.append({"user":user[1]})
-            else:
-                messages.append(AssistantMessage(user[1]))
-                messages2.append({"assistant":user[1]})
+        
+        if assistant != "":
+            #adding history
+            for msg in assistant.split("\n"):
+                user = msg.split(":")
+                if user[0] == "User":
+                    messages.append(UserMessage(user[1]))
+                    messages2.append({"user":user[1]})
+                else:
+                    messages.append(AssistantMessage(user[1]))
+                    messages2.append({"assistant":user[1]})
+        #adding current message
         messages.append(UserMessage(usermessage))
         messages2.append({"user": usermessage})
         response = self.client2.complete(
