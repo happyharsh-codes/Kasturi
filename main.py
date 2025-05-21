@@ -40,7 +40,11 @@ if __name__ == "__main__":
 
     bot = Bot(client, kelly)
     threading.Thread(target=run_web).start()
-    asyncio.run(start())
+    try:
+        asyncio.run(start())
+    except Exception as error:
+        me = client.get_user(894072003533877279)
+        await me.send(f"Erron on Kelly Bot: {error}")
 
 
 
