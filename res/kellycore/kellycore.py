@@ -110,6 +110,8 @@ class Kelly:
     def addUserChatData(self, user_message, kelly_message, id):
         with open("res/kellycore/kellymemory/chats.json", "r") as f:
             chats = load(f)
+        user_message = user_message.replace("\n","").replace(":","")
+        kelly_message = kelly_message.replace("\n","").replace(":","")
         with open("res/kellycore/kellymemory/chats.json", "w") as f:
             if str(id) not in chats:
                 chats[str(id)] = [f"User:{user_message}\nKelly:{kelly_message}"]
