@@ -58,7 +58,7 @@ class Kelly:
         messages.append(UserMessage(usermessage))
         messages2.append({"role":"user","content": usermessage})
         response = self.client1.chat.completions.create(
-                model= "deepseek/deepseek-prover-v2:free",
+                model= "deepseek/deepseek-chat-v3-0324:free",
                 messages= messages2,
                 max_tokens=200,
                 top_p=1.0
