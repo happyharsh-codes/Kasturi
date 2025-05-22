@@ -42,7 +42,7 @@ class Kelly:
 
     def getResponse(self, usermessage, prompt, assistant=""):
         messages= [SystemMessage(prompt)]
-        messages2 = [{"system": prompt}]
+        messages2 = [{"role":"system","content": prompt}]
         
         if assistant != "":
             #adding history
@@ -50,13 +50,13 @@ class Kelly:
                 user = msg.split(":")
                 if user[0] == "User":
                     messages.append(UserMessage(user[1]))
-                    messages2.append({"user":user[1]})
+                    messages2.append({"role":"user","content":user[1]})
                 else:
                     messages.append(AssistantMessage(user[1]))
-                    messages2.append({"assistant":user[1]})
+                    messages2.append({"role":"assistant","content":user[1]})
         #adding current message
         messages.append(UserMessage(usermessage))
-        messages2.append({"user": usermessage})
+        messages2.append({"role":"user","content": usermessage})
         response = self.client1.chat.completions.create(
                 model= "deepseek/deepseek-prover-v2:free",
                 messages= messages2,
