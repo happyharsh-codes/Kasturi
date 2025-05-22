@@ -61,7 +61,7 @@ class Kelly:
         messages2.append({"role":"user","content": usermessage})
 
         response = self.client3.chat.completions.create(
-            model="deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+            model="meta-llama/Llama-Vision-Free",
             messages= messages2
         )
         if response.choices is None:
