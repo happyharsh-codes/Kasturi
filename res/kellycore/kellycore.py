@@ -57,12 +57,22 @@ class Kelly:
         #adding current message
         messages.append(UserMessage(usermessage))
         messages2.append({"role":"user","content": usermessage})
-        response = self.client1.chat.completions.create(
+
+        try:
+            response = self.client1.chat.completions.create(
                 model= "deepseek/deepseek-chat-v3-0324:free",
                 messages= messages2,
                 max_tokens=200,
                 top_p=1.0
-        )
+            )
+        except:
+            self.client1.api_key = os.getenv("KEY2")
+            response = self.client1.chat.completions.create(
+                model= "deepseek/deepseek-chat-v3-0324:free",
+                messages= messages2,
+                max_tokens=200,
+                top_p=1.0
+            )
         if response.choices is None:
             print("Model Changed")
             response = self.client2.complete(
