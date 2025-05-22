@@ -12,6 +12,7 @@ from json import load, dump
 import flask
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
+import together
 
 def run_web():
     server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
