@@ -6,6 +6,7 @@ from azure.core.credentials import AzureKeyCredential
 from json import load, dump
 from random import choice, randint
 import time, datetime
+from together import Together
 
 class Kelly:
 
@@ -15,6 +16,7 @@ class Kelly:
         self.last_request = datetime.datetime.now()
         self.client1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
         self.client2 = ChatCompletionsClient(endpoint="https://models.github.ai/inference",credential=AzureKeyCredential(os.environ["GITHUB_TOKEN"]))
+        self.client3 = Together()
         self.mood = self.generateMood()
         with open("res/kellycore/kellymemory/personality.json", "r") as f:
             self.personality = load(f)
@@ -58,21 +60,10 @@ class Kelly:
         messages.append(UserMessage(usermessage))
         messages2.append({"role":"user","content": usermessage})
 
-        try:
-            response = self.client1.chat.completions.create(
-                model= "deepseek/deepseek-chat-v3-0324:free",
-                messages= messages2,
-                max_tokens=200,
-                top_p=1.0
-            )
-        except:
-            self.client1.api_key = os.getenv("KEY2")
-            response = self.client1.chat.completions.create(
-                model= "deepseek/deepseek-chat-v3-0324:free",
-                messages= messages2,
-                max_tokens=200,
-                top_p=1.0
-            )
+        response = self.client3.chat.completions.create(
+            model="deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+            messages= messages2
+        )
         if response.choices is None:
             print("Model Changed")
             response = self.client2.complete(
