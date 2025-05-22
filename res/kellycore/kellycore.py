@@ -152,7 +152,7 @@ class Kelly:
                 Kelly state: {current_state}
                 Task list: {list(tasks.keys())}
                 Task generate response based on kelly state:
-                Then return a PYTHON block with:
+                Then return a PYTHON dict with:
                 - task: (task from task list None if not any)
                 - task_performed: True/False/None(if no task)
                 - satisfaction: 1–100
