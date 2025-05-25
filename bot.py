@@ -108,9 +108,10 @@ class Bot:
         await me.send(embed=msg)
         with open("res/server/server_settings.json", "r") as f:            
             data = load(f)
-        data[str(guild.id)] = {"name": guild.name, "allowed_channels": [], "premium": False, "invite_link": str(invite.url), "rank":{}, "rank_channel": 0, "yt": {}, "join/leave_channel": 0, }
+        data[str(guild.id)] = {"name": guild.name, "allowed_channels": [], "premium": False, "invite_link": str(invite.url),"block_list":[], "rank":{}, "rank_channel": 0, "yt": {}, "join/leave_channel": 0, }
         with open("res/server/server_settings.json", "w") as f:            
             dump(data, f, indent=4)
+
     async def on_guild_remove(self, guild: discord.Guild):
         with open("res/server/server_settings.json", "r") as f:            
             data = load(f)

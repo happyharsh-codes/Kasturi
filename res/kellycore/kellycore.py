@@ -5,7 +5,7 @@ from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessa
 from azure.core.credentials import AzureKeyCredential
 from json import load, dump
 from random import choice, randint
-import time, datetime
+import time, datetime, asyncio
 from together import Together
 
 class Kelly:
@@ -14,14 +14,15 @@ class Kelly:
         self.name = name
         self.bot = bot #discord bot
         self.last_request = datetime.datetime.now()
+        print(os.getenv("KEY"))
         self.client1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
         self.client2 = ChatCompletionsClient(endpoint="https://models.github.ai/inference",credential=AzureKeyCredential(os.environ["GITHUB_TOKEN"]))
         self.client3 = Together()
         self.mood = self.generateMood()
         with open("res/kellycore/kellymemory/personality.json", "r") as f:
             self.personality = load(f)
-        with open("res/kellycore/kellymemory/relation.json", "r") as f:
-            self.relation = load(f)
+        with open("res/kellycore/kellymemory/profiles.json", "r") as f:
+            self.profiles = load(f)
     
     def generateMood(self):
         return {"happy":75, "busy": 45, "bored":50, "lazy": 20, "sleepy":5}
@@ -42,7 +43,7 @@ class Kelly:
             pass
         print(error)
 
-    def getResponse(self, usermessage, prompt, assistant=""):
+    def getResponse(self, usermessage, prompt, assistant="", client=3):
         messages= [SystemMessage(prompt)]
         messages2 = [{"role":"system","content": prompt}]
         
@@ -60,32 +61,51 @@ class Kelly:
         messages.append(UserMessage(usermessage))
         messages2.append({"role":"user","content": usermessage})
 
-        response = self.client3.chat.completions.create(
-            model="meta-llama/Llama-Vision-Free",
-            messages= messages2
-        )
-        if response.choices is None:
-            print("Model Changed")
-            response = self.client2.complete(
-            messages= messages,
-            temperature=1.0,
-            top_p=1.0,
-            max_tokens=200,
-            model= "deepseek/DeepSeek-V3-0324"
+        if client == 3:
+            try:
+                response = self.client3.chat.completions.create(
+                    model="meta-llama/Llama-Vision-Free",
+                    messages= messages2)
+            except:
+                print("Model Changed")
+                self.getResponse(usermessage, prompt, assistant, client=1)
+        elif client == 1:
+            response = self.client1.chat.completions.create(
+                messages= messages2,
+                temperature=1.0,
+                top_p=1.0,
+                max_tokens=200,
+                model= "deepseek/deepseek-prover-v2:free"
             )
+            if not response.choices:
+                response = self.client2.complete(
+                    messages= messages,
+                    temperature=1.0,
+                    top_p=1.0,
+                    max_tokens=200,
+                    model= "deepseek/DeepSeek-V3-0324"
+                )
+        elif client == 2:
+            response = self.client2.complete(
+                    messages= messages,
+                    temperature=1.0,
+                    top_p=1.0,
+                    max_tokens=200,
+                    model= "deepseek/DeepSeek-V3-0324"
+                )
         return response.choices[0].message.content
 
     def get_relation_status(self, userid):
-        status = self.relation.get(userid)
+        status = self.profiles.get(str(userid)).get("relation")
         if status is None:
-            return {"respect": 0, "friend": False, "unknown": True}
+            return {"respect": 0, "friend": False}
         return status
     
     def userRespect(self, respect, id):
-        if not str(id) in self.relation:
-            self.relation[str(id)] = {"respect": respect, "friend": False}
+        if not str(id) in self.profiles:
+            self.addUser(id, {"respect": respect, "friend": False})
         else:
-            self.relation[str(id)]["respect"] += respect
+            self.profiles[str(id)]["relation"]["respect"] += respect
 
     def userFriend(self, friend, id):
         if not str(id) in self.relation:
@@ -98,6 +118,12 @@ class Kelly:
         for type in persona_change:
             persona[type] += persona_change[type]
         self.personality = persona
+
+    def addUser(self,guildid, id, relation= {"respect":0, "friend":False}, info= []):
+        with open("res/server/server_settings.json", "r") as f:
+            data = load(f)
+        if id not in data[str(guildid)]['block_list']:
+            self.profiles[str(id)] = {"relation": relation, "info": info }
 
     def getUserChatData(self, userid):
         with open("res/kellycore/kellymemory/chats.json", "r") as f:
@@ -122,7 +148,35 @@ class Kelly:
                     chats[str(id)].pop(0)
             dump(chats, f, indent=4)
 
+    async def unknownUserQuery(self, message: discord.Message):
+        '''Provides Kelly BodyGuard instead of Kelly'''
+        response = self.shibaQuery(message)
+        await message.reply(response)
+        try:
+            result = eval((response.split("```python"))[1].replace("```",""), {"__builtins__": {}})
+        except:
+            print(response, "error")
+            return
+        if result["task"] == "allow_talk_with_kelly":
+            self.addUser(message.author.id)
+        if result["task"] == "ban":
+            self.profiles.pop(str(message.author.id))
+            with open("res/server/server_settings.json", "r") as f:
+                data = load(f)
+                data[str(message.guild.id)]["block_list"].append(message.author.id)
+            with open("res/server/server_settings.json", "w") as f:
+                dump(data, f, indent= 4)
+
+    async def shibaQuery(self, message: discord.Message):
+        tasks = ["allow_talk_with_kelly", 'ban']
+        prompt = f"You are Kelly's(Real like discord bot with moods and attitudes) Chief Guard\nGenerate: 1. Your Response in 30 words 2. Python Block containg Dict: {{'task': task from list/None, 'task_performed': True/False}}, {tasks}"
+        response = self.getResponse(message.content, prompt, client=2)
+        return response
+
     async def kellyQuery(self, message: discord.Message):
+        if str(message.author.id) not in self.profiles:
+            self.unknownUserQuery(message)
+            return
         try:
             start = time.time()
             current_state = {"mood": self.mood, "personality": self.personality, "relation": self.get_relation_status(message.author.id)}
@@ -161,8 +215,8 @@ class Kelly:
                 - personality_change: {{duty, mischevious: +/-N}}
                 - info: [optional info about user to store important only]"""
             #raw_result = self.getResponse("", prompt2, f"User: {message.content}\nKelly: {kelly_reply}")
-            raw_result = self.getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2)
-            print("1: ", raw_result)
+            raw_result = self.getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, client=1)
+            print("AI Message Result: ", raw_result)
             #print("2: ", raw_result_2)
 
             try:
@@ -191,10 +245,17 @@ class Kelly:
         print("Latency: ", time.time()-start)
         self.logTask(datetime.datetime.now(), message, kelly_reply, result)
 
+    def chatSummerize(self):
+        with open("res/kellycore/kellymemory/chats.json", "r") as f:
+            chats = load(f)
+
+        for users in chats:
+            self.getResponse()
+
     def getEmoji(self, user_message, kelly_message):
         emoji = ["tired","acting","annoyed","blush","bored","bweh","cheekspull","chips","cry","droolling","embaress","fight","gigle","handraise","heart","hiding","idontcare","interesting","juice","laugh","ok","owolove","pat","popcorn","salute","simping","sleeping","thinking","vibing","watching","yawn"]
         prompt = f"Select one emoji from the list based on user message and kelly response\n{emoji}\nResponse should be only single element from list"
-        reply_emoji = self.getResponse("kelly:" + kelly_message, prompt)
+        reply_emoji = self.getResponse("kelly:" + kelly_message, prompt, client=1)
         if reply_emoji not in emoji:
             print("selected random emoji")
             reply_emoji = choice(emoji)
@@ -203,8 +264,8 @@ class Kelly:
         return data["emoji"]["kelly" + reply_emoji]
 
     def save(self):
-        with open("res/kellycore/kellymemory/reation.json", "w") as f:
-            dump(self.relation, f, indent=4)
+        with open("res/kellycore/kellymemory/profiles.json", "w") as f:
+            dump(self.profiles, f, indent=4)
         with open("res/kellycore/kellymemory/personality.json", "w") as f:
             dump(self.personality, f, indent=4)
 
