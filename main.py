@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 from discord.ui import View, Button, Select
 from discord import ButtonStyle, Embed, Color, SelectOption
-from res.kellycore.kellycore import Kelly
+from src.kellycore import Kelly
 from bot import Bot
 from web import app
 from datetime import datetime, UTC

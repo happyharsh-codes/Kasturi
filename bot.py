@@ -4,6 +4,7 @@ from datetime import datetime , UTC, timedelta
 from json import dump, load
 from random import randint
 import time
+from __init__ import *
 
 class Bot:
 
@@ -18,36 +19,44 @@ class Bot:
         self.kelly.mood["busy"] -= 5
         self.kelly.mood["sleepy"] += randint(1,15)
 
+    @tasks.loop(minutes=10)
+    async def save_files(self):
+        with open("res/server/profiles.json", "w") as f:
+            dump(Profiles, f, indent=4)
+        with open("res/server/server_settings.json", "w") as f:
+            dump(Server_Settings, f, indent=4)
+        self.kelly.save()
+
     async def on_ready(self):
         print(f"Bot is ready. Logged in as {self.client.user}")
         print("We are ready to go!")
         self.mood_swings.start()
+        self.save_files.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
 
     async def on_message(self, message: discord.Message):
         start = time.time()
         if self.client.user == message.author or message.author.bot:
             return
-        with open("res/server/server_settings.json", "r") as f:
-            data = load(f)
-        if data[str(message.guild.id)]["allowed_channels"] != [] and message.channel.id not in data[str(message.guild.id)]["allowed_channels"]:
+        if Server_Settings[str(message.guild.id)]["allowed_channels"] != [] and message.channel.id not in Server_Settings[str(message.guild.id)]["allowed_channels"]:
             return
         if self.client.user.mention in message.content:
             if "activate" in message.content.lower():
                 if message.channel.permissions_for(message.author).manage_channels:
-                    with open("res/server/server_settings.json", "r") as f:
-                        data = load(f)
-                        if message.channel.id in data[str(message.guild.id)]["allowed_channels"]:
-                            await message.channel.send("Ayo this channel is already activated !! haha")
-                            return
-                    with open("res/server/server_settings.json", "w") as f:
-                        data[str(message.guild.id)]["allowed_channels"].append(message.channel.id)
-                        dump(data , f, indent=4)
-                    await message.channel.send(embed=discord.Embed(title="Channel Activated",description=f"<#{message.channel.id}> was succesfully activated !! Start talking with Kelly now.\n\n Use {self.client.user.mention} activate to use me in other channels too!!", color= discord.Colour.green()))
+                    if message.channel.id in Server_Settings[str(message.guild.id)]["allowed_channels"]:
+                        await message.channel.send("Ayo this channel is already activated !! haha")
+                    else:
+                        Server_Settings[str(message.guild.id)]["allowed_channels"].append(message.channel.id)
+                        await message.channel.send(embed=discord.Embed(title="Channel Activated",description=f"<#{message.channel.id}> was succesfully activated !! Start talking with Kelly now.\n\n Use {self.client.user.mention} activate to use me in other channels too!!\nNote now Kasturi will only run in activated channels!!", color= discord.Colour.green()))
                 else:
                     await message.channel.send("Ayoo user you need `manage channels` permission to user this command.")
                 return
             if "deactivate" in message.content.lower():
+                if message.channel.id not in Server_Settings[str(message.guild.id)]["allowed_channels"]:
+                    await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
+                    return
+                Server_Settings[str(message.guild.id)]["allowed_channels"].remove(message.channel.id)
+                await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{message.channel.id}> was succesfully deactivated !!", color= discord.Colour.green()))
                 return
             em = discord.Embed(title= 'Kasturi/Kelly', description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
             em.set_thumbnail(url = self.client.user.avatar)
@@ -71,10 +80,6 @@ class Bot:
         if not message.content.lower().startswith(("k ", "k", "kelly", "kelly ", "kasturi", "kasturi ")):
             return
         print("Processing command on message: "+ message.content)
-        if datetime.now() < self.last_request + timedelta(seconds=15):
-            delay = self.last_request + timedelta(seconds=15)- datetime.now()
-            time.sleep(delay.second)
-        self.last_request = datetime.now()
         await self.kelly.kellyQuery(message)
         await message.channel.send("Latency: ", time.time()-start)
         return
