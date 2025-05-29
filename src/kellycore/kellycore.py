@@ -94,7 +94,7 @@ class Kelly:
 
             #-----Updating Kelly Now-----#
             self.mood.modifyMood({list(mood.keys())[0], result['mood_change']})
-            self.personality.modifyPersonality({list(persona.keys())[1]: result['personality_change']})
+            self.personality.modifyPersonality({list(persona.keys())[0]: result['personality_change']})
             self.relations.modifyUserRespect(result["respect"], message.author.id)
 
             #------Performing Task/Command Now------#
