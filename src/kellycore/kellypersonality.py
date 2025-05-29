@@ -9,15 +9,15 @@ class KellyPersona:
     def __init__(self, filedata=Persona):
         self.persona = filedata
 
-    def getPersonality(self):
-        return self.persona
-    
     def modifyPersonality(self, persona_change): 
         for persona in persona_change:
             self.persona[persona] = persona_change[persona]
 
-    def getRequiredPersona(self, msg):
-        pass
+    def getRequiredPersona(self):
+        maxz = max(list(self.persona.values()))
+        for persona in self.persona:
+            if self.persona[persona] == maxz:
+                return {persona: maxz}
 
     def getTaskSuccessRate(self, msg):
         pass

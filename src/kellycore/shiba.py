@@ -13,12 +13,13 @@ class Shiba:
         querytype = 4 if kelly is sleeping or too lazy
         quertytype = 5 if kelly is busy'''
 
-        prompt = f"You are Kelly's(Real like discord bot with moods and attitudes) Chief Guard\nGenerate: Your Response in 30 words"
-        response = getResponse(message.content, prompt, client=2)
-        await message.reply(response)
+        async with message.channel.typing():
+            prompt = f"You are Kelly's(Real like discord bot with mood attitudes and sass) Chief Guard\nGenerate: Your Response in 30 words"
+            response = getResponse(message.content, prompt, client=3)
+            await message.reply(response)
 
         if querytype == 1:
-            descision = getResponse(message.content, "You are Kelly's(Real like discord bot with moods and attitudes) Chief Guard\nDecide wether user should be allowed to talk to kelly or not\nReturn ONLY True or False", client=1)
+            descision = getResponse(message.content, "You are Kelly's(Real like discord bot with moods attitude and sass) Chief Guard\nDecide wether user should be allowed to talk to kelly or not\nReturn ONLY True or False", client=2)
             if "true" in descision.lower():
                 print("#=====Shiba allowed user to talk to kelly=====#")
                 return True

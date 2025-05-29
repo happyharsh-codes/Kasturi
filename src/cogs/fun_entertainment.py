@@ -1,4 +1,4 @@
-from res.cogs.__init__ import*
+from __init__ import*
 
 class Fun(commands.Cog):
 

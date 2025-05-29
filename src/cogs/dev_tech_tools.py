@@ -1,4 +1,4 @@
-from res.cogs.__init__ import*
+from __init__ import*
 
 class Dev_Tech_Tools(commands.Cog):
     

@@ -15,9 +15,7 @@ class Bot:
 
     @tasks.loop(seconds=3600)
     async def mood_swings(self):
-        self.kelly.mood["happy"] -= 5
-        self.kelly.mood["busy"] -= 5
-        self.kelly.mood["sleepy"] += randint(1,15)
+        self.kelly.mood.modifyMood({"happy": -5, "busy": -5, "sleepy": randint(1,15)})
 
     @tasks.loop(minutes=10)
     async def save_files(self):
@@ -26,6 +24,7 @@ class Bot:
         with open("res/server/server_settings.json", "w") as f:
             dump(Server_Settings, f, indent=4)
         self.kelly.save()
+        print("Files saved")
 
     async def on_ready(self):
         print(f"Bot is ready. Logged in as {self.client.user}")
@@ -111,20 +110,12 @@ class Bot:
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
         me = self.client.get_user(894072003533877279)  
         await me.send(embed=msg)
-        with open("res/server/server_settings.json", "r") as f:            
-            data = load(f)
-        data[str(guild.id)] = {"name": guild.name, "allowed_channels": [], "premium": False, "invite_link": str(invite.url),"block_list":[], "rank":{}, "rank_channel": 0, "yt": {}, "join/leave_channel": 0, }
-        with open("res/server/server_settings.json", "w") as f:            
-            dump(data, f, indent=4)
+        Server_Settings[str(guild.id)] = {"name": guild.name, "allowed_channels": [], "premium": False, "invite_link": str(invite.url),"block_list":[], "rank":{}, "rank_channel": 0, "yt": {}, "join/leave_channel": 0}
 
     async def on_guild_remove(self, guild: discord.Guild):
-        with open("res/server/server_settings.json", "r") as f:            
-            data = load(f)
         me = self.client.get_user(894072003533877279)  
-        await me.send(f"Left a server: {data[str(guild.id)]["name"]}\n{data[str(guild.id)]["invite_link"]}")
-        data.pop(str(guild.id))
-        with open("res/server/server_settings.json", "w") as f:            
-            dump(data, f, indent=4)
+        await me.send(f"Left a server: {Server_Settings[str(guild.id)]["name"]}\n{Server_Settings[str(guild.id)]["invite_link"]}")
+        Server_Settings.pop(str(guild.id))
     
 
     async def on_command_completion(self, ctx):
@@ -166,5 +157,10 @@ class Bot:
 
     async def on_disconnect(self):
         print("Disconnected")
+        with open("res/server/profiles.json", "w") as f:
+            dump(Profiles, f, indent=4)
+        with open("res/server/server_settings.json", "w") as f:
+            dump(Server_Settings, f, indent=4)
         self.kelly.save()
+        print("Files saved")
 

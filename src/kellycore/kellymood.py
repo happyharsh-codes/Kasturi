@@ -25,7 +25,7 @@ class KellyMood:
     
     def modifyMood(self, mood_change):
         for mood in mood_change:
-            if mood in self.MOODS:
+            if mood in self.mood:
                 if mood_change[mood] > self.mood[mood]:
                     self.mood.pop(mood)
                     self.mood[mood] = mood_change[mood]

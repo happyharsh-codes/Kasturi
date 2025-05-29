@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 from discord.ui import View, Button, Select
 from discord import ButtonStyle, Embed, Color, SelectOption
-from src.kellycore import Kelly
+from src.kellycore.kellycore import Kelly
 from bot import Bot
 from web import app
 from datetime import datetime, UTC
@@ -23,19 +23,20 @@ client = commands.Bot(command_prefix=None,case_insensetive=True,help_command=Non
 client.remove_listener(client.on_message)
 
 async def start():
+    for file in os.listdir("src/cogs/"):
+        if file.endswith(".py") and not file.startswith("__"):
+            await client.load_extension("src.cogs."+file[:-3])
+    client.add_listener(bot.on_ready)
+    client.add_listener(bot.on_message)
+    client.add_listener(bot.on_guild_join)
+    client.add_listener(bot.on_guild_remove)
+    client.add_listener(bot.on_command_error)
+    client.add_listener(bot.on_error)
+    client.add_listener(bot.on_disconnect)
     try:
-        for file in os.listdir("res/cogs/"):
-            if file.endswith(".py") and not file.startswith("__"):
-                await client.load_extension("res.cogs."+file[:-3])
-        client.add_listener(bot.on_ready)
-        client.add_listener(bot.on_message)
-        client.add_listener(bot.on_guild_join)
-        client.add_listener(bot.on_guild_remove)
-        client.add_listener(bot.on_command_error)
-        client.add_listener(bot.on_error)
-        client.add_listener(bot.on_disconnect)
         await client.start(os.getenv("TOKEN"))
     except Exception as error:
+        print(error)
         me = client.get_user(894072003533877279)
         await me.send(f"Erron on Kelly Bot: {error}")
 
