@@ -70,8 +70,8 @@ def getResponse(usermessage, prompt, assistant="", client=3):
     if client == 3:
         model="meta-llama/Llama-Vision-Free",
         try:
-            if time.time() < client3_lastRequest + 15:
-                time.sleep(client3_lastRequest + 15 - time.time())
+            if time.time() < client3_lastRequest + 5:
+                time.sleep(client3_lastRequest + 5 - time.time())
             response = CLIENT3.chat.completions.create(
                 model="meta-llama/Llama-Vision-Free",
                 messages= messages)
@@ -80,7 +80,7 @@ def getResponse(usermessage, prompt, assistant="", client=3):
             print("Model Changed")
             return getResponse(usermessage, prompt, assistant, client=1)
     elif client == 1:
-        model= "meta-llama/llama-3.1-8b-instruct:free"
+        model= "deepseek/deepseek-prover-v2:free"
         if time.time() < client1_lastRequest + 15:
             time.sleep(client1_lastRequest + 15 - time.time())
         client1_lastRequest = time.time()
@@ -89,24 +89,27 @@ def getResponse(usermessage, prompt, assistant="", client=3):
             temperature=1.0,
             top_p=1.0,
             max_tokens=200,
-            model= "meta-llama/llama-3.1-8b-instruct:free"
+            model= "deepseek/deepseek-prover-v2:free"
         )
         if not response.choices:
             print("Model Changed")
             return getResponse(usermessage, prompt, assistant, client=2)
     elif client == 2:
-        model= "deepseek/deepseek-r1-distill-qwen-14b:free"
+        model= "deepseek/deepseek-prover-v2:free"
         if time.time() < client2_lastRequest + 15:
             time.sleep(client2_lastRequest + 15 - time.time())
+        client2_lastRequest = time.time()
         response = CLIENT2.chat.completions.create(
             messages= messages,
             temperature=1.0,
             top_p=1.0,
             max_tokens=200,
-            model= "deepseek/deepseek-r1-distill-qwen-14b:free"
+            model= "deepseek/deepseek-prover-v2:free"
         )
+        if not response.choices:
+            print("Model Changed")
+            return getResponse(usermessage, prompt, assistant, client=1)
         
-        client2_lastRequest = time.time()
         
     print(f"#==========Response==========#\nModel: {model}\nPrompt: {prompt[0:5]}...{prompt[-5:]}\nINPUT: {usermessage}\nOUTPUT: {response.choices[0].message.content}\n#============================#")
     return response.choices[0].message.content

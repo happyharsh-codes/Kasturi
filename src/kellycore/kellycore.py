@@ -45,6 +45,10 @@ class Kelly:
             if len(Chats[str(id)]) > 4:
                 Chats[str(id)].pop(0)
 
+    async def runCommand(self, message, cmd, params):
+        ctx = self.client.get_context(message)
+        await ctx.invoke(self.client.get_command(cmd), **params)
+
     async def kellyQuery(self, message: discord.Message):
         try:
             if self.relations.getUserRelation(message.author.id) == 0:
@@ -58,8 +62,15 @@ class Kelly:
             start = time.time()
             mood = self.mood.getMood()
             persona = self.personality.getRequiredPersona()
-            prompt1 = f"""You are Kelly, a Discord Mod Bot kelly discord mod bot(lively with mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {{}}\nGenerate response in 30 words"""
+            relation = self.relations.getUserRelation(message.author.id)
+            prompt1 = f"""You are Kelly, a Discord Mod Bot kelly discord mod bot(lively with mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {{}}\nGenerate response in 30 words with emojis"""
             tasks = {"none":0, "ban":50, "mute":4, "unmute":10, "unban": 60, "deafen": 4, "add yt": 4, "rank": 5, "cash": 4, "beg": 5, "github": 10, "help": 1, "kick": 4, "play": 50, "pat": 90} 
+
+            #if plain command directly running:
+            first_word = message.content.lower().replace("k","").replace("kelly","").replace("kasturi","").strip().split()[0]
+            if first_word in tasks:
+                self.runCommand(message, first_word)
+                return
 
             #------Generating message session id------#
             #self.generateSessionId(message)
@@ -69,40 +80,46 @@ class Kelly:
                 assist = self.getUserChatData(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt1, assistant= assist, client=3)
                 self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
-                msg = await message.reply(kelly_reply)  #Replying in channel
-            emoji = self.getEmoji(message.content, kelly_reply) #Updating reply with an emoji afterwarder bcoz model takes time in each request
-            if randint(1,2) == 1:
-                await message.channel.send(emoji)
-            else:
-                await msg.edit(content= kelly_reply + " " + emoji)
+                kelly_reply = self.getEmoji(kelly_reply) #updating normal emojis with discord emojis
+                await message.reply(kelly_reply)  #Replying in channel
 
             #------Getting Convo summary------#
+            cmd = None
+            for commands in tasks:
+                if commands in message.content:
+                    cmd = {commands: tasks[commands]}
+                    break
+            current_status = {"relation": relation,"mood": mood, "persona": persona}
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
+                Current status: {current_status}
+                command: {cmd}
                 Generate Json dict using kelly response and mood
-                - task: (task detected from convo/ null)
-                - task_performed: True/False/None(if no task)
+                - command_performed: true/false/null(based on mood, tone and task difficulty)
+                - command_params: (only when command is not None) (a dict with keys from list values having values from message)
                 - respect: +/- (int)
                 - mood_change: +/- (int)
                 - personality_change: +/- (int)
-                - info: [optional info about user to store important only]"""
+                - info: optional info about user to store important only: str)"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, client=2)
             try:
                 result = loads(raw_result.split("```json")[1].split('```')[0])
             except Exception as parse_error:
                 print("Could not parse AI response:", parse_error) 
-                result = {"task": None, "task_performed": False, "respect": 0, "mood_change": 0, "personality_change": 0, "info": []}
-
-            #-----Updating Kelly Now-----#
-            self.mood.modifyMood({list(mood.keys())[0], result['mood_change']})
-            self.personality.modifyPersonality({list(persona.keys())[0]: result['personality_change']})
-            self.relations.modifyUserRespect(result["respect"], message.author.id)
+                result = {"command_performed": None, "command_params": None, "respect": 0, "mood_change": 0, "personality_change": 0, "info": []}
 
             #------Performing Task/Command Now------#
-            if result["task"] in tasks:
-                if self.kellyDecide(result['task']):
-                    message.content = ""
-                else:
-                    print(f"Kelly refused to perform {result['task']} requested by {message.author.name} at {time.time()}")
+            if result["command_performed"]:
+                self.runCommand(message, cmd, params=result["command_params"])
+            else:
+                print(f"Kelly refused to perform {result['task']} requested by {message.author.name} at {time.time()}")
+
+            #-----Updating Kelly Now-----#
+            self.mood.modifyMood({list(mood.keys())[0]: result['mood_change']})
+            self.personality.modifyPersonality({list(persona.keys())[0]: result['personality_change']})
+            self.relations.modifyUserRespect(result["respect"], message.author.id)
+            if "info" in result and result['info']:
+                self.relations.addUserInfo(result["info"])
+
         except Exception as error:
             await self.reportError(error)
         print("Latency: ", time.time()-start)

@@ -32,5 +32,10 @@
         "kellywatching": "<:kellywatching:1372191195467485184>",
         "kellyyawn": "<:kellyyawn:1372191198760009809>"
     },
-    "tasks": {"ban":50, "mute":4, "unmute":10, "unban": 60, "deafen": 4, "add yt": 4, "rank": 5, "cash": 4, "beg": 5, "github": 10, "help": 1, "kick": 4, "play": 50, "pat": 90} 
+    "tasks": {"ban":50, "mute":4, "unmute":10, "unban": 60, "deafen": 4, "add yt": 4, "rank": 5, "cash": 4, "beg": 5, "github": 10, "help": 1, "kick": 4, "play": 50, "pat": 90},
+
+    "commands": {
+        "ban" : {"userid": 0, "reason": ""},
+        "kick": {"userid": 0, "reason": ""}
+    }
 }

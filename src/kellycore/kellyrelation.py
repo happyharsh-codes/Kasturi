@@ -32,7 +32,22 @@ class KellyRealtion:
             pass
         if self.relation[str(id)] < -20: # Think of ban
             pass
+    
+    def addUserInfo(self, info, userid):
+        if str(userid) in Behaviours:
+            Behaviours[str(userid)].append(info)
+            if len(Behaviours[str(userid)]) > 4:
+                self.updateUserInfo(userid)
+        else:
+            Behaviours[str(userid)] = [info]
 
+    def updateUserInfo(self, userid):
+        prompt = "summarize user behaviour in one sentence"
+        response = getResponse(Behaviours[str(userid)], prompt, client=1)
+        Behaviours[str(userid)] = response
+    
     def save(self):
         with open("res/kellymemory/relations.json", "w") as f:
             dump(self.relation, f, indent=4)
+        with open("res/kellymemory/behaviors.json", "w") as f:
+            dump(Behaviours, f, indent=4)
