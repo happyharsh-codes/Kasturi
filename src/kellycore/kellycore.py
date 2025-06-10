@@ -67,9 +67,18 @@ class Kelly:
             tasks = {"none":0, "ban":50, "mute":4, "unmute":10, "unban": 60, "deafen": 4, "add yt": 4, "rank": 5, "cash": 4, "beg": 5, "github": 10, "help": 1, "kick": 4, "play": 50, "pat": 90} 
 
             #if plain command directly running:
-            first_word = message.content.lower().replace("k","").replace("kelly","").replace("kasturi","").strip().split()[0]
+            words = message.content.lower().replace("k","").replace("kelly","").replace("kasturi","").strip().split()
+            first_word = words[0]
             if first_word in tasks:
-                self.runCommand(message, first_word)
+                params = {}
+                count = 1
+                for param in tasks[first_word]:
+                    try:
+                        params[param] = words[1]
+                    except:
+                        params[param] = None
+                    count += 1
+                self.runCommand(message, first_word, **params)
                 return
 
             #------Generating message session id------#
