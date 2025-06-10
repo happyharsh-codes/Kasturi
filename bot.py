@@ -37,8 +37,6 @@ class Bot:
         start = time.time()
         if self.client.user == message.author or message.author.bot:
             return
-        if Server_Settings[str(message.guild.id)]["allowed_channels"] != [] and message.channel.id not in Server_Settings[str(message.guild.id)]["allowed_channels"]:
-            return
         if self.client.user.mention in message.content:
             if "activate" in message.content.lower():
                 if message.channel.permissions_for(message.author).manage_channels:
@@ -63,7 +61,8 @@ class Bot:
             em.add_field(name= "Chat with me",value=f"Chat with me in activated channel use {self.client.user.mention} ``activate`` ")
             await message.channel.send(embed=em)
             return
-        
+        if Server_Settings[str(message.guild.id)]["allowed_channels"] != [] and message.channel.id not in Server_Settings[str(message.guild.id)]["allowed_channels"]:
+            return
         if message.reference and message.reference.message_id:
             try:
                 original = await message.channel.fetch_message(message.reference.message_id)
@@ -76,11 +75,15 @@ class Bot:
             return
 
         # Otherwise, only handle messages with valid prefixes
-        if not message.content.lower().startswith(("k ", "k", "kelly", "kelly ", "kasturi", "kasturi ")):
+        if not message.content.lower().startswith(("k", "kelly", "kasturi")):
             return
         print("Processing command on message: "+ message.content)
-        await self.kelly.kellyQuery(message)
-        await message.channel.send("Latency: ", time.time()-start)
+        words = message.content.lower().replace("k","").replace("kelly","").replace("kasturi","").strip().split()
+        if words[0] in commandz:
+            self.client.process_command(message)
+        else:
+            await self.kelly.kellyQuery(message)
+        print("Latency: ", (time.time() - start))
         return
 
     async def on_guild_join(self, guild: discord.Guild):

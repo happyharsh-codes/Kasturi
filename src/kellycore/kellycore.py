@@ -46,7 +46,7 @@ class Kelly:
                 Chats[str(id)].pop(0)
 
     async def runCommand(self, message, cmd, params):
-        ctx = self.client.get_context(message)
+        ctx = await self.client.get_context(message)
         await ctx.invoke(self.client.get_command(cmd), **params)
 
     async def kellyQuery(self, message: discord.Message):
@@ -59,27 +59,11 @@ class Kelly:
                 return
             
             #------Initializing------#
-            start = time.time()
             mood = self.mood.getMood()
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
-            prompt1 = f"""You are Kelly, a Discord Mod Bot kelly discord mod bot(lively with mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {{}}\nGenerate response in 30 words with emojis"""
-            tasks = {"none":0, "ban":50, "mute":4, "unmute":10, "unban": 60, "deafen": 4, "add yt": 4, "rank": 5, "cash": 4, "beg": 5, "github": 10, "help": 1, "kick": 4, "play": 50, "pat": 90} 
-
-            #if plain command directly running:
-            words = message.content.lower().replace("k","").replace("kelly","").replace("kasturi","").strip().split()
-            first_word = words[0]
-            if first_word in tasks:
-                params = {}
-                count = 1
-                for param in tasks[first_word]:
-                    try:
-                        params[param] = words[1]
-                    except:
-                        params[param] = None
-                    count += 1
-                self.runCommand(message, first_word, **params)
-                return
+            behave = self.relations.getUserInfo(message.author.id)
+            prompt1 = f"""You are Kelly, a Discord Mod (human like lively with mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {{behave}}\nGenerate response in 30 words with emojis"""
 
             #------Generating message session id------#
             #self.generateSessionId(message)
@@ -89,14 +73,13 @@ class Kelly:
                 assist = self.getUserChatData(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt1, assistant= assist, client=3)
                 self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
-                kelly_reply = self.getEmoji(kelly_reply) #updating normal emojis with discord emojis
-                await message.reply(kelly_reply)  #Replying in channel
+                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
 
             #------Getting Convo summary------#
             cmd = None
-            for commands in tasks:
+            for commands in commandz:
                 if commands in message.content:
-                    cmd = {commands: tasks[commands]}
+                    cmd = {commands: commandz[commands]}
                     break
             current_status = {"relation": relation,"mood": mood, "persona": persona}
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
@@ -117,22 +100,21 @@ class Kelly:
                 result = {"command_performed": None, "command_params": None, "respect": 0, "mood_change": 0, "personality_change": 0, "info": []}
 
             #------Performing Task/Command Now------#
-            if result["command_performed"]:
-                self.runCommand(message, cmd, params=result["command_params"])
-            else:
-                print(f"Kelly refused to perform {result['task']} requested by {message.author.name} at {time.time()}")
+            if cmd and result["command_performed"]:
+                await self.runCommand(message, cmd, params=result["command_params"])
 
             #-----Updating Kelly Now-----#
-            self.mood.modifyMood({list(mood.keys())[0]: result['mood_change']})
-            self.personality.modifyPersonality({list(persona.keys())[0]: result['personality_change']})
+            if isinstance(result["mood_change"], int):
+                self.mood.modifyMood({list(mood.keys())[0]: result['mood_change']})
+            if isinstance(result["personality_change"], int):
+                self.personality.modifyPersonality({list(persona.keys())[0]: result['personality_change']})
             self.relations.modifyUserRespect(result["respect"], message.author.id)
             if "info" in result and result['info']:
-                self.relations.addUserInfo(result["info"])
+                self.relations.addUserInfo(result["info"], message.author.id)
 
         except Exception as error:
             await self.reportError(error)
-        print("Latency: ", time.time()-start)
-        self.logTask(datetime.now(), message, kelly_reply, result)
+        print(f">==<\n{self.mood.mood}\n>==<")
 
     def chatSummerize(self):
         ChatsCopy = Chats
@@ -142,27 +124,85 @@ class Kelly:
                 Chats.pop(user)
                 Behaviours[user] = getResponse(chats, prompt, client=3)
 
-    def getEmoji(self, user_message, kelly_message):
-        emoji = ["tired","acting","annoyed","blush","bored","bweh","cheekspull","chips","cry","droolling","embaress","fight","gigle","handraise","heart","hiding","idontcare","interesting","juice","laugh","ok","owolove","pat","popcorn","salute","simping","sleeping","thinking","vibing","watching","yawn"]
-        prompt = f"Select one emoji from the list based on user message and kelly response and RETUTN SINGLE ELEMENT (NO BLOCK)\nList: {emoji}"
-        reply_emoji = getResponse("kelly:" + kelly_message, prompt, client=2)
-        for emj in emoji:
-            if emj in reply_emoji:
-                return EMOJI["kelly" + emj]
-        else:
-            print("selected random emoji")
-            emj = choice(emoji)
-            return EMOJI["kelly" + emj]
+    def getEmoji(self, message):
+        emoji_exchanger = {
+            "😫": "kellytired",
+            "💤": "kellytired",
+            "😪": "kellytired",
+            "😩": "kellytired",
+            "😴": "kellytired",
+            "🎭": "kellyacting",
+            "🎬": "kellyacting",
+            "🎥": "kellyacting",
+            "📽": "kellyacting",
+            "🎦": "kellyacting",
+            "📼": "kellyacting",
+            "🎞": "kellyacting",
+            "📹": "kellyacting",
+            "📷": "kellyacting",
+            "📸": "kellyacting",
+            "😣": "kellyannoyed",
+            "😳": "kellyblush",
+            "😚": "kellyblush",
+            "😛": "kellybweh",
+            "😜": "kellybweh",
+            "😝": "kellybweh",
+            "🤪": "kellybweh",
+            "😵": "kellycheekspull",
+            "🍟": "kellychips",
+            "😭": "kellycry",
+            "🤤": "kellydrooling",
+            "👅": "kellydrooling",
+            "🤭": "kellyembaress",
+            "💪": "kellyfight",
+            "🦾": "kellyfight",
+            "😁": "kellygigle",
+            "🙌": "kellyhandraise",
+            "♥": "kellyheart",
+            "😬": "kellyhiding",
+            "🙄": "kellyidontcare",
+            "🧩": "kellyinteresting",
+            "🧐": "kellyinteresting",
+            "🥤": "kellyjuice",
+            "🧃": "kellyjuice",
+            "😂": "kellylaugh",
+            "🤣": "kellylaugh",
+            "😄": "kellylaugh",
+            "😆": "kellylaugh",
+            "😃": "kellylaugh",
+            "👌": "kellyok",
+            "🆗": "kellyok",
+            "🙆‍♀️": "kellyok",
+            "🙆‍♂️": "kellyok",
+            "😍": "kellyowolove",
+            "😘": "kellyowolove",
+            "🥰": "kellyowolove",
+            "😻": "kellyowolove",
+            "🤗": "kellypat",
+            "🍿": "kellypopcorn",
+            "🎉": "kellypopcorn",
+            "🍾": "kellypopcorn",
+            "🛐": "kellysalute",
+            "🙇": "kellysalute",
+            "🙇‍♀️": "kellysalute",
+            "😙": "kellysimping",
+            "💤": "kellysleeping",
+            "😴": "kellysleeping",
+            "🛌": "kellysleeping",
+            "🤔": "kellythinking",
+            "😁": "kellyvibing",
+            "🤨": "kellywatching",
+            "😗": "kellywatching",
+            "🥱": "kellyyawn"
+        }
+        for emoji, kellyemoji in emoji_exchanger.items():
+            if emoji in message:
+                message = message.replace(emoji, EMOJI[kellyemoji])
+        return message
 
     def save(self):
         self.relations.save()
         self.personality.save()
         with open("res/kellymemory/chats.json", "w") as f:
             dump(Chats, f, indent=4)
-        with open("res/kellymemory/logs.json", "w") as f:
-            dump(Logs, f, indent=4)
-        with open("res/kellymemory/behaviors.json", "w") as f:
-            dump(Behaviours, f, indent=4)
 
-    def logTask(self,time, message, reply, result):
-        Logs[time.strftime('%Y-%m-%d %H:%M:%S')] = f"{time.strftime('%Y-%m-%d %H:%M:%S')}\n{message.author.name}({message.author.id}): {message.content}\n{self.name}: {reply}\nResult: {result}"

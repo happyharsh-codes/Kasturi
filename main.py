@@ -4,7 +4,6 @@ from discord.ui import View, Button, Select
 from discord import ButtonStyle, Embed, Color, SelectOption
 from src.kellycore.kellycore import Kelly
 from bot import Bot
-from web import app
 from datetime import datetime, UTC
 import os
 import asyncio
@@ -12,6 +11,7 @@ from json import load, dump
 import flask
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import threading
+import openai
 import together
 
 def run_web():

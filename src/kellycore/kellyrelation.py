@@ -46,6 +46,11 @@ class KellyRealtion:
         response = getResponse(Behaviours[str(userid)], prompt, client=1)
         Behaviours[str(userid)] = response
     
+    def getUserInfo(self, userid):
+        if not str(userid) in Behaviours:
+            return ""
+        return Behaviours[str(userid)]
+
     def save(self):
         with open("res/kellymemory/relations.json", "w") as f:
             dump(self.relation, f, indent=4)

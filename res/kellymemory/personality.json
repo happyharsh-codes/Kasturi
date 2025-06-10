@@ -1,7 +1,7 @@
 {
     "duty": 50,
-    "mischievous": 60,
-    "cheerful": 83,
-    "caring": 67,
+    "mischievous": -50,
+    "cheerful": 0,
+    "caring": 0,
     "intelligent": 40
 }

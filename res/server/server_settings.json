@@ -1,9 +1,11 @@
 {
     "1372190239057117194": {
         "name": "Kelly's Homeland",
-        "allowed_channels": [],
+        "allowed_channels": [
+            1379757386738302988
+        ],
         "premium": false,
-        "invite_link": "https://discord.gg/We7sJeWrkA",
+        "invite_link": "https://discord.gg/hqE4vazJj4",
         "block_list": [],
         "rank": {},
         "rank_channel": 0,

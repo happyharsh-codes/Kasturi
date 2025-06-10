@@ -36,12 +36,11 @@ with open("res/kellymemory/chats.json", "r") as f:
 with open("res/kellymemory/personality.json", "r") as f:
     Persona = load(f)
     print("Loaded: personality.json")
-with open("res/kellymemory/logs.json", "r") as f:
-    Logs = load(f)
-    print("Loaded: logs.json")
 with open("res/kellymemory/behaviors.json", "r") as f:
     Behaviours = load(f)
     print("Loaded: behaviors.json")
+
+commandz = {"ban":[], "kick":[], "mute":[]}
 
 CLIENT1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
 CLIENT2 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
