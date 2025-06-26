@@ -30,6 +30,10 @@ class KellyMood:
     def modifyMood(self, mood_change):
         for mood in mood_change:
             self.mood[mood] += mood_change[mood]
+            if self.mood[mood] > 100:
+                self.mood[mood] = 100
+            elif self.mood[mood] < 0:
+                self.mood[mood] = 0
             if mood == "happy":
                 opposite_traits = ["sad", "depressed", "angry", "annoyed"]
                 for trait in opposite_traits:
@@ -38,6 +42,8 @@ class KellyMood:
                         self.mood[trait] = 0
             elif mood in ["sad", "depressed", "angry", "annoyed"]:
                 self.mood["happy"] -= mood_change[mood]
+                if self.mood["happy"] < 0:
+                    self.mood["happy"] = 0
             
 
     def moodSwing(self):

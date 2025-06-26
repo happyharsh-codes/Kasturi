@@ -61,6 +61,16 @@ class Bot:
             em.add_field(name= "Chat with me",value=f"Chat with me in activated channel use {self.client.user.mention} ``activate`` ")
             await message.channel.send(embed=em)
             return
+        
+        #checking for afk user
+        for afk in Server_Settings[str(message.guild.id)]['afk']:
+            if afk in message.content:
+                if message.author.id == afk:
+                    Server_Settings[str(message.guild.id)]['afk'].remove(afk)
+                else:
+                    await message.channel.send(f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!")
+                break
+
         if Server_Settings[str(message.guild.id)]["allowed_channels"] != [] and message.channel.id not in Server_Settings[str(message.guild.id)]["allowed_channels"]:
             return
         if message.reference and message.reference.message_id:
@@ -78,11 +88,6 @@ class Bot:
         if not message.content.lower().startswith(("k", "kelly", "kasturi")):
             return
         print("Processing command on message: "+ message.content)
-        words = message.content.lower().replace("k","").replace("kelly","").replace("kasturi","").strip().split()
-        if words[0] in commandz:
-            self.client.process_command(message)
-        else:
-            await self.kelly.kellyQuery(message)
         print("Latency: ", (time.time() - start))
         return
 
@@ -113,7 +118,7 @@ class Bot:
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
         me = self.client.get_user(894072003533877279)  
         await me.send(embed=msg)
-        Server_Settings[str(guild.id)] = {"name": guild.name, "allowed_channels": [], "premium": False, "invite_link": str(invite.url),"block_list":[], "rank":{}, "rank_channel": 0, "yt": {}, "join/leave_channel": 0}
+        Server_Settings[str(guild.id)] = {"name": guild.name, "allowed_channels": [], "premium": False, "invite_link": str(invite.url),"block_list":[], "rank":{}, "rank_channel": 0, "yt": {}, "join/leave_channel": 0, "afk": []}
 
     async def on_guild_remove(self, guild: discord.Guild):
         me = self.client.get_user(894072003533877279)  
@@ -128,14 +133,8 @@ class Bot:
     async def on_command_error(self, ctx, error):
         '''Handelling errors'''
         if isinstance(error, commands.CommandNotFound):
-            print("Ignoring command not found error")
-            if ctx.message.content.lower().startswith("kelly "):
-                with open("res/server/server_settings.json", "r") as f:
-                    data = load(f)
-                if data[str(ctx.guild.id)]["allowed_channels"] != []:
-                    print("Trying to talk")
-                    await ctx.send(self.kelly.kellyTalk(ctx.message, ctx.author.id))
-
+            if ctx.message.content.lower().startswith(("kelly","kasturi")):
+                await self.kelly.kellyQuery(ctx.message)
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.reply("sorry I dont have perms to do that")
         elif isinstance(error, discord.Forbidden):
@@ -145,9 +144,23 @@ class Bot:
         )
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("***Oho*** you are missing an argumemt.\nUse `m help <command>` to get help")
-        
+    
         elif isinstance(error, commands.CheckFailure):
-            print("ignoring wrong channel")
+            code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
+            emoji = EMOJI[f"kelly{choice(["blush", "thinking", "laugh", "gigle", "waiting", "idontcare"])}"]
+            await ctx.reply(f"**{emoji} | ** you dont even have a profile\n**{choice(["📃","📜","📄","📑","📰","🗞","📚","📙","📕","📖","📗","📘","✒","✏","🖋","📝","📋"])} | **Type this to create new profile `{code}`")
+            try:
+                msg = await ctx.bot.wait_for("message", check= lambda x: x.author.id == ctx.author.id, timeout= 120)
+            except asyncio.TimeoutError:
+                pass
+            if msg.content.lower() == code:
+                Profiles[str(ctx.author.id)] = {"name": ctx.author.name, "cash": 100, "gem": 1, "kelly_repect": 0, "inv": {}, "aura":0, "skills": []}
+                em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile is created successfully you can now start playing will all commands.\n\n:white_check_mark: You obatained bonous ₹100 cash 💵\n:white_check_mark: You obtained 1 gem 💎\n\nUse `k help games` to get more help and info.",color=Color.green())
+                em.set_footer(text=f"{ctx.author.name} created acc at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
+                await ctx.send(embed = em)
+            else:
+                emoji = EMOJI[f"kelly{choice(["annoyed", "laugh", "gigle", "waiting", "idontcare", "chips", "bweh", "bweh"])}"]
+                await msg.reply(f"**{emoji} | ** you dont even do a single thing properly disgusting!! Dont ever come to me again")
         else:
             print("Unknown error happened")
             user = self.client.get_user(894072003533877279)

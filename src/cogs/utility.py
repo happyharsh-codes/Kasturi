@@ -9,7 +9,7 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def invite(self, ctx):
-        await ctx.send("This command is yet to be made :/")
+        await ctx.send("[Meet Kelly here](https://discord.com/oauth2/authorize?client_id=1368884334076891136)")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -22,21 +22,26 @@ class Utility(commands.Cog):
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def afk(self, ctx):
-        await ctx.send("This command is yet to be made :/")
+    async def afk(self, ctx, time, reason):
+        Server_Settings[str(ctx.guild.id)]["afk"].append(ctx.author.id)
+        await ctx.send(f"{ctx.author.mention} has gone afk for **{time}** : {reason}. Dont ping him unnecessarily, dont worry I'll notify everone...")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def avatar(self, ctx):
-        await ctx.send("This command is yet to be made :/")
+    async def avatar(self, ctx, user: discord.Member):
+        if user is None:
+            user = ctx.author
+        em = Embed(title=f"{user.display_name}'s Avatar", timestamp=UTC.now())
+        em.set_image(url=user.display_avatar)
+        await ctx.send(embed=em)
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def info(self, ctx):
+    async def info(self, ctx, item):
         await ctx.send("This command is yet to be made :/")
 
 

@@ -19,7 +19,7 @@ def run_web():
     server.serve_forever()
 
 intents = discord.Intents(messages = True, moderation = True, guilds = True, dm_messages = True, members = True, presences = True, dm_reactions = True, reactions = True, emojis = True, emojis_and_stickers = True, message_content = True)
-client = commands.Bot(command_prefix=None,case_insensetive=True,help_command=None,intents=intents)
+client = commands.Bot(command_prefix=["kelly ", "kasturi ", "k ","kelly", "kasturi", "k"],case_insensetive=True,help_command=None,intents=intents)
 client.remove_listener(client.on_message)
 
 async def start():

@@ -45,13 +45,31 @@ class Kelly:
             if len(Chats[str(id)]) > 4:
                 Chats[str(id)].pop(0)
 
-    async def runCommand(self, message, cmd, params):
+    async def runCommand(self, message):
+        for commands in commandz:
+            if commands in message.content:
+                cmd = {commands: commandz[commands]}
+                break
+        else: return
+        prompt = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
+                command: {cmd}
+                Generate Json dict using kelly response and mood
+                - command_performed: true/false/null(based on mood, tone and task difficulty)
+                - command_params: (only when command is not None) (a dict with keys from list values having values from message)"""
+        result = getResponse(message, prompt, client=2)
+        try:
+            result = loads(result.split("```json")[1].split('```')[0])
+            params = result["command_params"]
+        except:
+            print("Error while fetching commadns")
+            return
+        print("###Running command by search: ", cmd, params)
         ctx = await self.client.get_context(message)
-        await ctx.invoke(self.client.get_command(cmd), **params)
+        await ctx.invoke(self.client.get_command(list(cmd.keys())[0]), **params)
 
     async def kellyQuery(self, message: discord.Message):
         try:
-            if self.relations.getUserRelation(message.author.id) == 0:
+            if not self.relations.getUserRelation(message.author.id):
                 #that is user in unknown so Shiba will process the message instead
                 addOrNot = await self.shiba.shibaQuery(message, querytype = 1)
                 if addOrNot:
@@ -63,45 +81,35 @@ class Kelly:
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.relations.getUserInfo(message.author.id)
-            prompt1 = f"""You are Kelly, a Discord Mod (human like lively with mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {{behave}}\nGenerate response in 30 words with emojis"""
+            prompt1 = f"""You are Kelly, a Discord Mod (human like lively with mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {behave}\nGenerate response in 30 words with emojis"""
 
             #------Generating message session id------#
             #self.generateSessionId(message)
 
             #------Sending message------#
             async with message.channel.typing():
+                msg = await message.channel.send("-# thinking...")
                 assist = self.getUserChatData(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt1, assistant= assist, client=3)
                 self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
+                await msg.delete()
                 await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
 
             #------Getting Convo summary------#
-            cmd = None
-            for commands in commandz:
-                if commands in message.content:
-                    cmd = {commands: commandz[commands]}
-                    break
-            current_status = {"relation": relation,"mood": mood, "persona": persona}
+            current_status = {"respect": relation,"mood": mood, "persona": persona}
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
                 Current status: {current_status}
-                command: {cmd}
                 Generate Json dict using kelly response and mood
-                - command_performed: true/false/null(based on mood, tone and task difficulty)
-                - command_params: (only when command is not None) (a dict with keys from list values having values from message)
                 - respect: +/- (int)
                 - mood_change: +/- (int)
                 - personality_change: +/- (int)
-                - info: optional info about user to store important only: str)"""
+                - info: (optional info about user to store important only: str)"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, client=2)
             try:
                 result = loads(raw_result.split("```json")[1].split('```')[0])
             except Exception as parse_error:
                 print("Could not parse AI response:", parse_error) 
-                result = {"command_performed": None, "command_params": None, "respect": 0, "mood_change": 0, "personality_change": 0, "info": []}
-
-            #------Performing Task/Command Now------#
-            if cmd and result["command_performed"]:
-                await self.runCommand(message, cmd, params=result["command_params"])
+                result = {"respect": 0, "mood_change": 0, "personality_change": 0, "info": []}
 
             #-----Updating Kelly Now-----#
             if isinstance(result["mood_change"], int):
@@ -111,6 +119,9 @@ class Kelly:
             self.relations.modifyUserRespect(result["respect"], message.author.id)
             if "info" in result and result['info']:
                 self.relations.addUserInfo(result["info"], message.author.id)
+
+            #------Performing Task/Command Now------#
+            await self.runCommand(message)
 
         except Exception as error:
             await self.reportError(error)
@@ -144,6 +155,8 @@ class Kelly:
             "😣": "kellyannoyed",
             "😳": "kellyblush",
             "😚": "kellyblush",
+            "😏": "kellybored",
+            "😒": "kellybored",
             "😛": "kellybweh",
             "😜": "kellybweh",
             "😝": "kellybweh",
@@ -154,13 +167,16 @@ class Kelly:
             "🤤": "kellydrooling",
             "👅": "kellydrooling",
             "🤭": "kellyembaress",
+            "👊": "kellyfight",
             "💪": "kellyfight",
             "🦾": "kellyfight",
             "😁": "kellygigle",
+            "👋": "kellygigle",
             "🙌": "kellyhandraise",
             "♥": "kellyheart",
             "😬": "kellyhiding",
             "🙄": "kellyidontcare",
+            "😒 ": "kellyidontcare",
             "🧩": "kellyinteresting",
             "🧐": "kellyinteresting",
             "🥤": "kellyjuice",
@@ -192,6 +208,9 @@ class Kelly:
             "🤔": "kellythinking",
             "😁": "kellyvibing",
             "🤨": "kellywatching",
+            "😠": "kellywatching",
+            "😡": "kellywatching",
+            "😤": "kellywatching",
             "😗": "kellywatching",
             "🥱": "kellyyawn"
         }

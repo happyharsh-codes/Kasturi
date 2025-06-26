@@ -10,7 +10,7 @@ class Fun(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def joke(self, ctx):
-        joke = choice(DATA["jokes"])
+        joke = getResponse("get me a quick joke", "you are a joke master", client=3)
         emoji = choice(["laugh", "gigle", "blush", "bweh", "chips", "juice"])
         emoji = EMOJI[f"kelly{emoji}"]
         await ctx.send(f"{emoji} **|** {joke}")
@@ -27,14 +27,16 @@ class Fun(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def mock(self, ctx, user:discord.Member):
-        await ctx.send("This command is yet to be made :/")
+        mock_response = getResponse(f"Mock {ctx.author.name} for me", "you are mocker expert (in 20 words)", client=3)
+        await ctx.send(f"{user.mention} {mock_response}")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def ask(self, ctx, question):
-        pass
+        answer = getResponse(question, "You are intelligent guy answer ther user question with sarcasm (in 20 words)", client=3)
+        await ctx.reply(answer)
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )

@@ -1,71 +1,46 @@
 from __init__ import* 
 
-async def has_not_profile(client, ctx):
-    code = 'i will work under kelly'
-    emoji = EMOJI[f"kelly{choice(["blush", "thinking", "laugh", "gigle", "waiting", "idontcare"])}"]
-    await ctx.reply(f"**{emoji} | Kelly:** you dont even have a profile\n |         Type this to create new profile `{code}`")
-    try:
-        msg = await client.wait_for("message", check= lambda x: x.author.id == ctx.author.id, timeout= 120)
-    except asyncio.TimeoutError:
-        pass
-    if msg.content.lower() == code:
-        with open("res/server/profiles.json", "r") as f:
-            profiles = load(f)
-        with open("res/server/profiles.json", "w") as f:
-            profiles[str(ctx.author.id)] = {"name": ctx.author.name, "cash": 100, "gem": 1, "kelly_repect": 0, "inv": {}, "aura":0, "skills": []}
-            dump(profiles, f, indent=4)
-        await ctx.send(f"{ctx.author.mention} your profile is successfully created. You can start playing now\nUse `k help` to get help on more `game` commands")
-    else:
-        emoji = EMOJI[f"kelly{choice(["annoyed", "laugh", "gigle", "waiting", "idontcare", "chips", "bweh", "bweh"])}"]
-        await msg.reply(f"**{emoji} | Kelly:** you dont even do a single thing properly disgusting!! Dont ever come to me again")
-
-
-
+def has_profile():
+    async def predicate(ctx):
+        if str(ctx.author.id) in Profiles:
+            Profiles[str(ctx.author.id)]["aura"] += 2
+            return True
+        return False
+    return commands.check(predicate)
 
 class Games(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(aliases=[])
+    @commands.command(aliases=['c'])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def cash(self, ctx):
-        with open("res/server/profiles.json", "r") as f:
-            data = load(f).get(str(ctx.author.id))
-        if data is None:
-            await has_not_profile(self.client, ctx)
-            return
-        amt = data.get("cash")
+        amt = Profiles.get(str(ctx.author.id)).get("cash")
         emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
-        await ctx.reply(f"**{emoji} | Kelly:** {ctx.author.name} you have ₹{amt} cash {EMOJI.get("cash")}")
+        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have ₹{amt} cash {EMOJI.get("cash")}")
 
-    @commands.command(aliases=[])
+    @commands.command(aliases=['g', 'gem'])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def gems(self, ctx):
-        with open("res/server/profiles.json", "r") as f:
-            data = load(f).get(str(ctx.author.id))
-        if data is None:
-            await ctx.send("Your profile not found")
-        amt = data.get("gems")
+        amt = Profiles.get(str(ctx.author.id)).get("gem")
         emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
-        await ctx.reply(f"**{emoji} | Kelly:** {ctx.author.name} you have {EMOJI.get("gem")} {amt} gems")
+        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have {EMOJI.get("gem")} {amt} gems")
 
-    @commands.command(aliases=[])
+    @commands.command(aliases=["inventory"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def inv(self, ctx):
         '''Views users inventory'''
-        with open("res/server/profiles.json", "r") as f:
-            data = load(f).get(str(ctx.author.id))
-        if data is None:
-            await has_not_profile(self.client, ctx)
-            return
-        inv = data.get("inv")
-        tools = data.get("tools")
+        inv = Profiles.get(str(ctx.author.id)).get("inv")
+        tools = Profiles.get(str(ctx.author.id)).get("tools")
         if inv == []:
             await ctx.reply("You don't have anything in your inventory haha 😆")
             return
@@ -84,55 +59,50 @@ class Games(commands.Cog):
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def give(self, ctx, user, item, amount=0):
-        with open("res/server/profiles.json", "r") as f:
-            profiles = load(f)
-        user_profile = profiles.get(str(ctx.author.id))
-        if user_profile is None:
-            await has_not_profile(self.client, ctx)
-            return
-        if profiles.get(str(user)) is None:
+        user_profile = Profiles.get(str(ctx.author.id))
+        if Profiles.get(str(user)) is None:
             await ctx.send("Given User profile not found")
         if  isinstance(item, int):
             if item <= 0:
                 emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
-                await ctx.send(f"**{emoji} | Kelly: **Invalid Cash amount")
+                await ctx.send(f"**{emoji} | **Invalid Cash amount")
                 return
             user_cash = user_profile.get("cash")
             if user_cash >= item:
-                profiles[str(user)]["cash"] += item
-                profiles[str(ctx.author.id)]["cash"] -= item
-                with open("res/server/profiles.json", "w") as f:
-                    dump(profiles, f, indent=4)
+                Profiles[str(user)]["cash"] += item
+                Profiles[str(ctx.author.id)]["cash"] -= item
                 emoji = EMOJI[f"kelly{choice(["heart", "owolove", "salute"])}"]
-                await ctx.send(f"**{emoji} | Kelly: **{ctx.author.mention} gave ₹{item} to {self.client.get_user(user).mention}")
+                await ctx.send(f"**{emoji} | **{ctx.author.mention} gave ₹{item} to {self.client.get_user(user).mention}")
             else:
                 emoji = EMOJI[f"kelly{choice(["thinking", "bweh", "watching"])}"]
-                await ctx.send(f"**{emoji} | Kelly: **You dont own that much money what are you doing")
+                await ctx.send(f"**{emoji} | **You dont own that much money what are you doing")
         if item in DATA["inv_items"]:
             if amount <= 0:
                 emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
-                await ctx.send(f"**{emoji} | Kelly: **Invalid amount given")
+                await ctx.send(f"**{emoji} | **Invalid amount given")
                 return
             if user_profile["inv"][item] >= amount:
-                profiles[str(ctx.author.id)]["inv"][item] -= amount
-                if item in profiles[str(user)]["inv"]:
-                    profiles[str(user)]["inv"][item] += amount
+                Profiles[str(ctx.author.id)]["inv"][item] -= amount
+                if item in Profiles[str(user)]["inv"]:
+                    Profiles[str(user)]["inv"][item] += amount
                 else:
-                    profiles[str(user)]["inv"][item] = amount
+                    Profiles[str(user)]["inv"][item] = amount
                 emoji = EMOJI[f"kelly{choice(["heart", "owolove"])}"]
-                await ctx.send(f"**.. | Kelly: **{ctx.author.mention} gave {amount} {item.capitalize()} {EMOJI.get(item)} to {self.client.get_user(user).mention}")
+                await ctx.send(f"**{emoji}| **{ctx.author.mention} gave {amount} {item.capitalize()} {EMOJI.get(item)} to {self.client.get_user(user).mention}")
             else:
                 emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
-                await ctx.send(f"**{emoji} | Kelly: **You dont even own that much item what are you doing")
+                await ctx.send(f"**{emoji} | **You dont even own that much item what are you doing")
         else:
             emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
-            await ctx.reply(f"**{emoji} | Kelly: **Invalid item given")
+            await ctx.reply(f"**{emoji} | **Invalid item given")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def use(self, ctx):
         await ctx.send("This command is yet to be made :/")
 
@@ -140,6 +110,7 @@ class Games(commands.Cog):
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def kill(self, ctx):
         await ctx.send("This command is yet to be made :/")
 
@@ -147,31 +118,28 @@ class Games(commands.Cog):
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def adventure(self, ctx):
         await ctx.send("This command is yet to be made :/")
 
-    @commands.command(aliases=[])
+    @commands.command(aliases=['c'])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def craft(self, ctx, item, amt=1):
         emoji = EMOJI[f"kelly{choice(["hiding", "ok", "fight", "interesting", "owolove", "interesting", "thinking", "bored", "interesting"])}"]
         if item not in DATA["craft"]:
-            await ctx.send(f"**{emoji} | Kelly:** that isnt a craftable item")
+            await ctx.send(f"**{emoji} | ** that isnt a craftable item")
             return
         if amt <= 0:
-            await ctx.send(f"**{emoji} | Kelly:** that isnt a valid amount")
-            return
-        with open("res/server/profiles.json", "r") as f:
-            profiles = load(f)
-        if str(ctx.author.id) not in profiles:
-            await has_not_profile(self.client, ctx)
+            await ctx.send(f"**{emoji} | ** that isnt a valid amount")
             return
         descrip = ""
         color = Color.green()
         craft = Button(style=ButtonStyle.green, label="Craft")
         for items, value in DATA["craft"][item]:
-            if profiles[str(ctx.author.id)]['inv'][items] >= value*amt:
+            if Profiles[str(ctx.author.id)]['inv'][items] >= value*amt:
                 descrip += f"`{EMOJI.get(items)} X {value*amt}` :white_check_mark:"
             else:
                 descrip += f"`{EMOJI.get(items)} X {value*amt}` :x:"
@@ -180,7 +148,7 @@ class Games(commands.Cog):
 
         async def on_callback(interaction):
             for items, value in DATA["craft"][item]:
-                profiles[str(ctx.author.id)]['inv'][items] -= (value*amt)
+                Profiles[str(ctx.author.id)]['inv'][items] -= (value*amt)
 
         em = Embed(title=f"Crafting {item.capitalize()}", description=descrip, color=color)
         em.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
@@ -194,10 +162,11 @@ class Games(commands.Cog):
         craft.callback = on_callback
         view.on_timeout = on_timeout
             
-    @commands.command(aliases=[])
+    @commands.command(aliases=["brob"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def bankrob(self, ctx):
         await ctx.send("This command is yet to be made :/")
 
@@ -205,24 +174,16 @@ class Games(commands.Cog):
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
+    @has_profile()
     async def beg(self, ctx):
         cash = randint(0, 1000)
         sign = choice(["$", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹"])
         value = 1
-        with open("res/server/profiles.json", "r") as f:
-            profiles = load(f)
-        if str(ctx.author.id) not in profiles:
-            await has_not_profile(self.client, ctx)
-            return
-        with open("res/server/profiles.json", "w") as f:
-            if sign == "$":
-                value = 86
-            profiles[str(ctx.author.id)]["cash"] += cash * value
+        if sign == "$":
+            value = 86
+        Profiles[str(ctx.author.id)]["cash"] += cash * value
 
-        await ctx.send(f"You got {sign}{cash}")
-        
-
-
+        await ctx.send(f"**{EMOJI["kelly"+choice(["embaress","laugh","owolove","hiding"])]} | **You got {sign}{cash}")
 
 async def setup(bot):
     await bot.add_cog(Games(bot))

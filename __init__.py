@@ -1,6 +1,7 @@
 import os
 import time
 import asyncio
+import requests
 from datetime import datetime, UTC
 import discord
 from discord.ext import commands, tasks
@@ -40,7 +41,7 @@ with open("res/kellymemory/behaviors.json", "r") as f:
     Behaviours = load(f)
     print("Loaded: behaviors.json")
 
-commandz = {"ban":[], "kick":[], "mute":[]}
+commandz = {"ban":[], "kick":[], "mute":[], "cash":[]}
 
 CLIENT1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
 CLIENT2 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
@@ -79,31 +80,31 @@ def getResponse(usermessage, prompt, assistant="", client=3):
             print("Model Changed")
             return getResponse(usermessage, prompt, assistant, client=1)
     elif client == 1:
-        model= "deepseek/deepseek-prover-v2:free"
-        if time.time() < client1_lastRequest + 15:
-            time.sleep(client1_lastRequest + 15 - time.time())
+        model= "deepseek/deepseek-chat-v3-0324:free"
+        if time.time() < client1_lastRequest + 5:
+            time.sleep(client1_lastRequest + 5 - time.time())
         client1_lastRequest = time.time()
         response = CLIENT1.chat.completions.create(
             messages= messages,
             temperature=1.0,
             top_p=1.0,
             max_tokens=200,
-            model= "deepseek/deepseek-prover-v2:free"
+            model= "deepseek/deepseek-chat-v3-0324:free"
         )
         if not response.choices:
             print("Model Changed")
             return getResponse(usermessage, prompt, assistant, client=2)
     elif client == 2:
-        model= "deepseek/deepseek-prover-v2:free"
-        if time.time() < client2_lastRequest + 15:
-            time.sleep(client2_lastRequest + 15 - time.time())
+        model= "deepseek/deepseek-chat-v3-0324:free"
+        if time.time() < client2_lastRequest + 5:
+            time.sleep(client2_lastRequest + 5 - time.time())
         client2_lastRequest = time.time()
         response = CLIENT2.chat.completions.create(
             messages= messages,
             temperature=1.0,
             top_p=1.0,
             max_tokens=200,
-            model= "deepseek/deepseek-prover-v2:free"
+            model= "deepseek/deepseek-chat-v3-0324:free"
         )
         if not response.choices:
             print("Model Changed")

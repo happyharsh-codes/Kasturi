@@ -20,7 +20,7 @@ class KellyRealtion:
     def getUserRelation(self, id):
         '''Returs user realtion with Kasturi- an integer: good relation= +ve, bad = -ve, unknown = zero. more respect more relation no bad respect negative relation on.'''
         if not str(id) in self.relation:
-            return 0
+            return None
         return self.relation[str(id)]
     
     def modifyUserRespect(self, val, id):

@@ -11,7 +11,6 @@ class Moderation(commands.Cog):
     async def mute(self, ctx):
         em = Embed(title="", description="", color=Color.light_gray())
         em.set_footer(text=f"Requested by {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
-
         await ctx.send(embed=em)
 
     @commands.command(aliases=[])
@@ -79,8 +78,9 @@ class Moderation(commands.Cog):
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def slowmode(self, ctx, channel, slowmode):
-        await ctx.send("This command is yet to be made :/")
+    async def slowmode(self, ctx, channel: discord.TextChannel, slowmode):
+        channel.slowmode_delay = slowmode
+        await ctx.send(":white_check_mark: slowmode successfully set")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
