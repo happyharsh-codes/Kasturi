@@ -35,61 +35,78 @@ class Bot:
 
     async def on_message(self, message: discord.Message):
         start = time.time()
-        if self.client.user == message.author or message.author.bot:
-            return
-        if self.client.user.mention in message.content:
-            if "activate" in message.content.lower():
-                if message.channel.permissions_for(message.author).manage_channels:
-                    if message.channel.id in Server_Settings[str(message.guild.id)]["allowed_channels"]:
-                        await message.channel.send("Ayo this channel is already activated !! haha")
+        id = message.author.id
+        guild = message.guild.id
+        channel = message.channel.id
+        try:
+            if self.client.user == message.author or message.author.bot:
+                return
+            if self.client.user.mention in message.content:
+                if "activate" in message.content.lower():
+                    if message.channel.permissions_for(message.author).manage_channels:
+                        if channel in Server_Settings[str(guild)]["allowed_channels"]:
+                            await message.channel.send("Ayo this channel is already activated !! haha")
+                        else:
+                            Server_Settings[str(guild)]["allowed_channels"].append(channel)
+                            await message.channel.send(embed=discord.Embed(title="Channel Activated",description=f"<#{channel}> was succesfully activated !! Start talking with Kelly now.\n\n Use {self.client.user.mention} activate to use me in other channels too!!\nNote now Kasturi will only run in activated channels!!", color= discord.Colour.green()))
                     else:
-                        Server_Settings[str(message.guild.id)]["allowed_channels"].append(message.channel.id)
-                        await message.channel.send(embed=discord.Embed(title="Channel Activated",description=f"<#{message.channel.id}> was succesfully activated !! Start talking with Kelly now.\n\n Use {self.client.user.mention} activate to use me in other channels too!!\nNote now Kasturi will only run in activated channels!!", color= discord.Colour.green()))
-                else:
-                    await message.channel.send("Ayoo user you need `manage channels` permission to user this command.")
-                return
-            if "deactivate" in message.content.lower():
-                if message.channel.id not in Server_Settings[str(message.guild.id)]["allowed_channels"]:
-                    await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
+                        await message.channel.send("Ayoo user you need `manage channels` permission to user this command.")
                     return
-                Server_Settings[str(message.guild.id)]["allowed_channels"].remove(message.channel.id)
-                await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{message.channel.id}> was succesfully deactivated !!", color= discord.Colour.green()))
+                if "deactivate" in message.content.lower():
+                    if channel not in Server_Settings[str(guild)]["allowed_channels"]:
+                        await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
+                        return
+                    Server_Settings[str(guild)]["allowed_channels"].remove(channel)
+                    await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{channel}> was succesfully deactivated !!", color= discord.Colour.green()))
+                    return
+                em = discord.Embed(title= 'Kasturi/Kelly', description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
+                em.set_thumbnail(url = self.client.user.avatar)
+                em.add_field(name= "Help", value="Get Help using `k help` command")
+                em.add_field(name= "Chat with me",value=f"Chat with me in activated channel use {self.client.user.mention} ``activate`` ")
+                await message.channel.send(embed=em)
                 return
-            em = discord.Embed(title= 'Kasturi/Kelly', description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
-            em.set_thumbnail(url = self.client.user.avatar)
-            em.add_field(name= "Help", value="Get Help using `k help` command")
-            em.add_field(name= "Chat with me",value=f"Chat with me in activated channel use {self.client.user.mention} ``activate`` ")
-            await message.channel.send(embed=em)
-            return
-        
-        #checking for afk user
-        for afk in Server_Settings[str(message.guild.id)]['afk']:
-            if afk in message.content:
-                if message.author.id == afk:
-                    Server_Settings[str(message.guild.id)]['afk'].remove(afk)
-                else:
+            
+            #Giving xp
+            if Server_Settings[str(guild)]["rank_channel"] != 0:
+                if str(id) in Server_Settings[str(guild)]["rank"]:
+                    Server_Settings[str(guild)]["rank"][str(id)] += 2
+                else: 
+                    Server_Settings[str(guild)]["rank"][str(id)] = 2
+
+            #checking for afk user
+            for afk in Server_Settings[str(guild)]['afk']:
+                if id == afk:
+                    Server_Settings[str(guild)]['afk'].remove(afk)
+                elif self.client.get_user(afk).mentioned_in(message):
                     await message.channel.send(f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!")
-                break
 
-        if Server_Settings[str(message.guild.id)]["allowed_channels"] != [] and message.channel.id not in Server_Settings[str(message.guild.id)]["allowed_channels"]:
-            return
-        if message.reference and message.reference.message_id:
-            try:
-                original = await message.channel.fetch_message(message.reference.message_id)
-                if original.author.id == self.client.user.id:
-                    print(f"Reply to Kelly detected: {message.content}")
-                    await self.kelly.kellyQuery(message)
-                    return
-            except discord.NotFound:
-                pass  # original message not found (maybe deleted)
-            return
+            if Server_Settings[str(guild)]["allowed_channels"] != [] and channel not in Server_Settings[str(guild)]["allowed_channels"]:
+                return
+            if message.reference and message.reference.message_id:
+                try:
+                    original = await message.channel.fetch_message(message.reference.message_id)
+                    if original.author.id == self.client.user.id:
+                        print(f"Reply to Kelly detected: {message.content}")
+                        await self.kelly.kellyQuery(message)
+                        return
+                except discord.NotFound:
+                    pass  # original message not found (maybe deleted)
+                return
 
-        # Otherwise, only handle messages with valid prefixes
-        if not message.content.lower().startswith(("k", "kelly", "kasturi")):
+            # Otherwise, only handle messages with valid prefixes
+            if not message.content.startswith(("kasturi", "kelly", "k")):
+                return
+            message.content = message.content.lower()
+            message.content = message.content.replace("kelly","").replace("kasturi","").strip()
+            if message.content[0] == "k":
+                message.content = message.content[1:].strip()
+            message.content = "???" + message.content
+            print("Processing command on message: "+ message.content)
+            await self.client.process_commands(message)
+            print("Latency: ", (time.time() - start))
             return
-        print("Processing command on message: "+ message.content)
-        print("Latency: ", (time.time() - start))
-        return
+        except Exception as e:
+            print(e)
 
     async def on_guild_join(self, guild: discord.Guild):
         channels = guild.channels 
@@ -133,8 +150,8 @@ class Bot:
     async def on_command_error(self, ctx, error):
         '''Handelling errors'''
         if isinstance(error, commands.CommandNotFound):
-            if ctx.message.content.lower().startswith(("kelly","kasturi")):
-                await self.kelly.kellyQuery(ctx.message)
+            ctx.message.content = ctx.message.content[3:]
+            await self.kelly.kellyQuery(ctx.message)
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.reply("sorry I dont have perms to do that")
         elif isinstance(error, discord.Forbidden):
@@ -143,7 +160,7 @@ class Bot:
           await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"requested by {ctx.author.name} at  {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
         )
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("***Oho*** you are missing an argumemt.\nUse `m help <command>` to get help")
+            await ctx.send("***Oho*** you are missing an argumemt.\nUse `k help <command>` to get help")
     
         elif isinstance(error, commands.CheckFailure):
             code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])

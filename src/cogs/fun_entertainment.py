@@ -34,7 +34,7 @@ class Fun(commands.Cog):
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def ask(self, ctx, question):
+    async def ask(self, ctx, *question):
         answer = getResponse(question, "You are intelligent guy answer ther user question with sarcasm (in 20 words)", client=3)
         await ctx.reply(answer)
 

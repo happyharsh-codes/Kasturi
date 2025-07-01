@@ -24,7 +24,8 @@ class Utility(commands.Cog):
     @commands.bot_has_permissions()
     async def afk(self, ctx, time, reason):
         Server_Settings[str(ctx.guild.id)]["afk"].append(ctx.author.id)
-        await ctx.send(f"{ctx.author.mention} has gone afk for **{time}** : {reason}. Dont ping him unnecessarily, dont worry I'll notify everone...")
+        await ctx.send(f"{ctx.author.mention} has gone afk for **{time}** : {reason}. Dont ping him unnecessarily")
+        await ctx.send("Dont worry I'll notify everyone in your absense not to disturb you...")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -62,10 +63,10 @@ class Utility(commands.Cog):
             response = Embed(title="Help Menu", color= Color.green())
             response.add_field(name="Fun & Entertainment", value="`joke`,`friends`")
             response.add_field(name="Utility", value="`rank`, `top`, `help`")
-            response.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set channel`, `member join/leave notifis`, `set rank channel`")
+            response.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set channel`, `notifis(join/leave/social media)`, `set_rank_channel`")
             response.add_field(name="Games", value="`rolldice`")
-            response.add_field(name="Dev-ops", value="`github`")
-            response.add_field(name="Music & Media", value="`play`, `set yt notifis`")
+            response.add_field(name="Dev-ops", value="`github`,`yt`, `insta`")
+            response.add_field(name="Music & Media", value="`play`, `queue`")
             response.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
             await ctx.reply(embed=response)
             return

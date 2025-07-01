@@ -10,6 +10,7 @@
         "rank": {},
         "rank_channel": 0,
         "yt": {},
-        "join/leave_channel": 0
+        "join/leave_channel": 0,
+        "afk": []
     }
 }

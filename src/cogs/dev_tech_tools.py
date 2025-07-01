@@ -10,8 +10,7 @@ class Dev_Tech_Tools(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def github(self, ctx, username, repo=None):
-        if repo is not None:
-            user_url = f"https://api.github.com/users/{username}"
+        user_url = f"https://api.github.com/users/{username}"
         repos_url = f"https://api.github.com/users/{username}/repos?per_page=5&sort=updated"
 
         user_resp = requests.get(user_url)

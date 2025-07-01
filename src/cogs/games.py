@@ -13,7 +13,7 @@ class Games(commands.Cog):
         self.client = client
 
     @commands.command(aliases=['c'])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
@@ -23,7 +23,7 @@ class Games(commands.Cog):
         await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have ₹{amt} cash {EMOJI.get("cash")}")
 
     @commands.command(aliases=['g', 'gem'])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
@@ -33,7 +33,7 @@ class Games(commands.Cog):
         await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have {EMOJI.get("gem")} {amt} gems")
 
     @commands.command(aliases=["inventory"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
@@ -122,7 +122,7 @@ class Games(commands.Cog):
     async def adventure(self, ctx):
         await ctx.send("This command is yet to be made :/")
 
-    @commands.command(aliases=['c'])
+    @commands.command(aliases=['cr'])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()

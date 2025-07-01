@@ -61,7 +61,7 @@ class Kelly:
             result = loads(result.split("```json")[1].split('```')[0])
             params = result["command_params"]
         except:
-            print("Error while fetching commadns")
+            print("Error while fetching commands")
             return
         print("###Running command by search: ", cmd, params)
         ctx = await self.client.get_context(message)
@@ -88,7 +88,7 @@ class Kelly:
 
             #------Sending message------#
             async with message.channel.typing():
-                msg = await message.channel.send("-# thinking...")
+                msg = await message.channel.send(f"-# {choice(["thinking","busy","playing games","sleeping","yawning","drooling","watching","understanding","remembring","wondering","imagining","dreaming","creating","chatting","looking","helping"])}...")
                 assist = self.getUserChatData(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt1, assistant= assist, client=3)
                 self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
@@ -103,7 +103,8 @@ class Kelly:
                 - respect: +/- (int)
                 - mood_change: +/- (int)
                 - personality_change: +/- (int)
-                - info: (optional info about user to store important only: str)"""
+                - info: (optional info about user to store important only: str)
+                - action: (ban/mute/run command/talk)"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, client=2)
             try:
                 result = loads(raw_result.split("```json")[1].split('```')[0])

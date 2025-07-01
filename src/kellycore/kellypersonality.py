@@ -12,6 +12,8 @@ class KellyPersona:
     def modifyPersonality(self, persona_change): 
         for persona in persona_change:
             self.persona[persona] = persona_change[persona]
+            if self.persona[persona] < 0:
+                self.persona[persona] = 0
 
     def getRequiredPersona(self):
         maxz = max(list(self.persona.values()))

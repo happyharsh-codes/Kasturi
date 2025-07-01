@@ -89,6 +89,15 @@ class Moderation(commands.Cog):
     async def purge(self, ctx):
         await ctx.send("This command is yet to be made :/")
         
+    @commands.command(aliases=[])
+    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def set_rank_channel(self, ctx):
+        await ctx.send("This command is yet to be made :/")
+        
+
+
 
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
