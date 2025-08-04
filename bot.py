@@ -104,7 +104,7 @@ class Bot:
                 elif self.client.get_user(afk).mentioned_in(message):
                     await message.channel.send(f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!")
             #checking for allowed channel
-            if Server_Settings[str(guild)]["allowed_channels"] != [] and channel not in Server_Settings[str(guild)]["allowed_channels"] and message.content.lower().startswith("kasturi", "kelly"):
+            if Server_Settings[str(guild)]["allowed_channels"] != [] and channel not in Server_Settings[str(guild)]["allowed_channels"] and message.content.lower().startswith(("kasturi", "kelly")):
                 return
             #replying to replies i.e messages without prefixes
             if message.reference and message.reference.message_id:
@@ -136,7 +136,7 @@ class Bot:
             print("Latency: ", (time.time() - start))
             return
         except Exception as e:
-            print("error in on_message: ",e)
+            print("error in on_message: ", e)
 
     async def on_guild_join(self, guild: discord.Guild):
         channels = guild.channels 
