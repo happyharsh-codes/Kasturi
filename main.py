@@ -30,7 +30,7 @@ async def start():
     client.add_listener(bot.on_guild_join)
     client.add_listener(bot.on_guild_remove)
     client.add_listener(bot.on_member_join)
-    client.add_listener(bot.on_member_leave)
+    client.add_listener(bot.on_member_remove)
     client.add_listener(bot.on_command_error)
     client.add_listener(bot.on_error)
     client.add_listener(bot.on_disconnect)
