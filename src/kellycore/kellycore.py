@@ -130,8 +130,7 @@ class Kelly:
             try:
                 if not raw_result.startswith("```"):
                     raw_result = "```json " + raw_result + " ```"
-                raw_result.replace("+", "")
-                result = loads(raw_result.split("```json")[1].split('```')[0])
+                result = loads(raw_result.replace("+","").split("```json")[1].split('```')[0])
 
             except Exception as parse_error:
                 print("Could not parse Kelly AI response:", parse_error) 
