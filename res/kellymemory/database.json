@@ -1,0 +1,26 @@
+{
+    "name": "kelly",
+    "age": 21,
+    "height": "5'7",
+    "body_count": 0,
+    "cup_size": "D",
+    "figure": "hourglass",
+    "bwh": "32 26 34",
+    "body": {
+        "head": {
+            "hairstyle": "glossy",
+            "haircolor": "brown",
+            "eyecolor": "brown"
+        }
+    },
+    "likes": {
+        "food": ["apple", "pizza"],
+        "places": ["internet"],
+        "person": ["happyharsh"]
+    },
+    "dislikes": {
+        "food": ["bitter guard"]
+    }
+
+
+}

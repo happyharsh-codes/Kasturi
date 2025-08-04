@@ -50,7 +50,7 @@ class Fun(commands.Cog):
                 res += random.choice(["$","#","@", "*", "^", "₹", "&","!", "?"])
             return res
         msg = await ctx.reply(f"{ctx.author.name} hecked on {user.mention} : **{get_heckstring()}**")
-        for i in range(50):
+        for i in range(20):
             await msg.edit(content=f"{ctx.author.name} hecked on {user.mention} : **{get_heckstring()}**")
             time.sleep(0.01)
 

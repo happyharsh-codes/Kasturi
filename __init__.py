@@ -2,7 +2,7 @@ import os
 import time
 import asyncio
 import requests
-from datetime import datetime, UTC
+from datetime import datetime, UTC, timedelta
 import discord
 from discord.ext import commands, tasks
 from discord.ui import View, Button, Select
@@ -41,19 +41,18 @@ with open("res/kellymemory/behaviors.json", "r") as f:
     Behaviours = load(f)
     print("Loaded: behaviors.json")
 
-commandz = {"ban":[], "kick":[], "mute":[], "cash":[]}
-
 CLIENT1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
 CLIENT2 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
 CLIENT3 = Together()
+CLIENT4 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
+CLIENT5 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
+CLIENT6 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
 
-client1_lastRequest = time.time()
-client2_lastRequest = time.time()
-client3_lastRequest = time.time()
-
+client_lastRequest = time.time()
+clients = [CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
 
 def getResponse(usermessage, prompt, assistant="", client=3):
-    global  client1_lastRequest, client2_lastRequest, client3_lastRequest
+    global  client_lastRequest
     messages = [{"role":"system","content": prompt}]
     
     if assistant != "":
@@ -70,46 +69,45 @@ def getResponse(usermessage, prompt, assistant="", client=3):
     if client == 3:
         model="meta-llama/Llama-Vision-Free",
         try:
-            if time.time() < client3_lastRequest + 5:
-                time.sleep(client3_lastRequest + 5 - time.time())
+            if time.time() < client_lastRequest + 5:
+                time.sleep(client_lastRequest + 5 - time.time())
             response = CLIENT3.chat.completions.create(
                 model="meta-llama/Llama-Vision-Free",
                 messages= messages)
-            client3_lastRequest = time.time()
+            client_lastRequest = time.time()
         except:
             print("Model Changed")
             return getResponse(usermessage, prompt, assistant, client=1)
-    elif client == 1:
+    else:
         model= "deepseek/deepseek-chat-v3-0324:free"
-        if time.time() < client1_lastRequest + 5:
-            time.sleep(client1_lastRequest + 5 - time.time())
-        client1_lastRequest = time.time()
-        response = CLIENT1.chat.completions.create(
-            messages= messages,
-            temperature=1.0,
-            top_p=1.0,
-            max_tokens=200,
-            model= "deepseek/deepseek-chat-v3-0324:free"
-        )
-        if not response.choices:
+        if time.time() < client_lastRequest + 5:
+            time.sleep(client_lastRequest + 5 - time.time())
+        try:
+            response = clients[client-1].chat.completions.create(
+                messages= messages,
+                temperature=1.0,
+                top_p=1.0,
+                max_tokens=200,
+                model= "deepseek/deepseek-chat-v3-0324:free"
+            )
+            client_lastRequest = time.time()
+            if not response.choices:
+                print("Model Changed")
+                next_client = client+1
+                if next_client == 3: next_client = 4
+                elif next_client == 7:
+                    print("All clients failed !!")
+                    return
+                return getResponse(usermessage, prompt, assistant, client=next_client)
+        except:
             print("Model Changed")
-            return getResponse(usermessage, prompt, assistant, client=2)
-    elif client == 2:
-        model= "deepseek/deepseek-chat-v3-0324:free"
-        if time.time() < client2_lastRequest + 5:
-            time.sleep(client2_lastRequest + 5 - time.time())
-        client2_lastRequest = time.time()
-        response = CLIENT2.chat.completions.create(
-            messages= messages,
-            temperature=1.0,
-            top_p=1.0,
-            max_tokens=200,
-            model= "deepseek/deepseek-chat-v3-0324:free"
-        )
-        if not response.choices:
-            print("Model Changed")
-            return getResponse(usermessage, prompt, assistant, client=1)
-        
+            next_client = client+1
+            if next_client == 3: next_client = 4
+            elif next_client == 7:
+                print("All clients failed !!")
+                return
+            return getResponse(usermessage, prompt, assistant, client=next_client)
+
         
     print(f"#==========Response==========#\nModel: {model}\nPrompt: {prompt[0:5]}...{prompt[-5:]}\nINPUT: {usermessage}\nOUTPUT: {response.choices[0].message.content}\n#============================#")
     return response.choices[0].message.content

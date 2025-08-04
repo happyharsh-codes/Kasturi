@@ -13,9 +13,18 @@ class Bot:
         self.kelly = kelly
         self.last_request = datetime.now()
 
-    @tasks.loop(seconds=3600)
+    @tasks.loop(minutes=1)
+    async def unmute(self):
+        sv_settings = Server_Settings
+        for servers in Server_Settings:
+            for muted in servers["muted"]:
+                if datetime.fromisoformat(muted) < datetime.now(UTC):
+                    sv_settings[servers]["muted"].pop(muted)
+        Server_Settings = sv_settings
+
+    @tasks.loop(minutes=30)
     async def mood_swings(self):
-        self.kelly.mood.modifyMood({"happy": -5, "busy": -5, "sleepy": randint(1,15)})
+        self.kelly.mood.moodSwing()
 
     @tasks.loop(minutes=10)
     async def save_files(self):
@@ -31,6 +40,7 @@ class Bot:
         print("We are ready to go!")
         self.mood_swings.start()
         self.save_files.start()
+        self.unmute.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
 
     async def on_message(self, message: discord.Message):
@@ -39,8 +49,18 @@ class Bot:
         guild = message.guild.id
         channel = message.channel.id
         try:
+            #Ignoring Self message
             if self.client.user == message.author or message.author.bot:
                 return
+            #Deleting banned words
+            for word in Server_Settings[str(message.guild.id)]["banned_words"]:
+                if word in message.content:
+                    try:
+                        await message.delete()
+                    except:
+                        print("No delete message perms")
+                    break
+            #Handelling Bot mentions
             if self.client.user.mention in message.content:
                 if "activate" in message.content.lower():
                     if message.channel.permissions_for(message.author).manage_channels:
@@ -68,6 +88,10 @@ class Bot:
             
             #Giving xp
             if Server_Settings[str(guild)]["rank_channel"] != 0:
+                old_rank = Server_Settings[str(guild)]["rank"][str(id)]
+                if (old_rank + 2) // 10 > old_rank // 10:
+                    channel = await message.guild.fetch_channel(Server_Settings[str(guild)]["rank_channel"])
+                    await channel.send(f"{message.author.mention} you reached Level {(old_rank +2)//10}") 
                 if str(id) in Server_Settings[str(guild)]["rank"]:
                     Server_Settings[str(guild)]["rank"][str(id)] += 2
                 else: 
@@ -79,9 +103,10 @@ class Bot:
                     Server_Settings[str(guild)]['afk'].remove(afk)
                 elif self.client.get_user(afk).mentioned_in(message):
                     await message.channel.send(f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!")
-
+            #checking for allowed channel
             if Server_Settings[str(guild)]["allowed_channels"] != [] and channel not in Server_Settings[str(guild)]["allowed_channels"]:
                 return
+            #replying to replies i.e messages without prefixes
             if message.reference and message.reference.message_id:
                 try:
                     original = await message.channel.fetch_message(message.reference.message_id)
@@ -94,19 +119,24 @@ class Bot:
                 return
 
             # Otherwise, only handle messages with valid prefixes
+            message.content = message.content.lower()
             if not message.content.startswith(("kasturi", "kelly", "k")):
                 return
-            message.content = message.content.lower()
             message.content = message.content.replace("kelly","").replace("kasturi","").strip()
             if message.content[0] == "k":
                 message.content = message.content[1:].strip()
+                for command in self.client.commands:
+                    if message.content.split()[0] in command.name or message.content.split()[0] in command.aliases:
+                        break
+                else: return
+                
             message.content = "???" + message.content
             print("Processing command on message: "+ message.content)
-            await self.client.process_commands(message)
+            await self.client.process_commands(message) #Kelly Process the message ;)
             print("Latency: ", (time.time() - start))
             return
         except Exception as e:
-            print(e)
+            print("error in on_message: ",e)
 
     async def on_guild_join(self, guild: discord.Guild):
         channels = guild.channels 
@@ -135,17 +165,49 @@ class Bot:
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
         me = self.client.get_user(894072003533877279)  
         await me.send(embed=msg)
-        Server_Settings[str(guild.id)] = {"name": guild.name, "allowed_channels": [], "premium": False, "invite_link": str(invite.url),"block_list":[], "rank":{}, "rank_channel": 0, "yt": {}, "join/leave_channel": 0, "afk": []}
+        Server_Settings[str(guild.id)] = {
+        "name": guild.name,
+        "allowed_channels": [],
+        "premium": False,
+        "invite_link": invite,
+        "banned_words": [],
+        "block_list": [],
+        "muted": {},
+        "rank": {},
+        "rank_channel": 0,
+        "yt": {},
+        "join/leave_channel": 0,
+        "afk": [],
+        "friends": []
+    }
 
     async def on_guild_remove(self, guild: discord.Guild):
         me = self.client.get_user(894072003533877279)  
         await me.send(f"Left a server: {Server_Settings[str(guild.id)]["name"]}\n{Server_Settings[str(guild.id)]["invite_link"]}")
         Server_Settings.pop(str(guild.id))
     
+    async def on_member_join(self, member: discord.Member):
+        if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
+            em = Embed(title=f"{member.mention} welcome to {member.guild.name}", description=f"Enjoy your peace time here!\n{member.guild.description}")
+            em.set_footer(text=f"Requested by {member.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
+            try:
+                channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
+                await channel.send(embed=em)
+            except:
+                print("No perms allowed")
+
+    async def on_member_remove(self, member: discord.Member):
+        if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
+            em = Embed(title=f"{member.name} left the server", description=f"We are sorry to see you leave!")
+            em.set_footer(text=f"Requested by {member.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
+            try:
+                channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
+                await channel.send(embed=em)
+            except:
+                print("No perms allowed")
 
     async def on_command_completion(self, ctx):
-        pass
-
+        Profiles[ctx.author.id]["aura"] += 1
 
     async def on_command_error(self, ctx, error):
         '''Handelling errors'''
@@ -161,7 +223,10 @@ class Bot:
         )
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send("***Oho*** you are missing an argumemt.\nUse `k help <command>` to get help")
-    
+
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.send(f"Ayoo you dont have permissions to do that!! {EMOJI[choice(["kellyidontcare","kellyannoyed", "kellycheekspull", "kellygigle", "kellybweh", "kellywatching"])]}")
+
         elif isinstance(error, commands.CheckFailure):
             code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
             emoji = EMOJI[f"kelly{choice(["blush", "thinking", "laugh", "gigle", "waiting", "idontcare"])}"]

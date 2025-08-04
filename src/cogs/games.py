@@ -1,5 +1,12 @@
 from __init__ import* 
 
+"""Inventory Items:-
+Foods: []
+Tools: []
+Assets: []
+Animals: []
+"""
+
 def has_profile():
     async def predicate(ctx):
         if str(ctx.author.id) in Profiles:
@@ -20,7 +27,7 @@ class Games(commands.Cog):
     async def cash(self, ctx):
         amt = Profiles.get(str(ctx.author.id)).get("cash")
         emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
-        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have ₹{amt} cash {EMOJI.get("cash")}")
+        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **₹{amt}** cash {EMOJI.get("cash")}")
 
     @commands.command(aliases=['g', 'gem'])
     @commands.cooldown(1,10, type = commands.BucketType.user )
@@ -30,7 +37,7 @@ class Games(commands.Cog):
     async def gems(self, ctx):
         amt = Profiles.get(str(ctx.author.id)).get("gem")
         emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
-        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have {EMOJI.get("gem")} {amt} gems")
+        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **{EMOJI.get("gem")}** {amt} gems")
 
     @commands.command(aliases=["inventory"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
@@ -41,7 +48,7 @@ class Games(commands.Cog):
         '''Views users inventory'''
         inv = Profiles.get(str(ctx.author.id)).get("inv")
         tools = Profiles.get(str(ctx.author.id)).get("tools")
-        if inv == []:
+        if not inv:
             await ctx.reply("You don't have anything in your inventory haha 😆")
             return
         em = Embed(title=f"Showing {ctx.author.name}'s Inventory {EMOJI.get("inventory")}")
@@ -52,6 +59,7 @@ class Games(commands.Cog):
             breakline += 1
             if breakline%3 == 0:
                 descrip += "\n"
+        em.description += descrip
         em.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
         await ctx.reply(embed=em)
 
@@ -176,7 +184,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def beg(self, ctx):
-        cash = randint(0, 1000)
+        cash = randint(0, 100)
         sign = choice(["$", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹"])
         value = 1
         if sign == "$":

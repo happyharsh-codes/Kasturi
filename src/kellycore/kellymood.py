@@ -4,10 +4,10 @@ class KellyMood:
     the first element in mood is the main current mood trait
     while the first mood may change to different mood traits others are permanent
     
-    Mood Traits : ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious"]
+    Mood Traits : ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious", "busy", "sleepy", "lazy"]
     
     '''
-    _MOODS = ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious"]
+    _MOODS = ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious", "busy", "sleepy", "lazy"]
 
     def __init__(self):
         self.mood = self.generateRandomMood()
@@ -20,11 +20,15 @@ class KellyMood:
         mood["busy"] = randint(1,100)
         mood["sleepy"] = randint(1,100)
         mood["lazy"] = randint(1,100)
-        mood["sad"] = randint(1,100)
-        mood["angry"] = randint(1,100)
-        mood["annoyed"] = randint(1,100)
-        mood["depressed"] = randint(1,100)
+        mood["sad"] = 100 - mood["happy"]
+        mood["angry"] = 0 # triggered by chatting
+        mood["annoyed"] = 0 # triggerede by chatting
+        if mood["sad"] >= 60:
+            mood["depressed"] = randint(1,20)
+        else: 
+            mood["depressed"] = 0
         mood["mischevious"] = randint(1,100)
+        print(mood)
         return mood
     
     def modifyMood(self, mood_change):
@@ -44,10 +48,36 @@ class KellyMood:
                 self.mood["happy"] -= mood_change[mood]
                 if self.mood["happy"] < 0:
                     self.mood["happy"] = 0
-            
+            elif mood in ["depressed"]:
+                self.mood["sleepy"] -= mood_change[mood]
+                if self.mood["sleepy"] < 0:
+                    self.mood["sleepy"] = 0
 
     def moodSwing(self):
-        pass
+        #happiness
+        self.mood["happy"] -= 5
+        if self.mood["happy"] < 0:
+            self.mood["happy"] = 0
+
+        #business
+        self.mood["busy"] -= 5
+        if self.mood["busy"] < 0:
+            self.mood["busy"] = 0
+
+        #sleep
+        self.mood["sleepy"] -= 10
+        if self.mood["sleepy"] < 0:
+            self.mood["sleepy"] = 0
+
+        #lazy
+        self.mood["lazy"] += 5
+        if self.mood["lazy"] > 100:
+            self.mood["lazy"] = 0
+            
+        #mischevious
+        self.mood["mischevious"] -= 5
+        if self.mood["mischevious"] < 0:
+            self.mood["mischevious"] = 0
 
     def getMood(self):
         maxz = max(list(self.mood.values()))
@@ -59,21 +89,21 @@ class KellyMood:
         mood = self.mood
         #Kelly wont perform tasks in these situations
         if mood['busy'] > 80:
-            return False
+            return "busy"
         if mood['sleepy'] > 80:
-            return False
+            return "sleepy"
         if mood['lazy'] > 60:
-            return False
-        if mood['mischevious'] > 60:
-            return False
-        if mood['sad'] > 40:
-            return False
-        if mood['angry'] > 35:
-            return False
-        if mood["angry"] > 20:
-            return False
-        if mood["annoyed"] > 50:
-            return False
-        return True #finally may perform task
+            return "lazy"
+        if mood['mischevious'] > 70:
+            return "mischevious"
+        if mood['sad'] > 60:
+            return "sad"
+        if mood['angry'] > 65:
+            return "angry"
+        if mood["depressed"] > 40:
+            return "depressed"
+        if mood["annoyed"] > 60:
+            return "annoyed"
+        return "perform" #finally may perform task
     
     

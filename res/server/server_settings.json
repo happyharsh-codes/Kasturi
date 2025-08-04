@@ -2,15 +2,22 @@
     "1372190239057117194": {
         "name": "Kelly's Homeland",
         "allowed_channels": [
-            1379757386738302988
+            1379757386738302988,
+            1401790424007446610
         ],
         "premium": false,
         "invite_link": "https://discord.gg/hqE4vazJj4",
+        "banned_words": [],
         "block_list": [],
-        "rank": {},
-        "rank_channel": 0,
+        "muted": {},
+        "rank": {
+            "894072003533877279": 86,
+            "829674508435849216": 14
+        },
+        "rank_channel": 1401793916419833999,
         "yt": {},
-        "join/leave_channel": 0,
-        "afk": []
+        "join/leave_channel": 1372294578115182592,
+        "afk": [],
+        "friends": []
     }
 }

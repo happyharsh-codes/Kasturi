@@ -9,8 +9,12 @@
         "kellycheekspull": "<:kellycheekspull:1372190880449953822>",
         "kellychips": "<:kellychips:1372190886750064660>",
         "kellycry": "<:kellycry:1372190911248990218>",
+        "kellyded": "<:kellydead:1395670026891034744>",
+        "kellydreaming": "<:kellydreaming:1395670032109015120>",
         "kellydrooling": "<:kellydrooling:1372190914591588413>",
+        "kellydumbfolded": "<:kellydumbfolded:1395670036747649096>",
         "kellyembaress": "<:kellyembaress:1372190923403956264>",
+        "kellyenjoying": "<:kellyenjoying:1395670040292098058>",
         "kellyfight": "<:kellyfight:1372190948439883827>",
         "kellygigle": "<:kellygigle:1372573663391649913>",
         "kellyhandraise": "<:kellyhandraise:1372191020007292999>",
@@ -27,16 +31,53 @@
         "kellysalute": "<:kellysalute:1372191132402057276>",
         "kellysimping": "<:kellysimping:1372191149216891002>",
         "kellysleeping": "<:kellysleeping:1372191171446833252>",
+        "kellysob": "<:kellysob:1395670044062646302>",
         "kellythinking": "<:kellythinking:1372191175133368411>",
         "kellyvibing": "<:kellyvibing:1372191183220117626>",
         "kellywaiting": "<:kellybored:1372190868756238376>",
         "kellywatching": "<:kellywatching:1372191195467485184>",
-        "kellyyawn": "<:kellyyawn:1372191198760009809>"
+        "kellyyawn": "<:kellyyawn:1372191198760009809>",
+        "giyufuck": "<:giyuuuu:1395596237272780830>",
+        "giyutedio": "<:giyu_tedio:1395596331472519310>",
+        "giyusweat": "<:giyu_sweat:1395596279559491584>",
+        "giyusmiley": "<:giyu_smiley:1395596319342596187>",
+        "giyushock": "<:giyu_shock:1395596273335402568>",
+        "giyuoffended": "<:giyu_offended:1395596263508021298>",
+        "giyulove": "<:giyu_love:1395596308940849273>",
+        "giyukawai": "<:giyu_kwai:1395596303500841060>",
+        "giyuhype": "<:giyu_hype:1395596257937850388>",
+        "giyuded": "<:giyu_ded:1395596247766663168>",
+        "giyuangry": "<:giyu_angry:1395596242691686474>",
+        "giyuhi": "<:giyu_Hi:1395596252569407610>",
+        "giyuveryangry": "<:Jdjddn:1395596285712666644>",
+        "giyuok": "<:tomiOKA:1395596291878424606>",
+        "giyusad": ""
     },
     "tasks": {"ban":50, "mute":4, "unmute":10, "unban": 60, "deafen": 4, "add yt": 4, "rank": 5, "cash": 4, "beg": 5, "github": 10, "help": 1, "kick": 4, "play": 50, "pat": 90},
 
     "commands": {
         "ban" : {"userid": 0, "reason": ""},
         "kick": {"userid": 0, "reason": ""}
+    },
+
+    "foods": {
+        "Level1": [],
+        "Level2": [],
+        "Level3": []
+    },
+    "assets": {
+        "Level1": [],
+        "Level2": [],
+        "Level3": []
+    },
+    "tools": {
+        "Level1": [],
+        "Level2": [],
+        "Level3": []
+    },
+    "animals": {
+        "Level1": [],
+        "Level2": [],
+        "Level3": []
     }
 }

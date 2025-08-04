@@ -2,7 +2,7 @@ from __init__ import*
 from src.kellycore.kellymood import KellyMood
 from src.kellycore.kellyrelation import KellyRealtion
 from src.kellycore.kellypersonality import KellyPersona
-from src.kellycore.shiba import Shiba
+from src.kellycore.giyu import Giyu
 
 class Kelly:
 
@@ -14,7 +14,7 @@ class Kelly:
         self.relations = KellyRealtion(Relation)
         self.chats = Chats
         self.mood.generateRandomMood()
-        self.shiba = Shiba()
+        self.giyu = Giyu()
                 
     async def reportError(self, error):
         try:
@@ -22,7 +22,7 @@ class Kelly:
             await me.send(f"Erron on KellyCore:{error}")
         except:
             print("Could not dm error")
-        print(error)
+        print("error in kelly core: ", error)
 
     def addUser(self,guildid, id):
         if id not in Server_Settings[str(guildid)]['block_list']:
@@ -45,52 +45,73 @@ class Kelly:
             if len(Chats[str(id)]) > 4:
                 Chats[str(id)].pop(0)
 
-    async def runCommand(self, message):
-        for commands in commandz:
-            if commands in message.content:
-                cmd = {commands: commandz[commands]}
+    async def runCommand(self, message, assistant):
+        for command in self.client.commands:
+            if command.name in message.content or ( command.aliases != [] and command.aliases[0] in message.content):
+                if command.clean_params:
+                    params = list(command.clean_params.keys())
+                else:
+                    params = []
+                cmd = {command.name: params}
                 break
         else: return
+        
         prompt = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
                 command: {cmd}
                 Generate Json dict using kelly response and mood
-                - command_performed: true/false/null(based on mood, tone and task difficulty)
-                - command_params: (only when command is not None) (a dict with keys from list values having values from message)"""
-        result = getResponse(message, prompt, client=2)
+                - command_performed: true/false/null (based on mood, tone and task difficulty)
+                - command_params: str/int/null (a dict with keys from list values having values from message)
+                - response: str (ask for command params if not provided)"""
+        result = getResponse(message.content, prompt, assistant=assistant, client=2)
         try:
             result = loads(result.split("```json")[1].split('```')[0])
-            params = result["command_params"]
+            if params != []:
+                params = result["command_params"]
         except:
             print("Error while fetching commands")
             return
+        if not result["command_performed"]:
+            prompt = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass). Refuse the command with sass and attitude IN 30 WORDS. Reason: {self.mood.moodToDoTasks()}. Do not tell the reason directly."""
+            result = getResponse(message.content, prompt, assistant=assistant, client=3)
+            await message.channel.send(result)
+            return
+        
+        for j in params:
+            if not j:
+                await message.channel.send(self.getEmoji(result["response"]))
+                return
+            
         print("###Running command by search: ", cmd, params)
         ctx = await self.client.get_context(message)
         await ctx.invoke(self.client.get_command(list(cmd.keys())[0]), **params)
 
     async def kellyQuery(self, message: discord.Message):
-        try:
-            if not self.relations.getUserRelation(message.author.id):
-                #that is user in unknown so Shiba will process the message instead
-                addOrNot = await self.shiba.shibaQuery(message, querytype = 1)
-                if addOrNot:
-                    self.relations.modifyUserRespect(+1, message.author.id)
-                return
-            
+        try: 
             #------Initializing------#
             mood = self.mood.getMood()
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.relations.getUserInfo(message.author.id)
-            prompt1 = f"""You are Kelly, a Discord Mod (human like lively with mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {behave}\nGenerate response in 30 words with emojis"""
+            prompt = f"""Roleplay Kelly, a Discord Mod (human like lively with  mood attitude sexy and sass) (nsfw allowed). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {behave}\nGenerate response in 30 words with emojis"""
 
+            #first Giyu the bodyguard handles the message before getting to kelly
+            if await self.giyu.giyuQuery(message, self.mood.mood):#if giyu already sent msg so here will not send so here we'll simply return
+                return
+            
             #------Generating message session id------#
-            #self.generateSessionId(message)
+            #self.generateSessionId(message)            
+
+            #kelly Mood
+            if self.mood.mood["mischevious"] > 80:
+                prompt+= " Kelly is feeling extra mischevious today"
+            elif self.mood.mood["sad"] > 80 or self.mood.mood["depressed"] > 80:
+                prompt += " Kelly is extremely sad and depressed"
 
             #------Sending message------#
             async with message.channel.typing():
                 msg = await message.channel.send(f"-# {choice(["thinking","busy","playing games","sleeping","yawning","drooling","watching","understanding","remembring","wondering","imagining","dreaming","creating","chatting","looking","helping"])}...")
                 assist = self.getUserChatData(message.author.id) #getting previous chats
-                kelly_reply = getResponse(message.content, prompt1, assistant= assist, client=3)
+                kelly_reply = getResponse(message.content, prompt, assistant= assist, client=3)
                 self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
                 await msg.delete()
                 await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
@@ -100,41 +121,44 @@ class Kelly:
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
                 Current status: {current_status}
                 Generate Json dict using kelly response and mood
-                - respect: +/- (int)
-                - mood_change: +/- (int)
-                - personality_change: +/- (int)
+                - respect: [-10 : +10] (int)
+                - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious)
+                - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (optional info about user to store important only: str)
-                - action: (ban/mute/run command/talk)"""
-            raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, client=2)
+                - action: (run command/talk/call guard) (only from these 3 options)"""
+            raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=2).lower()
             try:
+                if not raw_result.startswith("```"):
+                    raw_result = "```json " + raw_result + " ```"
+                raw_result.replace("+", "")
                 result = loads(raw_result.split("```json")[1].split('```')[0])
+
             except Exception as parse_error:
-                print("Could not parse AI response:", parse_error) 
-                result = {"respect": 0, "mood_change": 0, "personality_change": 0, "info": []}
+                print("Could not parse Kelly AI response:", parse_error) 
+                result = {"respect": 0, "mood_change": 0, "personality_change": 0, "info": [], "action": "talk"}
 
             #-----Updating Kelly Now-----#
-            if isinstance(result["mood_change"], int):
-                self.mood.modifyMood({list(mood.keys())[0]: result['mood_change']})
+            if isinstance(result["mood"], int):
+                self.mood.modifyMood({result["mood"]: randint(1,10)})
+                if result["mood"] == "happy":
+                    self.relations.modifyUserRespect(2, message.author.id)
             if isinstance(result["personality_change"], int):
-                self.personality.modifyPersonality({list(persona.keys())[0]: result['personality_change']})
+                self.personality.modifyPersonality(result['personality_change'])
             self.relations.modifyUserRespect(result["respect"], message.author.id)
             if "info" in result and result['info']:
                 self.relations.addUserInfo(result["info"], message.author.id)
+            print(f"Talk result: {result}")
 
             #------Performing Task/Command Now------#
-            await self.runCommand(message)
+            if "call" in result["action"] or "guard" in result["action"]:
+                self.giyu.giyuTakeDescision(message, self.mood.mood)
+            elif "run" in result["action"]:
+                await self.runCommand(message, assistant=assist)
 
         except Exception as error:
             await self.reportError(error)
         print(f">==<\n{self.mood.mood}\n>==<")
-
-    def chatSummerize(self):
-        ChatsCopy = Chats
-        prompt = 'summerise user behavior in one single sentence, from the user list of responses'
-        for user, chats in ChatsCopy.items():
-            if len(chats) > 2:
-                Chats.pop(user)
-                Behaviours[user] = getResponse(chats, prompt, client=3)
+        print(f">==<\n{self.personality.persona}\n>==<")
 
     def getEmoji(self, message):
         emoji_exchanger = {
@@ -171,6 +195,7 @@ class Kelly:
             "👊": "kellyfight",
             "💪": "kellyfight",
             "🦾": "kellyfight",
+            "😊": "kellygigle",
             "😁": "kellygigle",
             "👋": "kellygigle",
             "🙌": "kellyhandraise",
@@ -203,6 +228,7 @@ class Kelly:
             "🙇": "kellysalute",
             "🙇‍♀️": "kellysalute",
             "😙": "kellysimping",
+            "😉": "kellysimping",
             "💤": "kellysleeping",
             "😴": "kellysleeping",
             "🛌": "kellysleeping",
@@ -218,6 +244,19 @@ class Kelly:
         for emoji, kellyemoji in emoji_exchanger.items():
             if emoji in message:
                 message = message.replace(emoji, EMOJI[kellyemoji])
+                if kellyemoji == "kellyyawn" or kellyemoji == "kellysleeping" or kellyemoji == "kellydrooling" or kellyemoji == "kellytired":
+                    self.mood.modifyMood({"sleepy": randint(1,15)})
+                if kellyemoji == "kellycry":
+                    self.mood.modifyMood({"sad": randint(1, 15)})
+                if kellyemoji == "kellywatching":
+                    self.mood.modifyMood({"angry": randint(1, 15)})
+                    self.mood.modifyMood({"annoyed": randint(1, 15)})
+                if kellyemoji == "kellypat" and kellyemoji == "kellylaugh" and kellyemoji == "kellygigle":
+                    self.mood.modifyMood({"happy": randint(1, 10)})
+                if kellyemoji == "kellyannoyed" or kellyemoji == "kellyidontcare" or kellyemoji == "kellybored":
+                    self.mood.modifyMood({"annoyed": randint(1, 15)})
+                
+            
         return message
 
     def save(self):

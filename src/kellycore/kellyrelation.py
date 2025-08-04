@@ -26,6 +26,8 @@ class KellyRealtion:
     def modifyUserRespect(self, val, id):
         if str(id) not in self.relation:
             self.relation[str(id)] = val
+            if self.relation[str(id)] == 0:
+                self.relation[str(id)] += 1
             return
         self.relation[str(id)] += val
         if self.relation[str(id)] > 80: # Think of making Friend
@@ -35,15 +37,15 @@ class KellyRealtion:
     
     def addUserInfo(self, info, userid):
         if str(userid) in Behaviours:
-            Behaviours[str(userid)].append(info)
-            if len(Behaviours[str(userid)]) > 4:
+            Behaviours[str(userid)] += info
+            if len(Behaviours[str(userid)]) > 512:
                 self.updateUserInfo(userid)
         else:
             Behaviours[str(userid)] = [info]
 
     def updateUserInfo(self, userid):
-        prompt = "summarize user behaviour in one sentence"
-        response = getResponse(Behaviours[str(userid)], prompt, client=1)
+        prompt = "summarize user behaviour and shorten it. Respond with shorten sentence only"
+        response = getResponse(Behaviours[str(userid)], prompt, client=3)
         Behaviours[str(userid)] = response
     
     def getUserInfo(self, userid):

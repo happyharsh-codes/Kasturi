@@ -16,10 +16,7 @@ class KellyPersona:
                 self.persona[persona] = 0
 
     def getRequiredPersona(self):
-        maxz = max(list(self.persona.values()))
-        for persona in self.persona:
-            if self.persona[persona] == maxz:
-                return {persona: maxz}
+        return self.persona
 
     def getTaskSuccessRate(self, msg):
         pass

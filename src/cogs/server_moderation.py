@@ -1,103 +1,124 @@
-from __init__ import*
+from __init__ import *
 
 class Moderation(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def mute(self, ctx):
-        em = Embed(title="", description="", color=Color.light_gray())
-        em.set_footer(text=f"Requested by {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(manage_messages=True)
+    async def mute(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+        em = Embed(title="Member Muted", description=f"{member.mention} was muted.\n**Reason:** {reason}", color=Color.light_gray())
+        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def unmute(self, ctx):
-        em = Embed(title="", description="", color=Color.light_gray())
-        em.set_footer(text=f"Requested by {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
-
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(manage_messages=True)
+    async def unmute(self, ctx: commands.Context, member: discord.Member):
+        em = Embed(title="Member Unmuted", description=f"{member.mention} was unmuted.", color=Color.light_gray())
+        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
-    
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def kick(self, ctx, user:discord.Member, reason="None"):
-        em = Embed(title="Kasturi Kicked a Member", description=f"Kasturi and {ctx.author.name} successfully managed to kick {user.name} out of the server.\n A great milestone achived!!", color=Color.pink())
-        em.set_footer(text=f"Requested by {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
+
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(kick_members=True)
+    @commands.bot_has_permissions(kick_members=True)
+    async def kick(self, ctx: commands.Context, user: discord.Member, *, reason: str = "No reason provided"):
         await ctx.guild.kick(user=user, reason=reason)
+        em = Embed(title="Member Kicked", description=f"{user.mention} was kicked by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
+        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def ban(self, ctx, user:discord.Member, reason, delete_prev_message_days):
-        em = Embed(title="Kasturi Banned a Member", description=f"Kasturi and {ctx.author.name} successfully managed to ban {user.name} from the server.\n A great milestone achived!!\n***Reason:*** {reason}", color=Color.pink())
-        em.set_footer(text=f"Requested by {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
-        await ctx.guild.ban(user=user, reason=reason, delete_message_days= delete_prev_message_days)
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
+    async def ban(self, ctx: commands.Context, user: discord.Member, delete_days: int = 0, *, reason: str = "No reason provided"):
+        await ctx.guild.ban(user=user, reason=reason, delete_message_days=delete_days)
+        em = Embed(title="Member Banned", description=f"{user.mention} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
+        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def unban(self, ctx, user:discord.Member, reason="None"):
-        em = Embed(title="Kasturi Unbanned a Member", description=f"{user.name} was unbanned by {ctx.author.name}\n***Reason:*** {reason}", color=Color.pink())
-        em.set_footer(text=f"Requested by {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
-        await ctx.guild.ban(user=user, reason=reason)
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
+    async def unban(self, ctx: commands.Context, *, user_tag: str):
+        banned_users = await ctx.guild.bans()
+        name, discriminator = user_tag.split("#")
+        for ban_entry in banned_users:
+            user = ban_entry.user
+            if (user.name, user.discriminator) == (name, discriminator):
+                await ctx.guild.unban(user)
+                em = Embed(title="Member Unbanned", description=f"{user.mention} was unbanned by {ctx.author.mention}.", color=Color.pink())
+                em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+                await ctx.send(embed=em)
+                return
+        await ctx.send("User not found in ban list.")
+
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    async def assignrole(self, ctx: commands.Context, member: discord.Member, role: discord.Role):
+        await member.add_roles(role)
+        em = Embed(title="Role Assigned", description=f"{role.mention} assigned to {member.mention}", color=Color.green())
+        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def assignrole(self, ctx, user, role):
-        pass
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(deafen_members=True)
+    @commands.bot_has_permissions(deafen_members=True)
+    async def deafen(self, ctx: commands.Context, member: discord.Member, state: bool):
+        await member.edit(deafen=state)
+        status = "Deafened" if state else "Undeafened"
+        em = Embed(title="Voice Status Changed", description=f"{member.mention} was {status.lower()} by {ctx.author.mention}.", color=Color.light_gray())
+        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        await ctx.send(embed=em)
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def deafen(self, ctx):
-        await ctx.send("This command is yet to be made :/")
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(manage_messages=True)
+    async def clean(self, ctx: commands.Context, amount: int = 5):
+        deleted = await ctx.channel.purge(limit=amount + 1)
+        await ctx.send(f"Deleted {len(deleted) - 1} messages.", delete_after=5)
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def clean(self, ctx, amount=1):
-        await ctx.send("This command is yet to be made :/")
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_permissions(manage_channels=True)
+    async def slowmode(self, ctx: commands.Context, channel: discord.TextChannel, seconds: int):
+        await channel.edit(slowmode_delay=seconds)
+        await ctx.send(f"Slowmode set to `{seconds}` seconds in {channel.mention}")
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def slowmode(self, ctx, channel: discord.TextChannel, slowmode):
-        channel.slowmode_delay = slowmode
-        await ctx.send(":white_check_mark: slowmode successfully set")
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(manage_messages=True)
+    async def purge(self, ctx: commands.Context, amount: int = 5):
+        deleted = await ctx.channel.purge(limit=amount + 1)
+        await ctx.send(f"Purged {len(deleted) - 1} messages.", delete_after=5)
 
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def purge(self, ctx):
-        await ctx.send("This command is yet to be made :/")
-        
-    @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def set_rank_channel(self, ctx):
-        await ctx.send("This command is yet to be made :/")
-        
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(administrator=True)
+    async def set_rank_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+        Server_Settings[str(ctx.guild.id)]["rank_channel"] = channel.id
+        em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
+        await ctx.send(embed=em)
 
-
+    @commands.command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(administrator=True)
+    async def set_welcome_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+        Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = channel.id
+        em = Embed(title="Welcome Channel Set :white_check_mark:", description=f"Welcome Channel set successfully.\nNow you'll recieve exclusive messages on members joining and leaving the server in {channel.mention}\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
+        await ctx.send(embed=em)
 
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
