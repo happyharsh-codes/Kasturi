@@ -11,6 +11,12 @@ class Utility(commands.Cog):
     async def rank(self, ctx, user=None):
         if not user:
             user = ctx.author
+        rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
+        if not ctx.channel.id == rank_channel:
+            msg = await ctx.sent("This command only works in rank channel!!")
+            asyncio.sleep(5)
+            await msg.delete()
+            return
         rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
         total_xp = rank_list.get(str(user.id))
         rank_values = list(rank_list.values())
@@ -18,7 +24,7 @@ class Utility(commands.Cog):
         rank_values.reverse()
         if not total_xp: 
             total_xp = 0
-        em = Embed(title=f"{user.name}'s Rank", description=f"XP: {total_xp}\nRank: {rank_values.index(total_xp) + 1}", color=Color.dark_gold())
+        em = Embed(title=f"{user.name}'s Rank", description=f"LEVEl: {total_xp//10}\nXP: {total_xp}\nRank: {rank_values.index(total_xp) + 1}", color=Color.dark_gold())
         await ctx.send(embed=em)
 
     @commands.command(aliases=[])
