@@ -75,7 +75,16 @@ class Kelly:
             result = getResponse(message.content, prompt, assistant=assistant, client=3)
             await message.channel.send(result)
             return
-        
+
+        #modifying params
+        if "user" in params:
+            params["user"] = self.client.get_user(int(params["user"]))
+        if "member" in params:
+            params["user"] = self.client.get_user(int(params["member"]))
+        if "channel" in params:
+            params["channel"] = self.client.fetch_channel(int(params["channel"].replace("<", "").replace(">","").replace("#","")))
+
+
         for j in params:
             if not j:
                 await message.channel.send(self.getEmoji(result["response"]))
@@ -109,7 +118,7 @@ class Kelly:
 
             #------Sending message------#
             async with message.channel.typing():
-                msg = await message.channel.send(f"-# {choice(["thinking","busy","playing games","sleeping","yawning","drooling","watching","understanding","remembring","wondering","imagining","dreaming","creating","chatting","looking","helping"])}...")
+                msg = await message.channel.send(f"-# {choice(["thinking","busy","playing games","sleeping","yawning","drooling","watching","understanding","remembring","wondering","imagining","dreaming","creating","chatting","looking","helping"])}... {EMOJI[choice(list(EMOJI.keys()))]}")
                 assist = self.getUserChatData(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist, client=3)
                 self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
@@ -121,8 +130,8 @@ class Kelly:
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
                 Current status: {current_status}
                 Generate Json dict using kelly response and mood
-                - respect: [-10 : +10] (int)
-                - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious)
+                - respect: (-10 : +10) (int)
+                - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (optional info about user to store important only: str)
                 - action: (run command/talk/call guard) (only from these 3 options)"""
@@ -134,7 +143,7 @@ class Kelly:
 
             except Exception as parse_error:
                 print("Could not parse Kelly AI response:", parse_error) 
-                result = {"respect": 0, "mood_change": 0, "personality_change": 0, "info": [], "action": "talk"}
+                result = {"respect": 0, "mood": "happy", "personality_change": {}, "info": [], "action": "talk"}
 
             #-----Updating Kelly Now-----#
             if isinstance(result["mood"], int):

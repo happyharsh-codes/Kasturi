@@ -4,6 +4,7 @@ from datetime import datetime , UTC, timedelta
 from json import dump, load
 from random import randint
 import time
+import math
 from __init__ import *
 
 class Bot:
@@ -88,11 +89,13 @@ class Bot:
             
             #Giving xp
             if Server_Settings[str(guild)]["rank_channel"] != 0:
-                old_rank = Server_Settings[str(guild)]["rank"][str(id)]
-                if (old_rank + 2) // 10 > old_rank // 10:
-                    channel = await message.guild.fetch_channel(Server_Settings[str(guild)]["rank_channel"])
-                    await channel.send(f"{message.author.mention} you reached Level {(old_rank +2)//10}") 
                 if str(id) in Server_Settings[str(guild)]["rank"]:
+                    total_xp = Server_Settings[str(guild)]["rank"][str(id)]
+                    max_xp = 10 * (1.5) * math.ceil(total_xp/15)
+                    total_xp += 2
+                    if total_xp > max_xp:
+                        channel = await message.guild.fetch_channel(Server_Settings[str(guild)]["rank_channel"])
+                        await channel.send(f"{message.author.mention} you reached Level {math.ceil(total_xp/15)}") 
                     Server_Settings[str(guild)]["rank"][str(id)] += 2
                 else: 
                     Server_Settings[str(guild)]["rank"][str(id)] = 2
@@ -120,6 +123,7 @@ class Bot:
 
             # Otherwise, only handle messages with valid prefixes
             message.content = message.content.lower()
+
             if not message.content.startswith(("kasturi", "kelly", "k")):
                 return
             message.content = message.content.replace("kelly","").replace("kasturi","").strip()
@@ -130,7 +134,10 @@ class Bot:
                         break
                 else: return
                 
-            message.content = "???" + message.content
+            if message.content[0] == " ":
+                message.content = "???" + message.content[1:]
+            else:
+                message.content = "???" + message.content
             print("Processing command on message: "+ message.content)
             await self.client.process_commands(message) #Kelly Process the message ;)
             print("Latency: ", (time.time() - start))
@@ -212,7 +219,9 @@ class Bot:
     async def on_command_error(self, ctx, error):
         '''Handelling errors'''
         if isinstance(error, commands.CommandNotFound):
+            print("hi")
             ctx.message.content = ctx.message.content[3:]
+            print(ctx.message, ctx.message.content)
             await self.kelly.kellyQuery(ctx.message)
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.reply("sorry I dont have perms to do that")

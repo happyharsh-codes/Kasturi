@@ -52,7 +52,7 @@ client_lastRequest = time.time()
 clients = [CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
 
 def getResponse(usermessage, prompt, assistant="", client=3):
-    global  client_lastRequest
+    global client_lastRequest
     messages = [{"role":"system","content": prompt}]
     
     if assistant != "":
@@ -109,7 +109,7 @@ def getResponse(usermessage, prompt, assistant="", client=3):
             return getResponse(usermessage, prompt, assistant, client=next_client)
 
         
-    print(f"#==========Response==========#\nModel: {model}\nPrompt: {prompt[0:5]}...{prompt[-5:]}\nINPUT: {usermessage}\nOUTPUT: {response.choices[0].message.content}\n#============================#")
+    print(f"#==========Response==========#\nModel: {model}\n\nINPUT: {messages}\nOUTPUT: {response.choices[0].message.content}\n#============================#")
     return response.choices[0].message.content
 
 print("__init__ was runned")
