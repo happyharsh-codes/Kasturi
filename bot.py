@@ -166,7 +166,7 @@ class Bot:
                         break
                     except:
                         continue
-        msg = discord.Embed(title=f"Minecord Joined {guild.name}",description=guild.description if guild.description else "No description", color=discord.Color.green(),url=invite)
+        msg = discord.Embed(title=f"Kelly Joined {guild.name}",description=guild.description if guild.description else "No description", color=discord.Color.green(),url=invite)
         if guild.icon:
             msg.set_thumbnail(url=guild.icon.url)
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
@@ -176,7 +176,7 @@ class Bot:
         "name": guild.name,
         "allowed_channels": [],
         "premium": False,
-        "invite_link": invite,
+        "invite_link": str(invite),
         "banned_words": [],
         "block_list": [],
         "muted": {},
@@ -195,8 +195,8 @@ class Bot:
     
     async def on_member_join(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
-            em = Embed(title=f"{member.mention} welcome to {member.guild.name}", description=f"Enjoy your peace time here!\n{member.guild.description}")
-            em.set_footer(text=f"Requested by {member.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
+            em = Embed(title=f"{member.display_name} welcome to {member.guild.name}", description=f"Enjoy your peace time here! {member.mention}\n{member.guild.description}")
+            em.set_footer(text=f"{member.name} joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
             try:
                 channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
                 await channel.send(embed=em)
@@ -206,7 +206,7 @@ class Bot:
     async def on_member_remove(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             em = Embed(title=f"{member.name} left the server", description=f"We are sorry to see you leave!")
-            em.set_footer(text=f"Requested by {member.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
+            em.set_footer(text=f"{member.name} left at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
             try:
                 channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
                 await channel.send(embed=em)
@@ -219,9 +219,7 @@ class Bot:
     async def on_command_error(self, ctx, error):
         '''Handelling errors'''
         if isinstance(error, commands.CommandNotFound):
-            print("hi")
             ctx.message.content = ctx.message.content[3:]
-            print(ctx.message, ctx.message.content)
             await self.kelly.kellyQuery(ctx.message)
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.reply("sorry I dont have perms to do that")

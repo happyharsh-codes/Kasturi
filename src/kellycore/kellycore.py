@@ -11,7 +11,7 @@ class Kelly:
         self.client = bot #discord bot
         self.mood = KellyMood()
         self.personality = KellyPersona(Persona)
-        self.relations = KellyRealtion(Relation)
+        self.relations = KellyRealtion()
         self.chats = Chats
         self.mood.generateRandomMood()
         self.giyu = Giyu()

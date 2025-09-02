@@ -12,28 +12,23 @@ class KellyRealtion:
     -zero respect means unknown user
     """
 
-
-    def __init__(self, filedata=Relation):
-        self.relation = filedata
-
-
     def getUserRelation(self, id):
         '''Returs user realtion with Kasturi- an integer: good relation= +ve, bad = -ve, unknown = zero. more respect more relation no bad respect negative relation on.'''
-        if not str(id) in self.relation:
+        if not str(id) in Relation:
             return None
-        return self.relation[str(id)]
+        return Relation[str(id)]
     
     def modifyUserRespect(self, val, id):
-        if str(id) not in self.relation:
-            self.relation[str(id)] = val
-            if self.relation[str(id)] == 0:
-                self.relation[str(id)] += 1
-            return
-        self.relation[str(id)] += val
-        if self.relation[str(id)] > 80: # Think of making Friend
+        if str(id) not in Relation:
+            Relation[str(id)] = val
+        Relation[str(id)] += val
+        if Relation[str(id)] > 80: # Think of making Friend
             pass
-        if self.relation[str(id)] < -20: # Think of ban
+        if Relation[str(id)] < -20: # Think of ban
             pass
+        if Relation[str(id)] == 0:
+            Relation[str(id)] += 1
+        return
     
     def addUserInfo(self, info, userid):
         if str(userid) in Behaviours:
@@ -55,6 +50,6 @@ class KellyRealtion:
 
     def save(self):
         with open("res/kellymemory/relations.json", "w") as f:
-            dump(self.relation, f, indent=4)
+            dump(Relation, f, indent=4)
         with open("res/kellymemory/behaviors.json", "w") as f:
             dump(Behaviours, f, indent=4)

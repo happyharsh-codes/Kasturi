@@ -48,7 +48,6 @@ CLIENT4 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY
 CLIENT5 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY4"))#ai model connection
 CLIENT6 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY5"))#ai model connection
 
-client_lastRequest = time.time()
 clients = [CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
 
 def getResponse(usermessage, prompt, assistant="", client=3):
@@ -69,19 +68,14 @@ def getResponse(usermessage, prompt, assistant="", client=3):
     if client == 3:
         model="meta-llama/Llama-Vision-Free",
         try:
-            if time.time() < client_lastRequest + 5:
-                time.sleep(client_lastRequest + 5 - time.time())
             response = CLIENT3.chat.completions.create(
                 model="meta-llama/Llama-Vision-Free",
                 messages= messages)
-            client_lastRequest = time.time()
         except:
             print("Model Changed")
             return getResponse(usermessage, prompt, assistant, client=1)
     else:
         model= "deepseek/deepseek-chat-v3-0324:free"
-        if time.time() < client_lastRequest + 5:
-            time.sleep(client_lastRequest + 5 - time.time())
         try:
             response = clients[client-1].chat.completions.create(
                 messages= messages,
@@ -90,7 +84,6 @@ def getResponse(usermessage, prompt, assistant="", client=3):
                 max_tokens=200,
                 model= "deepseek/deepseek-chat-v3-0324:free"
             )
-            client_lastRequest = time.time()
             if not response.choices:
                 print("Model Changed")
                 next_client = client+1
