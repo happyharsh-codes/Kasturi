@@ -13,7 +13,7 @@ class Giyu:
                 prompt = f"You are Kelly's Chief Guard\nGenerate: Your Response in 30 words with emojis"
                 response = getResponse(message.content, prompt, client=3)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-                descision = getResponse(f"User:{message.content}\nGuard: {response}", "You are Kelly's Chief Guard\nDecide wether user should be allowed to talk to kelly or not\nReturn ONLY True or False", client=2)
+                descision = getResponse(f"User:{message.content}\nGuard: {response}", "You are Kelly's Chief Guard\nDecide wether user should be allowed to talk to kelly or not. Always Allow when the user gives id number.\nReturn ONLY True or False", client=2)
                 if "true" in descision.lower():
                     print(f"#=====Giyu allowed user {message.author.name} {message.author.id} to talk to kelly=====#")
                     await message.channel.send(f"-# {message.author.name} is allowed to talk to Kelly")
