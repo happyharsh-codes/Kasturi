@@ -120,7 +120,7 @@ class Kelly:
             async with message.channel.typing():
                 msg = await message.channel.send(f"-# {choice(["thinking","busy","playing games","sleeping","yawning","drooling","watching","understanding","remembring","wondering","imagining","dreaming","creating","chatting","looking","helping"])}... {EMOJI[choice(list(EMOJI.keys()))]}")
                 assist = self.getUserChatData(message.author.id) #getting previous chats
-                kelly_reply = getResponse(message.content, prompt, assistant= assist, client=3)
+                kelly_reply = getResponse(message.content, prompt, assistant= assist, client=1)
                 self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
                 await msg.delete()
                 await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
