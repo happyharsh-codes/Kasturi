@@ -60,29 +60,33 @@ class Kelly:
                 command: {cmd}
                 Generate Json dict using kelly response and mood
                 - command_performed: true/false/null (based on mood, tone and task difficulty)
-                - command_params: str/int/null (a dict with keys from list values having values from message)
+                - command_params: str/int/null (a dict with keys from list and having values from message)
                 - response: str (ask for command params if not provided)"""
         result = getResponse(message.content, prompt, assistant=assistant, client=1)
         try:
             result = loads(result.split("```json")[1].split('```')[0])
-            if params != []:
-                params = result["command_params"]
+            if params:
+                if isinstance(result["command_params"], dict):
+                    params = result["command_params"]
+                else:
+                # convert list → dict (AI might return list sometimes)
+                    params = {name: val for name, val in zip(cmd[command.name], result["command_params"])}       
         except:
             print("Error while fetching commands")
             return
-        if not result["command_performed"]:
-            prompt = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass). Refuse the command with sass and attitude IN 30 WORDS. Reason: {self.mood.moodToDoTasks()}. Do not tell the reason directly."""
-            result = getResponse(message.content, prompt, assistant=assistant, client=3)
+        if not self.mood.moodToDoTasks():
+            prompt = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass). Refuse the command with sass and attitude IN 30 WORDS. Mood: {self.mood.mood}. Do not tell the reason directly."""
+            result = getResponse(message.content, prompt, assistant=assistant, client=1)
             await message.channel.send(result)
             return
 
         #modifying params
         if "user" in params:
-            params["user"] = self.client.get_user(int(params["user"]))
+            params["user"] = int(params["user"].replace("<","").replace(">","").replace("@",""))
         if "member" in params:
-            params["user"] = self.client.get_user(int(params["member"]))
+            params["member"] = int(params["member"].replace("<","").replace(">","").replace("@",""))
         if "channel" in params:
-            params["channel"] = self.client.fetch_channel(int(params["channel"].replace("<", "").replace(">","").replace("#","")))
+            params["channel"] = int(params["channel"].replace("<", "").replace(">","").replace("#",""))
 
 
         for j in params:
