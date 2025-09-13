@@ -10,6 +10,7 @@ from discord import ButtonStyle, Embed, Color, SelectOption
 from json import load, dump, loads
 from random import choice, randint, choices
 from openai import OpenAI
+from bytez import Bytez
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -41,6 +42,7 @@ with open("res/kellymemory/behaviors.json", "r") as f:
     Behaviours = load(f)
     print("Loaded: behaviors.json")
 
+sdk = Bytez("3bdf105e0b110dec129fad158321ce1a")
 CLIENT1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
 CLIENT2 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
 CLIENT3 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY6"))
@@ -50,7 +52,7 @@ CLIENT6 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY
 
 clients = [CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
 
-def getResponse(usermessage, prompt, assistant="", client=3):
+def getResponse(usermessage, prompt, assistant="", client=0):
     global client_lastRequest
     messages = [{"role":"system","content": prompt}]
     
@@ -64,9 +66,11 @@ def getResponse(usermessage, prompt, assistant="", client=3):
                 messages.append({"role":"assistant","content":user[1]})
     #adding current message
     messages.append({"role":"user","content": usermessage})
+    if client == 0:
+      model = sdk.model("avans06/Meta-Llama-3.2-8B-Instruct")
+      output, error = model.run(messages)
+      return output["content"]
     model= "deepseek/deepseek-chat-v3-0324:free"
-    if prompt.startswith("Roleplay Kelly"):
-        model="meta-llama/Llama-Vision-Free"
     try:
         response = clients[client-1].chat.completions.create(
             messages= messages,
