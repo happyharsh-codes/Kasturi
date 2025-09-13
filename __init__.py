@@ -64,42 +64,32 @@ def getResponse(usermessage, prompt, assistant="", client=3):
                 messages.append({"role":"assistant","content":user[1]})
     #adding current message
     messages.append({"role":"user","content": usermessage})
-
-    if client == 3:
-        model="meta-llama/llama-4-maverick:free",
-        try:
-            response = CLIENT3.chat.completions.create(
-                model="meta-llama/Llama-Vision-Free",
-                messages= messages)
-        except:
-            print("Model Changed")
-            return getResponse(usermessage, prompt, assistant, client=1)
-    else:
-        model= "deepseek/deepseek-chat-v3-0324:free"
-        try:
-            response = clients[client-1].chat.completions.create(
-                messages= messages,
-                temperature=1.0,
-                top_p=1.0,
-                max_tokens=200,
-                model= "deepseek/deepseek-chat-v3-0324:free"
-            )
-            if not response.choices:
-                print("Model Changed")
-                next_client = client+1
-                if next_client == 3: next_client = 4
-                elif next_client == 7:
-                    print("All clients failed !!")
-                    return
-                return getResponse(usermessage, prompt, assistant, client=next_client)
-        except:
+    model= "deepseek/deepseek-chat-v3-0324:free"
+    client=1
+    if prompt.startswith("Roleplay Kelly"):
+        model="meta-llama/Llama-Vision-Free"
+    try:
+        response = clients[client-1].chat.completions.create(
+            messages= messages,
+            temperature=1.0,
+            top_p=1.0,
+            max_tokens=200,
+            model= model
+        )
+        if not response.choices:
             print("Model Changed")
             next_client = client+1
-            if next_client == 3: next_client = 4
             elif next_client == 7:
                 print("All clients failed !!")
                 return
             return getResponse(usermessage, prompt, assistant, client=next_client)
+    except:
+        print("Model Changed")
+        next_client = client+1
+        elif next_client == 7:
+            print("All clients failed !!")
+            return
+        return getResponse(usermessage, prompt, assistant, client=next_client)
 
         
     print(f"#==========Response==========#\nModel: {model}\n\nINPUT: {messages}\nOUTPUT: {response.choices[0].message.content}\n#============================#")
