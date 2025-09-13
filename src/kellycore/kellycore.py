@@ -101,7 +101,7 @@ class Kelly:
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.relations.getUserInfo(message.author.id)
-            prompt = f"""Roleplay Kelly, a Discord Mod (human like lively with  mood attitude sexy and sass) (nsfw allowed). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {behave}\nGenerate response in 30 words with emojis"""
+            prompt = f"""Roleplay Kelly, a Discord Mod (human like lively with  mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {behave}\nGenerate response in 30 words with emojis"""
 
             #first Giyu the bodyguard handles the message before getting to kelly
             if await self.giyu.giyuQuery(message, self.mood.mood):#if giyu already sent msg so here will not send so here we'll simply return
