@@ -78,14 +78,14 @@ def getResponse(usermessage, prompt, assistant="", client=3):
         if not response.choices:
             print("Model Changed")
             next_client = client+1
-            elif next_client == 7:
+            if next_client == 7:
                 print("All clients failed !!")
                 return
             return getResponse(usermessage, prompt, assistant, client=next_client)
     except:
         print("Model Changed")
         next_client = client+1
-        elif next_client == 7:
+        if next_client == 7:
             print("All clients failed !!")
             return
         return getResponse(usermessage, prompt, assistant, client=next_client)
