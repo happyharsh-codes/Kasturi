@@ -65,7 +65,6 @@ def getResponse(usermessage, prompt, assistant="", client=3):
     #adding current message
     messages.append({"role":"user","content": usermessage})
     model= "deepseek/deepseek-chat-v3-0324:free"
-    client=1
     if prompt.startswith("Roleplay Kelly"):
         model="meta-llama/Llama-Vision-Free"
     try:
