@@ -38,7 +38,7 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(ban_members=True)
     async def ban(self, ctx: commands.Context, user: discord.Member,*, reason: str = "No reason provided"):
         await ctx.guild.ban(user=user, reason=reason, delete_message_days=0)
-        em = Embed(title="Member Banned", description=f"{user.mention} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
+        em = Embed(title="Member Banned", description=f"{user.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
@@ -46,11 +46,11 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def unban(self, ctx: commands.Context, user_tag: str, *, reason: str):
+    async def unban(self, ctx: commands.Context, user_tag: str, *, reason: str = "No reason provided"):
         async for entry in ctx.guild.bans():
             if entry.user.name.lower() == user_tag.lower() or entry.user.id == int(user_tag):
                 await ctx.guild.unban(entry.user, reason= reason)
-                em = Embed(title="Member Unbanned", description=f"{user.mention} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
+                em = Embed(title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
                 em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
                 dm_channel = await entry.user.create_dm()
