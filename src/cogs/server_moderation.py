@@ -47,7 +47,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def unban(self, ctx: commands.Context, user_tag: str, *, reason: str):
-        async for entry in guild.bans():
+        async for entry in ctx.guild.bans():
             if entry.user.name.lower() == user_tag.lower() or entry.user.id == int(user_tag):
                 await ctx.guild.unban(entry.user, reason= reason)
                 em = Embed(title="Member Unbanned", description=f"{user.mention} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
