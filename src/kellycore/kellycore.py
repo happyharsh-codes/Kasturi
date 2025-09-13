@@ -62,7 +62,7 @@ class Kelly:
                 - command_performed: true/false/null (based on mood, tone and task difficulty)
                 - command_params: str/int/null (a dict with keys from list values having values from message)
                 - response: str (ask for command params if not provided)"""
-        result = getResponse(message.content, prompt, assistant=assistant, client=2)
+        result = getResponse(message.content, prompt, assistant=assistant, client=1)
         try:
             result = loads(result.split("```json")[1].split('```')[0])
             if params != []:
@@ -120,7 +120,7 @@ class Kelly:
             async with message.channel.typing():
                 msg = await message.channel.send(f"-# {choice(["thinking","busy","playing games","sleeping","yawning","drooling","watching","understanding","remembring","wondering","imagining","dreaming","creating","chatting","looking","helping"])}... {EMOJI[choice(list(EMOJI.keys()))]}")
                 assist = self.getUserChatData(message.author.id) #getting previous chats
-                kelly_reply = getResponse(message.content, prompt, assistant= assist, client=1)
+                kelly_reply = getResponse(message.content, prompt, assistant= assist, client=0)
                 self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
                 await msg.delete()
                 await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
@@ -135,7 +135,7 @@ class Kelly:
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (optional info about user to store important only: str)
                 - action: (run command/talk/call guard) (only from these 3 options)"""
-            raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=2).lower()
+            raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=1).lower()
             try:
                 if not raw_result.startswith("```"):
                     raw_result = "```json " + raw_result + " ```"
