@@ -36,8 +36,8 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx: commands.Context, user: discord.Member, delete_days: int = 0, *, reason: str = "No reason provided"):
-        await ctx.guild.ban(user=user, reason=reason, delete_message_days=delete_days)
+    async def ban(self, ctx: commands.Context, user: discord.Member,*, reason: str = "No reason provided"):
+        await ctx.guild.ban(user=user, reason=reason, delete_message_days=0)
         em = Embed(title="Member Banned", description=f"{user.mention} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
@@ -46,16 +46,19 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def unban(self, ctx: commands.Context, *, user_tag: str):
+    async def unban(self, ctx: commands.Context, *, user_tag: str, *, reason: str):
         banned_users = await ctx.guild.bans()
-        name, discriminator = user_tag.split("#")
-        for ban_entry in banned_users:
-            user = ban_entry.user
-            if (user.name, user.discriminator) == (name, discriminator):
-                await ctx.guild.unban(user)
-                em = Embed(title="Member Unbanned", description=f"{user.mention} was unbanned by {ctx.author.mention}.", color=Color.pink())
+        async for entry in guild.bans():
+            if entry.user.name.lower() == user_tag.lower() or entry.user.id == int(user_tag):
+                await ctx.guild.unban(entry.user, reason= reason)
+                em = Embed(title="Member Unbanned", description=f"{user.mention} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
                 em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
+                dm_channel = await entry.user.create_dm()
+                try:
+                    await dm_channel.send(content=f"Hurray! You just got unbanned from the guild `{ctx.guild.name}`.\n Click here to join again:\n{ServerSettings[str(ctx.guild.id)]["invite"]}")
+                except:
+                    pass
                 return
         await ctx.send("User not found in ban list.")
 
