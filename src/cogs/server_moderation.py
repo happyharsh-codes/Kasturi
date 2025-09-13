@@ -55,7 +55,7 @@ class Moderation(commands.Cog):
                 await ctx.send(embed=em)
                 dm_channel = await entry.user.create_dm()
                 try:
-                    await dm_channel.send(content=f"Hurray! You just got unbanned from the guild `{ctx.guild.name}`.\n Click here to join again:\n{ServerSettings[str(ctx.guild.id)]["invite"]}")
+                    await dm_channel.send(content=f"Hurray! You just got unbanned from the guild `{ctx.guild.name}`.\n Click here to join again:\n{Server_Settings[str(ctx.guild.id)]["invite_link"]}")
                 except:
                     pass
                 return
