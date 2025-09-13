@@ -10,7 +10,7 @@ from discord import ButtonStyle, Embed, Color, SelectOption
 from json import load, dump, loads
 from random import choice, randint, choices
 from openai import OpenAI
-from together import Together
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -43,7 +43,7 @@ with open("res/kellymemory/behaviors.json", "r") as f:
 
 CLIENT1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
 CLIENT2 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
-CLIENT3 = Together()
+CLIENT3 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY6"))
 CLIENT4 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY3"))#ai model connection
 CLIENT5 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY4"))#ai model connection
 CLIENT6 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY5"))#ai model connection
@@ -66,7 +66,7 @@ def getResponse(usermessage, prompt, assistant="", client=3):
     messages.append({"role":"user","content": usermessage})
 
     if client == 3:
-        model="meta-llama/Llama-Vision-Free",
+        model="meta-llama/llama-4-maverick:free",
         try:
             response = CLIENT3.chat.completions.create(
                 model="meta-llama/Llama-Vision-Free",
