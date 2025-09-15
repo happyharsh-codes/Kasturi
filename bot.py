@@ -125,6 +125,8 @@ class Bot:
             message.content = message.content.lower()
 
             if not message.content.startswith(("kasturi", "kelly", "k")):
+                if "kasturi" in message.content.lower() or "kelly" in message.content.lower():
+                    await self.kelly.kellyQuery(message)
                 return
             message.content = message.content.replace("kelly","").replace("kasturi","").strip()
             if message.content[0] == "k":
