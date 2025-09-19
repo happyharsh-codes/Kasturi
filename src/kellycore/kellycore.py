@@ -160,7 +160,7 @@ class Kelly:
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (optional info about user to store important only: str)
                 - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})
-                - response: (the extra reponse only when need when like missing perms then only)"""
+                - remark: (the extra reponse only when need when like missing perms then only)"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=1).lower()
             try:
                 if not raw_result.startswith("```"):
@@ -183,13 +183,10 @@ class Kelly:
                 self.relations.addUserInfo(result["info"], message.author.id)
 
             #------Performing Task/Command Now------#
-            if result["command"] and result["command"] != "none":
+            if "command" in result and result["command"] and result["command"] != "none":
                 await self.runCommand(message, result)
-                try:
-                    if result["response"] != kelly_reply:
-                        await message.channel.send(self.getEmoji(result["response"]))
-                except:
-                    pass
+            if "remark" in result:
+                await message.channel.send(self.getEmoji(result["remark"]))
 
         except Exception as error:
             await self.reportError(error)
