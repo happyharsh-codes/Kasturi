@@ -48,8 +48,8 @@ class Kelly:
 
     async def runCommand(self, message: discord.Message, ai_result: dict):
         try:
-            cmd_name = ai_result.get("command")
-            params = ai_result.get("params", {})
+            cmd_name = list(ai_result.get("command").keys())[0]
+            params = list(ai_result.get("command").values())[0]
 
             if not cmd_name:
                 await message.channel.send("I’m not seeing any command here. 🙄")
@@ -159,8 +159,7 @@ class Kelly:
                 - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (optional info about user to store important only: str)
-                - command: (default none for talking) {self.commands}
-                - params: (dict of parameters name and set values from chat and values should be of given type/ if missing any perms return empty dict)
+                - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})
                 - response: (the extra reponse only when need when like missing perms then only)"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=1).lower()
             try:
@@ -187,7 +186,7 @@ class Kelly:
             if result["command"] and result["command"] != "none":
                 await self.runCommand(message, result)
                 try:
-                    await message.reply(self.getEmoji(result["response"]))
+                    await message.channel.send(self.getEmoji(result["response"]))
                 except:
                     pass
 
