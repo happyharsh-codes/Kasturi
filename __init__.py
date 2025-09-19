@@ -69,6 +69,7 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     if client == 0:
       model = sdk.model("rajdeep4321/meta-model-fast")
       output, error = model.run(messages)
+      print(f"#==========Response==========#\nModel: rajdeep4321/meta-model-fast\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#")
       return output["content"]
     model= "deepseek/deepseek-chat-v3-0324:free"
     try:
@@ -83,18 +84,20 @@ def getResponse(usermessage, prompt, assistant="", client=0):
             print("Model Changed")
             next_client = client+1
             if next_client == 7:
-                print("All clients failed !!")
-                return
-
-            asyncio.sleep(2)
+                model = sdk.model("deepseek-ai/deepseek-coder-1.3b-instruct")
+                output, error = model.run(messages)
+                print(f"#==========Response==========#\nModel: deepseek-ai/deepseek-coder-1.3b-instruct\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#")
+                return output["content"]
             return getResponse(usermessage, prompt, assistant, client=next_client)
     except:
         print("Model Changed")
         next_client = client+1
         if next_client == 7:
-            print("All clients failed !!")
-            return
-        asyncio.sleep(2)
+            
+            model = sdk.model("deepseek-ai/deepseek-coder-1.3b-instruct")
+            output, error = model.run(messages)
+            print(f"#==========Response==========#\nModel: deepseek-ai/deepseek-coder-1.3b-instruct\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#") 
+            return output["content"]
         return getResponse(usermessage, prompt, assistant, client=next_client)
 
         
