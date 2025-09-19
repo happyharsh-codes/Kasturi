@@ -67,7 +67,7 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     #adding current message
     messages.append({"role":"user","content": usermessage})
     if client == 0:
-      model = sdk.model("avans06/Meta-Llama-3.2-8B-Instruct")
+      model = sdk.model("rajdeep4321/meta-model-fast")
       output, error = model.run(messages)
       return output["content"]
     model= "deepseek/deepseek-chat-v3-0324:free"
@@ -85,6 +85,8 @@ def getResponse(usermessage, prompt, assistant="", client=0):
             if next_client == 7:
                 print("All clients failed !!")
                 return
+
+            asyncio.sleep(2)
             return getResponse(usermessage, prompt, assistant, client=next_client)
     except:
         print("Model Changed")
@@ -92,6 +94,7 @@ def getResponse(usermessage, prompt, assistant="", client=0):
         if next_client == 7:
             print("All clients failed !!")
             return
+        asyncio.sleep(2)
         return getResponse(usermessage, prompt, assistant, client=next_client)
 
         
