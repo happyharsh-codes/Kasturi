@@ -92,7 +92,7 @@ class Kelly:
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (optional info about user to store important only: str)
                 - command: (default none for talking) {self.commands}
-                - params: (dict of parameters name and set values from chat/ if missing any perms return empty dict)
+                - params: (dict of parameters name and set values from chat and values should be of given type/ if missing any perms return empty dict)
                 - response: (the extra reponse only when need when like missing perms then only)"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=1).lower()
             try:
@@ -119,11 +119,11 @@ class Kelly:
             if result["command"] and result["command"] != "none":
                 ctx = await self.client.get_context(message)
                 if result["params"] != {}:
-                    if isinstance(result["command_params"], dict):
-                        params = result["command_params"]
+                    if isinstance(result["params"], dict):
+                        params = result["params"]
                     else:
                     # convert list → dict (AI might return list sometimes)
-                        params = {name: val for name, val in zip(cmd[command.name], result["command_params"])}
+                        params = {name: val for name, val in zip(cmd[command.name], result["params"])}
                     await ctx.invoke(self.client.get_command(result["command"], **params))
                 else:
                     try:
