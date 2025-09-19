@@ -10,7 +10,7 @@ from discord import ButtonStyle, Embed, Color, SelectOption
 from json import load, dump, loads
 from random import choice, randint, choices
 from openai import OpenAI
-from bytez import Bytez
+from huggingface_hub import InferenceClient
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -42,7 +42,7 @@ with open("res/kellymemory/behaviors.json", "r") as f:
     Behaviours = load(f)
     print("Loaded: behaviors.json")
 
-sdk = Bytez("3bdf105e0b110dec129fad158321ce1a")
+CLIENT0 = InferenceClient(token= os.getenv("HF_KEY"))
 CLIENT1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
 CLIENT2 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY2"))#ai model connection
 CLIENT3 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY6"))
@@ -50,7 +50,7 @@ CLIENT4 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY
 CLIENT5 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY4"))#ai model connection
 CLIENT6 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY5"))#ai model connection
 
-clients = [CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
+clients = [CLIENT0, CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
 
 def getResponse(usermessage, prompt, assistant="", client=0):
     global client_lastRequest
@@ -67,11 +67,20 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     #adding current message
     messages.append({"role":"user","content": usermessage})
     if client == 0:
-      model = sdk.model("rajdeep4321/meta-model-fast")
-      output, error = model.run(messages)
-      print(f"#==========Response==========#\nModel: rajdeep4321/meta-model-fast\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#")
-      return output["content"]
+        try:
+            model= "meta-llama/Meta-Llama-3-8B-Instruct"
+            response = CLIENT0.chat.completions.create(
+                model=model,
+                messages= messages,
+                max_tokens=100,
+            )
+            print(f"#==========Response==========#\nModel: meta-llama/Meta-Llama-3-8B-Instruct\n\nINPUT: {messages}\nOUTPUT: {response.choices[0].messages["content"]}\n#============================#")
+            return response.choices[0].messages["content"]
+        except:
+            return getResponse(usermessage, prompt, assistant, client=1)
     model= "deepseek/deepseek-chat-v3-0324:free"
+    if client == 1:
+        model= "deepseek-ai/DeepSeek-V3-0324"
     try:
         response = clients[client-1].chat.completions.create(
             messages= messages,
@@ -83,21 +92,18 @@ def getResponse(usermessage, prompt, assistant="", client=0):
         if not response.choices:
             print("Model Changed")
             next_client = client+1
-            if next_client == 7:
-                model = sdk.model("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B")
-                output, error = model.run(messages)
-                print(f"#==========Response==========#\nModel: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#")
-                return output["content"]
+            if next_client == 8:
+                print("All clients failed")
+                return
+            asyncio.sleep(1)
             return getResponse(usermessage, prompt, assistant, client=next_client)
     except:
         print("Model Changed")
         next_client = client+1
         if next_client == 7:
-            
-            model = sdk.model("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B")
-            output, error = model.run(messages)
-            print(f"#==========Response==========#\nModel: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#") 
-            return output["content"]
+            print("All clients failed")
+            return
+        asyncio.sleep(1)
         return getResponse(usermessage, prompt, assistant, client=next_client)
 
         
