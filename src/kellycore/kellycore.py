@@ -81,7 +81,7 @@ class Kelly:
             if not self.commands:
                 cmds = {}
                 for command in bot.get_cog("Moderation").get_commands():
-                    cmds[command.name] = list(command.clean_params.keys())
+                    cmds[command.name] = command.clean_params
                 self.commands = cmds
             current_status = {"respect": relation,"mood": mood, "persona": persona}
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
@@ -124,15 +124,6 @@ class Kelly:
                     else:
                     # convert list → dict (AI might return list sometimes)
                         params = {name: val for name, val in zip(cmd[command.name], result["command_params"])}
-                    
-                    #modifying params
-                    if "user" in params:
-                        params["user"] = int(params["user"].replace("<","").replace(">","").replace("@",""))
-                    if "member" in params:
-                        params["member"] = int(params["member"].replace("<","").replace(">","").replace("@",""))
-                    if "channel" in params:
-                        params["channel"] = int(params["channel"].replace("<", "").replace(">","").replace("#",""))
-
                     await ctx.invoke(self.client.get_command(result["command"], **params))
                 else:
                     try:
