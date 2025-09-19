@@ -186,7 +186,8 @@ class Kelly:
             if result["command"] and result["command"] != "none":
                 await self.runCommand(message, result)
                 try:
-                    await message.channel.send(self.getEmoji(result["response"]))
+                    if result["response"] != kelly_reply:
+                        await message.channel.send(self.getEmoji(result["response"]))
                 except:
                     pass
 
