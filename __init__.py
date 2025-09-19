@@ -84,9 +84,9 @@ def getResponse(usermessage, prompt, assistant="", client=0):
             print("Model Changed")
             next_client = client+1
             if next_client == 7:
-                model = sdk.model("deepseek-ai/deepseek-coder-1.3b-instruct")
+                model = sdk.model("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B")
                 output, error = model.run(messages)
-                print(f"#==========Response==========#\nModel: deepseek-ai/deepseek-coder-1.3b-instruct\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#")
+                print(f"#==========Response==========#\nModel: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#")
                 return output["content"]
             return getResponse(usermessage, prompt, assistant, client=next_client)
     except:
@@ -94,9 +94,9 @@ def getResponse(usermessage, prompt, assistant="", client=0):
         next_client = client+1
         if next_client == 7:
             
-            model = sdk.model("deepseek-ai/deepseek-coder-1.3b-instruct")
+            model = sdk.model("deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B")
             output, error = model.run(messages)
-            print(f"#==========Response==========#\nModel: deepseek-ai/deepseek-coder-1.3b-instruct\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#") 
+            print(f"#==========Response==========#\nModel: deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B\n\nINPUT: {messages}\nOUTPUT: {output["content"]}\n#============================#") 
             return output["content"]
         return getResponse(usermessage, prompt, assistant, client=next_client)
 
