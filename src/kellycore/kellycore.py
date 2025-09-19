@@ -80,7 +80,7 @@ class Kelly:
             #------Getting Convo summary------#
             if not self.commands:
                 cmds = {}
-                for command in bot.get_cog("Moderation").get_commands():
+                for command in self.client.get_cog("Moderation").get_commands():
                     cmds[command.name] = command.clean_params
                 self.commands = cmds
             current_status = {"respect": relation,"mood": mood, "persona": persona}
