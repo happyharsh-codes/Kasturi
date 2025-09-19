@@ -45,7 +45,75 @@ class Kelly:
             Chats[str(id)].append(f"User:{user_message}\nKelly:{kelly_message}")
             if len(Chats[str(id)]) > 4:
                 Chats[str(id)].pop(0)
-                
+
+    async def runCommand(self, message: discord.Message, ai_result: dict):
+        try:
+            cmd_name = ai_result.get("command")
+            params = ai_result.get("params", {})
+
+            if not cmd_name:
+                await message.channel.send("I’m not seeing any command here. 🙄")
+                return
+
+            # Find the command object
+            cmd = self.client.get_command(cmd_name)
+            if not cmd:
+                await message.channel.send(f"Ughhh, I don’t even *have* a `{cmd_name}` command. 🙃")
+                return
+
+            # Get ctx
+            ctx = await self.client.get_context(message)
+
+            # Validate params against command signature
+            clean_params = cmd.clean_params  # dict of {param_name: inspect.Parameter}
+            final_params = {}
+
+            for name, param in clean_params.items():
+                if name in params:
+                    raw = params[name]
+
+                    # --- Conversion handling ---
+                    if "member" in name or name == "user":
+                        # Convert mention or ID to Member
+                        user_id = int("".join([c for c in str(raw) if c.isdigit()]))
+                        member = message.guild.get_member(user_id)
+                        if not member:
+                            member = await self.client.fetch_user(user_id)
+                        final_params[name] = member
+
+                    elif "role" in name:
+                        role_id = int("".join([c for c in str(raw) if c.isdigit()]))
+                        role = message.guild.get_role(role_id)
+                        final_params[name] = role
+
+                    elif "channel" in name:
+                        chan_id = int("".join([c for c in str(raw) if c.isdigit()]))
+                        channel = message.guild.get_channel(chan_id)
+                        if not channel:
+                            channel = await self.client.fetch_channel(chan_id)
+                        final_params[name] = channel
+
+                    elif param.annotation == int:
+                        final_params[name] = int(raw)
+
+                    else:
+                        final_params[name] = str(raw)
+
+                else:
+                    # Fill in default if available
+                    if param.default is not param.empty:
+                        final_params[name] = param.default
+                    else:
+                        # Missing required param → ask AI’s response
+                        await message.channel.send(ai_result.get("response", f"You forgot `{name}`. 🙃"))
+                        return
+
+            print(f"### Running command {cmd_name} with {final_params}")
+            await ctx.invoke(cmd, **final_params)
+
+        except Exception as e:
+            await self.reportError(e)
+    
     async def kellyQuery(self, message: discord.Message):
         try: 
             #------Initializing------#
@@ -117,19 +185,11 @@ class Kelly:
 
             #------Performing Task/Command Now------#
             if result["command"] and result["command"] != "none":
-                ctx = await self.client.get_context(message)
-                if result["params"] != {}:
-                    if isinstance(result["params"], dict):
-                        params = result["params"]
-                    else:
-                    # convert list → dict (AI might return list sometimes)
-                        params = {name: val for name, val in zip(cmd[command.name], result["params"])}
-                    await ctx.invoke(self.client.get_command(result["command"], **params))
-                else:
-                    try:
-                        await message.reply(self.getEmoji(result["response"]))
-                    except:
-                        await message.reply("please give me all parameters")
+                await self.runCommand(message, result)
+                try:
+                    await message.reply(self.getEmoji(result["response"]))
+                except:
+                    pass
 
         except Exception as error:
             await self.reportError(error)
