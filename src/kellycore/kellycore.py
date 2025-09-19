@@ -15,6 +15,10 @@ class Kelly:
         self.chats = Chats
         self.mood.generateRandomMood()
         self.giyu = Giyu()
+        cmds = {}
+        for command in bot.get_cog("Moderation").get_commands():
+            cmds[command.name] = list(command.clean_params.keys())
+        self.commands = cmds
                 
     async def reportError(self, error):
         try:
@@ -44,60 +48,7 @@ class Kelly:
             Chats[str(id)].append(f"User:{user_message}\nKelly:{kelly_message}")
             if len(Chats[str(id)]) > 4:
                 Chats[str(id)].pop(0)
-
-    async def runCommand(self, message, assistant):
-        for command in self.client.commands:
-            if command.name in message.content or ( command.aliases != [] and command.aliases[0] in message.content):
-                if command.clean_params:
-                    params = list(command.clean_params.keys())
-                else:
-                    params = []
-                cmd = {command.name: params}
-                break
-        else: return
-        
-        prompt = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
-                command: {cmd}
-                Generate Json dict using kelly response and mood
-                - command_performed: true/false/null (based on mood, tone and task difficulty)
-                - command_params: str/int/null (a dict with keys from list and having values from message)
-                - response: str (ask for command params if not provided)"""
-        result = getResponse(message.content, prompt, assistant=assistant, client=1)
-        try:
-            result = loads(result.split("```json")[1].split('```')[0])
-            if params:
-                if isinstance(result["command_params"], dict):
-                    params = result["command_params"]
-                else:
-                # convert list → dict (AI might return list sometimes)
-                    params = {name: val for name, val in zip(cmd[command.name], result["command_params"])}       
-        except:
-            print("Error while fetching commands")
-            return
-        if not self.mood.moodToDoTasks():
-            prompt = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass). Refuse the command with sass and attitude IN 30 WORDS. Mood: {self.mood.mood}. Do not tell the reason directly."""
-            result = getResponse(message.content, prompt, assistant=assistant, client=1)
-            await message.channel.send(result)
-            return
-
-        #modifying params
-        if "user" in params:
-            params["user"] = int(params["user"].replace("<","").replace(">","").replace("@",""))
-        if "member" in params:
-            params["member"] = int(params["member"].replace("<","").replace(">","").replace("@",""))
-        if "channel" in params:
-            params["channel"] = int(params["channel"].replace("<", "").replace(">","").replace("#",""))
-
-
-        for j in params:
-            if not j:
-                await message.channel.send(self.getEmoji(result["response"]))
-                return
-            
-        print("###Running command by search: ", cmd, params)
-        ctx = await self.client.get_context(message)
-        await ctx.invoke(self.client.get_command(list(cmd.keys())[0]), **params)
-
+                
     async def kellyQuery(self, message: discord.Message):
         try: 
             #------Initializing------#
@@ -138,7 +89,9 @@ class Kelly:
                 - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (optional info about user to store important only: str)
-                - action: (run command/talk/call guard) (only from these 3 options)"""
+                - command: (default none for talking) {self.commands}
+                - params: (dict of parameters name and set values from chat/ if missing any perms return empty dict)
+                - response: (the extra reponse only when need when like missing perms then only)"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=1).lower()
             try:
                 if not raw_result.startswith("```"):
@@ -147,7 +100,7 @@ class Kelly:
 
             except Exception as parse_error:
                 print("Could not parse Kelly AI response:", parse_error) 
-                result = {"respect": 0, "mood": "happy", "personality_change": {}, "info": [], "action": "talk"}
+                result = {"respect": 0, "mood": "happy", "personality_change": {}, "info": [], "command": None, "params": {}, "response": "nothing"}
 
             #-----Updating Kelly Now-----#
             if isinstance(result["mood"], int):
@@ -159,13 +112,31 @@ class Kelly:
             self.relations.modifyUserRespect(result["respect"], message.author.id)
             if "info" in result and result['info']:
                 self.relations.addUserInfo(result["info"], message.author.id)
-            print(f"Talk result: {result}")
 
             #------Performing Task/Command Now------#
-            if "call" in result["action"] or "guard" in result["action"]:
-                self.giyu.giyuTakeDescision(message, self.mood.mood)
-            elif "run" in result["action"]:
-                await self.runCommand(message, assistant=assist)
+            if result["command"] and result["command"] != "none":
+                ctx = await self.client.get_context(message)
+                if result["params"] != {}:
+                    if isinstance(result["command_params"], dict):
+                        params = result["command_params"]
+                    else:
+                    # convert list → dict (AI might return list sometimes)
+                        params = {name: val for name, val in zip(cmd[command.name], result["command_params"])}
+                    
+                    #modifying params
+                    if "user" in params:
+                        params["user"] = int(params["user"].replace("<","").replace(">","").replace("@",""))
+                    if "member" in params:
+                        params["member"] = int(params["member"].replace("<","").replace(">","").replace("@",""))
+                    if "channel" in params:
+                        params["channel"] = int(params["channel"].replace("<", "").replace(">","").replace("#",""))
+
+                    await ctx.invoke(self.client.get_command(result["command"], **params))
+                else:
+                    try:
+                        await message.reply(self.getEmoji(result["response"]))
+                    except:
+                        await message.reply("please give me all parameters")
 
         except Exception as error:
             await self.reportError(error)
