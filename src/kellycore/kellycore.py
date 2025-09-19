@@ -15,10 +15,7 @@ class Kelly:
         self.chats = Chats
         self.mood.generateRandomMood()
         self.giyu = Giyu()
-        cmds = {}
-        for command in bot.get_cog("Moderation").get_commands():
-            cmds[command.name] = list(command.clean_params.keys())
-        self.commands = cmds
+        self.commands = None
                 
     async def reportError(self, error):
         try:
@@ -81,6 +78,11 @@ class Kelly:
                 await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
 
             #------Getting Convo summary------#
+            if not self.commands:
+                cmds = {}
+                for command in bot.get_cog("Moderation").get_commands():
+                    cmds[command.name] = list(command.clean_params.keys())
+                self.commands = cmds
             current_status = {"respect": relation,"mood": mood, "persona": persona}
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
                 Current status: {current_status}
