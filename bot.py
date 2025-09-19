@@ -23,11 +23,11 @@ class Bot:
                     sv_settings[servers]["muted"].pop(muted)
         Server_Settings = sv_settings
 
-    @tasks.loop(minutes=30)
+    @tasks.loop(minutes=2)
     async def mood_swings(self):
         self.kelly.mood.moodSwing()
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=100)
     async def save_files(self):
         with open("res/server/profiles.json", "w") as f:
             dump(Profiles, f, indent=4)
