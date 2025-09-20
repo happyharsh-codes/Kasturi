@@ -121,7 +121,7 @@ class Kelly:
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.relations.getUserInfo(message.author.id)
-            prompt = f"""Roleplay Kelly, a Discord Mod (human like lively with  mood attitude and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {behave}\nGenerate response in less than 20 words with emojis(0-4)"""
+            prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {behave}\nGenerate response in less than 20 words with emojis(0-4)"""
 
             #first Giyu the bodyguard handles the message before getting to kelly
             if await self.giyu.giyuQuery(message, self.mood.mood):#if giyu already sent msg so here will not send so here we'll simply return
@@ -160,7 +160,7 @@ class Kelly:
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (optional info about user to store important only: str)
                 - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})
-                - remark: (the extra reponse only when need when like missing perms then only)"""
+                - remark: (default none the extra reponse only when missing perms or small remarks)"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=1).lower()
             try:
                 if not raw_result.startswith("```"):
@@ -185,7 +185,7 @@ class Kelly:
             #------Performing Task/Command Now------#
             if "command" in result and result["command"] and result["command"] != "none":
                 await self.runCommand(message, result)
-            if "remark" in result:
+            if "remark" in result and result["remark"] and result["remark"] != "none":
                 await message.channel.send(self.getEmoji(result["remark"]))
 
         except Exception as error:
