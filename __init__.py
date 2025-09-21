@@ -66,27 +66,22 @@ def getResponse(usermessage, prompt, assistant="", client=0):
                 messages.append({"role":"assistant","content":user[1]})
     #adding current message
     messages.append({"role":"user","content": usermessage})
+    #setting model
     if client == 0:
-        try:
-            model= "meta-llama/Meta-Llama-3-8B-Instruct"
-            response = CLIENT0.chat.completions.create(
-                model=model,
-                messages= messages,
-                max_tokens=100,
-            )
-            print(f"#==========Response==========#\nModel: meta-llama/Meta-Llama-3-8B-Instruct\n\nINPUT: {messages}\nOUTPUT: {response.choices[0].messages["content"]}\n#============================#")
-            return response.choices[0].messages["content"]
-        except:
-            return getResponse(usermessage, prompt, assistant, client=1)
-    model= "deepseek/deepseek-chat-v3-0324:free"
-    if client == 1:
-        model= "deepseek-ai/DeepSeek-V3-0324"
+        if "roleplay" in prompt.lower() or "giyu" in prompt.lower():
+            model = "meta-llama/Meta-Llama-3-8B-Instruct"
+        else:
+            model = "deepseek-ai/DeepSeek-V3-0324"
+    elif "roleplay" in prompt.lower() or "giyu" in prompt.lower():
+        model = "meta-llama/llama-3.3-70b-instruct:free"
+    else:
+        model = "deepseek/deepseek-chat-v3-0324:free "
     try:
         response = clients[client-1].chat.completions.create(
             messages= messages,
-            temperature=1.0,
+            temperature=0.95,
             top_p=1.0,
-            max_tokens=200,
+            max_tokens=100,
             model= model
         )
         if not response.choices:
@@ -95,15 +90,15 @@ def getResponse(usermessage, prompt, assistant="", client=0):
             if next_client == 8:
                 print("All clients failed")
                 return
-            asyncio.sleep(1)
+            await asyncio.sleep(1)
             return getResponse(usermessage, prompt, assistant, client=next_client)
     except:
         print("Model Changed")
         next_client = client+1
-        if next_client == 7:
+        if next_client == 8:
             print("All clients failed")
             return
-        asyncio.sleep(1)
+        await asyncio.sleep(1)
         return getResponse(usermessage, prompt, assistant, client=next_client)
 
         
