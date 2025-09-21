@@ -79,9 +79,9 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     try:
         response = clients[client-1].chat.completions.create(
             messages= messages,
-            temperature=0.95,
+            temperature=0.98,
             top_p=1.0,
-            max_tokens=100,
+            max_tokens=180,
             model= model
         )
         if not response.choices:
