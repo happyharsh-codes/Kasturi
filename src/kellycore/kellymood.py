@@ -1,3 +1,5 @@
+import random
+
 class KellyMood:
     '''#-----Class to handle Kelly Mood-----#
     -mood: {"happy": 1-100, "busy": 1-100, "lazy": 1-100, "sleepy": 1-100}
@@ -54,30 +56,10 @@ class KellyMood:
                     self.mood["sleepy"] = 0
 
     def moodSwing(self):
-        #happiness
-        self.mood["happy"] -= 5
-        if self.mood["happy"] < 0:
-            self.mood["happy"] = 0
-
-        #business
-        self.mood["busy"] -= 5
-        if self.mood["busy"] < 0:
-            self.mood["busy"] = 0
-
-        #sleep
-        self.mood["sleepy"] -= 10
-        if self.mood["sleepy"] < 0:
-            self.mood["sleepy"] = 0
-
-        #lazy
-        self.mood["lazy"] += 5
-        if self.mood["lazy"] > 100:
-            self.mood["lazy"] = 0
-            
-        #mischevious
-        self.mood["mischevious"] -= 5
-        if self.mood["mischevious"] < 0:
-            self.mood["mischevious"] = 0
+        for mood in ["happy", "busy","sleepy","lazy", "mischevious"]:
+          self.mood[rand_mood] -= 6
+          if self.mood[rand_mood] < 0:
+              self.mood[rand_mood] = 100
 
     def getMood(self):
         maxz = max(list(self.mood.values()))
