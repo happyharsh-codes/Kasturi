@@ -57,9 +57,9 @@ class KellyMood:
 
     def moodSwing(self):
         for mood in ["happy", "busy","sleepy","lazy", "mischevious"]:
-          self.mood[rand_mood] -= 6
-          if self.mood[rand_mood] < 0:
-              self.mood[rand_mood] = 100
+          self.mood[mood] -= 6
+          if self.mood[mood] < 0:
+              self.mood[mood] = 100
 
     def getMood(self):
         maxz = max(list(self.mood.values()))
