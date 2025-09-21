@@ -90,7 +90,7 @@ def getResponse(usermessage, prompt, assistant="", client=0):
             if next_client == 8:
                 print("All clients failed")
                 return
-            await asyncio.sleep(1)
+            time.sleep(1)
             return getResponse(usermessage, prompt, assistant, client=next_client)
     except:
         print("Model Changed")
@@ -98,7 +98,7 @@ def getResponse(usermessage, prompt, assistant="", client=0):
         if next_client == 8:
             print("All clients failed")
             return
-        await asyncio.sleep(1)
+        time.sleep(1)
         return getResponse(usermessage, prompt, assistant, client=next_client)
 
         
