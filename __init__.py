@@ -77,17 +77,17 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     else:
         model = "deepseek/deepseek-chat-v3-0324:free "
     try:
-        response = clients[client-1].chat.completions.create(
+        response = clients[client].chat.completions.create(
             messages= messages,
             temperature=1.0,
             top_p=1.0,
-            max_tokens=180,
+            max_tokens=200,
             model= model
         )
         if not response.choices:
             print("Model Changed")
             next_client = client+1
-            if next_client == 8:
+            if next_client == 7:
                 print("All clients failed")
                 return
             time.sleep(1)
@@ -95,7 +95,7 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     except:
         print("Model Changed")
         next_client = client+1
-        if next_client == 8:
+        if next_client == 7:
             print("All clients failed")
             return
         time.sleep(1)
