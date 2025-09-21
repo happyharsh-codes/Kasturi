@@ -10,18 +10,18 @@ class Giyu:
 
         async with message.channel.typing():
             if str(message.author.id) not in Relation:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in less than 15 words with 2-3 emoji and generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
+                prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
                 Relation[str(message.author.id)] = 1
                 return False
             elif message.author.id in Server_Settings[str(message.guild.id)]["block_list"]:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is already BANNED by kelly shoo him away.\nGenerate: Your Response in less than 20 words with emojis"
+                prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is already BANNED by kelly shoo him away.\nGenerate: Your Response in 20 words with emojis"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
                 return True
             elif str(message.author.id) in Server_Settings[str(message.guild.id)]["muted"]:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is muted by kelly for sometime, shoo him away.\nGenerate: Your Response in less than 20 words with emojis"
+                prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is muted by kelly for sometime, shoo him away.\nGenerate: Your Response in 20 words with emojis"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
                 return True
@@ -30,19 +30,19 @@ class Giyu:
                 pass
 
             if mood["busy"] > 80:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently busy\nGenerate: Your Response in less than 20 words with emojis"
+                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently busy\nGenerate: Your Response in 20 words with emojis"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
                 return True
             elif mood["lazy"] > 80:
                 if Relation[str(message.author.id)] > 80: #exceptional members
                     return False
-                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in less than 20 words with emojis"
+                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
                 return True
             elif mood["sleepy"] > 80:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently sleeping\nGenerate: Your Response in less than 20 words with emojis"
+                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
                 return True
