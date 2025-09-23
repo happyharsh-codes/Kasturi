@@ -29,19 +29,19 @@ class Giyu:
             elif "pats" in message.content.lower(): #only friends can pat kelly
                 pass
 
-            if mood["busy"] > 80:
+            if mood["busy"] > 90:
                 prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently busy\nGenerate: Your Response in 20 words with emojis"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
                 return True
-            elif mood["lazy"] > 80:
+            elif mood["lazy"] > 90:
                 if Relation[str(message.author.id)] > 80: #exceptional members
                     return False
                 prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
                 return True
-            elif mood["sleepy"] > 80:
+            elif mood["sleepy"] > 90:
                 prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
