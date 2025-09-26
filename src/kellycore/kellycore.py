@@ -70,9 +70,9 @@ class Kelly:
                     await message.channel.send(f"You are missing this : {item}")
                     return
                 if isinstance(val,str) and val.startswith("<"):
-                    final_params[item] = int(val[2:-1]) 
+                    final_params[item] = val[2:-1]
                 elif isinstance(val,str) and val.isdigit():
-                    final_params[item] = int(val)
+                    final_params[item] = val
                 else: final_params[item] = val
             print(f"### Running command {cmd_name} with {final_params}")
             await ctx.invoke(cmd, **final_params)
