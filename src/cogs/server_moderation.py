@@ -1,4 +1,5 @@
 from __init__ import *
+from datetime import timedelta
 
 class Moderation(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -6,20 +7,41 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_messages=True)
-    @commands.bot_has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_members=True)
+    @commands.bot_has_permissions(manage_members=True)
     async def mute(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
-        em = Embed(title="Member Muted", description=f"{member.mention} was muted.\n**Reason:** {reason}", color=Color.light_gray())
-        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
-        await ctx.send(embed=em)
+        try:
+            duration = timedelta(minutes=minutes)
+            await member.timeout(duration, reason=reason)
+
+            em = Embed(
+                title="🔇 Member Muted",
+                description=f"{member.mention} was muted for **{minutes} minutes**.\n**Reason: ** {reason}",
+                color=Color.orange()
+            )
+            em.set_footer(text=f"Muted by {ctx.author}", icon_url=ctx.author.avatar)
+            em.set_author(name=member.name,icon_url=member.avatar)
+            await ctx.send(embed=em)
+            
+        except Exception as e:
+            await ctx.send(f"❌ Could not mute {member.mention}. Error: {e}")
 
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_messages=True)
-    @commands.bot_has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_members=True)
+    @commands.bot_has_permissions(manage_members=True)
     async def unmute(self, ctx: commands.Context, member: discord.Member):
+        if member.timed_out_until is None:
+            await ctx.send("Ayoo member isn't muted what are you doing sarr.") 
+            return
+        try:
+            member.edit(timed_out_until=None, reason=reason)
+        except Exception as e:
+            await ctx.send(f"❌ Could not unmute user")
+            return
         em = Embed(title="Member Unmuted", description=f"{member.mention} was unmuted.", color=Color.light_gray())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_author(name= member.name, icon_url= member.avatar)
         await ctx.send(embed=em)
 
     @commands.command()
@@ -109,6 +131,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(administrator=True)
+    @commands.bot_has_permission(administrator=True)
     async def set_rank_channel(self, ctx: commands.Context, channel: discord.TextChannel):
         Server_Settings[str(ctx.guild.id)]["rank_channel"] = channel.id
         em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
@@ -117,6 +140,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(administrator=True)
+    @commands.bot_has_permission(administrator=True)
     async def set_welcome_channel(self, ctx: commands.Context, channel: discord.TextChannel):
         Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = channel.id
         em = Embed(title="Welcome Channel Set :white_check_mark:", description=f"Welcome Channel set successfully.\nNow you'll recieve exclusive messages on members joining and leaving the server in {channel.mention}\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
