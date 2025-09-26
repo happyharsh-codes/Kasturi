@@ -65,7 +65,7 @@ class Kelly:
             ctx = await self.client.get_context(message)
             final_params = {}
 
-            for item, val in pramas.items():
+            for item, val in params.items():
                 if val == "" or val == [] or val == {}:
                     await message.channel.send(f"You are missing this : {item}")
                     return
