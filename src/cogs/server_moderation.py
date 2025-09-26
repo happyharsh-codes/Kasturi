@@ -7,8 +7,8 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_members=True)
-    @commands.bot_has_permissions(manage_members=True)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
     async def mute(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         try:
             duration = timedelta(minutes=minutes)
@@ -28,8 +28,8 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_members=True)
-    @commands.bot_has_permissions(manage_members=True)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
     async def unmute(self, ctx: commands.Context, member: discord.Member):
         if member.timed_out_until is None:
             await ctx.send("Ayoo member isn't muted what are you doing sarr.") 
