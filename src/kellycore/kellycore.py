@@ -65,7 +65,7 @@ class Kelly:
             ctx = await self.client.get_context(message)
 
             # Validate params against command signature
-            clean_params = list(cmd.clean_params.key())  # dict of {param_name: inspect.Parameter}
+            clean_params = list(cmd.clean_params.keys())  # dict of {param_name: inspect.Parameter}
             final_params = {}
 
             for index, val in enumerate(params):
@@ -74,6 +74,8 @@ class Kelly:
                     return
                 if val.startswith("<"):
                     final_params[clean_params[index]] = int(val[2:-1]) 
+                elif val.isDigit():
+                    final_params[clean_params[index]] = int(val)
                 else: final_params[clean_params[index]] = val
             print(f"### Running command {cmd_name} with {final_params}")
             await ctx.invoke(cmd, **final_params)
@@ -88,7 +90,15 @@ class Kelly:
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.relations.getUserInfo(message.author.id)
-            prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, behavior: {behave}\nGenerate response in max 20 words with 0-4 emojiy. keep chat interesting and fun by interacting with user and must asking enagaging questions at last."""
+            if message.author.id == 894072003533877279:
+                type = "God aka your creator"
+            elif message.author.id == message.guild.owner_id:
+                type = "Server owner"
+            elif any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_member or r.permissions.manage_channels for r in user.roles):
+                type = "Moderator"
+            else:
+                type = "Member"
+            prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}}}\nGenerate response in max 20 words with 0-4 emojiy. keep chat interesting and fun by interacting with user and must asking enagaging questions at last"""
 
             #first Giyu the bodyguard handles the message before getting to kelly
             if await self.giyu.giyuQuery(message, self.mood.mood):#if giyu already sent msg so here will not send so here we'll simply return
@@ -125,7 +135,6 @@ class Kelly:
                 - respect: (-10 : +10) (int)
                 - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
                 - personality_change: {{(personality_name): +/- 10 (int)}}
-                - info: (optional info about user to store important only: str)
                 - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
             raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=0).lower()
             try:
@@ -146,9 +155,6 @@ class Kelly:
                 self.personality.modifyPersonality(result['personality_change'])
             if "relation" in result:
                 self.relations.modifyUserRespect(result["respect"], message.author.id)
-            if "info" in result and result['info']:
-                self.relations.addUserInfo(result["info"], message.author.id)
-
             #------Performing Task/Command Now------#
             if "command" in result and result["command"] and result["command"] != "none":
                 await self.runCommand(message, result)
