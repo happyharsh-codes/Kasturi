@@ -63,20 +63,17 @@ class Kelly:
 
             # Get ctx
             ctx = await self.client.get_context(message)
-
-            # Validate params against command signature
-            clean_params = list(cmd.clean_params.keys())  # dict of {param_name: inspect.Parameter}
             final_params = {}
 
-            for index, val in enumerate(params):
-                if i == "" or i == [] or i == {}:
-                    await message.channel.send(f"You are missing this : {clean_params[index]}")
+            for item, val in pramas.items():
+                if val == "" or val == [] or val == {}:
+                    await message.channel.send(f"You are missing this : {item}")
                     return
-                if val.startswith("<"):
-                    final_params[clean_params[index]] = int(val[2:-1]) 
-                elif val.isDigit():
-                    final_params[clean_params[index]] = int(val)
-                else: final_params[clean_params[index]] = val
+                if isinstance(val,str) and val.startswith("<"):
+                    final_params[item] = int(val[2:-1]) 
+                elif isinstance(val,str) and val.isdigit():
+                    final_params[item] = int(val)
+                else: final_params[item] = val
             print(f"### Running command {cmd_name} with {final_params}")
             await ctx.invoke(cmd, **final_params)
 
@@ -94,11 +91,11 @@ class Kelly:
                 type = "God aka your creator"
             elif message.author.id == message.guild.owner_id:
                 type = "Server owner"
-            elif any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_member or r.permissions.manage_channels for r in user.roles):
+            elif any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_member or r.permissions.manage_channels for r in message.author.roles):
                 type = "Moderator"
             else:
                 type = "Member"
-            prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}}}\nGenerate response in max 20 words with 0-4 emojiy. keep chat interesting and fun by interacting with user and must asking enagaging questions at last"""
+            prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}}}\nGenerate response in 20 words with 0-4 emojiy. keep chat interesting and fun by interacting with user and must asking enagaging questions at last"""
 
             #first Giyu the bodyguard handles the message before getting to kelly
             if await self.giyu.giyuQuery(message, self.mood.mood):#if giyu already sent msg so here will not send so here we'll simply return
@@ -109,7 +106,7 @@ class Kelly:
 
             #kelly Mood
             if self.mood.mood["mischevious"] > 80:
-                prompt+= " Kelly is feeling extra mischevious today"
+                prompt += " Kelly is feeling extra mischevious today"
             elif self.mood.mood["sad"] > 80 or self.mood.mood["depressed"] > 80:
                 prompt += " Kelly is extremely sad and depressed"
 
