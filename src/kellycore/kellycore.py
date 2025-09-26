@@ -65,49 +65,14 @@ class Kelly:
             ctx = await self.client.get_context(message)
 
             # Validate params against command signature
-            clean_params = cmd.clean_params  # dict of {param_name: inspect.Parameter}
+            clean_params = list(cmd.clean_params.key())  # dict of {param_name: inspect.Parameter}
             final_params = {}
 
-            for name, param in clean_params.items():
-                if name in params:
-                    raw = params[name]
-
-                    # --- Conversion handling ---
-                    if "member" in name or name == "user":
-                        # Convert mention or ID to Member
-                        user_id = int("".join([c for c in str(raw) if c.isdigit()]))
-                        member = message.guild.get_member(user_id)
-                        if not member:
-                            member = await self.client.fetch_user(user_id)
-                        final_params[name] = member
-
-                    elif "role" in name:
-                        role_id = int("".join([c for c in str(raw) if c.isdigit()]))
-                        role = message.guild.get_role(role_id)
-                        final_params[name] = role
-
-                    elif "channel" in name:
-                        chan_id = int("".join([c for c in str(raw) if c.isdigit()]))
-                        channel = message.guild.get_channel(chan_id)
-                        if not channel:
-                            channel = await self.client.fetch_channel(chan_id)
-                        final_params[name] = channel
-
-                    elif param.annotation == int:
-                        final_params[name] = int(raw)
-
-                    else:
-                        final_params[name] = str(raw)
-
-                else:
-                    # Fill in default if available
-                    if param.default is not param.empty:
-                        final_params[name] = param.default
-                    else:
-                        # Missing required param → ask AI’s response
-                        await message.channel.send(ai_result.get("response", f"You forgot `{name}`. 🙃"))
-                        return
-
+            for index, val in enumerate(params):
+                if i == "" or i == [] or i == {}:
+                    await message.channel.send(f"You are missing this : {clean_params[index]}")
+                    return
+               final_params[clean_params[index]] = if val.startswith("<") int(val[2:-1] else val 
             print(f"### Running command {cmd_name} with {final_params}")
             await ctx.invoke(cmd, **final_params)
 
@@ -168,16 +133,17 @@ class Kelly:
 
             except Exception as parse_error:
                 print("Could not parse Kelly AI response:", parse_error) 
-                result = {"respect": 0, "mood": "happy", "personality_change": {}, "info": [], "command": None, "params": {}, "response": "nothing"}
+                result = {"respect": 0, "mood": "happy", "personality_change": {}, "info": [], "command": None}
 
             #-----Updating Kelly Now-----#
-            if isinstance(result["mood"], int):
+            if "mood" in result and isinstance(result["mood"], int):
                 self.mood.modifyMood({result["mood"]: randint(1,10)})
                 if result["mood"] == "happy":
                     self.relations.modifyUserRespect(2, message.author.id)
-            if isinstance(result["personality_change"], int):
+            if "personality_change" in result and isinstance(result["personality_change"], int):
                 self.personality.modifyPersonality(result['personality_change'])
-            self.relations.modifyUserRespect(result["respect"], message.author.id)
+            if "relation" in result:
+                self.relations.modifyUserRespect(result["respect"], message.author.id)
             if "info" in result and result['info']:
                 self.relations.addUserInfo(result["info"], message.author.id)
 
