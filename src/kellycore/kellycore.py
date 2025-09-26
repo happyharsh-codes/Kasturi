@@ -72,7 +72,9 @@ class Kelly:
                 if i == "" or i == [] or i == {}:
                     await message.channel.send(f"You are missing this : {clean_params[index]}")
                     return
-               final_params[clean_params[index]] = if val.startswith("<") int(val[2:-1]) else val 
+                if val.startswith("<"):
+                    final_params[clean_params[index]] = int(val[2:-1]) 
+                else: final_params[clean_params[index]] = val
             print(f"### Running command {cmd_name} with {final_params}")
             await ctx.invoke(cmd, **final_params)
 
