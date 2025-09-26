@@ -131,7 +131,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(administrator=True)
-    @commands.bot_has_permission(administrator=True)
+    @commands.bot_has_permissions(administrator=True)
     async def set_rank_channel(self, ctx: commands.Context, channel: discord.TextChannel):
         Server_Settings[str(ctx.guild.id)]["rank_channel"] = channel.id
         em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
@@ -140,7 +140,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(administrator=True)
-    @commands.bot_has_permission(administrator=True)
+    @commands.bot_has_permissions(administrator=True)
     async def set_welcome_channel(self, ctx: commands.Context, channel: discord.TextChannel):
         Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = channel.id
         em = Embed(title="Welcome Channel Set :white_check_mark:", description=f"Welcome Channel set successfully.\nNow you'll recieve exclusive messages on members joining and leaving the server in {channel.mention}\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
