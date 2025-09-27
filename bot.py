@@ -250,6 +250,8 @@ class Bot:
     async def on_command_completion(self, ctx):
         try:
             Profiles[ctx.author.id]["aura"] += 1
+        except:
+            pass
 
     async def on_command_error(self, ctx, error):
         '''Handelling errors'''
