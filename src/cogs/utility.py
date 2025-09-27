@@ -14,7 +14,7 @@ class Utility(commands.Cog):
         rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
         if not ctx.channel.id == rank_channel:
             msg = await ctx.sent("This command only works in rank channel!!")
-            asyncio.sleep(5)
+            await asyncio.sleep(5)
             await msg.delete()
             return
         rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
@@ -32,7 +32,7 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def invite(self, ctx):
-        await ctx.send("[Meet Kelly here](https://discord.com/oauth2/authorize?client_id=1368884334076891136)")
+        await ctx.send("[Meet Kelly here](https://top.gg/bot/1368884334076891136?s=0332b997edcc8)")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
