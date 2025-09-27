@@ -158,7 +158,7 @@ class Kelly:
                 - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
-            raw_result = getResponse(f"User: {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=0).lower()
+            raw_result = getResponse(f"User(id = {message.author.id}): {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=0).lower()
             try:
                 if not raw_result.startswith("```"):
                     raw_result = "```json " + raw_result + " ```"
