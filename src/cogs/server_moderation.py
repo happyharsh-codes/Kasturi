@@ -10,7 +10,7 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(manage_roles=True)
     async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         minutes = randint(5,15)
-        Server_Settings[str(ctx.guild.id)]["muted"].update({str(ctx.author.id): (datetime.now(UTC) + timedelta(minutes=minutes).isoformat()})
+        Server_Settings[str(ctx.guild.id)]["muted"].update({str(member.id): (datetime.now(UTC) + timedelta(minutes=minutes)).isoformat()})
         em = Embed(
             title="🔇 Member Muted From Kelly Talkings",
             description=f"{member.mention} was muted for **{minutes} minutes from talking to kelly.**.\n**Reason: ** {reason}",
@@ -26,7 +26,7 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(manage_roles=True)
     async def mute_from_server(self, ctx: commands.Context, member: discord.Member, minutes, *, reason: str = "No reason provided"):
         try:
-            duration = timedelta(minutes=minutes)
+            duration = timedelta(minutes=int(minutes))
             await member.timeout(duration, reason=reason)
 
             em = Embed(
@@ -46,7 +46,7 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(manage_roles=True)
     async def unmute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         try:
-            Server_Settings[str(ctx.guild.id)]["muted"].pop(ctx.author.id)
+            Server_Settings[str(ctx.guild.id)]["muted"].pop(member.id)
             em = Embed(
                 title="Member Unmuted",
                 description=f"{member.mention} was unmuted.\n**Reason: ** {reason}\nNow you can talk to Kelly again using `kelly hi`. Please be respectful this time.",
@@ -62,7 +62,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def unmute(self, ctx: commands.Context, member: discord.Member):
+    async def unmute(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason Provided"):
         if member.timed_out_until is None:
             await ctx.send("Ayoo member isn't muted what are you doing sarr.") 
             return
@@ -94,7 +94,7 @@ class Moderation(commands.Cog):
         await ctx.guild.ban(user=user, reason=reason, delete_message_days=0)
         em = Embed(title="Member Banned", description=f"{user.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.", color=Color.pink())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
-        em.set_author(name=member.name, icon_url=member.avatar)
+        em.set_author(name=user.name, icon_url=member.avatar)
         await ctx.send(embed=em)
 
     @commands.command(aliases=["kelly_ban"])
@@ -102,8 +102,8 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def ban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
-        Server_Settings[str(message.guild.id)]["block_list"].append(message.author.id)
-        em = Embed(title="Member Banned From Kelly Talkings", description=f"{user.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
+        Server_Settings[str(ctx.guild.id)]["block_list"].append(member.id)
+        em = Embed(title="Member Banned From Kelly Talkings", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         em.set_author(name=member.name, icon_url=member.avatar)
         await ctx.send(embed=em)
@@ -121,7 +121,8 @@ class Moderation(commands.Cog):
                 await ctx.send(embed=em)
                 dm_channel = await entry.user.create_dm()
                 try:
-                    await dm_channel.send(content=f"Hurray! You just got unbanned from the guild `{ctx.guild.name}`.\n Click here to join again:\n{Server_Settings[str(ctx.guild.id)]["invite_link"]}")
+                    invite_link = Server_Settings[str(ctx.guild.id)]["invite_link"]
+                    await dm_channel.send(content=f"Hurray! You just got unbanned from the guild `{ctx.guild.name}`.\n Click here to join again:\n{invite_link}")
                 except:
                     pass
                 return
@@ -138,7 +139,7 @@ class Moderation(commands.Cog):
             description=f"{member.mention} was unbanned from kelly talking.\n**Reason: ** {reason}\nYou can Chat with Kelly using `kelly hi`.\nPlease be respectful this time.",
             color=Color.orange()
         )
-        em.set_footer(text=f"Muted by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Unbanned by {ctx.author}", icon_url=ctx.author.avatar)
         em.set_author(name=member.name,icon_url=member.avatar)
         await ctx.send(embed=em)
     
