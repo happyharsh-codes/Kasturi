@@ -112,7 +112,7 @@ class Kelly:
                 type = "God aka your creator"
             if message.author.id == message.guild.owner_id:
                 type += " Server owner"
-                if message.author.id not in Server_Settings[str(message.guild.id)]["owner"]:
+                if not Server_Settings[str(message.guild.id)]["owner"]:
                     Server_Settings[str(message.guild.id)]["owner"] = message.author.id
             elif any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in message.author.roles):
                 type = "Moderator"
