@@ -107,12 +107,17 @@ class Kelly:
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.relations.getUserInfo(message.author.id)
+            type = ""
             if message.author.id == 894072003533877279:
                 type = "God aka your creator"
-            elif message.author.id == message.guild.owner_id:
-                type = "Server owner"
+            if message.author.id == message.guild.owner_id:
+                type += " Server owner"
+                if message.author.id not in Server_Settings[str(message.guild.id)]["owner"]:
+                    Server_Settings[str(message.guild.id)]["owner"] = message.author.id
             elif any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in message.author.roles):
                 type = "Moderator"
+                if message.author.id not in Server_Settings[str(message.guild.id)]["moderators"]:
+                    Server_Settings[str(message.guild.id)]["moderators"].append(message.author.id)
             else:
                 type = "Member"
             prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}, id:{message.author.id}}}\nGenerate response in 20 words with 0-4 emojiy. keep chat interesting and fun by interacting with user and must asking enagaging questions at last"""
