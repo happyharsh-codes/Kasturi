@@ -1,15 +1,30 @@
 from __init__ import *
-from datetime import timedelta
 
 class Moderation(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command()
+    @commands.command(aliases=["kelly_mute"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def mute(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+    async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+        minutes = randint(5,15)
+        Server_Settings[str(ctx.guild.id)]["muted"].update({str(ctx.author.id): (datetime.now(UTC) + timedelta(minutes=minutes).isoformat()})
+        em = Embed(
+            title="🔇 Member Muted From Kelly Talkings",
+            description=f"{member.mention} was muted for **{minutes} minutes from talking to kelly.**.\n**Reason: ** {reason}",
+            color=Color.orange()
+        )
+        em.set_footer(text=f"{ctx.author.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
+        em.set_author(name=member.name,icon_url=member.avatar)
+        await ctx.send(embed=em)
+        
+    @commands.command(aliases=["mute"])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    async def mute_from_server(self, ctx: commands.Context, member: discord.Member, minutes, *, reason: str = "No reason provided"):
         try:
             duration = timedelta(minutes=minutes)
             await member.timeout(duration, reason=reason)
@@ -22,10 +37,27 @@ class Moderation(commands.Cog):
             em.set_footer(text=f"Muted by {ctx.author}", icon_url=ctx.author.avatar)
             em.set_author(name=member.name,icon_url=member.avatar)
             await ctx.send(embed=em)
-            
         except Exception as e:
             await ctx.send(f"❌ Could not mute {member.mention}. Error: {e}")
 
+    @commands.command(aliases=["kelly_unmute"])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    async def unmute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+        try:
+            Server_Settings[str(ctx.guild.id)]["muted"].pop(ctx.author.id)
+            em = Embed(
+                title="Member Unmuted",
+                description=f"{member.mention} was unmuted.\n**Reason: ** {reason}\nNow you can talk to Kelly again using `kelly hi`. Please be respectful this time.",
+                color=Color.orange()
+            )
+            em.set_footer(text=f"Unmuted by {ctx.author}", icon_url=ctx.author.avatar)
+            em.set_author(name=member.name,icon_url=member.avatar)
+            await ctx.send(embed=em)
+        except:
+            await ctx.send("Ayoo! That user isn't muted")
+            
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
@@ -54,16 +86,28 @@ class Moderation(commands.Cog):
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.command(aliases= ["ban"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx: commands.Context, user: discord.Member,*, reason: str = "No reason provided"):
+    async def ban_from_server(self, ctx: commands.Context, user: discord.Member,*, reason: str = "No reason provided"):
         await ctx.guild.ban(user=user, reason=reason, delete_message_days=0)
-        em = Embed(title="Member Banned", description=f"{user.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
+        em = Embed(title="Member Banned", description=f"{user.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.", color=Color.pink())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_author(name=member.name, icon_url=member.avatar)
         await ctx.send(embed=em)
 
+    @commands.command(aliases=["kelly_ban"])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    async def ban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+        Server_Settings[str(message.guild.id)]["block_list"].append(message.author.id)
+        em = Embed(title="Member Banned From Kelly Talkings", description=f"{user.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
+        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_author(name=member.name, icon_url=member.avatar)
+        await ctx.send(embed=em)
+        
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
@@ -83,6 +127,21 @@ class Moderation(commands.Cog):
                 return
         await ctx.send("User not found in ban list.")
 
+    @commands.command(aliases=["kelly_unban"])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    async def unban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+        Server_Settings[str(ctx.guild.id)]["block_list"].remove(member.id)
+        em = Embed(
+            title="Member Unbanned from Kelly Talk",
+            description=f"{member.mention} was unbanned from kelly talking.\n**Reason: ** {reason}\nYou can Chat with Kelly using `kelly hi`.\nPlease be respectful this time.",
+            color=Color.orange()
+        )
+        em.set_footer(text=f"Muted by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_author(name=member.name,icon_url=member.avatar)
+        await ctx.send(embed=em)
+    
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
