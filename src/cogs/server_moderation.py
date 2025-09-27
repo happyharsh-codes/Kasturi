@@ -67,7 +67,7 @@ class Moderation(commands.Cog):
             await ctx.send("Ayoo member isn't muted what are you doing sarr.") 
             return
         try:
-            member.edit(timed_out_until=None, reason=reason)
+            await member.edit(timed_out_until=None, reason=reason)
         except Exception as e:
             await ctx.send(f"❌ Could not unmute user")
             return
