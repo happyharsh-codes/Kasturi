@@ -74,11 +74,12 @@ class Kelly:
                         if "@&" in val:
                             final_params[item] = await message.guild.fetch_role(int(val[3:-1]))
                         elif "@" in val:
-                            final_params[item] = await self.client.get_user(int(val[2:-1]))
+                            user_id = int(val[2:-1].lstrip("!"))  # handle <@!id>
+                            final_params[item] = message.guild.get_member(user_id) or await self.client.fetch_user(user_id)
                         elif "#" in val:
                             final_params[item] = await message.guild.fetch_channel(int(val[2:-1]))
-                    except:
-                        await message.channel.send("Invalid Channel/Role/User provided")
+                    except Exception as e:
+                        await message.channel.send(f"Invalid Channel/Role/User provided for {item}:{val}\nError:{e}")
                         return
                 elif isinstance(val,str) and val.isdigit():
                     try:
@@ -89,8 +90,8 @@ class Kelly:
                         except:
                             try:
                                 final_params[item] = await message.guild.fetch_role(int(val))
-                            except:
-                                await message.channel.send("Invalid Role/Channel/User Provided")
+                            except Exception as e:
+                                await message.channel.send(f"Invalid Role/Channel/User Provided for {item}:{val}\nError:{e}")
                                 return          
                 else: final_params[item] = val
             print(f"### Running command {cmd_name} with {final_params}")
@@ -173,6 +174,12 @@ class Kelly:
                 self.relations.modifyUserRespect(result["respect"], message.author.id)
             #------Performing Task/Command Now------#
             if "command" in result and result["command"] and result["command"] != "none":
+                if isinstance(list(result["command"].values())[0], list):
+                    params = {}
+                    cmd = list(result["command"].keys())[0]
+                    for index, param in enumerate(self.command[cmd]):
+                        params[param] = list(result["command"].values())[0][index]
+                    result["command"] = {cmd: params}
                 await self.runCommand(message, result)
 
         except Exception as error:
