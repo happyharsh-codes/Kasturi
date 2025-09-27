@@ -1,4 +1,5 @@
 import random
+from __init__ import*
 
 class KellyMood:
     '''#-----Class to handle Kelly Mood-----#
@@ -11,8 +12,9 @@ class KellyMood:
     '''
     _MOODS = ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious", "busy", "sleepy", "lazy"]
 
-    def __init__(self):
+    def __init__(self, bot):
         self.mood = self.generateRandomMood()
+        self.client = bot
 
 
     def generateRandomMood(self):
@@ -56,11 +58,14 @@ class KellyMood:
                     self.mood["sleepy"] = 0
 
     def moodSwing(self):
+        mood_change = ""
         for mood in ["happy", "busy","sleepy","lazy", "mischevious"]:
-          self.mood[mood] -= 6
-          if self.mood[mood] < 0:
-              self.mood[mood] = 100
-
+            self.mood[mood] -= 6
+            if self.mood[mood] < 0:
+                self.mood[mood] = 100
+                mood_change = mood
+        return mood_change
+    
     def getMood(self):
         maxz = max(list(self.mood.values()))
         for mood in self.mood:
