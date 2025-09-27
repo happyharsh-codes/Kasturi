@@ -21,11 +21,20 @@ class Bot:
             for muted in servers["muted"]:
                 if datetime.fromisoformat(muted) < datetime.now(UTC):
                     sv_settings[servers]["muted"].pop(muted)
+                    user = self.client.get_user(muted)
+                    dm_channel = user.dm_channel
+                    if dm_channel:
+                        em = Embed(title="You were Unmuted",description="**Reason:** Expired\nYou can again start chatting with Kelly using `kelly hii`.\nPlease be respectful this time.")
+                        em.set_footer(text=f"{user.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
+                        em.set_author(name=user.name)
+                        await dm_channel.send(embed=em)
         Server_Settings = sv_settings
 
     @tasks.loop(minutes=2)
     async def mood_swings(self):
-        self.kelly.mood.moodSwing()
+        action = self.kelly.mood.moodSwing()
+        if action != "":
+            await self.kelly.reportAction(action)
 
     @tasks.loop(minutes=100)
     async def save_files(self):
@@ -215,8 +224,21 @@ class Bot:
             except:
                 print("No perms allowed")
 
+    async def on_presence_update(self, before, after):
+        if before.status == discord.Status.offline and after.status != discord.Status.invisible:
+            if str(before.id) in Relation and Relation[str(before.id)] > 10:
+                if randint(1,5) == 1:
+                    for guilds in self.client.guilds:
+                        if guilds.get_member(self.client.get_user(before.id)) is not None:
+                            allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
+                            if allowed_channels != []:
+                                channel = await guilds.fetch_channel(allowed_channels[0])
+                                await channel.send(getResponse("*User just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0)
+        
+        
     async def on_command_completion(self, ctx):
-        Profiles[ctx.author.id]["aura"] += 1
+        try:
+            Profiles[ctx.author.id]["aura"] += 1
 
     async def on_command_error(self, ctx, error):
         '''Handelling errors'''
