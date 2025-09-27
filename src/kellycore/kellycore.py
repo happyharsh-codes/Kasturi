@@ -182,7 +182,7 @@ class Kelly:
                 if isinstance(list(result["command"].values())[0], list):
                     params = {}
                     cmd = list(result["command"].keys())[0]
-                    for index, param in enumerate(self.command[cmd]):
+                    for index, param in enumerate(self.commands[cmd]):
                         params[param] = list(result["command"].values())[0][index]
                     result["command"] = {cmd: params}
                 await self.runCommand(message, result)
