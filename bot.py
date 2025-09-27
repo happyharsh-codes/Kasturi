@@ -33,7 +33,7 @@ class Bot:
     @tasks.loop(minutes=2)
     async def mood_swings(self):
         action = self.kelly.mood.moodSwing()
-        if action != "":
+        if action != "" and randint(1,5) == 5:
             await self.kelly.reportAction(action)
 
     @tasks.loop(minutes=100)
