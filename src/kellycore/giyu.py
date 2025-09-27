@@ -48,27 +48,6 @@ class Giyu:
                 return True
             return False
 
-    async def giyuTakeDescision(self, message, mood):
-        prompt = f"""You are Giyu, Kelly's Chief Guard\n Take strong descision based on Kelly's current mood {mood}. Generate Json dict using kelly response and mood
-        - response: (str)
-        - action: (pass/mute/ban)"""
-        response = getResponse(message.content, prompt, client=1).lower()
-        try:
-            result = loads(response.split("```json")[1].split('```')[0])
-            reply = result["response"]
-            action = result["action"]
-        except Exception as parse_error:
-            print("Could not parse Giyu AI response:", parse_error) 
-            response = ""
-            reply = "I'll let you go this time"
-            action = "pass"
-        await message.reply(self.giyuEmojify(f"**Giyu**: {reply}"))
-        if action == "ban":
-            Server_Settings[str(message.guild.id)]["block_list"].append(message.author.id)
-        if action == "mute":
-            Server_Settings[str(message.guild.id)]["muted"].update({str(message.author.id): (datetime.now(UTC) + timedelta(minutes=randint(5,15))).isoformat()})
-
-
     def giyuEmojify(self, message):
         emoji_exchanger = {
             "😫": "giyutedio",
