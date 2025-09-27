@@ -62,7 +62,7 @@ class Bot:
                 except:
                     continue
             if str(guild.id) not in Server_Settings:
-                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"yt": {},"join/leave_channel": 0,"afk": [],"friends": []}
+                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": None, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"yt": {},"join/leave_channel": 0,"afk": [],"friends": []}
     
     async def on_message(self, message: discord.Message):
         start = time.time()
@@ -199,6 +199,8 @@ class Bot:
         "allowed_channels": [],
         "premium": False,
         "invite_link": str(invite),
+        "owner": None,
+        "moderators": [],
         "banned_words": [],
         "block_list": [],
         "muted": {},
