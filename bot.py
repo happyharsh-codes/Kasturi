@@ -52,7 +52,18 @@ class Bot:
         self.save_files.start()
         self.unmute.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
-
+        for guild in self.client.guilds:
+            invite_link = None
+            for channel in guild.text_channels:
+                try:
+                    invite = await channel.create_invite(max_age=0, max_uses=0)  # infinite invite
+                    invite_link = str(invite)
+                    break
+                except:
+                    continue
+            if str(guild.id) not in Server_Settings:
+                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"yt": {},"join/leave_channel": 0,"afk": [],"friends": []}
+    
     async def on_message(self, message: discord.Message):
         start = time.time()
         id = message.author.id
@@ -233,7 +244,7 @@ class Bot:
                             allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
                             if allowed_channels != []:
                                 channel = await guilds.fetch_channel(allowed_channels[0])
-                                await channel.send(getResponse("*User just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0)
+                                await channel.send(getResponse("*User just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0))
         
         
     async def on_command_completion(self, ctx):
