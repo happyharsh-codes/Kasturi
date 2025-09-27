@@ -70,9 +70,28 @@ class Kelly:
                     await message.channel.send(f"You are missing this : {item}")
                     return
                 if isinstance(val,str) and val.startswith("<"):
-                    final_params[item] = val[2:-1]
+                    try:
+                        if "@&" in val:
+                            final_params[item] = await message.guild.fetch_role(int(val[3:-1]))
+                        elif "@" in val:
+                            final_params[item] = await self.client.get_user(int(val[2:-1]))
+                        elif "#" in val:
+                            final_params[item] = await message.guild.fetch_channel(int(val[2:-1]))
+                    except:
+                        await message.channel.send("Invalid Channel/Role/User provided")
+                        return
                 elif isinstance(val,str) and val.isdigit():
-                    final_params[item] = val
+                    try:
+                        final_params[item] = await self.client.get_user(int(val))
+                    except:
+                        try:
+                            final_params[item] = await message.guild.fetch_channel(int(val))
+                        except:
+                            try:
+                                final_params[item] = await message.guild.fetch_role(int(val))
+                            except:
+                                await message.channel.send("Invalid Role/Channel/User Provided")
+                                return          
                 else: final_params[item] = val
             print(f"### Running command {cmd_name} with {final_params}")
             await ctx.invoke(cmd, **final_params)
