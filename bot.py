@@ -19,7 +19,7 @@ class Bot:
         sv_settings = Server_Settings
         for servers in Server_Settings:
             for muted in servers["muted"]:
-                if datetime.fromisoformat(muted) < datetime.now(UTC):
+                if datetime.fromisoformat(servers["muted"][muted]) < datetime.now(UTC):
                     sv_settings[servers]["muted"].pop(muted)
                     user = self.client.get_user(muted)
                     dm_channel = user.dm_channel
