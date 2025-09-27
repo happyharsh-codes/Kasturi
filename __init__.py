@@ -18,7 +18,7 @@ load_dotenv()
 with open("assets/info.json", "r") as f:
     DATA = load(f)
     EMOJI = DATA.get("emoji")
-    TIP = DATA.get("tip")
+    TIP = DATA.get("tips")
 
 with open("res/server/help.json", "r") as f:
     HELP = load(f)
