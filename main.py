@@ -34,7 +34,7 @@ async def start():
     client.add_listener(bot.on_command_error)
     client.add_listener(bot.on_error)
     client.add_listener(bot.on_disconnect)
-    client.add_listner(bot.on_presence_update)
+    client.add_listener(bot.on_presence_update)
     try:
         await client.start(os.getenv("TOKEN"))
     except Exception as error:
