@@ -9,7 +9,7 @@ class Kelly:
     def __init__(self, name, bot):
         self.name = name
         self.client = bot #discord bot
-        self.mood = KellyMood()
+        self.mood = KellyMood(bot)
         self.personality = KellyPersona(Persona)
         self.relations = KellyRealtion()
         self.chats = Chats
