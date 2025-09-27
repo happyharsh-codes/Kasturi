@@ -46,7 +46,7 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(manage_roles=True)
     async def unmute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         try:
-            Server_Settings[str(ctx.guild.id)]["muted"].pop(member.id)
+            Server_Settings[str(ctx.guild.id)]["muted"].pop(str(member.id))
             em = Embed(
                 title="Member Unmuted",
                 description=f"{member.mention} was unmuted.\n**Reason: ** {reason}\nNow you can talk to Kelly again using `kelly hi`. Please be respectful this time.",
