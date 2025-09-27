@@ -75,7 +75,7 @@ class Kelly:
                             final_params[item] = await message.guild.fetch_role(int(val[3:-1]))
                         elif "@" in val:
                             user_id = int(val[2:-1].lstrip("!"))  # handle <@!id>
-                            final_params[item] = message.guild.get_member(user_id) or await self.client.fetch_user(user_id)
+                            final_params[item] = await message.guild.fetch_member(int(val[2:-1]))
                         elif "#" in val:
                             final_params[item] = await message.guild.fetch_channel(int(val[2:-1]))
                     except Exception as e:
@@ -83,7 +83,7 @@ class Kelly:
                         return
                 elif isinstance(val,str) and val.isdigit():
                     try:
-                        final_params[item] = await self.client.get_user(int(val))
+                        final_params[item] = await message.guild.fetch_member(int(val))
                     except:
                         try:
                             final_params[item] = await message.guild.fetch_channel(int(val))
