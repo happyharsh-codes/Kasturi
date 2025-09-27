@@ -295,7 +295,7 @@ class Kelly:
         for server in Server_Settings:
             for channel_id in Server_Settings[server]["allowed_channels"]: 
                 try:
-                    channel = self.client.fetch_channel(channel_id)
+                    channel = await self.client.fetch_channel(channel_id)
                     response = self.getEmoji(getResponse(f"*you just got a mood change to {action}*",prompt="you are Kelly lively Discord mod with mood and sass. Generate response telling all audience kelly went this mood change, not directly. in less than 20 words with emojis", client=0))
                     await channel.send(response)
                 except:
