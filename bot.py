@@ -1,4 +1,4 @@
-queenimport discord
+import discord
 from discord.ext import commands, tasks
 from datetime import datetime , UTC, timedelta
 from json import dump, load
