@@ -1,4 +1,4 @@
-import discord
+queenimport discord
 from discord.ext import commands, tasks
 from datetime import datetime , UTC, timedelta
 from json import dump, load
@@ -17,10 +17,10 @@ class Bot:
     @tasks.loop(minutes=1)
     async def unmute(self):
         sv_settings = Server_Settings
-        for servers in Server_Settings:
-            for muted in servers["muted"]:
-                if datetime.fromisoformat(servers["muted"][muted]) < datetime.now(UTC):
-                    sv_settings[servers]["muted"].pop(muted)
+        for id, servers in Server_Settings.items():
+            for muted, duration in servers["muted"].items():
+                if datetime.fromisoformat(duration) < datetime.now(UTC):
+                    sv_settings[id]["muted"].pop(muted)
                     user = self.client.get_user(muted)
                     dm_channel = user.dm_channel
                     if dm_channel:
