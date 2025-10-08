@@ -17,23 +17,28 @@ class Bot:
     @tasks.loop(minutes=1)
     async def unmute(self):
         sv_settings = Server_Settings
-        for id, servers in Server_Settings.items():
-            for muted, duration in servers["muted"].items():
-                if datetime.fromisoformat(duration) < datetime.now(UTC):
-                    sv_settings[id]["muted"].pop(muted)
-                    user = self.client.get_user(muted)
-                    dm_channel = user.dm_channel
-                    if dm_channel:
-                        em = Embed(title="You were Unmuted",description="**Reason:** Expired\nYou can again start chatting with Kelly using `kelly hii`.\nPlease be respectful this time.")
-                        em.set_footer(text=f"{user.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
-                        em.set_author(name=user.name)
-                        await dm_channel.send(embed=em)
-        Server_Settings = sv_settings
+        try:
+          for id, servers in Server_Settings.items():
+              for muted, duration in servers["muted"].items():
+                  if datetime.fromisoformat(duration) < datetime.now(UTC):
+                      sv_settings[id]["muted"].pop(muted)
+                      user = self.client.get_user(muted)
+                      try:
+                          em = Embed(title="You were Unmuted",description="**Reason:** Expired\nYou can again start chatting with Kelly using `kelly hii`.\nPlease be respectful this time.")
+                          em.set_footer(text=f"{user.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
+                          em.set_author(name=user.name)
+                          await user.send(embed=em)
+                      except:
+                          pass
+          Server_Settings = sv_settings
+        except Exception as e:
+            me = self.client.get_user(894072003533877279)  
+            await me.send(e)
 
     @tasks.loop(minutes=2)
     async def mood_swings(self):
         action = self.kelly.mood.moodSwing()
-        if action != "" and randint(1,5) == 5:
+        if action != "" and randint(1,7) == 5:
             await self.kelly.reportAction(action)
 
     @tasks.loop(minutes=100)
@@ -62,7 +67,7 @@ class Bot:
                 except:
                     continue
             if str(guild.id) not in Server_Settings:
-                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": None, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"yt": {},"join/leave_channel": 0,"afk": [],"friends": []}
+                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"yt": {},"join/leave_channel": 0,"afk": [],"friends": []}
     
     async def on_message(self, message: discord.Message):
         start = time.time()
@@ -83,7 +88,7 @@ class Bot:
                     break
             #Handelling Bot mentions
             if self.client.user.mention in message.content:
-                if "activate" in message.content.lower():
+                if " activate" in message.content.lower():
                     if message.channel.permissions_for(message.author).manage_channels:
                         if channel in Server_Settings[str(guild)]["allowed_channels"]:
                             await message.channel.send("Ayo this channel is already activated !! haha")
@@ -199,7 +204,7 @@ class Bot:
         "allowed_channels": [],
         "premium": False,
         "invite_link": str(invite),
-        "owner": None,
+        "owner": guild.owner_id,
         "moderators": [],
         "banned_words": [],
         "block_list": [],
@@ -219,7 +224,7 @@ class Bot:
     
     async def on_member_join(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
-            em = Embed(title=f"{member.display_name} welcome to {member.guild.name}", description=f"Enjoy your peace time here! {member.mention}\n{member.guild.description}")
+            em = Embed(titlqe=f"{member.display_name} welcome to {member.guild.name}", description=f"Enjoy your peace time here! {member.mention}\n{member.guild.description}")
             em.set_footer(text=f"{member.name} joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
             try:
                 channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
