@@ -116,11 +116,12 @@ class Bot:
             if Server_Settings[str(guild)]["rank_channel"] != 0:
                 if str(id) in Server_Settings[str(guild)]["rank"]:
                     total_xp = Server_Settings[str(guild)]["rank"][str(id)]
-                    max_xp = 10 * (1.5) * math.ceil(total_xp/15)
+                    level = (math.sqrt(1+8*(total_xp//15)) -1)//2
+                    max_xp = ((level+1)*(level+2)*15)//2
                     total_xp += 2
                     if total_xp > max_xp:
                         channel = await message.guild.fetch_channel(Server_Settings[str(guild)]["rank_channel"])
-                        await channel.send(f"{message.author.mention} you reached Level {total_xp//15}") 
+                        await channel.send(f"{message.author.mention} you reached Level {level+1}") 
                     Server_Settings[str(guild)]["rank"][str(id)] += 2
                 else: 
                     Server_Settings[str(guild)]["rank"][str(id)] = 2
