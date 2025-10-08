@@ -22,7 +22,7 @@ class Bot:
               for muted, duration in servers["muted"].items():
                   if datetime.fromisoformat(duration) < datetime.now(UTC):
                       sv_settings[id]["muted"].pop(muted)
-                      user = self.client.get_user(muted)
+                      user = self.client.get_user(int(muted))
                       try:
                           em = Embed(title="You were Unmuted",description="**Reason:** Expired\nYou can again start chatting with Kelly using `kelly hii`.\nPlease be respectful this time.")
                           em.set_footer(text=f"{user.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
