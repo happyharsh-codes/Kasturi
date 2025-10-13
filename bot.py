@@ -16,29 +16,33 @@ class Bot:
 
     @tasks.loop(minutes=1)
     async def unmute(self):
-        sv_settings = Server_Settings
-        try:
-          for id, servers in Server_Settings.items():
-              for muted, duration in servers["muted"].items():
-                  if datetime.fromisoformat(duration) < datetime.now(UTC):
-                      sv_settings[id]["muted"].pop(muted)
-                      user = self.client.get_user(int(muted))
-                      try:
-                          em = Embed(title="You were Unmuted",description="**Reason:** Expired\nYou can again start chatting with Kelly using `kelly hii`.\nPlease be respectful this time.")
-                          em.set_footer(text=f"{user.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
-                          em.set_author(name=user.name)
-                          await user.send(embed=em)
-                      except:
-                          pass
-          Server_Settings = sv_settings
-        except Exception as e:
-            me = self.client.get_user(894072003533877279)  
-            await me.send(e)
+        for guild_id, settings in Server_Settings.items():
+            for muted_id, duration in list(settings["muted"].items()):
+                if datetime.fromisoformat(duration) < datetime.now(UTC):
+                    # Remove expired mute
+                    settings["muted"].pop(muted_id)
 
-    @tasks.loop(minutes=2)
+                    try:
+                        user = await self.client.fetch_user(int(muted_id))
+                        em = Embed(
+                            title="You were Unmuted",
+                            description="**Reason:** Expired\nYou can again start chatting with Kelly using `kelly hii`.\nPlease be respectful this time.",
+                            color=Color.green()
+                        )
+                        em.set_footer(
+                            text=f"{user.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
+                            icon_url=self.client.user.avatar
+                        )
+                        em.set_author(name=user.name, icon_url=user.avatar)
+                        await user.send(embed=em)
+                    except Exception as dm_error:
+                        print(f"Could not DM {muted_id}: {dm_error}")
+                        
+
+    @tasks.loop(minutes=1)
     async def mood_swings(self):
         action = self.kelly.mood.moodSwing()
-        if action != "" and randint(1,7) == 5:
+        if randint(1,7):
             await self.kelly.reportAction(action)
 
     @tasks.loop(minutes=100)
@@ -205,7 +209,7 @@ class Bot:
         "allowed_channels": [],
         "premium": False,
         "invite_link": str(invite),
-        "owner": guild.owner_id,
+        "owner": int(guild.owner_id),
         "moderators": [],
         "banned_words": [],
         "block_list": [],
@@ -215,7 +219,8 @@ class Bot:
         "yt": {},
         "join/leave_channel": 0,
         "afk": [],
-        "friends": []
+        "friends": [],
+        "reviver": False
     }
 
     async def on_guild_remove(self, guild: discord.Guild):
@@ -244,15 +249,17 @@ class Bot:
                 print("No perms allowed")
 
     async def on_presence_update(self, before, after):
-        if before.status == discord.Status.offline and after.status != discord.Status.invisible:
+        if before.status == discord.Status.offline and after.status != discord.Status.offline:
             if str(before.id) in Relation and Relation[str(before.id)] > 10:
                 if randint(1,5) == 1:
                     for guilds in self.client.guilds:
-                        if guilds.get_member(self.client.get_user(before.id)) is not None:
+                        member = guilds.get_member(before.id):
+                        if member:
                             allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
                             if allowed_channels != []:
                                 channel = await guilds.fetch_channel(allowed_channels[0])
-                                await channel.send(getResponse("*User just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0))
+                                if channel:
+                                  await channel.send(f"{member.mention} " + getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0))
         
         
     async def on_command_completion(self, ctx):
