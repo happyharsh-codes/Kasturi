@@ -174,7 +174,7 @@ class Utility(commands.Cog):
                 
             if process_no == 3:
                 modal.add_item(input_box)
-                await interaction.followup.send_modal(modal)
+                await interaction.response.send_modal(modal)
                 
             if process_no == 4:
                 em.description= "Select your Welcome Message Channel"
@@ -193,7 +193,7 @@ class Utility(commands.Cog):
                 modal.add_item(input_box1)
                 modal.add_item(input_box2)
                 modal.add_item(input_box3)
-                await interaction.followup.send_modal(modal)
+                await interaction.response.send_modal(modal)
                 
             if process_no == 6:
                 yt = modal.children[0].value
