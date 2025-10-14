@@ -253,7 +253,7 @@ class Bot:
             if str(before.id) in Relation and Relation[str(before.id)] > 10:
                 if randint(1,5) == 1:
                     for guilds in self.client.guilds:
-                        member = guilds.get_member(before.id):
+                        member = guilds.get_member(before.id)
                         if member:
                             allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
                             if allowed_channels != []:
