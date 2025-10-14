@@ -272,7 +272,7 @@ class Utility(commands.Cog):
             await msg.edit(embed=em, view=None)
 
         async def go_callback(interaction: Interaction):
-            nonlocal welcome_theme_no, go_left, go_right
+            nonlocal welcome_theme_no, go_left, go_right,em
             go_left.disabled = False
             go_right.disabled = False
             if interaction.data["custom_id"] == "go_left":
