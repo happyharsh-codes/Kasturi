@@ -122,7 +122,7 @@ class Utility(commands.Cog):
         view = View(timeout=60)
         process_no = 0
         welcome_theme_no = 1
-        welcome_format = ""
+        welcome_format = "ㅤ♡ Welcome to <guild_name>\nText 1 <#channel1>\nText 2 <#channel2>\nText 3 <#channel3>"
         welcome_message = ""
         welcome_channel = 0
         yt = None
@@ -139,7 +139,7 @@ class Utility(commands.Cog):
         skip_button = Button(style=ButtonStyle.secondary ,label="Skip for now", custom_id="skip", row=0)
         input_box = TextInput(custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
         input_box1 = TextInput(custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= None, min_length=2, max_length=50, style=TextStyle.short)
-        input_box2 = TextInput(custom_id="insta", placeholder="Ennter your Insta Id: ", required= None, min_length=2, max_length=20, style=TextStyle.short)
+        input_box2 = TextInput(custom_id="insta", placeholder="Ennter your uired= None, min_length=2, max_length=20, style=TextStyle.short)
         input_box3 = TextInput(custom_id="twitter", placeholder="Enter your Twitter Id: ", required= None, min_length=2, max_length=20, style=TextStyle.short)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOptions(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, required=True)
 
@@ -154,7 +154,7 @@ class Utility(commands.Cog):
             if process_no == 1:
                 em.title="Set Welcome message"
                 em.description="Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nSelect your theme from here."
-                em.set_image(url="attachment://assets/welcome_message_1.png")
+                em.set_image(url="attachment://assets/welcome_message_1.gif")
                 view.clear_items()
                 proceed_button.label = "Select Theme"
                 view.add_item(input_box)
@@ -167,7 +167,7 @@ class Utility(commands.Cog):
 
             if process_no == 2:
                 em.title="Set Welcome message"
-                em.description=f"Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nCopy this Format, edit it and input it below.\nThen select your Welcom message channel and proceed\n```{welcome_format}```"
+                em.description=f"Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nCopy this Format, edit it and input it below.\nThen select your Welcome message channel and proceed\n```{welcome_format}```"
                 em.set_image(url=None)
                 view.clear_items()
                 view.add_item(input_box)
@@ -221,7 +221,7 @@ class Utility(commands.Cog):
                 activated_channels = list(map(int,channel_select.values))
                 em.title="Set up timer Messages"
                 em.description="Turn on timer messages to recieve random Kelly mood flex messages on Activated channels. Its always nice to be greeted by Kelly."
-                em.set_image(url="attachment://assets/timer.png)
+                em.set_image(url="attachment://assets/timer.png")
                 view.clear_items()
                 proceed_button.label = "Set Timer Messages"
                 skip_button.row = 1
@@ -234,7 +234,7 @@ class Utility(commands.Cog):
                     timer_messages = True
                 em.title="Server Setup Completed Successfully ✅"
                 em.description="Hurray you completed the server setup. Start Chatting with Kelly, just say `kelly hi`.\nExplore music with `k music`\nCheck out fun games with `k games`\nExciting social media search with `k dev`\n\nWhenever lost in trouble use `k help <query>`."
-                em.set_image(url="attachment://assets/finished.png")
+                em.set_image(url="attachment://assets/finished.gif")
                 view.clear_items()
                 proceed_button.label = "Finish"
                 await interaction.response.edit_message(embed=em, view=view)
@@ -264,9 +264,12 @@ class Utility(commands.Cog):
                     go_left.disabled = True
             else:
                 welcome_theme_no += 1
-                if welcome_theme_no += 5:
+                if welcome_theme_no == 5:
                     go_right.disabled = True
-            em.set_image(url=f"attachment://assets/welcome_theme_{welcome_theme_no}.png"
+            try:
+                em.set_image(url=f"attachment://assets/welcome_message_{welcome_theme_no}.png")
+            except:
+                em.set_image(url=f"attachment://assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
          
         go_left.callback = go_callback
