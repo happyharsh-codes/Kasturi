@@ -148,7 +148,7 @@ class Utility(commands.Cog):
                 self.input_box = TextInput(label="Welcome Message",custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
             async def on_submit(self, Interaction: Interaction):
-                nonlocal em, welcome_message, view, proceed_button,
+                nonlocal em, welcome_message, view, proceed_button
                 em.description= "Select your Welcome Message Channel"
                 welcome_message = self.input_box.value
                 view.clear_items()
@@ -167,7 +167,7 @@ class Utility(commands.Cog):
                 self.add_item(self.input_box2)
                 self.add_item(self.input_box3)
             async def on_submit(self, Interaction: Interaction):
-                nonlocal em, yt, insta, twitter, view, proceed_button,
+                nonlocal em, yt, insta, twitter, view, proceed_button
                 yt = self.input_box1.value
                 insta = self.input_box2.value
                 twitter = self.input_box3.value
