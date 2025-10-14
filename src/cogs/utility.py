@@ -107,6 +107,179 @@ class Utility(commands.Cog):
         response.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
         await ctx.reply(embed=response)
 
+    @commands.command(aliases=[])
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_permissions()
+    async def activate(self, ctx):
+        '''Server activate command - Moderators only
+        - Sets up all settings for your guild.
+        - 1.) Sets up Welcome message 
+        - 2.) Sets up Social Media notifis
+        - 3.) Sets up Rank Channel
+        - 4.) Sets up Activated channels/Commands only channels
+        - 5.) Sets up timer messages.'''
+        
+        view = View(timeout=60)
+        process_no = 0
+        welcome_theme_no = 1
+        welcome_format = ""
+        welcome_message = ""
+        welcome_channel = 0
+        yt = None
+        insta = None 
+        twitter = None
+        social_channel = None
+        rank_channel = 0
+        activated_channels = []
+        timer_messsges = False
+        
+        go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0)
+        proceed_button = Button(style=ButtonStyle.success ,label="Start Setup", custom_id="proceed", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        skip_button = Button(style=ButtonStyle.secondary ,label="Skip for now", custom_id="skip", row=0)
+        input_box = TextInput(custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+        input_box1 = TextInput(custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= None, min_length=2, max_length=50, style=TextStyle.short)
+        input_box2 = TextInput(custom_id="insta", placeholder="Ennter your Insta Id: ", required= None, min_length=2, max_length=20, style=TextStyle.short)
+        input_box3 = TextInput(custom_id="twitter", placeholder="Enter your Twitter Id: ", required= None, min_length=2, max_length=20, style=TextStyle.short)
+        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOptions(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, required=True)
+
+        em = Embed(title="Welcome to Kelly Bot Setup", description="We are glad that you invited our bot to your server. Follow these simple instructions to set up settings and start chatting with Kelly right now. Thanks for inviting Kelly.", color = Color.gold, type = "rich")
+        em.set_image(url="attachment://assets/welcome_setup.png")
+                
+        async def process_buttons(interaction: discord.Interaction):
+            nonlocal welcome_theme, process_no, proceed_button, skip_button, go_left, go_right, view, em
+            nonlocal welcome_text, welcome_channel, yt, insta, twitter, social_channel, rank_channel, activated_channels, timer_messages
+            global ServerSettings
+            process_no += 1
+            if process_no == 1:
+                em.title="Set Welcome message"
+                em.description="Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nSelect your theme from here."
+                em.set_image(url="attachment://assets/welcome_message_1.png")
+                view.clear_items()
+                proceed_button.label = "Select Theme"
+                view.add_item(input_box)
+                view.add_item(go_left)
+                view.add_item(proceed_button)
+                view.add_item(go_right)
+                skip_button.row = 1
+                view.add_item(skip_button)
+                await interaction.response.edit_message(embed=em,view=view)
+
+            if process_no == 2:
+                em.title="Set Welcome message"
+                em.description=f"Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nCopy this Format, edit it and input it below.\nThen select your Welcom message channel and proceed\n```{welcome_format}```"
+                em.set_image(url=None)
+                view.clear_items()
+                view.add_item(input_box)
+                view.add_item(channel_select)
+                proceed_button.label = "Set Welcome Channel"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)
+                
+            if process_no == 3:
+                welcome_text = input_box.value
+                welcome_channel = int(channel_select.values[0])
+                em.title="Set up Social Media Notification"
+                em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
+                em.set_image(url="attachment://assets/social.png")
+                view.clear_items()
+                view.add_item(input_box1)
+                view.add_item(input_box2)
+                view.add_item(input_box3)
+                view.add_item(channel_select)
+                proceed_button.label = "Set Social Media"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)
+
+            if process_no == 4:
+                yt = input_box1.value
+                insta = input_box2.value
+                twitter = input_box3.value
+                social_channel = int(channel_select.values[0])
+                em.title="Set up Rank Channel"
+                em.description="Set up your rank channel in which you'll get Level up messages."
+                em.set_image(ur="attachment://asstes/rank.png")
+                view.clear_items()
+                view.add_item(channel_select)
+                proceed_button.label = "Set Rank Channel"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)
+
+            if process_no == 5:
+                rank_channel = int(channel_select.values[0])
+                em.title="Set up Activated Channels"
+                em.description="Set up your activated channels. Activated channels are ones in which anyone can chat with Kelly just by saying anything including word `kelly`. You can select multiple Channels. Notev You can also run commands by say saying `kelly can you mute this @abc for spamming`"
+                em.set_image(url="attachment://assets/activated.png")
+                view.clear_items()
+                channel_select.max_values = 5
+                view.add_item(channel_select)
+                proceed_button.label = "Set Activated Channels"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)
+
+            if process_no == 6:
+                activated_channels = list(map(int,channel_select.values))
+                em.title="Set up timer Messages"
+                em.description="Turn on timer messages to recieve random Kelly mood flex messages on Activated channels. Its always nice to be greeted by Kelly."
+                em.set_image(url="attachment://assets/timer.png)
+                view.clear_items()
+                proceed_button.label = "Set Timer Messages"
+                skip_button.row = 1
+                view.add_item(proceed_button)
+                view.add_item(skip_button)
+                await interaction.response.edit_message(embed=em, view=view)
+
+            if process_no == 7:
+                if interaction.data["custom_id"] == "proceed"
+                    timer_messages = True
+                em.title="Server Setup Completed Successfully ✅"
+                em.description="Hurray you completed the server setup. Start Chatting with Kelly, just say `kelly hi`.\nExplore music with `k music`\nCheck out fun games with `k games`\nExciting social media search with `k dev`\n\nWhenever lost in trouble use `k help <query>`."
+                em.set_image(url="attachment://assets/finished.png")
+                view.clear_items()
+                proceed_button.label = "Finish"
+                await interaction.response.edit_message(embed=em, view=view)
+
+            if process_no == 8:
+                await interaction.response.edit_message(view=None)
+                ServerSettings["join/leave_channel"] = welcome_channel
+                ServerSettings["allowed_channels"] = activated_channels
+                ServerSettings["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
+                ServerSettings["welcome_message"] = welcome_message
+                ServerSettings["rank_channel"] = rank_channel
+                ServerSettings["timer_messages"] = timer_messages
+                #await ctx.invoke()
+
+        async def timeout():
+            nonlocal msg, em
+            em.color = Color.grey
+            await msg.edit(embed=em, view=None)
+            
+        async def go_callback(interaction: Interaction):
+            nonlocal welcome_theme_no, go_left, go_right
+            go_left.disabled = False
+            go_right.disabled = False
+            if interaction.data["custom_id"] == "go_left":
+                welcome_theme_no -= 1
+                if welcome_theme_no == 1
+                    go_left.disabled = True
+            else:
+                welcome_theme_no += 1
+                if welcome_theme_no += 5:
+                    go_right.disabled = True
+            em.set_image(url=f"attachment://assets/welcome_theme_{welcome_theme_no}.png"
+            await interaction.response.edit_message(embed=em, view=view)
+         
+        go_left.callback = go_callback
+        go_right.callback = go_callback
+        proceed_button.callback = process_buttons
+        skip_button.callback = process_buttons
+        view.on_timeout = timeout
+        
+        view.add_item(go_left)
+        view.add_item(proceed_button)
+        view.add_item(go_right)
+        
+        msg = await ctx.reply(embed=em,view=view)
 
 async def setup(bot):
     await bot.add_cog(Utility(bot))
