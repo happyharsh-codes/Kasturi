@@ -148,21 +148,20 @@ class Utility(commands.Cog):
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
                 
         async def process_buttons(interaction: discord.Interaction):
-            nonlocal welcome_format, process_no, proceed_button, skip_button, go_left, go_right, view, em
+            nonlocal welcome_theme_no, welcome_format, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, yt, insta, twitter, social_channel, rank_channel, activated_channels, timer_messages
-            nonlocal input_box, inputbox1, inputbox2, inputbox3, modal, channel_select
+            nonlocal input_box, input_box1, input_box2, input_box3, modal, channel_select
             global ServerSettings
             process_no += 1
             if process_no == 1:
                 em.title="Set Welcome message"
                 em.description="Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nSelect your theme from here."
-                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message.gif")
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_1.gif")
                 view.clear_items()
                 proceed_button.label = "Select Theme"
                 view.add_item(go_left)       
                 view.add_item(proceed_button)
                 view.add_item(go_right)
-                view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em,view=view)
                 
             if process_no == 2:
@@ -176,6 +175,7 @@ class Utility(commands.Cog):
             if process_no == 3:
                 modal.add_item(input_box)
                 await interaction.followup.send_modal(modal)
+                
             if process_no == 4:
                 em.description= "Select your Welcome Message Channel"
                 welcome_message = modal.children[0].value
@@ -184,7 +184,8 @@ class Utility(commands.Cog):
                 proceed_button.label = "Set Welcome Channel"
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
-            if process_no == 5:
+           
+           if process_no == 5:
                 if interaction.data["custom_id"] == "proceed":
                     welcome_channel = int(channel_select.values[0])
                 modal.title = "Set Social Media/ Leave blank for none"
@@ -257,6 +258,7 @@ class Utility(commands.Cog):
             if process_no == 11:
                 await interaction.response.edit_message(view=None)
                 ServerSettings["join/leave_channel"] = welcome_channel
+                ServerSettings["welcome_image"] = welcome_theme_no
                 ServerSettings["allowed_channels"] = activated_channels
                 ServerSettings["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
                 ServerSettings["welcome_message"] = welcome_message
