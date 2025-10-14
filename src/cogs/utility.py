@@ -262,6 +262,11 @@ class Utility(commands.Cog):
             nonlocal msg, em
             em.color = Color.light_grey()
             await msg.edit(embed=em, view=None)
+
+        async def on_submit():
+            nonlocal msg, view
+            proceed_button.disabled = False
+            msg.edit(view=view)
             
         async def go_callback(interaction: Interaction):
             nonlocal welcome_theme_no, go_left, go_right
@@ -285,8 +290,9 @@ class Utility(commands.Cog):
         go_right.callback = go_callback
         proceed_button.callback = process_buttons
         skip_button.callback = process_buttons
+        model.on_submit = on_submit
         view.on_timeout = timeout
-        
+        model.on_timeout = timeout
         view.add_item(proceed_button)
         
         msg = await ctx.reply(embed=em,view=view)
