@@ -148,7 +148,7 @@ class Utility(commands.Cog):
                 self.input_box = TextInput(label="Welcome Message",custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
             async def on_submit(self, Interaction: Interaction):
-                nonlocal welcome_message
+                nonlocal welcome_message, em, view, proceed_button, channel_select, msg
                 welcome_message = self.input_box.value
                 em.description= "Select your Welcome Message Channel"
                 view.clear_items()
@@ -167,7 +167,7 @@ class Utility(commands.Cog):
                 self.add_item(self.input_box2)
                 self.add_item(self.input_box3)
             async def on_submit(self, Interaction: Interaction):
-                nonlocal em, yt, insta, twitter, view, proceed_button
+                nonlocal em, yt, insta, twitter, view, proceed_button, msg, channel_select
                 yt = self.input_box1.value
                 insta = self.input_box2.value
                 twitter = self.input_box3.value
@@ -214,7 +214,7 @@ class Utility(commands.Cog):
                 modal = SocialModal()
                 await interaction.response.send_modal(modal)
 
-            if proxcess_no == 5:
+            if process_no == 5:
                 social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
