@@ -131,7 +131,7 @@ class Utility(commands.Cog):
         social_channel = None
         rank_channel = 0
         activated_channels = []
-        timer_messsges = False
+        timer_messages = False
         
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0)
