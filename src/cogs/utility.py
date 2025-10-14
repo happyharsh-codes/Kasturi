@@ -133,9 +133,9 @@ class Utility(commands.Cog):
         activated_channels = []
         timer_messages = False
         
-        go_left = Button(label=" ",style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
-        go_right = Button(label=" ",style=ButtonStyle.secondary, custom_id= "go_right", row=0)
-        proceed_button = Button(style=ButtonStyle.success ,label="Start Setup", custom_id="proceed", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        proceed_button = Button(style=ButtonStyle.success ,label="Start Setup", custom_id="proceed", row=0)
         skip_button = Button(style=ButtonStyle.secondary ,label="Skip for now", custom_id="skip", row=0)
         input_box = TextInput(label="Welcome Message",custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
         input_box1 = TextInput(label="YouTube Link", custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= None, min_length=2, max_length=50, style=TextStyle.short)
