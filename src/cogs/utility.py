@@ -141,20 +141,20 @@ class Utility(commands.Cog):
         input_box1 = TextInput(custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= None, min_length=2, max_length=50, style=TextStyle.short)
         input_box2 = TextInput(custom_id="insta", placeholder="Enter your Insta id", required= None, min_length=2, max_length=20, style=TextStyle.short)
         input_box3 = TextInput(custom_id="twitter", placeholder="Enter your Twitter Id: ", required= None, min_length=2, max_length=20, style=TextStyle.short)
-        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOptions(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, required=True)
+        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, required=True)
 
-        em = Embed(title="Welcome to Kelly Bot Setup", description="We are glad that you invited our bot to your server. Follow these simple instructions to set up settings and start chatting with Kelly right now. Thanks for inviting Kelly.", color = Color.gold, type = "rich")
-        em.set_image(url="attachment://assets/welcome_setup.png")
+        em = Embed(title="Welcome to Kelly Bot Setup", description="We are glad that you invited our bot to your server. Follow these simple instructions to set up settings and start chatting with Kelly right now. Thanks for inviting Kelly.", color = Color.gold(), type = "rich")
+        em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
                 
         async def process_buttons(interaction: discord.Interaction):
             nonlocal welcome_theme, process_no, proceed_button, skip_button, go_left, go_right, view, em
-            nonlocal welcome_text, welcome_channel, yt, insta, twitter, social_channel, rank_channel, activated_channels, timer_messages
+            nonlocal welcome_message, welcome_channel, yt, insta, twitter, social_channel, rank_channel, activated_channels, timer_messages
             global ServerSettings
             process_no += 1
             if process_no == 1:
                 em.title="Set Welcome message"
                 em.description="Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nSelect your theme from here."
-                em.set_image(url="attachment://assets/welcome_message_1.gif")
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message.gif")
                 view.clear_items()
                 proceed_button.label = "Select Theme"
                 view.add_item(input_box)
@@ -177,11 +177,12 @@ class Utility(commands.Cog):
                 await interaction.response.edit_message(embed=em, view=view)
                 
             if process_no == 3:
-                welcome_text = input_box.value
-                welcome_channel = int(channel_select.values[0])
+                if interaction.data["custom_id"] == "proceed":
+                    welcome_message = input_box.value
+                    welcome_channel = int(channel_select.values[0])
                 em.title="Set up Social Media Notification"
                 em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
-                em.set_image(url="attachment://assets/social.png")
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
                 view.clear_items()
                 view.add_item(input_box1)
                 view.add_item(input_box2)
@@ -192,13 +193,14 @@ class Utility(commands.Cog):
                 await interaction.response.edit_message(embed=em, view=view)
 
             if process_no == 4:
-                yt = input_box1.value
-                insta = input_box2.value
-                twitter = input_box3.value
-                social_channel = int(channel_select.values[0])
+                if interaction.data["custom_id"] == "proceed":
+                    yt = input_box1.value
+                    insta = input_box2.value
+                    twitter = input_box3.value
+                    social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
-                em.set_image(ur="attachment://asstes/rank.png")
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/rank.png")
                 view.clear_items()
                 view.add_item(channel_select)
                 proceed_button.label = "Set Rank Channel"
@@ -206,10 +208,11 @@ class Utility(commands.Cog):
                 await interaction.response.edit_message(embed=em, view=view)
 
             if process_no == 5:
-                rank_channel = int(channel_select.values[0])
+                if interaction.data["custom_id"] == "proceed":
+                    rank_channel = int(channel_select.values[0])
                 em.title="Set up Activated Channels"
                 em.description="Set up your activated channels. Activated channels are ones in which anyone can chat with Kelly just by saying anything including word `kelly`. You can select multiple Channels. Notev You can also run commands by say saying `kelly can you mute this @abc for spamming`"
-                em.set_image(url="attachment://assets/activated.png")
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/activated.png")
                 view.clear_items()
                 channel_select.max_values = 5
                 view.add_item(channel_select)
@@ -218,10 +221,11 @@ class Utility(commands.Cog):
                 await interaction.response.edit_message(embed=em, view=view)
 
             if process_no == 6:
-                activated_channels = list(map(int,channel_select.values))
+                if interaction.data["custom_id"] == "proceed":
+                    activated_channels = list(map(int,channel_select.values))
                 em.title="Set up timer Messages"
                 em.description="Turn on timer messages to recieve random Kelly mood flex messages on Activated channels. Its always nice to be greeted by Kelly."
-                em.set_image(url="attachment://assets/timer.png")
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/timer.png")
                 view.clear_items()
                 proceed_button.label = "Set Timer Messages"
                 skip_button.row = 1
@@ -230,11 +234,11 @@ class Utility(commands.Cog):
                 await interaction.response.edit_message(embed=em, view=view)
 
             if process_no == 7:
-                if interaction.data["custom_id"] == "proceed"
+                if interaction.data["custom_id"] == "proceed":
                     timer_messages = True
                 em.title="Server Setup Completed Successfully ✅"
                 em.description="Hurray you completed the server setup. Start Chatting with Kelly, just say `kelly hi`.\nExplore music with `k music`\nCheck out fun games with `k games`\nExciting social media search with `k dev`\n\nWhenever lost in trouble use `k help <query>`."
-                em.set_image(url="attachment://assets/finished.gif")
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/finished.gif")
                 view.clear_items()
                 proceed_button.label = "Finish"
                 await interaction.response.edit_message(embed=em, view=view)
@@ -251,7 +255,7 @@ class Utility(commands.Cog):
 
         async def timeout():
             nonlocal msg, em
-            em.color = Color.grey
+            em.color = Color.light_grey()
             await msg.edit(embed=em, view=None)
             
         async def go_callback(interaction: Interaction):
@@ -260,16 +264,16 @@ class Utility(commands.Cog):
             go_right.disabled = False
             if interaction.data["custom_id"] == "go_left":
                 welcome_theme_no -= 1
-                if welcome_theme_no == 1
+                if welcome_theme_no == 1:
                     go_left.disabled = True
             else:
                 welcome_theme_no += 1
                 if welcome_theme_no == 5:
                     go_right.disabled = True
             try:
-                em.set_image(url=f"attachment://assets/welcome_message_{welcome_theme_no}.png")
+                em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.png")
             except:
-                em.set_image(url=f"attachment://assets/welcome_message_{welcome_theme_no}.gif")
+                em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
          
         go_left.callback = go_callback
