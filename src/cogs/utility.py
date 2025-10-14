@@ -120,7 +120,7 @@ class Utility(commands.Cog):
         - 5.) Sets up timer messages.'''
         
         view = View(timeout=60)
-        model = discord.ui.Model(title="Input", custom_id="model",timeout=45)
+        modal = discord.ui.Modal(title="Input", custom_id="model",timeout=45)
         process_no = 0
         welcome_theme_no = 1
         welcome_format = "ㅤ♡ Welcome to <guild_name>\nText 1 <#channel1>\nText 2 <#channel2>\nText 3 <#channel3>"
@@ -180,7 +180,7 @@ class Utility(commands.Cog):
                               
             if process_no == 3:
                 if interaction.data["custom_id"] == "proceed":
-                    welcome_message = model.children[0].value
+                    welcome_message = modal.children[0].value
                     welcome_channel = int(channel_select.values[0])
                 em.title="Set up Social Media Notification"
                 em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
@@ -199,9 +199,9 @@ class Utility(commands.Cog):
 
             if process_no == 4:
                 if interaction.data["custom_id"] == "proceed":
-                    yt = model.children[0].value
-                    insta = model.children[1].value
-                    twitter = model.children[2].value
+                    yt = modal.children[0].value
+                    insta = modal.children[1].value
+                    twitter = modal.children[2].value
                     social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
@@ -290,9 +290,9 @@ class Utility(commands.Cog):
         go_right.callback = go_callback
         proceed_button.callback = process_buttons
         skip_button.callback = process_buttons
-        model.on_submit = on_submit
+        modal.on_submit = on_submit
         view.on_timeout = timeout
-        model.on_timeout = timeout
+        modal.on_timeout = timeout
         view.add_item(proceed_button)
         
         msg = await ctx.reply(embed=em,view=view)
