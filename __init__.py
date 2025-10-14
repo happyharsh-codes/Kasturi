@@ -5,8 +5,8 @@ import requests
 from datetime import datetime, UTC, timedelta
 import discord
 from discord.ext import commands, tasks
-from discord.ui import View, Button, Select
-from discord import ButtonStyle, Embed, Color, SelectOption
+from discord.ui import View, Button, Select, TextInput
+from discord import Interaction, ButtonStyle, Embed, Color, SelectOption, TextStyle
 from json import load, dump, loads
 from random import choice, randint, choices
 from openai import OpenAI
