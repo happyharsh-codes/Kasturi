@@ -148,15 +148,8 @@ class Utility(commands.Cog):
                 self.input_box = TextInput(label="Welcome Message",custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
             async def on_submit(self, Interaction: Interaction):
-                nonlocal em, welcome_message, view, proceed_button
-                em.description= "Select your Welcome Message Channel"
+                nonlocal welcome_message
                 welcome_message = self.input_box.value
-                view.clear_items()
-                view.add_item(channel_select)
-                proceed_button.label = "Set Welcome Channel"
-                view.add_item(proceed_button)
-                await interaction.response.edit_message(embed=em, view=view)
-
         class SocialModal(discord.ui.Modal):
             def __init__():
                 super().__init(title="Set Social Media/ Leave blank for none")
@@ -171,18 +164,10 @@ class Utility(commands.Cog):
                 yt = self.input_box1.value
                 insta = self.input_box2.value
                 twitter = self.input_box3.value
-                em.title="Set up Social Media Notification"
-                em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
-                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
-                view.clear_items()
-                view.add_item(channel_select)
-                proceed_button.label = "Set Social Media Updates Channel"
-                view.add_item(proceed_button)
-                await interaction.response.edit_message(embed=em, view=view)     
-                        
+                
         async def process_buttons(interaction: discord.Interaction):
             nonlocal welcome_theme_no, welcome_format, process_no, proceed_button, skip_button, go_left, go_right, view, em
-            nonlocal welcome_message, welcome_channel, yt, insta, twitter, social_channel, rank_channel, activated_channels, timer_messages
+            nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
             nonlocal WelcomeModal, SocialModal, channel_select
             global ServerSettings
             process_no += 1
@@ -210,12 +195,28 @@ class Utility(commands.Cog):
                 await interaction.response.send_modal(modal)
             
             if process_no == 4:
-                if interaction.data["custom_id"] == "proceed":
-                    welcome_channel = int(channel_select.values[0])
+                em.description= "Select your Welcome Message Channel"
+                view.clear_items()
+                view.add_item(channel_select)
+                proceed_button.label = "Set Welcome Channel"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)
+            if process_no ==5:
+                welcome_channel = int(channel_select.values[0])
                 modal = SocialModal()
                 await interaction.response.send_modal(modal)
 
-            if process_no == 5:
+            if proxcess_no == 6:
+                em.title="Set up Social Media Notification"
+                em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
+                view.clear_items()
+                view.add_item(channel_select)
+                proceed_button.label = "Set Social Media Updates Channel"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)     
+                        
+            if process_no == 7:
                 social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
@@ -227,7 +228,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 6:
+            if process_no == 8:
                 if interaction.data["custom_id"] == "proceed":
                     rank_channel = int(channel_select.values[0])
                 em.title="Set up Activated Channels"
@@ -240,7 +241,7 @@ class Utility(commands.Cog):
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 7:
+            if process_no == 9:
                 if interaction.data["custom_id"] == "proceed":
                     activated_channels = list(map(int,channel_select.values))
                 em.title="Set up timer Messages"
@@ -252,7 +253,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 8:
+            if process_no == 10:
                 if interaction.data["custom_id"] == "proceed":
                     timer_messages = True
                 em.title="Server Setup Completed Successfully ✅"
@@ -262,7 +263,7 @@ class Utility(commands.Cog):
                 proceed_button.label = "Finish"
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 9:
+            if process_no == 11:
                 await interaction.response.edit_message(view=None)
                 ServerSettings["join/leave_channel"] = welcome_channel
                 ServerSettings["welcome_image"] = welcome_theme_no
