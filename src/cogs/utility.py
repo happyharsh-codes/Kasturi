@@ -300,9 +300,7 @@ class Utility(commands.Cog):
         go_right.callback = go_callback
         proceed_button.callback = process_buttons
         skip_button.callback = process_buttons
-        modal.on_submit = process_buttons
         view.on_timeout = timeout
-        modal.on_timeout = timeout
         view.add_item(proceed_button)
         
         msg = await ctx.reply(embed=em,view=view)
