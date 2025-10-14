@@ -185,7 +185,7 @@ class Utility(commands.Cog):
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
            
-           if process_no == 5:
+            if process_no == 5:
                 if interaction.data["custom_id"] == "proceed":
                     welcome_channel = int(channel_select.values[0])
                 modal.title = "Set Social Media/ Leave blank for none"
