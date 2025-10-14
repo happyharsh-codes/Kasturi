@@ -142,7 +142,7 @@ class Utility(commands.Cog):
         em = Embed(title="Welcome to Kelly Bot Setup", description="We are glad that you invited our bot to your server. Follow these simple instructions to set up settings and start chatting with Kelly right now. Thanks for inviting Kelly.", color = Color.gold(), type = "rich")
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
 
-        class WelcomeModal(discord.ui.Modal)
+        class WelcomeModal(discord.ui.Modal):
             def __init__():
                 super().__init(title="Welcome Text")
                 self.input_box = TextInput(label="Welcome Message",custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
@@ -157,7 +157,7 @@ class Utility(commands.Cog):
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-        class SocialModal(discord.ui.Modal)
+        class SocialModal(discord.ui.Modal):
             def __init__():
                 super().__init(title="Set Social Media/ Leave blank for none")
                 self.input_box1 = TextInput(label="YouTube Link", custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= None, min_length=2, max_length=50, style=TextStyle.short)
