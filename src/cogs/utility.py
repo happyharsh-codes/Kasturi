@@ -139,7 +139,7 @@ class Utility(commands.Cog):
         skip_button = Button(style=ButtonStyle.secondary ,label="Skip for now", custom_id="skip", row=0)
         input_box = TextInput(custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
         input_box1 = TextInput(custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= None, min_length=2, max_length=50, style=TextStyle.short)
-        input_box2 = TextInput(custom_id="insta", placeholder="Ennter your uired= None, min_length=2, max_length=20, style=TextStyle.short)
+        input_box2 = TextInput(custom_id="insta", placeholder="Enter your Insta id", required= None, min_length=2, max_length=20, style=TextStyle.short)
         input_box3 = TextInput(custom_id="twitter", placeholder="Enter your Twitter Id: ", required= None, min_length=2, max_length=20, style=TextStyle.short)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOptions(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, required=True)
 
