@@ -147,7 +147,7 @@ class Utility(commands.Cog):
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
                 
         async def process_buttons(interaction: discord.Interaction):
-            nonlocal welcome_theme, process_no, proceed_button, skip_button, go_left, go_right, view, em
+            nonlocal welcome_format, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, yt, insta, twitter, social_channel, rank_channel, activated_channels, timer_messages
             global ServerSettings
             process_no += 1
