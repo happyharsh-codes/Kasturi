@@ -150,6 +150,7 @@ class Utility(commands.Cog):
         async def process_buttons(interaction: discord.Interaction):
             nonlocal welcome_format, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, yt, insta, twitter, social_channel, rank_channel, activated_channels, timer_messages
+            nonlocal input_box, inputbox1, inputbox2, inputbox3, modal, channel_select
             global ServerSettings
             process_no += 1
             if process_no == 1:
@@ -173,7 +174,7 @@ class Utility(commands.Cog):
                 await interaction.response.edit_message(embed=em, view=view)
                 
             if process_no == 3:
-                modal.add_item(input)
+                modal.add_item(input_box)
                 await interaction.followup.send_modal(modal)
             if process_no == 4:
                 em.description= "Select your Welcome Message Channel"
@@ -186,8 +187,8 @@ class Utility(commands.Cog):
             if process_no == 5:
                 if interaction.data["custom_id"] == "proceed":
                     welcome_channel = int(channel_select.values[0])
-                model.title = "Set Social Media/ Leave blank for none"
-                model.clear_items()
+                modal.title = "Set Social Media/ Leave blank for none"
+                modal.clear_items()
                 modal.add_item(input_box1)
                 modal.add_item(input_box2)
                 modal.add_item(input_box3)
