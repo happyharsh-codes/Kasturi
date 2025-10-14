@@ -120,7 +120,7 @@ class Utility(commands.Cog):
         - 5.) Sets up timer messages.'''
         
         view = View(timeout=60)
-        modal = discord.ui.Modal(title="Input", custom_id="model",timeout=45)
+        modal = discord.ui.Modal(title="Welcome Text", custom_id="model",timeout=45)
         process_no = 0
         welcome_theme_no = 1
         welcome_format = "ㅤ♡ Welcome to <guild_name>\nText 1 <#channel1>\nText 2 <#channel2>\nText 3 <#channel3>"
@@ -148,7 +148,7 @@ class Utility(commands.Cog):
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
                 
         async def process_buttons(interaction: discord.Interaction):
-            nonlocalwelcome_format, process_no, proceed_button, skip_button, go_left, go_right, view, em
+            nonlocal welcome_format, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, yt, insta, twitter, social_channel, rank_channel, activated_channels, timer_messages
             global ServerSettings
             process_no += 1
@@ -166,42 +166,48 @@ class Utility(commands.Cog):
                 
             if process_no == 2:
                 em.title="Set Welcome message"
-                em.description=f"Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nCopy this Format, edit it and input it below.\nThen select your Welcome message channel and proceed\n```{welcome_format}```"
+                em.description=f"Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nCopy this Format, edit it accordingly and the click next.\n```{welcome_format}```"
                 em.set_image(url=None)
-                view.clear_items()
-                model.add_item(input_box)
-                view.add_item(channel_select)
-                proceed_button.label = "Set Welcome Channel"
-                proceed_button.disabled = True 
+                proceed_button.label = "Proceed"
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
-                await interaction.followup.send_modal(modal)
-                              
+                
             if process_no == 3:
+                modal.add_item(input)
+                await interaction.followup.send_modal(modal)
+            if process_no == 4:
+                em.description= "Select your Welcome Message Channel"
+                welcome_message = modal.children[0].value
+                view.clear_items()
+                view.add_item(channel_select)
+                proceed_button.label = "Set Welcome Channel"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)
+            if process_no == 5:
                 if interaction.data["custom_id"] == "proceed":
-                    welcome_message = modal.children[0].value
                     welcome_channel = int(channel_select.values[0])
+                model.title = "Set Social Media/ Leave blank for none"
+                model.clear_items()
+                modal.add_item(input_box1)
+                modal.add_item(input_box2)
+                modal.add_item(input_box3)
+                await interaction.followup.send_modal(modal)
+                
+            if process_no == 6:
+                yt = modal.children[0].value
+                insta = modal.children[1].value
+                twitter = modal.children[2].value
                 em.title="Set up Social Media Notification"
                 em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
                 view.clear_items()
-                modal.clear_items()
-                modal.add_item(input_box1)
-                modal.add_item(input_box2)
-                modal.add_item(input_box3)
                 view.add_item(channel_select)
-                proceed_button.label = "Set Social Media"
-                proceed_button.disabled = False
+                proceed_button.label = "Set Social Media Updates Channel"
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
-                await interaction.followup.send_modal(modal)
-
-            if process_no == 4:
-                if interaction.data["custom_id"] == "proceed":
-                    yt = modal.children[0].value
-                    insta = modal.children[1].value
-                    twitter = modal.children[2].value
-                    social_channel = int(channel_select.values[0])
+                
+            if process_no == 7:
+                social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/rank.png")
@@ -209,9 +215,10 @@ class Utility(commands.Cog):
                 view.add_item(channel_select)
                 proceed_button.label = "Set Rank Channel"
                 view.add_item(proceed_button)
+                view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 5:
+            if process_no == 8:
                 if interaction.data["custom_id"] == "proceed":
                     rank_channel = int(channel_select.values[0])
                 em.title="Set up Activated Channels"
@@ -224,7 +231,7 @@ class Utility(commands.Cog):
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 6:
+            if process_no == 9:
                 if interaction.data["custom_id"] == "proceed":
                     activated_channels = list(map(int,channel_select.values))
                 em.title="Set up timer Messages"
@@ -236,7 +243,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 7:
+            if process_no == 10:
                 if interaction.data["custom_id"] == "proceed":
                     timer_messages = True
                 em.title="Server Setup Completed Successfully ✅"
@@ -246,7 +253,7 @@ class Utility(commands.Cog):
                 proceed_button.label = "Finish"
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 8:
+            if process_no == 11:
                 await interaction.response.edit_message(view=None)
                 ServerSettings["join/leave_channel"] = welcome_channel
                 ServerSettings["allowed_channels"] = activated_channels
