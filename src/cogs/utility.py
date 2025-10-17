@@ -283,7 +283,7 @@ class Utility(commands.Cog):
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Welcome Message")
-                self.input_box = TextInput(label="Edit the Format and Enter.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1- eg: Take roles\nText 2 - eg Read Rules\nText 3", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                self.input_box = TextInput(label="Edit the Format and Enter.",custom_id="welcome", default= "Welcome to <guild_name>\n✦ Text 1- eg: Take Roles\n✦ Text 2 - eg Read Rules\n✦ Text 3 - eg Have Fun Here", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
             async def on_submit(self, interaction: Interaction):
               try:
@@ -359,7 +359,7 @@ class Utility(commands.Cog):
                 temp = welcome_message.split("\n")[1:]
                 welcome_message = welcome_message.split("\n")[0]
                 for index, i in enumerate(temp):
-                    welcome_message += f"\n[{i}](https://discord.com/channels/{ctx.guild.id}/{channel_select2.values[index]})"
+                    welcome_message += f"\n[**{i}**](https://discord.com/channels/{ctx.guild.id}/{channel_select2.values[index]})"
                 welcome_channel = int(channel_select.values[0])
                 em.description= "Welcome channel set up perfectly.\nYoi can have a preview here:\n"+ welcome_message
                 em.set_image(url=None)
