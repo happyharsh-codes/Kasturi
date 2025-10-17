@@ -244,7 +244,7 @@ class Utility(commands.Cog):
                 
               if process_no == 2:
                 modal = WelcomeModal()
-                await interaction.followup.send_modal(modal)
+                await interaction.response.send_modal(modal)
               
               if process_no == 3:
                 temp = welcome_message.split("\n")[1:]
