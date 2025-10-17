@@ -233,6 +233,7 @@ class Utility(commands.Cog):
                 em.title="Set Welcome message"
                 em.description=f"Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nCopy this Format, edit it accordingly and the click next.\n```{welcome_format}```"
                 em.set_image(url=None)
+                view.clear_items()
                 proceed_button.label = "Proceed"
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
