@@ -175,18 +175,25 @@ class Utility(commands.Cog):
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Welcome Message")
-                self.input_box = TextInput(label="Edit the Format with your custom text.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1<#channel1>\nText 2 <#channel2>\nText 3 <#channel3>", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                self.input_box = TextInput(label="Edit the Format with your custom text.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1\nText 2\nText 3", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
+                self.channel_select = Select(custom_id="channel2", placeholder="Select your Channels in Order for Each line to redirect.", options=[SelectOption(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=5, min_values=1)
+                self.add_item(self.channel_select)
             async def on_submit(self, Interaction: Interaction):
+              try:
                 nonlocal welcome_message, em, view, proceed_button, channel_select, msg
-                welcome_message = self.input_box.value
+                welcome_message = self.input_box.value.split("\n")[0]
+                for index, i in enumerate(self.input_box.value.split("\n")[1:]):
+                    welcome_message += f"[{i}](https://discord.com/channels/{ctx.guild.id}/{self.channel_select.values[index]})"
                 em.description= "Select your Welcome Message Channel"
                 view.clear_items()
                 view.add_item(channel_select)
                 proceed_button.label = "Set Welcome Channel"
                 view.add_item(proceed_button)
                 await msg.edit(embed=em, view=view)
-            
+              except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
+                  
         class SocialModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Social Media/ Leave blank for none")
@@ -197,6 +204,7 @@ class Utility(commands.Cog):
                 self.add_item(self.input_box2)
                 self.add_item(self.input_box3)
             async def on_submit(self, Interaction: Interaction):
+              try:
                 nonlocal em, yt, insta, twitter, view, proceed_button, msg, channel_select
                 yt = self.input_box1.value
                 insta = self.input_box2.value
@@ -209,7 +217,8 @@ class Utility(commands.Cog):
                 proceed_button.label = "Set Social Media Updates Channel"
                 view.add_item(proceed_button)
                 await msg.edit(embed=em, view=view)     
-                       
+              except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
         async def process_buttons(interaction: discord.Interaction):
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
