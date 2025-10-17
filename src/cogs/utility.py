@@ -337,6 +337,7 @@ class Utility(commands.Cog):
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
             nonlocal WelcomeModal, SocialModal, channel_select, channel_select2, client
+            global ServerSettings
             process_no += 1
             try:
               if process_no == 1:
