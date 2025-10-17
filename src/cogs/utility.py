@@ -211,7 +211,7 @@ class Utility(commands.Cog):
                 await msg.edit(embed=em, view=view)     
                        
         async def process_buttons(interaction: discord.Interaction):
-            nonlocal welcome_theme_no, welcome_format, process_no, proceed_button, skip_button, go_left, go_right, view, em
+            nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
             nonlocal WelcomeModal, SocialModal, channel_select
             global ServerSettings
@@ -311,12 +311,9 @@ class Utility(commands.Cog):
                     go_left.disabled = True
             else:
                 welcome_theme_no += 1
-                if welcome_theme_no == 5:
+                if welcome_theme_no == 18:
                     go_right.disabled = True
-            try:
-                em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
-            except:
-                em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.png")
+            em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
          
         go_left.callback = go_callback
