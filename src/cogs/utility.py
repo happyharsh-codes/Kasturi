@@ -314,7 +314,7 @@ class Utility(commands.Cog):
         async def process_buttons(interaction: discord.Interaction):
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
-            nonlocal WelcomeModal, SocialModal, channel_select, channel_select2
+            nonlocal WelcomeModal, SocialModal, channel_select, channel_select2, client
             global ServerSettings
             process_no += 1
             try:
@@ -400,12 +400,6 @@ class Utility(commands.Cog):
                 em.description="Hurray you completed the server setup. Start Chatting with Kelly, just say `kelly hi`.\n\nExplore music with `k music`\nCheck out fun games with `k games`\nExciting social media search with `k dev`\n"
                 em.set_footer(text="Whenever lost in trouble use `k help <query>`.", icon_url = ctx.author.avatar)
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/finished.gif")
-                view.clear_items()
-                proceed_button.label = "Finish"
-                await interaction.response.edit_message(embed=em, view=view)
-
-              if process_no == 9:
-                await interaction.response.edit_message(view=None)
                 ServerSettings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
                 ServerSettings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
                 ServerSettings[str(ctx.guild.id)]["allowed_channels"] = activated_channels
@@ -413,7 +407,15 @@ class Utility(commands.Cog):
                 ServerSettings[str(ctx.guild.id)]["welcome_message"] = welcome_message
                 ServerSettings[str(ctx.guild.id)]["rank_channel"] = rank_channel
                 ServerSettings[str(ctx.guild.id)]["timer_messages"] = timer_messages
-                #await ctx.invoke()
+                view.clear_items()
+                proceed_button.label = "Finish"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)
+
+              if process_no == 9:
+                await interaction.response.edit_message(view=None)
+                cmd = client.get_command("hi")
+                await ctx.invoke(cmd)
                 return
             except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
