@@ -1,4 +1,5 @@
 from __init__ import*
+import math
 
 class Utility(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -13,9 +14,7 @@ class Utility(commands.Cog):
             user = ctx.author
         rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
         if not ctx.channel.id == rank_channel:
-            msg = await ctx.send("This command only works in rank channel!!")
-            await asyncio.sleep(5)
-            await msg.delete()
+            await ctx.send("This command only works in rank channel!!", delete_after=5)
             return
         rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
         total_xp = rank_list.get(str(user.id))
@@ -29,6 +28,33 @@ class Utility(commands.Cog):
         em = Embed(title=f"{user.name}'s Rank", description=f"LEVEl: {level}\nXP: {total_xp}\nRank: {rank_values.index(total_xp) + 1}", color=Color.dark_gold())
         await ctx.send(embed=em)
 
+    @commands.command(aliases=[])
+    @commands.cooldown(1,10, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def top(self, ctx):
+        rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
+        if rank_channel == 0 or rank_channel is None:
+            await ctx.send("This Server does not have Rank Channels set. Please set using `k set_rank_channel <#channel>", delete_after=6)
+            return
+        if not ctx.channel.id == rank_channel:
+            await ctx.send(f"This command only works in rank channel!!\nPlease go to <#{rank_channel}>.", delete_after=5)
+            return
+        rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
+        total_xp = rank_list.get(str(user.id))
+        level = (math.sqrt(1+8*(total_xp//15))-1)//2
+        rank_values = list(rank_list.values())
+        rank_values.sort()
+        rank_values.reverse()
+        if not total_xp: 
+            total_xp = 0
+            level = 0
+        em = Embed(title=f"{ctx.guild.name} Rank Leaderboard", description=[f"**{index+1}** {rank_values.index(i)+1} - {i}xp" for index, i in enumerate(rank_values[:10]) ].join("\n"), color=Color.dark_gold())
+        em.set_footer(text=f"{ctx.author.name} at #{rank_values.index(total_xp) +1} - {total_xp}xp", icon_ur= ctx.author.avatar)
+        em.set_author(name=ctx.author.id, icon_url=ctx.author.url)
+        await ctx.send(embed=em)
+        
+            
     @commands.command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
@@ -83,17 +109,22 @@ class Utility(commands.Cog):
     @commands.bot_has_permissions()
     async def help(self, ctx, cmd = None):
         '''Help command'''
-        print(cmd)
+        view = View()
+        menus= ["Fun & Entertainment", "Utility", "Games", "Server Management", "Dev-Ops", "Music & Media"]
+        select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=i.lower) for i in menus]
+        get_started = Button(custom_id = "get_started", label="Get Started", style=ButtonStyle.green)
+        view.add(select)
+        view.add(get_started)
         if cmd is None:
-            response = Embed(title="Help Menu", color= Color.green())
-            response.add_field(name="Fun & Entertainment", value="`joke`,`friends`")
-            response.add_field(name="Utility", value="`rank`, `top`, `help`")
-            response.add_field(name="Games", value="`rolldice`")
-            response.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set_welcome_channel`, `notifis(join/leave/social media)`, `set_rank_channel`")
-            response.add_field(name="Dev-ops", value="`github`,`yt`, `insta`")
-            response.add_field(name="Music & Media", value="`play`, `queue`")
-            response.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
-            await ctx.reply(embed=response)
+            em = Embed(title="Help Menu", color= Color.green())
+            em.add_field(name="Fun & Entertainment", value="`joke`,`friends`")
+            em.add_field(name="Utility", value="`rank`, `top`, `help`")
+            em.add_field(name="Games", value="`rolldice`")
+            em.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set_welcome_channel`, `notifis(join/leave/social media)`, `set_rank_channel`")
+            em.add_field(name="Dev-ops", value="`github`,`yt`, `insta`")
+            em.add_field(name="Music & Media", value="`play`, `queue`")
+            em.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
+            await ctx.reply(embed=response, view=view)
             return
 
         with open("res/server/help.json", "r") as f:
@@ -186,7 +217,8 @@ class Utility(commands.Cog):
             nonlocal WelcomeModal, SocialModal, channel_select
             global ServerSettings
             process_no += 1
-            if process_no == 1:
+            try:
+              if process_no == 1:
                 em.title="Set Welcome message"
                 em.description="Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nSelect your theme from here."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_1.gif")
@@ -197,7 +229,7 @@ class Utility(commands.Cog):
                 view.add_item(go_right)
                 await interaction.response.edit_message(embed=em,view=view)
                 
-            if process_no == 2:
+              if process_no == 2:
                 em.title="Set Welcome message"
                 em.description=f"Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nCopy this Format, edit it accordingly and the click next.\n```{welcome_format}```"
                 em.set_image(url=None)
@@ -205,16 +237,16 @@ class Utility(commands.Cog):
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
                 
-            if process_no == 3:
+              if process_no == 3:
                 modal = WelcomeModal()
                 await interaction.response.send_modal(modal)
             
-            if process_no == 4:
+              if process_no == 4:
                 welcome_channel = int(channel_select.values[0])
                 modal = SocialModal()
                 await interaction.response.send_modal(modal)
 
-            if process_no == 5:
+              if process_no == 5:
                 social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
@@ -226,7 +258,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 6:
+              if process_no == 6:
                 if interaction.data["custom_id"] == "proceed":
                     rank_channel = int(channel_select.values[0])
                 em.title="Set up Activated Channels"
@@ -239,7 +271,7 @@ class Utility(commands.Cog):
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 7:
+              if process_no == 7:
                 if interaction.data["custom_id"] == "proceed":
                     activated_channels = list(map(int,channel_select.values))
                 em.title="Set up timer Messages"
@@ -251,7 +283,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 8:
+              if process_no == 8:
                 if interaction.data["custom_id"] == "proceed":
                     timer_messages = True
                 em.title="Server Setup Completed Successfully ✅"
@@ -261,7 +293,7 @@ class Utility(commands.Cog):
                 proceed_button.label = "Finish"
                 await interaction.response.edit_message(embed=em, view=view)
 
-            if process_no == 9:
+              if process_no == 9:
                 await interaction.response.edit_message(view=None)
                 ServerSettings["join/leave_channel"] = welcome_channel
                 ServerSettings["welcome_image"] = welcome_theme_no
@@ -271,7 +303,8 @@ class Utility(commands.Cog):
                 ServerSettings["rank_channel"] = rank_channel
                 ServerSettings["timer_messages"] = timer_messages
                 #await ctx.invoke()
-
+            except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
         async def timeout():
             nonlocal msg, em
             em.color = Color.light_grey()
@@ -290,9 +323,9 @@ class Utility(commands.Cog):
                 if welcome_theme_no == 5:
                     go_right.disabled = True
             try:
-                em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.png")
-            except:
                 em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
+            except:
+                em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.png")
             await interaction.response.edit_message(embed=em, view=view)
          
         go_left.callback = go_callback
