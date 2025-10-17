@@ -192,6 +192,8 @@ class Utility(commands.Cog):
                 view.add_item(channel_select)
                 view.add_item(proceed_button)
                 await msg.edit(embed=em, view=view)
+                await interaction.response.defer()
+                  
               except Exception as e:
                 nonlocal client
                 await client.get_user(894072003533877279).send(e)
@@ -221,6 +223,7 @@ class Utility(commands.Cog):
                 proceed_button.label = "Set Social Media Updates Channel"
                 view.add_item(proceed_button)
                 await msg.edit(embed=em, view=view)
+                await interaction.response.defer()
               except Exception as e:
                 nonlocal client
                 await client.get_user(894072003533877279).send(e)
@@ -350,7 +353,7 @@ class Utility(commands.Cog):
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
         def select_channels(interaction: Interaction):
-            return
+            await interaction.response.defer()
         
         go_left.callback = go_callback
         go_right.callback = go_callback
