@@ -179,7 +179,7 @@ class Utility(commands.Cog):
                 super().__init__(title="Set Welcome Message")
                 self.input_box = TextInput(label="Edit the Format and Enter.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1- eg: Take roles\nText 2 - eg Read Rules\nText 3", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
-            async def on_submit(self, Interaction: Interaction):
+            async def on_submit(self, interaction: Interaction):
               try:
                 nonlocal welcome_message, em, view, proceed_button, channel_select, msg, channel_select2
                 welcome_message = self.input_box.value
@@ -207,7 +207,7 @@ class Utility(commands.Cog):
                 self.add_item(self.input_box1)
                 self.add_item(self.input_box2)
                 self.add_item(self.input_box3)
-            async def on_submit(self, Interaction: Interaction):
+            async def on_submit(self, interaction: Interaction):
               try:
                 nonlocal em, yt, insta, twitter, view, proceed_button, msg, channel_select
                 yt = self.input_box1.value
