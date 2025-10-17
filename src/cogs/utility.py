@@ -183,6 +183,10 @@ class Utility(commands.Cog):
               try:
                 nonlocal welcome_message, em, view, proceed_button, channel_select, msg, channel_select2
                 welcome_message = self.input_box.value
+                channel_select2.row = 0
+                channel_select.row = 1
+                proceed_button.row = 2
+
                 view.clear_items()
                 view.add_item(channel_select2)
                 view.add_item(channel_select)
@@ -210,14 +214,16 @@ class Utility(commands.Cog):
                 em.title="Set up Social Media Notification"
                 em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
+                channel_select.row = 0
+                proceed_button.row = 1
                 view.clear_items()
                 view.add_item(channel_select)
                 proceed_button.label = "Set Social Media Updates Channel"
                 view.add_item(proceed_button)
-                await msg.edit(embed=em, view=view)     
-              
+                await msg.edit(embed=em, view=view)
               except Exception as e:
-                await self.client.get_user(894072003533877279).send(e)
+                nonlocal client
+                await client.get_user(894072003533877279).send(e)
         async def process_buttons(interaction: discord.Interaction):
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
@@ -249,6 +255,7 @@ class Utility(commands.Cog):
                 em.description= "Welcome channel set up perfectly.\nYoi can have a preview here:\n"+ welcome_message
                 
                 view.clear_items()
+                proceed_button.row = 0
                 proceed_button.label = "Set Social Media Updates"
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
@@ -263,6 +270,8 @@ class Utility(commands.Cog):
                 em.description="Set up your rank channel in which you'll get Level up messages."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/rank.png")
                 view.clear_items()
+                channel_select.row = 0
+                proceed_button.row = 1
                 view.add_item(channel_select)
                 proceed_button.label = "Set Rank Channel"
                 view.add_item(proceed_button)
@@ -277,8 +286,10 @@ class Utility(commands.Cog):
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/activated.png")
                 view.clear_items()
                 channel_select.max_values = 5
+                channel_select.row = 0
                 view.add_item(channel_select)
                 proceed_button.label = "Set Activated Channels"
+                proceed_button.row = 1
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
@@ -290,6 +301,7 @@ class Utility(commands.Cog):
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/timer.png")
                 view.clear_items()
                 proceed_button.label = "Set Timer Messages"
+                proceed_button.row = 0
                 view.add_item(proceed_button)
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
@@ -298,7 +310,8 @@ class Utility(commands.Cog):
                 if interaction.data["custom_id"] == "proceed":
                     timer_messages = True
                 em.title="Server Setup Completed Successfully ✅"
-                em.description="Hurray you completed the server setup. Start Chatting with Kelly, just say `kelly hi`.\nExplore music with `k music`\nCheck out fun games with `k games`\nExciting social media search with `k dev`\n\nWhenever lost in trouble use `k help <query>`."
+                em.description="Hurray you completed the server setup. Start Chatting with Kelly, just say `kelly hi`.\n\nExplore music with `k music`\nCheck out fun games with `k games`\nExciting social media search with `k dev`\n"
+                em.set_footer(text="Whenever lost in trouble use `k help <query>`.", icon_url = ctx.author.avatar)
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/finished.gif")
                 view.clear_items()
                 proceed_button.label = "Finish"
