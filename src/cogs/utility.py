@@ -325,7 +325,7 @@ class Utility(commands.Cog):
                 ServerSettings[str(ctx.guild.id)]["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
                 ServerSettings[str(ctx.guild.id)]["welcome_message"] = welcome_message
                 ServerSettings[str(ctx.guild.id)]["rank_channel"] = rank_channel
-                ServerSettings[str(ctx.guild.id)]€["timer_messages"] = timer_messages
+                ServerSettings[str(ctx.guild.id)]["timer_messages"] = timer_messages
                 #await ctx.invoke()
                 return
             except Exception as e:
