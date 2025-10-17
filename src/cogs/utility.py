@@ -144,7 +144,7 @@ class Utility(commands.Cog):
                 em.add_field(name="Dev-ops", value="`github`,`yt`, `insta`")
                 em.add_field(name="Music & Media", value="`play`, `queue`")
             elif cmd:
-                for commands in self.client.get_commands():
+                for commands in self.client.commands:
                     if cmd in commands.name or cmd in commands.aliases:
                         command = commands
                         break
@@ -337,7 +337,6 @@ class Utility(commands.Cog):
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
             nonlocal WelcomeModal, SocialModal, channel_select, channel_select2, client
-            global ServerSettings
             process_no += 1
             try:
               if process_no == 1:
