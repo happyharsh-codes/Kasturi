@@ -49,9 +49,9 @@ class Utility(commands.Cog):
         if not total_xp: 
             total_xp = 0
             level = 0
-        em = Embed(title=f"{ctx.guild.name} Rank Leaderboard", description=[f"**{index+1}** {rank_values.index(i)+1} - {i}xp" for index, i in enumerate(rank_values[:10]) ].join("\n"), color=Color.dark_gold())
-        em.set_footer(text=f"{ctx.author.name} at #{rank_values.index(total_xp) +1} - {total_xp}xp", icon_ur= ctx.author.avatar)
-        em.set_author(name=ctx.author.id, icon_url=ctx.author.url)
+        em = Embed(title=f"{ctx.guild.name} Rank Leaderboard", description="\n".join([f"**{index+1}** {rank_values.index(i)+1} - {i}xp" for index, i in enumerate(rank_values[:10]) ]), color=Color.dark_gold())
+        em.set_footer(text=f"{ctx.author.name} at #{rank_values.index(total_xp) +1} - {total_xp}xp", icon_url= ctx.author.avatar)
+        em.set_author(name=f"{ctx.author.id}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
         
             
@@ -110,6 +110,7 @@ class Utility(commands.Cog):
     async def help(self, ctx, cmd = None):
         '''Help command'''
         view = View(timeout = 45)
+        client = self.client
         menu= ["Fun & Entertainment", "Utility", "Games", "Server Management", "Dev-Ops", "Music & Media"]
         menu_descrip= [
     "🎭 **Fun & Entertainment**\n`joke` – Get a random joke.\n`friends` – See your friend list.",
@@ -156,7 +157,7 @@ class Utility(commands.Cog):
                         title += f" [{name}]"
                 em.title = title
                 if command.aliases:
-                    em.description = f"**Aliases**: {command.aliases.join(", ")}\n"
+                    em.description = f"**Aliases**: {", ".join(command.aliases)}\n"
                 if command.cooldown:
                     em.description = f"**Cooldown**: {command.cooldown.get_retry_after()}\n"
                 em.description = f"**Category**: {menu[category]}\n"
@@ -167,10 +168,11 @@ class Utility(commands.Cog):
                 em.description = menu_descrip[category]
         
         async def on_click(interaction: Interaction):
+          try:
             nonlocal em, view, update, left, right, menu_cmds, category, cmd, command
             if not category:
                 category = randint(0,5)
-                get_stated.label = f"Explore {menu[category]}"
+                get_started.label = f"Explore {menu[category]}"
                 update()
             elif not cmd:
                 cmd = menu_cmds[category][0]
@@ -187,12 +189,20 @@ class Utility(commands.Cog):
                 get_started.disabled = True 
             
             await interaction.response.edit_message(embed=em, view=view)
+          except Exception as e:
+              nonlocal client
+              await client.get_user(894072003533877279).send(e)
         async def on_select(interaction: Interaction):
+          try:
             nonlocal update, em, view, category
             category = int(interaction.data["values"][0])
             update()
             await interaction.response.edit_message(embed=em, view=view)
+          except:
+              nonlocal client
+              await client.get_user(894072003533877279).send(e)
         async def on_leftright(interaction: Interaction):
+          try:
             nonlocal cmd, left, right, category, update, menu_cmds, em, view, get_started
             index = menu_cmds[category].index(cmd)
             get_started.style = ButtonStyle.green
@@ -217,14 +227,18 @@ class Utility(commands.Cog):
             update()
 
             await interaction.response.edit_message(embed=em, view=view)
-                
+          except Exception as e:
+              nonlocal client
+              await client.get_user(894072003533877279).send(e)
         async def timeout():
             nonlocal em, msg
             em.color = Color.light_grey()
             await msg.edit(embed=em, view=None)
         view.on_timeout = timeout
-        select.on_callback = on_select
-        get_started.on_callback = on_click
+        select.callback = on_select
+        get_started.callback = on_click
+        left.callback = on_leftright
+        right.callback = on_leftright
 
         update()
         msg = await ctx.send(embed=em, view=view)
@@ -265,7 +279,7 @@ class Utility(commands.Cog):
                 
         em = Embed(title="Welcome to Kelly Bot Setup", description="We are glad that you invited our bot to your server. Follow these simple instructions to set up settings and start chatting with Kelly right now. Thanks for inviting Kelly.", color = Color.gold(), type = "rich")
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
-        em.set_author(name= ctx.author.name, icon_url=ctx.authot.avatar)
+        em.set_author(name= ctx.author.name, icon_url=ctx.author.avatar)
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Welcome Message")
