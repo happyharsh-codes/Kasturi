@@ -327,6 +327,7 @@ class Utility(commands.Cog):
                 ServerSettings["rank_channel"] = rank_channel
                 ServerSettings["timer_messages"] = timer_messages
                 #await ctx.invoke()
+                return
             except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
         async def timeout():
@@ -355,7 +356,7 @@ class Utility(commands.Cog):
         proceed_button.callback = process_buttons
         skip_button.callback = process_buttons
         channel_select.callback = select_channels
-        channel_select2.callback = select_chanbels
+        channel_select2.callback = select_channels
         view.on_timeout = timeout
         view.add_item(proceed_button)
         
