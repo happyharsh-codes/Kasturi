@@ -165,9 +165,7 @@ class Utility(commands.Cog):
             elif category:
                 em.title = f"Help {menu[category]}"
                 em.description = menu_descrip[category]
-        update()
-        msg = await ctx.send(embed=em, view=view)
-
+        
         async def on_click(interaction: Interaction):
             nonlocal em, view, update, left, right, menu_cmds, category, cmd, command
             if not category:
@@ -228,6 +226,9 @@ class Utility(commands.Cog):
         select.on_callback = on_select
         get_started.on_callback = on_click
 
+        update()
+        msg = await ctx.send(embed=em, view=view)
+        
         
     @commands.command(aliases=[])
     @commands.has_permissions(manage_channels=True)
