@@ -176,7 +176,7 @@ class Utility(commands.Cog):
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Welcome Message")
-                self.input_box = TextInput(label="Edit the Format, Each line will redirect to custom channel.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1- eg: Take roles\nText 2\nText 3", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                self.input_box = TextInput(label="Edit the Format and Enter.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1- eg: Take roles\nText 2 - eg Read Rules\nText 3", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
             async def on_submit(self, Interaction: Interaction):
               try:
