@@ -71,7 +71,7 @@ class Bot:
                 except:
                     continue
             if str(guild.id) not in Server_Settings:
-                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"yt": {},"join/leave_channel": 0,"afk": [],"friends": []}
+                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"afk": [],"friends": []}
     
     async def on_message(self, message: discord.Message):
         start = time.time()
@@ -216,7 +216,6 @@ class Bot:
         "muted": {},
         "rank": {},
         "rank_channel": 0,
-        "yt": {},
         "join/leave_channel": 0,
         "afk": [],
         "friends": [],
@@ -230,18 +229,24 @@ class Bot:
     
     async def on_member_join(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
-            em = Embed(titlqe=f"{member.display_name} welcome to {member.guild.name}", description=f"Enjoy your peace time here! {member.mention}\n{member.guild.description}")
-            em.set_footer(text=f"{member.name} joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
+            welcome_message = Server_Settings[str(member.guild.id)]["welcome_message"]
+            em = Embed(title= f"<:heeriye:1428773558062153768> **{welcome_message.split("\n")[0]}**", description="\n".join(welcome_message.split("\n")[1:])
+            em.set_author(name= member.name, icon_url= member.avatar)
+            em.set_thumbnail(url=member.avatar)
+            em.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{Server_Settings[str(member.guild.id)]["welcome_image"].gif")
+            em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
             try:
                 channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
-                await channel.send(embed=em)
+                await channel.send(f"Welcome {member.mention} <:heart_draw:1428773561904140469>",embed=em)
             except:
                 print("No perms allowed")
 
     async def on_member_remove(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
-            em = Embed(title=f"{member.name} left the server", description=f"We are sorry to see you leave!")
-            em.set_footer(text=f"{member.name} left at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= member.avatar)
+            em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\Hope you'd come back soon.")
+            em.set_author(name= member.name, icon_url = member.avatar)
+            em.thumnail(url= member.avatar)
+            em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
             try:
                 channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
                 await channel.send(embed=em)
