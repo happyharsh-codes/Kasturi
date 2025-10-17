@@ -111,7 +111,7 @@ class Utility(commands.Cog):
         '''Help command'''
         view = View()
         menus= ["Fun & Entertainment", "Utility", "Games", "Server Management", "Dev-Ops", "Music & Media"]
-        select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=i.lower) for i in menus]
+        select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=i.lower) for i in menus])
         get_started = Button(custom_id = "get_started", label="Get Started", style=ButtonStyle.green)
         view.add(select)
         view.add(get_started)
