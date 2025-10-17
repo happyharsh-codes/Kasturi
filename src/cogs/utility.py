@@ -168,29 +168,25 @@ class Utility(commands.Cog):
         proceed_button = Button(style=ButtonStyle.success ,label="Start Setup", custom_id="proceed", row=0)
         skip_button = Button(style=ButtonStyle.secondary ,label="Skip for now", custom_id="skip", row=1)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
-
+        channel_select2 = Select(custom_id="channel2", placeholder="Select your Channels in Order for Each line to redirect.", options=[SelectOption(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=5, min_values=1)
+                
         em = Embed(title="Welcome to Kelly Bot Setup", description="We are glad that you invited our bot to your server. Follow these simple instructions to set up settings and start chatting with Kelly right now. Thanks for inviting Kelly.", color = Color.gold(), type = "rich")
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
 
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Welcome Message")
-                self.input_box = TextInput(label="Edit the Format with your custom text.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1\nText 2\nText 3", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                self.input_box = TextInput(label="Edit the Format with your custom text. Each line will redirect to custom channel.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1- eg: Take roles\nText 2\nText 3", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
-                self.channel_select = Select(custom_id="channel2", placeholder="Select your Channels in Order for Each line to redirect.", options=[SelectOption(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=5, min_values=1)
-                self.add_item(self.channel_select)
             async def on_submit(self, Interaction: Interaction):
               try:
-                nonlocal welcome_message, em, view, proceed_button, channel_select, msg
-                welcome_message = self.input_box.value.split("\n")[0]
-                for index, i in enumerate(self.input_box.value.split("\n")[1:]):
-                    welcome_message += f"[{i}](https://discord.com/channels/{ctx.guild.id}/{self.channel_select.values[index]})"
-                em.description= "Select your Welcome Message Channel"
+                nonlocal welcome_message, em, view, proceed_button, channel_select, msg, channel_select2
+                welcome_message = self.input_box.value
                 view.clear_items()
+                view.add_item(channel_select2)
                 view.add_item(channel_select)
-                proceed_button.label = "Set Welcome Channel"
                 view.add_item(proceed_button)
-                await msg.edit(embed=em, view=view)
+                await interaction.response.edit_message(embed=em, view=view)
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
                   
@@ -217,12 +213,13 @@ class Utility(commands.Cog):
                 proceed_button.label = "Set Social Media Updates Channel"
                 view.add_item(proceed_button)
                 await msg.edit(embed=em, view=view)     
+              
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
         async def process_buttons(interaction: discord.Interaction):
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
-            nonlocal WelcomeModal, SocialModal, channel_select
+            nonlocal WelcomeModal, SocialModal, channel_select, channel_select2
             global ServerSettings
             process_no += 1
             try:
@@ -240,9 +237,21 @@ class Utility(commands.Cog):
               if process_no == 2:
                 modal = WelcomeModal()
                 await interaction.response.send_modal(modal)
-            
+              
               if process_no == 3:
+                temp = welcome_message.split("\n")[1:]
+                welcome_message = welcome_message.split("\n")[0]
+                for index, i in enumerate(temp):
+                    welcome_message += f"[{i}](https://discord.com/channels/{ctx.guild.id}/{channel_select2.values[index]})"
                 welcome_channel = int(channel_select.values[0])
+                em.description= "Welcome channel set up perfectly.\nYoi can have a preview here:\n"+ welcome_message
+                
+                view.clear_items()
+                proceed_button.label = "Set Social Media Updates"
+                view.add_item(proceed_button)
+                await interaction.response.edit_message(embed=em, view=view)
+                
+              if process_no == 4:
                 modal = SocialModal()
                 await interaction.response.send_modal(modal)
 
