@@ -136,7 +136,7 @@ class Utility(commands.Cog):
         def update():
             nonlocal self, cmd, category, em, menu, menu_descrip, command
             em.clear_fields()
-            if not cmd and not category:
+            if not cmd and category is None:
                 em.add_field(name="Fun & Entertainment", value="`joke`,`friends`")
                 em.add_field(name="Utility", value="`rank`, `top`, `help`")
                 em.add_field(name="Games", value="`rolldice`")
@@ -337,7 +337,7 @@ class Utility(commands.Cog):
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
             nonlocal WelcomeModal, SocialModal, channel_select, channel_select2, client
-            global ServerSettings
+            global Server_Settings
             process_no += 1
             try:
               if process_no == 1:
@@ -422,13 +422,13 @@ class Utility(commands.Cog):
                 em.description="Hurray you completed the server setup. Start Chatting with Kelly, just say `kelly hi`.\n\nExplore music with `k music`\nCheck out fun games with `k games`\nExciting social media search with `k dev`\n"
                 em.set_footer(text="Whenever lost in trouble use `k help <query>`.", icon_url = ctx.author.avatar)
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/finished.gif")
-                ServerSettings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
-                ServerSettings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
-                ServerSettings[str(ctx.guild.id)]["allowed_channels"] = activated_channels
-                ServerSettings[str(ctx.guild.id)]["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
-                ServerSettings[str(ctx.guild.id)]["welcome_message"] = welcome_message
-                ServerSettings[str(ctx.guild.id)]["rank_channel"] = rank_channel
-                ServerSettings[str(ctx.guild.id)]["timer_messages"] = timer_messages
+                Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
+                Server_Settings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
+                Server_Settings[str(ctx.guild.id)]["allowed_channels"] = activated_channels
+                Server_Settings[str(ctx.guild.id)]["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
+                Server_Settings[str(ctx.guild.id)]["welcome_message"] = welcome_message
+                Server_Settings[str(ctx.guild.id)]["rank_channel"] = rank_channel
+                Server_Settings[str(ctx.guild.id)]["timer_messages"] = timer_messages
                 view.clear_items()
                 proceed_button.label = "Finish"
                 view.add_item(proceed_button)
