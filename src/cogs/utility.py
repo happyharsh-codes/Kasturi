@@ -25,7 +25,7 @@ class Utility(commands.Cog):
         if not total_xp: 
             total_xp = 0
             level = 0
-        em = Embed(title=f"{user.name}'s Rank", description=f"LEVEl: {level}\nXP: {total_xp}\nRank: {rank_values.index(total_xp) + 1}", color=Color.dark_gold())
+        em = Embed(title=f"{user.name}'s Rank", description=f"LEVEl: {int(level)}\nXP: {int(total_xp)}\nRank: {rank_values.index(total_xp) + 1}", color=Color.dark_gold())
         await ctx.send(embed=em)
 
     @commands.command(aliases=[])
@@ -41,7 +41,7 @@ class Utility(commands.Cog):
             await ctx.send(f"This command only works in rank channel!!\nPlease go to <#{rank_channel}>.", delete_after=5)
             return
         rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
-        total_xp = rank_list.get(str(user.id))
+        total_xp = rank_list.get(str(ctx.author.id))
         level = (math.sqrt(1+8*(total_xp//15))-1)//2
         rank_values = list(rank_list.values())
         rank_values.sort()
@@ -199,9 +199,9 @@ class Utility(commands.Cog):
         class SocialModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Social Media/ Leave blank for none")
-                self.input_box1 = TextInput(label="YouTube Link", custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= None, min_length=2, max_length=50, style=TextStyle.short)
-                self.input_box2 = TextInput(label="Insta Id", custom_id="insta", placeholder="Enter your Insta id", required= None, min_length=2, max_length=20, style=TextStyle.short)
-                self.input_box3 = TextInput(label="Twitter Id", custom_id="twitter", placeholder="Enter your Twitter Id: ", required= None, min_length=2, max_length=20, style=TextStyle.short)
+                self.input_box1 = TextInput(label="YouTube Link", custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= False, min_length=0, max_length=50, style=TextStyle.short)
+                self.input_box2 = TextInput(label="Insta Id", custom_id="insta", placeholder="Enter your Insta id", required= False, min_length=0, max_length=20, style=TextStyle.short)
+                self.input_box3 = TextInput(label="Twitter Id", custom_id="twitter", placeholder="Enter your Twitter Id: ", required= False, min_length=0, max_length=20, style=TextStyle.short)
                 self.add_item(self.input_box1)
                 self.add_item(self.input_box2)
                 self.add_item(self.input_box3)
@@ -244,7 +244,7 @@ class Utility(commands.Cog):
                 
               if process_no == 2:
                 modal = WelcomeModal()
-                await interaction.response.send_modal(modal)
+                await interaction.followup.send_modal(modal)
               
               if process_no == 3:
                 temp = welcome_message.split("\n")[1:]
@@ -264,7 +264,7 @@ class Utility(commands.Cog):
                 modal = SocialModal()
                 await interaction.response.send_modal(modal)
 
-              if process_no == 4:
+              if process_no == 5:
                 social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
@@ -278,7 +278,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-              if process_no == 5:
+              if process_no == 6:
                 if interaction.data["custom_id"] == "proceed":
                     rank_channel = int(channel_select.values[0])
                 em.title="Set up Activated Channels"
@@ -293,7 +293,7 @@ class Utility(commands.Cog):
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-              if process_no == 6:
+              if process_no == 7:
                 if interaction.data["custom_id"] == "proceed":
                     activated_channels = list(map(int,channel_select.values))
                 em.title="Set up timer Messages"
@@ -306,7 +306,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-              if process_no == 7:
+              if process_no == 8:
                 if interaction.data["custom_id"] == "proceed":
                     timer_messages = True
                 em.title="Server Setup Completed Successfully ✅"
@@ -317,7 +317,7 @@ class Utility(commands.Cog):
                 proceed_button.label = "Finish"
                 await interaction.response.edit_message(embed=em, view=view)
 
-              if process_no == 8:
+              if process_no == 9:
                 await interaction.response.edit_message(view=None)
                 ServerSettings["join/leave_channel"] = welcome_channel
                 ServerSettings["welcome_image"] = welcome_theme_no
@@ -348,11 +348,14 @@ class Utility(commands.Cog):
                     go_right.disabled = True
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
-         
+        def select_channels(interaction: Interaction):
+            pass
         go_left.callback = go_callback
         go_right.callback = go_callback
         proceed_button.callback = process_buttons
         skip_button.callback = process_buttons
+        channel_select.callback = select_channels
+        channel_select2.callback = select_chanbels
         view.on_timeout = timeout
         view.add_item(proceed_button)
         
