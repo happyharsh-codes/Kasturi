@@ -153,7 +153,6 @@ class Utility(commands.Cog):
         view = View(timeout=60)
         process_no = 0
         welcome_theme_no = 1
-        welcome_format = "ㅤ♡ Welcome to <guild_name>\nText 1 <#channel1>\nText 2 <#channel2>\nText 3 <#channel3>"
         welcome_message = ""
         welcome_channel = 0
         yt = None
@@ -175,8 +174,8 @@ class Utility(commands.Cog):
 
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
-                super().__init(title="Welcome Text")
-                self.input_box = TextInput(label="Welcome Message",custom_id="welcome", placeholder="Enter your Formatted Text: ", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                super().__init__(title="Set Welcome Message")
+                self.input_box = TextInput(label="Edit the Format with your custom text.",custom_id="welcome", default= "♡Welcome to <guild_name>\nText 1<#channel1>\nText 2 <#channel2>\nText 3 <#channel3>", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
             async def on_submit(self, Interaction: Interaction):
                 nonlocal welcome_message, em, view, proceed_button, channel_select, msg
@@ -190,7 +189,7 @@ class Utility(commands.Cog):
             
         class SocialModal(discord.ui.Modal):
             def __init__(self):
-                super().__init(title="Set Social Media/ Leave blank for none")
+                super().__init__(title="Set Social Media/ Leave blank for none")
                 self.input_box1 = TextInput(label="YouTube Link", custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= None, min_length=2, max_length=50, style=TextStyle.short)
                 self.input_box2 = TextInput(label="Insta Id", custom_id="insta", placeholder="Enter your Insta id", required= None, min_length=2, max_length=20, style=TextStyle.short)
                 self.input_box3 = TextInput(label="Twitter Id", custom_id="twitter", placeholder="Enter your Twitter Id: ", required= None, min_length=2, max_length=20, style=TextStyle.short)
@@ -230,24 +229,15 @@ class Utility(commands.Cog):
                 await interaction.response.edit_message(embed=em,view=view)
                 
               if process_no == 2:
-                em.title="Set Welcome message"
-                em.description=f"Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nCopy this Format, edit it accordingly and the click next.\n```{welcome_format}```"
-                em.set_image(url=None)
-                view.clear_items()
-                proceed_button.label = "Proceed"
-                view.add_item(proceed_button)
-                await interaction.response.edit_message(embed=em, view=view)
-                
-              if process_no == 3:
                 modal = WelcomeModal()
                 await interaction.response.send_modal(modal)
             
-              if process_no == 4:
+              if process_no == 3:
                 welcome_channel = int(channel_select.values[0])
                 modal = SocialModal()
                 await interaction.response.send_modal(modal)
 
-              if process_no == 5:
+              if process_no == 4:
                 social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
@@ -259,7 +249,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-              if process_no == 6:
+              if process_no == 5:
                 if interaction.data["custom_id"] == "proceed":
                     rank_channel = int(channel_select.values[0])
                 em.title="Set up Activated Channels"
@@ -272,7 +262,7 @@ class Utility(commands.Cog):
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-              if process_no == 7:
+              if process_no == 6:
                 if interaction.data["custom_id"] == "proceed":
                     activated_channels = list(map(int,channel_select.values))
                 em.title="Set up timer Messages"
@@ -284,7 +274,7 @@ class Utility(commands.Cog):
                 view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
-              if process_no == 8:
+              if process_no == 7:
                 if interaction.data["custom_id"] == "proceed":
                     timer_messages = True
                 em.title="Server Setup Completed Successfully ✅"
@@ -294,7 +284,7 @@ class Utility(commands.Cog):
                 proceed_button.label = "Finish"
                 await interaction.response.edit_message(embed=em, view=view)
 
-              if process_no == 9:
+              if process_no == 8:
                 await interaction.response.edit_message(view=None)
                 ServerSettings["join/leave_channel"] = welcome_channel
                 ServerSettings["welcome_image"] = welcome_theme_no
