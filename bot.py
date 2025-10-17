@@ -230,7 +230,7 @@ class Bot:
     async def on_member_join(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             welcome_message = Server_Settings[str(member.guild.id)]["welcome_message"]
-            em = Embed(title= f"<:heeriye:1428773558062153768> **{welcome_message.split("\n")[0]}**", description="\n".join(welcome_message.split("\n")[1:])
+            em = Embed(title= f"<:heeriye:1428773558062153768> **{welcome_message.split("\n")[0]}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
             em.set_author(name= member.name, icon_url= member.avatar)
             em.set_thumbnail(url=member.avatar)
             em.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{Server_Settings[str(member.guild.id)]["welcome_image"].gif")
@@ -243,7 +243,7 @@ class Bot:
 
     async def on_member_remove(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
-            em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\Hope you'd come back soon.")
+            em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\Hope you'd come back soon.", color= Color.dark_gray())
             em.set_author(name= member.name, icon_url = member.avatar)
             em.thumnail(url= member.avatar)
             em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
