@@ -115,7 +115,7 @@ class Utility(commands.Cog):
     "🎭 **Fun & Entertainment**\n`joke` – Get a random joke.\n`friends` – See your friend list.",
     "🧰 **Utility**\n`rank` – Check your level.\n`top` – View leaderboard.\n`help` – Show all commands.",
     "🎮 **Games**\n`rolldice` – Roll a dice for fun.",
-    "🛠️ **Server Management**\n`mute`\`unmute` - Mute\Unmute someone\n`kick` - kick someone out\n`ban`\`unban` - ban\unban someone from guild\n`deafen`\`undefen` - deafen\undefen someone from VC\n`warn` - give warning to someone\n`lock`\`unlock` - locks\unlocks the channel\n`set_welcome_channel` - sets welcome messages channel\n`set_rank_channel` - sets rank updates channel\n`set_social_channel` - Sets up social media updated for the server.",
+    "🛠️ **Server Management**\n`mute`\\`unmute` - Mute\\Unmute someone\n`kick` - kick someone out\n`ban`\\`unban` - ban\\unban someone from guild\n`deafen`\\`undefen` - deafen\\undefen someone from VC\n`warn` - give warning to someone\n`lock`\\`unlock` - locks\\unlocks the channel\n`set_welcome_channel` - sets welcome messages channel\n`set_rank_channel` - sets rank updates channel\n`set_social_channel` - Sets up social media updated for the server.",
     "💻 **Dev-Ops**\n`github` – View GitHub Profile.\n`yt` – Search on YouTube.\n`insta` – Seacrh on Instagram.",
     "🎵 **Music & Media**\n`play` – Play songs.\n`queue` – Add songs in queue and View upcoming tracks."
         ]
