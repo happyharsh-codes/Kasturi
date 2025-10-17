@@ -111,8 +111,15 @@ class Utility(commands.Cog):
         '''Help command'''
         view = View(timeout = 45)
         menu= ["Fun & Entertainment", "Utility", "Games", "Server Management", "Dev-Ops", "Music & Media"]
-        menu_descrip=[]
-        menu_cmds = [["joke", "friends"], ["rank", "top", "help"],["rolldice"], ["mute", "kick", "ban", "deafen", "unban", "undefen", "warn", "unmute", "lock", "unlock", "set_welcome_channel", "set_rank_channel"],["github","yt" ,"insta"], ["play", "queue"]]
+        menu_descrip= [
+    "🎭 **Fun & Entertainment**\n`joke` – Get a random joke.\n`friends` – See your friend list.",
+    "🧰 **Utility**\n`rank` – Check your level.\n`top` – View leaderboard.\n`help` – Show all commands.",
+    "🎮 **Games**\n`rolldice` – Roll a dice for fun.",
+    "🛠️ **Server Management**\n`mute`\`unmute` - Mute\Unmute someone\n`kick` - kick someone out\n`ban`\`unban` - ban\unban someone from guild\n`deafen`\`undefen` - deafen\undefen someone from VC\n`warn` - give warning to someone\n`lock`\`unlock` - locks\unlocks the channel\n`set_welcome_channel` - sets welcome messages channel\n`set_rank_channel` - sets rank updates channel\n`set_social_channel` - Sets up social media updated for the server.",
+    "💻 **Dev-Ops**\n`github` – View GitHub Profile.\n`yt` – Search on YouTube.\n`insta` – Seacrh on Instagram.",
+    "🎵 **Music & Media**\n`play` – Play songs.\n`queue` – Add songs in queue and View upcoming tracks."
+        ]
+        menu_cmds = [["joke", "friends"], ["rank", "top", "help"],["rolldice"], ["mute", "kick", "ban", "deafen", "unban", "undefen", "warn", "unmute", "lock", "unlock", "set_welcome_channel", "set_rank_channel", "set_social_channel"],["github","yt" ,"insta"], ["play", "queue"]]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=str(index)) for index, i in enumerate(menu)])
@@ -132,7 +139,7 @@ class Utility(commands.Cog):
                 em.add_field(name="Fun & Entertainment", value="`joke`,`friends`")
                 em.add_field(name="Utility", value="`rank`, `top`, `help`")
                 em.add_field(name="Games", value="`rolldice`")
-                em.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set_welcome_channel`, `set_rank_channel`")
+                em.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set_welcome_channel`, `set_rank_channel`, `set_social_channel`")
                 em.add_field(name="Dev-ops", value="`github`,`yt`, `insta`")
                 em.add_field(name="Music & Media", value="`play`, `queue`")
             elif cmd:
