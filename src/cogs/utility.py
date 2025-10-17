@@ -109,35 +109,119 @@ class Utility(commands.Cog):
     @commands.bot_has_permissions()
     async def help(self, ctx, cmd = None):
         '''Help command'''
-        view = View()
-        menus= ["Fun & Entertainment", "Utility", "Games", "Server Management", "Dev-Ops", "Music & Media"]
-        select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=i.lower) for i in menus])
+        view = View(timeout = 45)
+        menu= ["Fun & Entertainment", "Utility", "Games", "Server Management", "Dev-Ops", "Music & Media"]
+        menu_descrip=[]
+        menu_cmds = [["joke", "friends"], ["rank", "top", "help"],["rolldice"], ["mute", "kick", "ban", "deafen", "unban", "undefen", "warn", "unmute", "lock", "unlock", "set_welcome_channel", "set_rank_channel"],["github","yt" ,"insta"], ["play", "queue"]]
+        left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=str(index)) for index, i in enumerate(menu)])
         get_started = Button(custom_id = "get_started", label="Get Started", style=ButtonStyle.green)
-        view.add(select)
-        view.add(get_started)
-        if cmd is None:
-            em = Embed(title="Help Menu", color= Color.green())
-            em.add_field(name="Fun & Entertainment", value="`joke`,`friends`")
-            em.add_field(name="Utility", value="`rank`, `top`, `help`")
-            em.add_field(name="Games", value="`rolldice`")
-            em.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set_welcome_channel`, `notifis(join/leave/social media)`, `set_rank_channel`")
-            em.add_field(name="Dev-ops", value="`github`,`yt`, `insta`")
-            em.add_field(name="Music & Media", value="`play`, `queue`")
-            em.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
-            await ctx.reply(embed=response, view=view)
-            return
+        view.add_item(select)
+        view.add_item(get_started)
+        em = Embed(title="Help Menu", color= Color.green(), type="rich")
+        em.set_author(name=f"{ctx.author.name}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"For more help use k help <query>")
+        category = None #the category for which help to show default None 
+        command = None
+        
+        def update():
+            nonlocal self, cmd, category, em, menu, menu_descrip, command
+            em.clear_fields()
+            if not cmd and not category:
+                em.add_field(name="Fun & Entertainment", value="`joke`,`friends`")
+                em.add_field(name="Utility", value="`rank`, `top`, `help`")
+                em.add_field(name="Games", value="`rolldice`")
+                em.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set_welcome_channel`, `set_rank_channel`")
+                em.add_field(name="Dev-ops", value="`github`,`yt`, `insta`")
+                em.add_field(name="Music & Media", value="`play`, `queue`")
+            elif cmd:
+                for commands in self.client.get_commands():
+                    if cmd in commands.name or cmd in commands.aliases:
+                        command = commands
+                        break
+                params = command.clean_params
+                title = f"{command.name}"
+                for name, value in params.items():
+                    if value.required:
+                        title += f" <{name}>"
+                    else:
+                        title += f" [{name}]"
+                em.title = title
+                if command.aliases:
+                    em.description = f"**Aliases**: {command.aliases.join(", ")}\n"
+                if command.cooldown:
+                    em.description = f"**Cooldown**: {command.cooldown.get_retry_after()}\n"
+                em.description = f"**Category**: {menu[category]}\n"
+                em.add_field(name="Description", value=command.brief)
+                
+            elif category:
+                em.title = f"Help {menu[category]}"
+                em.description = menu_descrip[category]
+        update()
+        msg = await ctx.send(embed=em, view=view)
 
-        with open("res/server/help.json", "r") as f:
-            helps = load(f)
-        help_list = helps.get(cmd)
-        if help_list is None:
-            await ctx.reply("User that isnt a valid command you are looking for!")
-            return
-        response = Embed(title="Help Menu", color= Color.green())
-        response.add_field(name=cmd.capitalize(), value=help_list)
-        response.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
-        await ctx.reply(embed=response)
+        async def on_click(interaction: Interaction):
+            nonlocal em, view, update, left, right, menu_cmds, category, cmd, command
+            if not category:
+                category = randint(0,5)
+                get_stated.label = f"Explore {menu[category]}"
+                update()
+            elif not cmd:
+                cmd = menu_cmds[category][0]
+                view.clear_items()
+                get_started.label = "Know more"
+                view.add_item(left)
+                view.add_item(get_started)
+                view.add_item(right)
+                update()
+            else:
+                em.clear_fields()
+                em.add_field(name="Description", value=command.help)
+                get_started.style = ButtonStyle.grey
+                get_started.disabled = True 
+            
+            await interaction.response.edit_message(embed=em, view=view)
+        async def on_select(interaction: Interaction):
+            nonlocal update, em, view, category
+            category = int(interaction.data["values"][0])
+            update()
+            await interaction.response.edit_message(embed=em, view=view)
+        async def on_leftright(interaction: Interaction):
+            nonlocal cmd, left, right, category, update, menu_cmds, em, view, get_started
+            index = menu_cmds[category].index(cmd)
+            get_started.style = ButtonStyle.green
+            get_started.disabled = False
+            left.disabled = False
+            right.disabled = False
+            if interaction.data["custom_id"] == "left":
+                index -= 1
+                if index == 0 and category == 0:
+                    left.disabled = True
+                if index < 0:
+                    category -= 1
+                    index = len(menu_cmds[category]) - 1
+            else:
+                index += 1
+                if index == len(menu_cmds[-1]) -1 and category == len(menu_cmds) - 1:
+                    right.disabled = True
+                elif index == len(menu_cmds[category]):
+                    category += 1
+                    index == 0
+            cmd = menu_cmds[category][index]
+            update()
 
+            await interaction.response.edit_message(embed=em, view=view)
+                
+        async def timeout():
+            nonlocal em, msg
+            em.color = Color.light_grey()
+            await msg.edit(embed=em, view=None)
+        view.on_timeout = timeout
+        select.on_callback = on_select
+        get_started.on_callback = on_click
+
+        
     @commands.command(aliases=[])
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions()
@@ -173,7 +257,7 @@ class Utility(commands.Cog):
                 
         em = Embed(title="Welcome to Kelly Bot Setup", description="We are glad that you invited our bot to your server. Follow these simple instructions to set up settings and start chatting with Kelly right now. Thanks for inviting Kelly.", color = Color.gold(), type = "rich")
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
-
+        em.set_author(name= ctx.author.name, icon_url=ctx.authot.avatar)
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Welcome Message")
