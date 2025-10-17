@@ -352,7 +352,7 @@ class Utility(commands.Cog):
                     go_right.disabled = True
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
-        def select_channels(interaction: Interaction):
+        async def select_channels(interaction: Interaction):
             await interaction.response.defer()
         
         go_left.callback = go_callback
