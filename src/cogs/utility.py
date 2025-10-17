@@ -250,10 +250,10 @@ class Utility(commands.Cog):
                 temp = welcome_message.split("\n")[1:]
                 welcome_message = welcome_message.split("\n")[0]
                 for index, i in enumerate(temp):
-                    welcome_message += f"[{i}](https://discord.com/channels/{ctx.guild.id}/{channel_select2.values[index]})"
+                    welcome_message += f"\n[{i}](https://discord.com/channels/{ctx.guild.id}/{channel_select2.values[index]})"
                 welcome_channel = int(channel_select.values[0])
                 em.description= "Welcome channel set up perfectly.\nYoi can have a preview here:\n"+ welcome_message
-                
+                em.set_image(url=None)
                 view.clear_items()
                 proceed_button.row = 0
                 proceed_button.label = "Set Social Media Updates"
@@ -319,13 +319,13 @@ class Utility(commands.Cog):
 
               if process_no == 9:
                 await interaction.response.edit_message(view=None)
-                ServerSettings["join/leave_channel"] = welcome_channel
-                ServerSettings["welcome_image"] = welcome_theme_no
-                ServerSettings["allowed_channels"] = activated_channels
-                ServerSettings["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
-                ServerSettings["welcome_message"] = welcome_message
-                ServerSettings["rank_channel"] = rank_channel
-                ServerSettings["timer_messages"] = timer_messages
+                ServerSettings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
+                ServerSettings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
+                ServerSettings[str(ctx.guild.id)]["allowed_channels"] = activated_channels
+                ServerSettings[str(ctx.guild.id)]["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
+                ServerSettings[str(ctx.guild.id)]["welcome_message"] = welcome_message
+                ServerSettings[str(ctx.guild.id)]["rank_channel"] = rank_channel
+                ServerSettings[str(ctx.guild.id)]€["timer_messages"] = timer_messages
                 #await ctx.invoke()
                 return
             except Exception as e:
@@ -350,7 +350,8 @@ class Utility(commands.Cog):
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
         def select_channels(interaction: Interaction):
-            pass
+            return
+        
         go_left.callback = go_callback
         go_right.callback = go_callback
         proceed_button.callback = process_buttons
