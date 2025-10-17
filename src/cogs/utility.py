@@ -149,7 +149,8 @@ class Utility(commands.Cog):
         - 3.) Sets up Rank Channel
         - 4.) Sets up Activated channels/Commands only channels
         - 5.) Sets up timer messages.'''
-        
+
+        client = self.client
         view = View(timeout=60)
         process_no = 0
         welcome_theme_no = 1
@@ -186,9 +187,10 @@ class Utility(commands.Cog):
                 view.add_item(channel_select2)
                 view.add_item(channel_select)
                 view.add_item(proceed_button)
-                await interaction.response.edit_message(embed=em, view=view)
+                await msg.edit(embed=em, view=view)
               except Exception as e:
-                await self.client.get_user(894072003533877279).send(e)
+                nonlocal client
+                await client.get_user(894072003533877279).send(e)
                   
         class SocialModal(discord.ui.Modal):
             def __init__(self):
