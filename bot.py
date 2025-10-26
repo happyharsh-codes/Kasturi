@@ -185,7 +185,7 @@ class Bot:
                 if "general" in channel.name or "chat" in channel.name:
                     try:         
                         invite = await channel.create_invite(max_age=0, max_uses=0)
-                        em = Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey Everyone, Thanks for inviting Kelly here.\nUse `K activate` to complete up Kelly Setup\nUse `k help` to get started with user guide.",color = discord.Colour.green()))
+                        em = Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey Everyone, Thanks for inviting Kelly here.\nUse `K activate` to complete up Kelly Setup\nUse `k help` to get started with user guide.",color = discord.Colour.green())
                         em.set_author(name= "Kelly", icon_url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(":")[1]}")
                         em.thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(":")[1]}")
                         em.set_footer(text=f"⟡ {len(self.client.guilds} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
