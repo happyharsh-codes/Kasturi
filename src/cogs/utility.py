@@ -68,6 +68,7 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def invite(self, ctx):
+        """Invite link for the bot"""
         await ctx.send("[Meet Kelly here](https://top.gg/bot/1368884334076891136?s=0332b997edcc8)")
 
     @commands.command(aliases=[])
@@ -75,6 +76,7 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def vote(self, ctx):
+        """Vote link for the bot"""
         await ctx.send("This command is yet to be made :/")
 
     @commands.command(aliases=[])
@@ -82,6 +84,7 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def afk(self, ctx, time, reason):
+        """Sets your status as afk. No one will disturb you here after. After you return all your ping will be sent in DMs"""
         Server_Settings[str(ctx.guild.id)]["afk"].append(ctx.author.id)
         await ctx.send(f"{ctx.author.mention} has gone afk for **{time}** : {reason}. Dont ping him unnecessarily")
         await ctx.send("Dont worry I'll notify everyone in your absense not to disturb you...")
@@ -91,6 +94,7 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def avatar(self, ctx, user: discord.Member):
+        """Shows User's Avatar"""
         if user is None:
             user = ctx.author
         em = Embed(title=f"{user.display_name}'s Avatar", timestamp=datetime.now(UTC))
@@ -98,18 +102,11 @@ class Utility(commands.Cog):
         await ctx.send(embed=em)
 
     @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def info(self, ctx, item):
-        await ctx.send("This command is yet to be made :/")
-
-
-    @commands.command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def premium(self, ctx):
+        """Get the premium version for your server."""
         await ctx.send("This command is yet to be made :/")
 
     @commands.command(aliases=[])
@@ -151,10 +148,7 @@ class Utility(commands.Cog):
                 for cog in client.cogs.values()
                     em.add_field(name=cog.qualified_name.capitalize(), value=", ".join([f"`{i.name}`" for i in cogs.get_commands()])
             elif cmd:
-                for commands in self.client.commands:
-                    if cmd in commands.name or cmd in commands.aliases:
-                        command = commands
-                        break
+                command = self.client.get_command(cmd)
                 params = command.clean_params
                 title = f"{command.name}"
                 for name, value in params.items():
@@ -169,6 +163,18 @@ class Utility(commands.Cog):
                     em.description = f"**Cooldown**: {command.cooldown.get_retry_after()}\n"
                 em.description = f"**Category**: {menu[category]}\n"
                 em.add_field(name="Description", value=command.help)
+                perms = []
+                for check in command.checks:
+                    check_str = str(check)
+                    if "has_permissions" in check_str:
+                        raw = check_str.split("(")[1].split(")")[0].replace("'", "").replace(" ", "").replace("_", " ")
+                        perms.extend([p.split("=")[0].capitalize() for p in raw.split(",")])
+                if perms:
+                    em.add_field(name="Required Permissions:", value = " ".join(params))
+            if perms:
+                perms_text = f" (🛠️ {'/'.join(perms)})"
+            else:
+                perms_text = ""
                 
             elif category:
                 em.title = f"Help {menu[category]}"
