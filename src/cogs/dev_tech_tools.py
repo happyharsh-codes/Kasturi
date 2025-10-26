@@ -10,6 +10,8 @@ class Dev_Tech_Tools(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def github(self, ctx, username, repo=None):
+        """Searches GitHub for repositories 💾  
+        Returns repo info, owner, stars, and forks."""
         user_url = f"https://api.github.com/users/{username}"
         repos_url = f"https://api.github.com/users/{username}/repos?per_page=5&sort=updated"
 
@@ -49,6 +51,8 @@ class Dev_Tech_Tools(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def yt(self, ctx, *, search: str):
+        """Searches YouTube for videos 🎬  
+        Interactive embed with thumbnails and navigation."""
         search_query = search.replace(" ", "+")
         url = (
             "https://www.googleapis.com/youtube/v3/search?"
@@ -121,6 +125,7 @@ class Dev_Tech_Tools(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def code(self, ctx, language: str = "python", *, snippet: str = None):
+        """Runs your code in any language"""
         if not snippet:
             await ctx.send("❌ Please provide a code snippet.")
             return
@@ -137,6 +142,7 @@ class Dev_Tech_Tools(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def insta(self, ctx, username: str):
+        """Search from any Insta Id"""
         em = Embed(
             title="📷 Instagram Lookup",
             description=f"Feature to lookup Instagram profile `{username}` is under construction.",
