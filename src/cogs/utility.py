@@ -10,11 +10,15 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def rank(self, ctx, user=None):
+        """Shows your Rank and XP 📈
+        Displays your progress in the server.
+        Encourages friendly competition.
+        Keep Chatting and VC's to level up!"""
         if not user:
             user = ctx.author
         rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
         if not ctx.channel.id == rank_channel:
-            await ctx.send("This command only works in rank channel!!", delete_after=5)
+            await ctx.send(f"This command only works in rank channel!! <#{rank_channel}>", delete_after=5)
             return
         rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
         total_xp = rank_list.get(str(user.id))
@@ -33,6 +37,10 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def top(self, ctx):
+        """Displays Server Leaderboard 🏆
+        Shows leaderboard based on XP and activity.
+        Motivates users to climb the ranks.
+        Updates automatically as people chat and interact."""
         rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
         if rank_channel == 0 or rank_channel is None:
             await ctx.send("This Server does not have Rank Channels set. Please set using `k set_rank_channel <#channel>", delete_after=6)
@@ -108,10 +116,13 @@ class Utility(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def help(self, ctx, cmd = None):
-        '''Help command'''
+        """Shows Help for all available commands 💡
+        Displays categorized help in a clean embed.
+        Use reactions or buttons to browse.
+        Perfect for newcomers to learn commands."""
         view = View(timeout = 45)
         client = self.client
-        menu= ["Fun & Entertainment", "Utility", "Games", "Server Management", "Dev-Ops", "Music & Media"]
+        menu = [cog.qualified_name for cog in client.cogs.values()]
         menu_descrip= [
     "🎭 **Fun & Entertainment**\n`joke` – Get a random joke.\n`friends` – See your friend list.",
     "🧰 **Utility**\n`rank` – Check your level.\n`top` – View leaderboard.\n`help` – Show all commands.",
@@ -120,11 +131,11 @@ class Utility(commands.Cog):
     "💻 **Dev-Ops**\n`github` – View GitHub Profile.\n`yt` – Search on YouTube.\n`insta` – Seacrh on Instagram.",
     "🎵 **Music & Media**\n`play` – Play songs.\n`queue` – Add songs in queue and View upcoming tracks."
         ]
-        menu_cmds = [["joke", "friends"], ["rank", "top", "help"],["rolldice"], ["mute", "kick", "ban", "deafen", "unban", "undefen", "warn", "unmute", "lock", "unlock", "set_welcome_channel", "set_rank_channel", "set_social_channel"],["github","yt" ,"insta"], ["play", "queue"]]
+        menu_cmds = [[cmd.name for cmd in cog.get_commands()] for cog in client.cogs.values()]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=str(index)) for index, i in enumerate(menu)])
-        get_started = Button(custom_id = "get_started", label="Get Started", style=ButtonStyle.green)
+        get_started = Button(custom_id = "get_started", label="Try Command", style=ButtonStyle.green)
         view.add_item(select)
         view.add_item(get_started)
         em = Embed(title="Help Menu", color= Color.green(), type="rich")
@@ -136,13 +147,9 @@ class Utility(commands.Cog):
         def update():
             nonlocal self, cmd, category, em, menu, menu_descrip, command
             em.clear_fields()
-            if not cmd and category is None:
-                em.add_field(name="Fun & Entertainment", value="`joke`,`friends`")
-                em.add_field(name="Utility", value="`rank`, `top`, `help`")
-                em.add_field(name="Games", value="`rolldice`")
-                em.add_field(name="Server Management", value="`mute`, `kick`, `ban`, `deafen`, `unban`, `undefen`, `warn`, `unmute`, `lock`, `unlock`, `set_welcome_channel`, `set_rank_channel`, `set_social_channel`")
-                em.add_field(name="Dev-ops", value="`github`,`yt`, `insta`")
-                em.add_field(name="Music & Media", value="`play`, `queue`")
+            if not cmd and not category is None:
+                for cog in client.cogs.values()
+                    em.add_field(name=cog.qualified_name.capitalize(), value=", ".join([f"`{i.name}`" for i in cogs.get_commands()])
             elif cmd:
                 for commands in self.client.commands:
                     if cmd in commands.name or cmd in commands.aliases:
@@ -161,7 +168,7 @@ class Utility(commands.Cog):
                 if command.cooldown:
                     em.description = f"**Cooldown**: {command.cooldown.get_retry_after()}\n"
                 em.description = f"**Category**: {menu[category]}\n"
-                em.add_field(name="Description", value=command.brief)
+                em.add_field(name="Description", value=command.help)
                 
             elif category:
                 em.title = f"Help {menu[category]}"
@@ -184,7 +191,7 @@ class Utility(commands.Cog):
                 update()
             else:
                 em.clear_fields()
-                em.add_field(name="Description", value=command.help)
+                await ctx.invoke(client.get_command(cmd))
                 get_started.style = ButtonStyle.grey
                 get_started.disabled = True 
             
@@ -248,13 +255,13 @@ class Utility(commands.Cog):
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions()
     async def activate(self, ctx):
-        '''Server activate command - Moderators only
+        """Server activate command - Moderators only
         - Sets up all settings for your guild.
         - 1.) Sets up Welcome message 
         - 2.) Sets up Social Media notifis
         - 3.) Sets up Rank Channel
         - 4.) Sets up Activated channels/Commands only channels
-        - 5.) Sets up timer messages.'''
+        - 5.) Sets up timer messages."""
 
         client = self.client
         view = View(timeout=60)
