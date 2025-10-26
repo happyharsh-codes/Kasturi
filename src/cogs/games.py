@@ -25,6 +25,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def cash(self, ctx):
+        """Shows your bank cash balance 🏦"""
         amt = Profiles.get(str(ctx.author.id)).get("cash")
         emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
         await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **₹{amt}** cash {EMOJI.get("cash")}")
@@ -35,6 +36,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def gems(self, ctx):
+        """Shows your bank gem balance 🏦""" 
         amt = Profiles.get(str(ctx.author.id)).get("gem")
         emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
         await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **{EMOJI.get("gem")}** {amt} gems")
@@ -45,7 +47,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def inv(self, ctx):
-        '''Views users inventory'''
+        '''Shows your full inventory'''
         inv = Profiles.get(str(ctx.author.id)).get("inv")
         tools = Profiles.get(str(ctx.author.id)).get("tools")
         if not inv:
@@ -69,6 +71,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def give(self, ctx, user, item, amount=0):
+        """Transfers inventory item to other user"""
         user_profile = Profiles.get(str(ctx.author.id))
         if Profiles.get(str(user)) is None:
             await ctx.send("Given User profile not found")
@@ -111,7 +114,8 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
-    async def use(self, ctx):
+    async def use(self, ctx, item= None):
+        """Uses the selected item from inventory"""
         await ctx.send("This command is yet to be made :/")
 
     @commands.command(aliases=[])
@@ -120,6 +124,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def kill(self, ctx):
+        """To Kill spawned mob"""
         await ctx.send("This command is yet to be made :/")
 
     @commands.command(aliases=["adv"])
@@ -128,6 +133,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def adventure(self, ctx):
+        """To find new places, results in exciting rewards"""
         await ctx.send("This command is yet to be made :/")
 
     @commands.command(aliases=['cr'])
@@ -136,6 +142,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def craft(self, ctx, item, amt=1):
+        """Crafts a new item from inventory"""
         emoji = EMOJI[f"kelly{choice(["hiding", "ok", "fight", "interesting", "owolove", "interesting", "thinking", "bored", "interesting"])}"]
         if item not in DATA["craft"]:
             await ctx.send(f"**{emoji} | ** that isnt a craftable item")
@@ -176,6 +183,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def bankrob(self, ctx):
+        """Attempts bankrobbing someones account bases on your aura level"""
         await ctx.send("This command is yet to be made :/")
 
     @commands.command(aliases=[])
@@ -184,6 +192,7 @@ class Games(commands.Cog):
     @commands.bot_has_permissions()
     @has_profile()
     async def beg(self, ctx):
+        """Begs: unexpected rewards"""
         cash = randint(0, 100)
         sign = choice(["$", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹"])
         value = 1
@@ -193,6 +202,45 @@ class Games(commands.Cog):
 
         await ctx.send(f"**{EMOJI["kelly"+choice(["embaress","laugh","owolove","hiding"])]} | **You got {sign}{cash}")
 
+    @commands.command(aliases=[])
+    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    @has_profile()
+    async def hunt(self, ctx):
+        """Goes hunting in the woods"""
+        pass
+
+    @commands.command(aliases=[])
+    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    @has_profile()
+    async def battle(self, ctx, user: discord.Member = None):
+        """Battle someone: Show your strength.
+        Amazing rewards.
+        Can also mention user to battle with them otherwise opponent will be selected randomly."""
+        pass
+
+    @commands.command(aliases=[])
+    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    @has_profile()
+    async def buy(self, ctx):
+        """Welcome to the Shop: Buy anything using cash or gems"""
+        pass
+
+    @commands.command(aliases=[])
+    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    @has_profile()
+    async def sell(self, ctx):
+        """Welcome to the Shop: Sell anything and its estimated value on Cash or Gem"""
+        pass
+
+    
 async def setup(bot):
     await bot.add_cog(Games(bot))
     print("Loaded cogs: Games")
