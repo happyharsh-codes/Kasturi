@@ -99,7 +99,7 @@ class Moderation(commands.Cog):
         await ctx.send(embed=em)
 
     @commands.command()
-    @commands.cooldown(1,10, type=commanda.BucketType.user)
+    @commands.cooldown(1,10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commanda.bot_has_permissions(manage_roles=True)
     async def warn(self, ctx, member: discord.Member, *, reason=None):
