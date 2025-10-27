@@ -165,6 +165,7 @@ class Utility(commands.Cog):
        Play songs, discover tracks, and enjoy music together in VC.  
        `play`, `skip`, `queue`"""
         menu_cmds = [[cmdd.name for cmdd in cog.get_commands()] for cog in client.cogs.values()]
+        print(menu_cmds)
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=str(index)) for index, i in enumerate(menu)])
@@ -212,6 +213,7 @@ class Utility(commands.Cog):
             else:
                 em.title = f"Help {menu[category]}"
                 em.description = menu_descrip[category]
+                em.clear_fields()
         
         async def on_click(interaction: Interaction):
           try:
@@ -232,7 +234,7 @@ class Utility(commands.Cog):
                 em.clear_fields()
                 await ctx.invoke(self.client.get_command(cmd))
                 get_started.style = ButtonStyle.grey
-                get_started.disabled = True 
+                get_started.disabled = True
             
             await interaction.response.edit_message(embed=em, view=view)
           except Exception as e:
@@ -533,15 +535,20 @@ class Utility(commands.Cog):
           try: 
             nonlocal proceed_button, view, temp, channel_select, channel_select2
             proceed_button.disabled = False
-            channel_select.values = interaction.data.get("values",[])
-            channel_select2.values = temp
+            selected_values = interaction.data.get("values",[])
+            for option in channel_select.options:
+                option.default = option.value in selected_values
             await interaction.response.edit_message(view=view)
-            channel_select.values = []
+            for option in channel_select.options:
+                option.default = False
+            for option in channel_select2.options:
+                option.default = False
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
         async def select_channels2(interaction: Interaction):
-            nonlocal temp
-            temp = interaction.data.get("values",[])
+            nonlocal channel_select2
+            for option in channel_select2.options:
+                option.default = option.value in selected_values
             await interaction.response.defer()
         
         go_left.callback = go_callback
