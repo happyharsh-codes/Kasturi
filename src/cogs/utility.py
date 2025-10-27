@@ -146,7 +146,7 @@ class Utility(commands.Cog):
             em.clear_fields()
             if not cmd and not category is None:
                 for cog in client.cogs.values():
-                    em.add_field(name=cog.qualified_name.capitalize(), value=", ".join([f"`{i.name}`" for i in cogs.get_commands()])
+                    em.add_field(name=cog.qualified_name.capitalize(), value=", ".join([f"`{i.name}`" for i in cogs.get_commands()]))
             elif cmd:
                 command = self.client.get_command(cmd)
                 params = command.clean_params
