@@ -145,7 +145,7 @@ class Utility(commands.Cog):
             nonlocal self, cmd, category, em, menu, menu_descrip, command
             em.clear_fields()
             if not cmd and not category is None:
-                for cog in client.cogs.values()
+                for cog in client.cogs.values():
                     em.add_field(name=cog.qualified_name.capitalize(), value=", ".join([f"`{i.name}`" for i in cogs.get_commands()])
             elif cmd:
                 command = self.client.get_command(cmd)
