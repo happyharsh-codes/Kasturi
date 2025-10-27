@@ -102,7 +102,7 @@ class Dev_Tech_Tools(commands.Cog):
         view.add_item(right)
 
         async def on_timeout():
-            nonlocal embed, msg
+            nonlocal em, msg
             em.color = Color.greyple()
             await msg.edit(embed = em, view = None)
         view.on_timeout = on_timeout
