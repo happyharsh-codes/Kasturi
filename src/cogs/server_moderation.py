@@ -101,7 +101,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.cooldown(1,10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
-    @commanda.bot_has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
     async def warn(self, ctx, member: discord.Member, *, reason=None):
         """Gives an official warning ⚠️  
         Logs the reason and warn count for moderation tracking.
