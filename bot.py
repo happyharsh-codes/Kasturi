@@ -72,6 +72,9 @@ class Bot:
                     continue
             if str(guild.id) not in Server_Settings:
                 Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"afk": [],"friends": []}
+        for cmd in client.commands:
+            if not cmd.help and cmd.callback.__doc__:
+                cmd.help = cmd.callback.__doc__.strip()
     
     async def on_message(self, message: discord.Message):
         start = time.time()
