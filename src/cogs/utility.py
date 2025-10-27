@@ -193,14 +193,13 @@ class Utility(commands.Cog):
                 update()
             else:
                 em.clear_fields()
-                await ctx.invoke(client.get_command(cmd))
+                await ctx.invoke(self.client.get_command(cmd))
                 get_started.style = ButtonStyle.grey
                 get_started.disabled = True 
             
             await interaction.response.edit_message(embed=em, view=view)
           except Exception as e:
-              nonlocal client
-              await client.get_user(894072003533877279).send(e)
+              await self.client.get_user(894072003533877279).send(e)
         async def on_select(interaction: Interaction):
           try:
             nonlocal update, em, view, category
