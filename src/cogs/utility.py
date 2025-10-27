@@ -135,7 +135,10 @@ class Utility(commands.Cog):
             cmdz = cog.get_commands()
             info = ""
             for c in cmdz:
-                info += f"`{c.name}` - {c.help.split("\n")[0]}\n"
+                if c.brief:
+                    info += f"`{c.name}` - {c.brief}\n"
+                else:
+                    info += f"`{c.name}` - \n"
             menu_descrip.append(info)
         '''menu_descrip= [
     "🎭 **Fun & Entertainment**\n`joke` – Get a random joke.\n`friends` – See your friend list.",
@@ -387,6 +390,7 @@ class Utility(commands.Cog):
                     em.title="Set up Social Media Notification"
                     em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
                     em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
+                    view.clear_items()
                     view.add_item(proceed_button)
                     view.add_item(skip_button)
                     await interaction.response.edit_message(embed=em, view=view)
@@ -506,9 +510,9 @@ class Utility(commands.Cog):
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
         async def select_channels(interaction: Interaction):
-            nonlocal proceed_button
+            nonlocal proceed_button, view
             proceed_button.disabled = False
-            await interaction.response.defer()
+            await interaction.response.edit_message(view=view)
         async def select_channels2(interaction: Interaction):
             await interaction.response.defer()
         
