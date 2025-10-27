@@ -89,7 +89,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
-    @commanda.bot_has_permissions(kick_members=True)
+    @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx: commands.Context, user: discord.Member, *, reason: str = "No reason provided"):
         """Kicks a member from the server 👢  
         Instantly removes them without banning."""
