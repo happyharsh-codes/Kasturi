@@ -164,7 +164,7 @@ class Utility(commands.Cog):
        🎵 **Music & Media**  
        Play songs, discover tracks, and enjoy music together in VC.  
        `play`, `skip`, `queue`"""
-        menu_cmds = [[cmd.name for cmd in cog.get_commands()] for cog in client.cogs.values()]
+        menu_cmds = [[cmdd.name for cmdd in cog.get_commands()] for cog in client.cogs.values()]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=str(index)) for index, i in enumerate(menu)])
@@ -530,12 +530,15 @@ class Utility(commands.Cog):
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
         async def select_channels(interaction: Interaction):
-            nonlocal proceed_button, view, temp
+          try: 
+            nonlocal proceed_button, view, temp, channel_select, channel_select2
             proceed_button.disabled = False
             channel_select.values = interaction.data.get("values",[])
             channel_select2.values = temp
             await interaction.response.edit_message(view=view)
             channel_select.values = []
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
         async def select_channels2(interaction: Interaction):
             nonlocal temp
             temp = interaction.data.get("values",[])
