@@ -140,14 +140,30 @@ class Utility(commands.Cog):
                 else:
                     info += f"`{c.name}` - \n"
             menu_descrip.append(info)
-        descrip= [
-    "🎭 **Fun & Entertainment**\n`joke` – Get a random joke.\n`friends` – See your friend list.",
-    "🧰 **Utility**\n`rank` – Check your level.\n`top` – View leaderboard.\n`help` – Show all commands.",
-    "🎮 **Games**\n`rolldice` – Roll a dice for fun.",
-    "🛠️ **Server Management**\n`mute`\\`unmute` - Mute\\Unmute someone\n`kick` - kick someone out\n`ban`\\`unban` - ban\\unban someone from guild\n`deafen`\\`undefen` - deafen\\undefen someone from VC\n`warn` - give warning to someone\n`lock`\\`unlock` - locks\\unlocks the channel\n`set_welcome_channel` - sets welcome messages channel\n`set_rank_channel` - sets rank updates channel\n`set_social_channel` - Sets up social media updated for the server.",
-    "💻 **Dev-Ops**\n`github` – View GitHub Profile.\n`yt` – Search on YouTube.\n`insta` – Seacrh on Instagram.",
-    "🎵 **Music & Media**\n`play` – Play songs.\n`queue` – Add songs in queue and View upcoming tracks."
-        ]
+        descrip= """
+        🎭 **Fun & Entertainment**  
+        Light-hearted interactions, jokes, and fun chats to keep your server lively!  
+        `joke`, `meme`, `roast`, `friend`..
+
+        🧰 **Utility**  
+        Everyday tools and features to make your life easier.  
+        `rank`, `top`, `help`, `activate`..
+
+        🎮 **Games**  
+        Simple and engaging games to play with your friends.  
+        `cash`, `hunt`, `beg`, `adv`..
+
+        🛠️ **Server Management**  
+        Commands for moderators and admins to maintain order and manage server functionality.  
+        `mute`, `ban`, `set_rank_channel`, `lock`...
+
+        💻 **Dev-Ops**  
+        Useful for developers and content creators to fetch or explore content across platforms.  
+        `github`, `yt`, `insta`, `code`..
+
+       🎵 **Music & Media**  
+       Play songs, discover tracks, and enjoy music together in VC.  
+       `play`, `skip`, `queue`"""
         menu_cmds = [[cmd.name for cmd in cog.get_commands()] for cog in client.cogs.values()]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
@@ -193,21 +209,21 @@ class Utility(commands.Cog):
                         if perms:
                             em.add_field(name="Required Permissions:", value = " ".join(perms))
                 
-            elif category:
+            else:
                 em.title = f"Help {menu[category]}"
                 em.description = menu_descrip[category]
         
         async def on_click(interaction: Interaction):
           try:
             nonlocal em, view, update, left, right, menu_cmds, category, cmd, command
-            if not category:
+            if category is None:
                 category = randint(0,5)
                 get_started.label = f"Explore {menu[category]}"
                 update()
             elif not cmd:
                 cmd = menu_cmds[category][0]
                 view.clear_items()
-                get_started.label = "Know more"
+                get_started.label = "Try Command"
                 view.add_item(left)
                 view.add_item(get_started)
                 view.add_item(right)
@@ -225,9 +241,11 @@ class Utility(commands.Cog):
           try:
             nonlocal update, em, view, category
             category = int(interaction.data["values"][0])
+            get_started.label = f"Explore {menu[category]}"
+            cmd = None
             update()
             await interaction.response.edit_message(embed=em, view=view)
-          except:
+          except Exception as e:
               nonlocal client
               await client.get_user(894072003533877279).send(e)
         async def on_leftright(interaction: Interaction):
@@ -298,6 +316,7 @@ class Utility(commands.Cog):
         rank_channel = 0
         activated_channels = []
         timer_messages = False
+        temp = ""
         
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
@@ -511,12 +530,15 @@ class Utility(commands.Cog):
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
         async def select_channels(interaction: Interaction):
-            nonlocal proceed_button, view
+            nonlocal proceed_button, view, temp
             proceed_button.disabled = False
             channel_select.values = interaction.data.get("values",[])
-            channel_select2.values = 
+            channel_select2.values = temp
             await interaction.response.edit_message(view=view)
+            channel_select.values = []
         async def select_channels2(interaction: Interaction):
+            nonlocal temp
+            temp = interaction.data.get("values",[])
             await interaction.response.defer()
         
         go_left.callback = go_callback
