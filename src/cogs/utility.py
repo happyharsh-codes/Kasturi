@@ -60,7 +60,7 @@ class Utility(commands.Cog):
         descrip = ""
         for index, xp in enumerate(rank_values[:10]):
             for id, val in rank_list.items():
-                if val == id:
+                if val == xp:
                     try:
                         name = self.client.get_user(id).name
                     except:
@@ -177,10 +177,10 @@ class Utility(commands.Cog):
                         title += f" [{name}]"
                 em.title = title
                 if command.aliases:
-                    em.description = f"**Aliases**: {", ".join(command.aliases)}\n"
+                    em.description += f"**Aliases**: {", ".join(command.aliases)}\n"
                 if command.cooldown:
-                    em.description = f"**Cooldown**: {command.cooldown.get_retry_after()}\n"
-                em.description = f"**Category**: {menu[category]}\n"
+                    em.description += f"**Cooldown**: {command.cooldown.get_retry_after()}\n"
+                em.description += f"**Category**: {menu[category]}\n"
                 em.add_field(name="Description", value=command.help)
                 perms = []
                 for check in command.checks:
@@ -189,7 +189,7 @@ class Utility(commands.Cog):
                         raw = check_str.split("(")[1].split(")")[0].replace("'", "").replace(" ", "").replace("_", " ")
                         perms.extend([p.split("=")[0].capitalize() for p in raw.split(",")])
                         if perms:
-                            em.add_field(name="Required Permissions:", value = " ".join(params))
+                            em.add_field(name="Required Permissions:", value = " ".join(perms))
                 
             elif category:
                 em.title = f"Help {menu[category]}"
@@ -249,7 +249,7 @@ class Utility(commands.Cog):
                     right.disabled = True
                 elif index == len(menu_cmds[category]):
                     category += 1
-                    index == 0
+                    index = 0
             cmd = menu_cmds[category][index]
             update()
 
