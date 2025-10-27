@@ -169,12 +169,8 @@ class Utility(commands.Cog):
                     if "has_permissions" in check_str:
                         raw = check_str.split("(")[1].split(")")[0].replace("'", "").replace(" ", "").replace("_", " ")
                         perms.extend([p.split("=")[0].capitalize() for p in raw.split(",")])
-                if perms:
-                    em.add_field(name="Required Permissions:", value = " ".join(params))
-            if perms:
-                perms_text = f" (🛠️ {'/'.join(perms)})"
-            else:
-                perms_text = ""
+                        if perms:
+                            em.add_field(name="Required Permissions:", value = " ".join(params))
                 
             elif category:
                 em.title = f"Help {menu[category]}"
