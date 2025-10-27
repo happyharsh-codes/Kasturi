@@ -42,7 +42,7 @@ class Muisk_and_Media(commands.Cog):
     def search_spotify(self, track):
         results = self.sp.search(track,limit=1, type= "track")
         track = {"name": "", "link": "", "thumbnail_url": "", "emoji": "spotify", "audio": ""}
-        tracks = results["track"]["items"][0]:
+        tracks = results["track"]["items"][0]
         if tracks:
             track["name"] = tracks["name"]
             track["link"] = tracks["external_urls"]["spotify"]
