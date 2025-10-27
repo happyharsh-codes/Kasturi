@@ -62,12 +62,12 @@ class Utility(commands.Cog):
             for id, val in rank_list.items():
                 if val == xp:
                     try:
-                        name = self.client.get_user(id).name
+                        name = self.client.get_user(int(id)).name
                     except:
                         name = "N/A"
                     break
             lvl = (math.sqrt(1+8*(xp//15))-1)//2
-            descrip += f"**#{index+1}.** `{name}` Level: {lvl} - {xp}xp\n"
+            descrip += f"**#{index+1}.** `{name}` Level: {int(lvl)} - {xp}xp\n"
         em = Embed(title=f"{ctx.guild.name} Rank Leaderboard", description=descrip, color=Color.dark_gold())
         em.set_footer(text=f"{ctx.author.name} at #{rank_values.index(total_xp) +1} - {total_xp}xp", icon_url= ctx.author.avatar)
         em.set_author(name=f"{ctx.author.id}", icon_url=ctx.author.avatar)
@@ -140,33 +140,32 @@ class Utility(commands.Cog):
                 else:
                     info += f"`{c.name}` - \n"
             menu_descrip.append(info)
-        '''menu_descrip= [
+        descrip= [
     "🎭 **Fun & Entertainment**\n`joke` – Get a random joke.\n`friends` – See your friend list.",
     "🧰 **Utility**\n`rank` – Check your level.\n`top` – View leaderboard.\n`help` – Show all commands.",
     "🎮 **Games**\n`rolldice` – Roll a dice for fun.",
     "🛠️ **Server Management**\n`mute`\\`unmute` - Mute\\Unmute someone\n`kick` - kick someone out\n`ban`\\`unban` - ban\\unban someone from guild\n`deafen`\\`undefen` - deafen\\undefen someone from VC\n`warn` - give warning to someone\n`lock`\\`unlock` - locks\\unlocks the channel\n`set_welcome_channel` - sets welcome messages channel\n`set_rank_channel` - sets rank updates channel\n`set_social_channel` - Sets up social media updated for the server.",
     "💻 **Dev-Ops**\n`github` – View GitHub Profile.\n`yt` – Search on YouTube.\n`insta` – Seacrh on Instagram.",
     "🎵 **Music & Media**\n`play` – Play songs.\n`queue` – Add songs in queue and View upcoming tracks."
-        ]'''
+        ]
         menu_cmds = [[cmd.name for cmd in cog.get_commands()] for cog in client.cogs.values()]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=str(index)) for index, i in enumerate(menu)])
-        get_started = Button(custom_id = "get_started", label="Try Command", style=ButtonStyle.green)
+        get_started = Button(custom_id = "get_started", label="Get Started", style=ButtonStyle.green)
         view.add_item(select)
         view.add_item(get_started)
-        em = Embed(title="Help Menu", color= Color.green(), type="rich")
+        em = Embed(title="Help Menu", description= descrip, color= Color.green(), type="rich")
         em.set_author(name=f"{ctx.author.name}", icon_url=ctx.author.avatar)
         em.set_footer(text=f"For more help use k help <query>")
         category = None #the category for which help to show default None 
         command = None
         
         def update():
-            nonlocal self, cmd, category, em, menu, menu_descrip, command
+            nonlocal self, cmd, descrip, category, em, menu, menu_descrip, command
             em.clear_fields()
             if (not cmd) and (category is None):
-                for index,i in enumerate(menu):
-                    em.add_field(name=i, value=menu_descrip[index])
+                em.description = descrip
             elif cmd:
                 command = self.client.get_command(cmd)
                 params = command.clean_params
@@ -182,7 +181,7 @@ class Utility(commands.Cog):
                 if command.aliases:
                     em.description += f"**Aliases**: {", ".join(command.aliases)}\n"
                 if command.cooldown:
-                    em.description += f"**Cooldown**: {command.cooldown.get_retry_after()}\n"
+                    em.description += f"**Cooldown**: {int(command.cooldown.get_retry_after())}\n"
                 em.description += f"**Category**: {menu[category]}\n"
                 em.add_field(name="Description", value=command.help)
                 perms = []
@@ -322,6 +321,8 @@ class Utility(commands.Cog):
                 channel_select2.row = 0
                 channel_select.row = 1
                 proceed_button.row = 2
+                proceed_button.label = "Select Welcome Channel"
+                proceed_button.disabled = True
                 em.description = "Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. Next select the channel in which you want to send welcome messages."
                 view.clear_items()
                 view.add_item(channel_select2)
@@ -512,6 +513,8 @@ class Utility(commands.Cog):
         async def select_channels(interaction: Interaction):
             nonlocal proceed_button, view
             proceed_button.disabled = False
+            channel_select.values = interaction.data.get("values",[])
+            channel_select2.values = 
             await interaction.response.edit_message(view=view)
         async def select_channels2(interaction: Interaction):
             await interaction.response.defer()
