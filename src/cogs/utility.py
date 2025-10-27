@@ -57,12 +57,22 @@ class Utility(commands.Cog):
         if not total_xp: 
             total_xp = 0
             level = 0
-        em = Embed(title=f"{ctx.guild.name} Rank Leaderboard", description="\n".join([f"**{index+1}** {rank_values.index(i)+1} - {i}xp" for index, i in enumerate(rank_values[:10]) ]), color=Color.dark_gold())
+        descrip = ""
+        for index, xp in enumerate(rank_values[:10]):
+            for id, val in rank_list.items():
+                if val == id:
+                    try:
+                        name = self.client.get_user(id).name
+                    except:
+                        name = "N/A"
+                    break
+            lvl = (math.sqrt(1+8*(xp//15))-1)//2
+            descrip += f"**#{index+1}.** `{name}` Level: {lvl} - {xp}xp\n"
+        em = Embed(title=f"{ctx.guild.name} Rank Leaderboard", description=descrip, color=Color.dark_gold())
         em.set_footer(text=f"{ctx.author.name} at #{rank_values.index(total_xp) +1} - {total_xp}xp", icon_url= ctx.author.avatar)
         em.set_author(name=f"{ctx.author.id}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
-        
-            
+               
     @commands.command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
@@ -119,15 +129,22 @@ class Utility(commands.Cog):
         Perfect for newcomers to learn commands."""
         view = View(timeout = 45)
         client = self.client
-        menu = [cog.qualified_name for cog in client.cogs.values()]
-        menu_descrip= [
+        menu = [cog.qualified_name.replace("_", " ").title() for cog in client.cogs.values()]
+        menu_descrip = []
+        for cog in client.cogs.values():
+            cmdz = cog.get_commands()
+            info = ""
+            for c in cmdz:
+                info += f"`{c.name}` - {c.help.split("\n")[0]}\n"
+            menu_descrip.append(info)
+        '''menu_descrip= [
     "🎭 **Fun & Entertainment**\n`joke` – Get a random joke.\n`friends` – See your friend list.",
     "🧰 **Utility**\n`rank` – Check your level.\n`top` – View leaderboard.\n`help` – Show all commands.",
     "🎮 **Games**\n`rolldice` – Roll a dice for fun.",
     "🛠️ **Server Management**\n`mute`\\`unmute` - Mute\\Unmute someone\n`kick` - kick someone out\n`ban`\\`unban` - ban\\unban someone from guild\n`deafen`\\`undefen` - deafen\\undefen someone from VC\n`warn` - give warning to someone\n`lock`\\`unlock` - locks\\unlocks the channel\n`set_welcome_channel` - sets welcome messages channel\n`set_rank_channel` - sets rank updates channel\n`set_social_channel` - Sets up social media updated for the server.",
     "💻 **Dev-Ops**\n`github` – View GitHub Profile.\n`yt` – Search on YouTube.\n`insta` – Seacrh on Instagram.",
     "🎵 **Music & Media**\n`play` – Play songs.\n`queue` – Add songs in queue and View upcoming tracks."
-        ]
+        ]'''
         menu_cmds = [[cmd.name for cmd in cog.get_commands()] for cog in client.cogs.values()]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
@@ -144,12 +161,14 @@ class Utility(commands.Cog):
         def update():
             nonlocal self, cmd, category, em, menu, menu_descrip, command
             em.clear_fields()
-            if not cmd and not category is None:
-                for cog in client.cogs.values():
-                    em.add_field(name=cog.qualified_name.capitalize(), value=", ".join([f"`{i.name}`" for i in cogs.get_commands()]))
+            if (not cmd) and (category is None):
+                for index,i in enumerate(menu):
+                    em.add_field(name=i, value=menu_descrip[index])
             elif cmd:
                 command = self.client.get_command(cmd)
                 params = command.clean_params
+                if category is None:
+                    category = menu.index(command.cog_name.replace("_"," ").title())
                 title = f"{command.name}"
                 for name, value in params.items():
                     if value.required:
@@ -300,7 +319,7 @@ class Utility(commands.Cog):
                 channel_select2.row = 0
                 channel_select.row = 1
                 proceed_button.row = 2
-
+                em.description = "Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. Next select the channel in which you want to send welcome messages."
                 view.clear_items()
                 view.add_item(channel_select2)
                 view.add_item(channel_select)
@@ -315,9 +334,9 @@ class Utility(commands.Cog):
         class SocialModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Social Media/ Leave blank for none")
-                self.input_box1 = TextInput(label="YouTube Link", custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= False, min_length=0, max_length=50, style=TextStyle.short)
-                self.input_box2 = TextInput(label="Insta Id", custom_id="insta", placeholder="Enter your Insta id", required= False, min_length=0, max_length=20, style=TextStyle.short)
-                self.input_box3 = TextInput(label="Twitter Id", custom_id="twitter", placeholder="Enter your Twitter Id: ", required= False, min_length=0, max_length=20, style=TextStyle.short)
+                self.input_box1 = TextInput(label="YouTube Link", custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= False, min_length=0, max_length=50, style=TextStyle.short, default="idk")
+                self.input_box2 = TextInput(label="Insta Id", custom_id="insta", placeholder="Enter your Insta id", required= False, min_length=0, max_length=20, style=TextStyle.short, default="ion have")
+                self.input_box3 = TextInput(label="Twitter Id", custom_id="twitter", placeholder="Enter your Twitter Id: ", required= False, min_length=0, max_length=20, style=TextStyle.short, default="idgaf")
                 self.add_item(self.input_box1)
                 self.add_item(self.input_box2)
                 self.add_item(self.input_box3)
@@ -350,16 +369,28 @@ class Utility(commands.Cog):
             try:
               if process_no == 1:
                 em.title="Set Welcome message"
-                em.description="Set your beautiful welcome message Kelly well send whenever a new user joins the guild.\nSelect your theme from here."
+                em.description="Set your beautiful welcome message Kelly will send whenever a new user joins the guild.\nSelect your theme from here."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_1.gif")
                 view.clear_items()
                 proceed_button.label = "Select Theme"
                 view.add_item(go_left)       
                 view.add_item(proceed_button)
                 view.add_item(go_right)
+                view.add_item(skip_button)
                 await interaction.response.edit_message(embed=em,view=view)
                 
               if process_no == 2:
+                if interaction.data["custom_id"] == "skip":
+                    process_no += 1
+                    proceed_button.row = 0
+                    proceed_button.label = "Set Social Media Updates"
+                    em.title="Set up Social Media Notification"
+                    em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
+                    em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
+                    view.add_item(proceed_button)
+                    view.add_item(skip_button)
+                    await interaction.response.edit_message(embed=em, view=view)
+                    return
                 modal = WelcomeModal()
                 await interaction.response.send_modal(modal)
               
@@ -369,26 +400,33 @@ class Utility(commands.Cog):
                 for index, i in enumerate(temp):
                     welcome_message += f"\n[**{i}**](https://discord.com/channels/{ctx.guild.id}/{channel_select2.values[index]})"
                 welcome_channel = int(channel_select.values[0])
-                em.description= "Welcome channel set up perfectly.\nYoi can have a preview here:\n"+ welcome_message
-                em.set_image(url=None)
+                em.description= "Welcome channel set up perfectly.\nYou can have a preview here:"
+                em2 = Embed(description= welcome_message, color=Color.green())
+                em2.set_image(url=None)
                 view.clear_items()
                 proceed_button.row = 0
                 proceed_button.label = "Set Social Media Updates"
                 view.add_item(proceed_button)
-                await interaction.response.edit_message(embed=em, view=view)
+                view.add_item(skip_button)
+                await interaction.response.edit_message(embeds=[em,em2], view=view)
                 
               if process_no == 4:
-                modal = SocialModal()
-                await interaction.response.send_modal(modal)
+                if interaction.data["custom_id"] == "skip":
+                    process_no += 1
+                else:
+                    modal = SocialModal()
+                    await interaction.response.send_modal(modal)
 
               if process_no == 5:
-                social_channel = int(channel_select.values[0])
+                if interaction.data["custom_id"] != "skip":
+                  social_channel = int(channel_select.values[0])
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/rank.png")
                 view.clear_items()
                 channel_select.row = 0
                 proceed_button.row = 1
+                proceed_button.disabled = True
                 view.add_item(channel_select)
                 proceed_button.label = "Set Rank Channel"
                 view.add_item(proceed_button)
@@ -407,6 +445,7 @@ class Utility(commands.Cog):
                 view.add_item(channel_select)
                 proceed_button.label = "Set Activated Channels"
                 proceed_button.row = 1
+                proceed_button.disabled = True 
                 view.add_item(proceed_button)
                 await interaction.response.edit_message(embed=em, view=view)
 
@@ -444,8 +483,6 @@ class Utility(commands.Cog):
 
               if process_no == 9:
                 await interaction.response.edit_message(view=None)
-                cmd = client.get_command("hi")
-                await ctx.invoke(cmd)
                 return
             except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
@@ -469,6 +506,10 @@ class Utility(commands.Cog):
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
         async def select_channels(interaction: Interaction):
+            nonlocal proceed_button
+            proceed_button.disabled = False
+            await interaction.response.defer()
+        async def select_channels2(interaction: Interaction):
             await interaction.response.defer()
         
         go_left.callback = go_callback
@@ -476,7 +517,7 @@ class Utility(commands.Cog):
         proceed_button.callback = process_buttons
         skip_button.callback = process_buttons
         channel_select.callback = select_channels
-        channel_select2.callback = select_channels
+        channel_select2.callback = select_channels2
         view.on_timeout = timeout
         view.add_item(proceed_button)
         
