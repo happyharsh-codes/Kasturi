@@ -222,7 +222,7 @@ class Utility(commands.Cog):
                 category = randint(0,5)
                 get_started.label = f"Explore {menu[category]}"
                 update()
-            elif not cmd:
+            elif cmd is None:
                 cmd = menu_cmds[category][0]
                 view.clear_items()
                 get_started.label = "Try Command"
@@ -376,6 +376,7 @@ class Utility(commands.Cog):
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
                 channel_select.row = 0
                 proceed_button.row = 1
+                proceed_button.disabled = True
                 view.clear_items()
                 view.add_item(channel_select)
                 proceed_button.label = "Set Social Media Updates Channel"
@@ -423,12 +424,21 @@ class Utility(commands.Cog):
               if process_no == 3:
                 temp = welcome_message.split("\n")[1:]
                 welcome_message = welcome_message.split("\n")[0]
+                values = [option.value for option in channel_select2.options if option.default]
                 for index, i in enumerate(temp):
-                    welcome_message += f"\n[**{i}**](https://discord.com/channels/{ctx.guild.id}/{channel_select2.values[index]})"
-                welcome_channel = int(channel_select.values[0])
+                    welcome_message += f"\n[**{i}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
+                for option in channel_select.options:
+                    if option.default:
+                        welcome_channel = int(option.value)
+                        option.default = False
+                        break
                 em.description= "Welcome channel set up perfectly.\nYou can have a preview here:"
-                em2 = Embed(description= welcome_message, color=Color.green())
-                em2.set_image(url=None)
+                em.set_image(url=None)
+                em2 = Embed(title= f"<:heeriye:1428773558062153768> **{welcome_message.split("\n")[0]}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
+                em2.set_author(name= member.name, icon_url= member.avatar)
+                em2.set_thumbnail(url=member.avatar)
+                em2.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
+                em2.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
                 view.clear_items()
                 proceed_button.row = 0
                 proceed_button.label = "Set Social Media Updates"
@@ -445,7 +455,11 @@ class Utility(commands.Cog):
 
               if process_no == 5:
                 if interaction.data["custom_id"] != "skip":
-                  social_channel = int(channel_select.values[0])
+                    for option in channel_select.options:
+                        if option.default
+                            social_channel = int(option.value)
+                            option.default = False
+                            break
                 em.title="Set up Rank Channel"
                 em.description="Set up your rank channel in which you'll get Level up messages."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/rank.png")
@@ -461,7 +475,11 @@ class Utility(commands.Cog):
 
               if process_no == 6:
                 if interaction.data["custom_id"] == "proceed":
-                    rank_channel = int(channel_select.values[0])
+                    for option in channel_select.options:
+                        if option.default
+                            rank_channel = int(option.value)
+                            option.default = False
+                            break
                 em.title="Set up Activated Channels"
                 em.description="Set up your activated channels. Activated channels are ones in which anyone can chat with Kelly just by saying anything including word `kelly`. You can select multiple Channels. Notev You can also run commands by say saying `kelly can you mute this @abc for spamming`"
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/activated.png")
@@ -477,7 +495,8 @@ class Utility(commands.Cog):
 
               if process_no == 7:
                 if interaction.data["custom_id"] == "proceed":
-                    activated_channels = list(map(int,channel_select.values))
+                    values = [option.value for option in channel_select.options if option.default]
+                    activated_channels = list(map(int,values))
                 em.title="Set up timer Messages"
                 em.description="Turn on timer messages to recieve random Kelly mood flex messages on Activated channels. Its always nice to be greeted by Kelly."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/timer.png")
@@ -539,14 +558,11 @@ class Utility(commands.Cog):
             for option in channel_select.options:
                 option.default = option.value in selected_values
             await interaction.response.edit_message(view=view)
-            for option in channel_select.options:
-                option.default = False
-            for option in channel_select2.options:
-                option.default = False
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
         async def select_channels2(interaction: Interaction):
             nonlocal channel_select2
+            selected_values = interaction.data["values"]
             for option in channel_select2.options:
                 option.default = option.value in selected_values
             await interaction.response.defer()
