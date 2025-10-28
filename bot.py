@@ -76,10 +76,10 @@ class Bot:
             if not cmd.help and cmd.callback.__doc__:
                 cmd.help = cmd.callback.__doc__.strip()
         for cmd_name, brief_text in DATA["brief"].items():
-            cmd = bot.get_command(cmd_name)
+            cmd = self.client.get_command(cmd_name)
             if cmd:
                 cmd.brief = brief_text
-    print(f"{bot.user} is online with command briefs loaded ✅")
+
     
     async def on_message(self, message: discord.Message):
         start = time.time()
