@@ -195,6 +195,8 @@ class Utility(commands.Cog):
                     else:
                         title += f" [{name}]"
                 em.title = title
+                em.description = ""
+                em.clear_fields()
                 if command.aliases:
                     em.description += f"**Aliases**: {", ".join(command.aliases)}\n"
                 if command.cooldown:
