@@ -255,7 +255,7 @@ class Bot:
 
     async def on_member_remove(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
-            em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\Hope you'd come back soon.", color= Color.dark_gray())
+            em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\nHope you'd come back soon.", color= Color.dark_gray())
             em.set_author(name= member.name, icon_url = member.avatar)
             em.thumnail(url= member.avatar)
             em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
