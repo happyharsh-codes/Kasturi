@@ -456,7 +456,7 @@ class Utility(commands.Cog):
               if process_no == 5:
                 if interaction.data["custom_id"] != "skip":
                     for option in channel_select.options:
-                        if option.default
+                        if option.default:
                             social_channel = int(option.value)
                             option.default = False
                             break
@@ -476,7 +476,7 @@ class Utility(commands.Cog):
               if process_no == 6:
                 if interaction.data["custom_id"] == "proceed":
                     for option in channel_select.options:
-                        if option.default
+                        if option.default:
                             rank_channel = int(option.value)
                             option.default = False
                             break
