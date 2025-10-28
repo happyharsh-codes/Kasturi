@@ -54,7 +54,7 @@
         "giyuok": "<:tomiOKA:1395596291878424606>",
         "giyusad": ""
     },
-    brief = {
+    "brief": {
     "joke": "Get a random funny joke.",
     "picture": "Fetch a random fun or cute image.",
     "mock": "Mock a user’s message in a sarcastic tone.",
