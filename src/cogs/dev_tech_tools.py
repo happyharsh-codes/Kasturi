@@ -94,7 +94,7 @@ class Dev_Tech_Tools(commands.Cog):
             watch.url = current_vid["link"]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
-        watch = Button(style=ButtonStyle.link, custom_id = "watch", row=0, label = "Watch")
+        watch = Button(style=ButtonStyle.link, row=0, label = "Watch")
         view = View(timeout= 45)
         view.add_item(left)
         view.add_item(watch)
