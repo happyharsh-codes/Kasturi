@@ -205,11 +205,13 @@ class Utility(commands.Cog):
                 for check in command.checks:
                     check_str = str(check)
                     if "has_permissions" in check_str:
-                        raw = check_str.split("(")[1].split(")")[0].replace("'", "").replace(" ", "").replace("_", " ")
-                        perms.extend([p.split("=")[0].capitalize() for p in raw.split(",")])
-                        if perms:
-                            em.add_field(name="Required Permissions:", value = " ".join(perms))
-                
+                        try:
+                            raw = check_str.split("(")[1].split(")")[0].replace("'", "").replace(" ", "").replace("_", " ")
+                            perms.extend([p.split("=")[0].capitalize() for p in raw.split(",")])
+                            if perms:
+                                em.add_field(name="Required Permissions:", value = " ".join(perms))
+                        except:
+                            pass
             else:
                 em.title = f"Help {menu[category]}"
                 em.description = menu_descrip[category]
