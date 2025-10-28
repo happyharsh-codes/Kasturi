@@ -437,10 +437,10 @@ class Utility(commands.Cog):
                 em.description= "Welcome channel set up perfectly.\nYou can have a preview here:"
                 em.set_image(url=None)
                 em2 = Embed(title= f"<:heeriye:1428773558062153768> **{welcome_message.split("\n")[0]}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
-                em2.set_author(name= member.name, icon_url= member.avatar)
-                em2.set_thumbnail(url=member.avatar)
+                em2.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)
+                em2.set_thumbnail(url= ctx.author.avatar)
                 em2.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
-                em2.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
+                em2.set_footer(text=f"﹒ ﹒ ⟡ {ctx.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
                 view.clear_items()
                 proceed_button.row = 0
                 proceed_button.label = "Set Social Media Updates"
