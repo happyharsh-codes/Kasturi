@@ -92,7 +92,6 @@ class Dev_Tech_Tools(commands.Cog):
             em.set_author(name= current_vid["author"], icon_url= current_vid["avatar_url"])
             em.set_footer(text=f"Showing video {page} out of {length} | {ctx.author.id}", icon_url = ctx.author.avatar)
             watch.url = current_vid["link"]
-        updator()
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         watch = Button(style=ButtonStyle.link, custom_id = "watch", row=0, label = "Watch")
@@ -100,6 +99,7 @@ class Dev_Tech_Tools(commands.Cog):
         view.add_item(left)
         view.add_item(watch)
         view.add_item(right)
+        updator()
 
         async def on_timeout():
             nonlocal em, msg
