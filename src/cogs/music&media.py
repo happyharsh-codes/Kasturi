@@ -137,7 +137,11 @@ class Musik_and_Media(commands.Cog):
             "cookiefile": "assets//cookie.txt"
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(track_name, download=False)["entries"][0]
+            info = ydl.extract_info(track_name, download=False)
+            if not info:
+                return None
+            if "entries" in data and len(data["entries"])>0:
+                info = info["entries"][0]
             track["audio_url"] = info["url"]
             track["thumbnail_url"] = info.get("thumbnail", None)
             duration = info["duration"]
