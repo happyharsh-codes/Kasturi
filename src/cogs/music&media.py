@@ -210,7 +210,7 @@ class Musik_and_Media(commands.Cog):
             self.player[str(ctx.guild.id)].append(music_track)
         else:
             self.player[str(ctx.guild.id)] = [music_track]
-            self.current_track[str(ctx.guild.id)]["music"] = music_track
+            self.current_track[str(ctx.guild.id)] = {"music": None, "msg_id": None, "pause_voters": 0, "skip_voters": 0, "rewind_voters": 0}
             await self.play_next(ctx)
 
     @commands.command(aliases=["q"])
