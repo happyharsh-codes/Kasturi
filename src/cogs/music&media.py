@@ -12,26 +12,47 @@ class Muisk_and_Media(commands.Cog):
             client_secret= os.getenv("SPOTIFY_SECRET")
         ))
         self.player = {}
+        self.currrent_track = {}# keeps track of current music, current music player message and no of user inside VC.
 
     async def play_next(self, ctx):
         if str(ctx.guild.id) not in self.player:
             await ctx.send(embed = Embed(title= "Queue Finished | Leaving VC . . ."))
+            self.current_track.pop(str(ctx.guild.id))
             return
         music = self.player[str(ctx.guild.id)].pop(0)
+        self.current_track[str(ctx.guild.id)]["music"] = music
+        if self.player[str(ctx.guild.id)] == []:
+            self.player.pop(str(ctx.guild.id))
         em = Embed(color= Color.green())
         em.add_author(name= "▶️ Now Playing")
         em.title = f"{music["emoji"]} {music["title"]}"
         em.url = music["link"]
         em.description = f"**Artists**: {",".join(music["artists"])}\n**Duration**: {music["duration"]}"
         em.thumbnail(url= music["thumbnail_url"])
-        await ctx.send(embed= em)
+        msg = await ctx.send(embed= em)
+        await msg.add_reaction(⏮️)
+        await msg.add_reaction(⏸️)
+        if str(ctx.guild.id) in self.player:
+            await msg.add_reaction(⏭️)
+        self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id
+        def check(reaction, user):
+            nonlocal msg
+            for reactions in msg.reactions:
+                async for users in reactions.users():
+                    if users.id == user.id:
+                        return True
+            return False
+        try:
+            await client.bot.wait_for("reaction_add", timeout=, check = )
+        except:
+            pass 
         #start streaming
         ffmpeg_options = {
         'before_options': "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
         'options': "-vn"
         }
         try:
-            source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **fmpeg_options)
+            source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
             voice = ctx.voice_client
             voice.play(source, after= lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exceptions as e:
@@ -44,21 +65,27 @@ class Muisk_and_Media(commands.Cog):
         channel = 0
         player = []
         music = self.player.get(str(ctx.guild.id), None)
-        if not music:
-            return
-        if action == "play":
-            await self.play_next(ctx)
-        elif action == "stop":
-            music = music[0]
+        if action == "▶️":
+            music = self.current_track[str(ctx.guild.id)]["music"]
+            em.add_author(name= "▶️ Now Playing")
+            em.title = f"{music["emoji"]} {music["title"]}"
+            em.url = music["link"]
+            em.description = f"**Artists**: {",".join(music["artists"])}\n**Duration**: {music["duration"]}"
+            em.thumbnail(url= music["thumbnail_url"])
+            em.set_footer(f"Resumed by {ctx.author.display_name}", icon_url= ctx.author.avatar)
+            if ctx.voice_client.is_paused():
+                ctx.voice_client.resume()
+        elif action == "⏸️":
+            music = self.current_track[str(ctx.guild.id)]["music"]
             em.add_author(name="⏸️ Stopped Playing")
             em.title = f"{music["emoji"]} {music["title"]}"
             em.url = music["link"]
             em.color = Color.red()
-            if ctx.voice_client:
-                await ctx.voice_client.disconnect()
-            self.player.pop(str(ctx.guild.id))
-        elif action == "rewind":
-            music = music[0]
+            em.set_footer(f"Paused by {ctx.author.display_name}", icon_url= ctx.author.avatar)
+            if ctx.voice_client and ctx.voice_client.is_playing():
+                ctx.voice_client.pause()
+        elif action == "⏮️":
+            music = self.current_track[str(ctx.guild.id)]["music"]
             em.color = Color.dark_gold()
             em.add_author(name= f"⏮️ Song Rewinded")
             em.title = f"{music["emoji"]} {music["title"]}"
@@ -66,13 +93,14 @@ class Muisk_and_Media(commands.Cog):
             em.description = f"**Artists**: {",".join(music["artists"])}\n**Duration**: {music["duration"]}"
             em.thumbnail(url= music["thumbnail_url"])
             em.set_footer(f"Rewinded by {ctx.author.display_name}", icon_url= ctx.author.avatar)
-        elif action == "skip":
-            music.pop(0)
-            if music == []:
-                self.player.pop(str(ctx.guild.id))
-            else:
-                self.player[str(ctx.guild.id)] = music
-            music = music[0]
+            self.player[str(ctx.guild.id)].insert(0, music)
+            ctx.voice_client.stop()
+        elif action == "⏭️":
+            if not str(ctx.guild.id) in self.player:
+                await ctx.send("Can't Skip this is the last song")
+                return
+            self.player[str(ctx.guild.id)].pop(0)
+            music = self.current_track[str(ctx.guild.id)]["music"]
             em.color = Color.dark_gold()
             em.add_author(name= f"⏭️ Song Skipped")
             em.title = f"{music["emoji"]} {music["title"]}"
@@ -80,10 +108,27 @@ class Muisk_and_Media(commands.Cog):
             em.description = f"**Artists**: {",".join(music["artists"])}\n**Duration**: {music["duration"]}"
             em.thumbnail(url= music["thumbnail_url"])
             em.set_footer(f"Skipped by {ctx.author.display_name}", icon_url= ctx.author.avatar)
-            await ctx.voice_client.stop()
-            
-        await ctx.send(embed=em)
-        
+            ctx.voice_client.stop()
+        elif action == "📝":
+            async with ctx.typing():
+                try:
+                    lyrics = GENIUS.search_song(self.current_track[str(ctx.guild.id)]["music"]["title"])
+                    await ctx.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]```")
+                except:
+                    await ctx.send("Couldn't get any lyrics for this song")
+        try:
+            msg = await ctx.channel.fetch_message(self.current_track["msg_id"])
+            await msg.edit(embed= em)
+            await msg.add_reaction("⏮️")
+            if ctx.voice_client.is_paused():
+                await msg.add_reaction("▶️")
+            else:
+                await msg.add_reaction("⏸️")
+            if action != "📝":
+                await msg.add_reaction("📝")
+            if str(ctx.guild.id) in self.player:
+                await msg.add_reaction("⏭️")
+        except: pass
         
     def search_song(self, track_name):
         results = self.sp.search(track_name ,limit=1, type= "track")
@@ -140,25 +185,34 @@ class Muisk_and_Media(commands.Cog):
             await voice_client.move_to(channel)
         else:
             voice_client = await channel.connect()
-            self.player.pop(str(ctx.guild.id))
+            if str(ctx.guild.id) in self.player:
+                self.player.pop(str(ctx.guild.id))
 
         music_track = self.search_song(search)
         if not music_track:
             em = Embed(title= "Unable to Find song", description= "We are unable to find any song with the given name 😔 anywhere on Spotify, Youtube, SoundCloud, etx. Please forgive us and try again using more specific name", color = Color.greyple())
             await ctx.send(embed=em)
             return
-        estimated_time = "0:0"
+        estimated_time = 0
+        if str(ctx.guild.id) in self.player:
+            duration = self.current_track["music"]["duration"]
+            seconds = (int(duration.split(":")[0])*60) + int(duration.split(":")[1])
+            for song in self.player[str(ctx.guild.id)]:
+                duration = song["duration"]
+                seconds += (int(duration.split(":")[0])*60) + int(duration.split(":")[1])
+            estimated_time = f"{seconds//60}:{seconds%60}"
+        else:
+            estimated_time = "0:0"
         em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track["title"]}**]({music_track["link"]})\n**Artist**: {",".join(music_track["artists"])}\n**Duration**: {music_track["duration"]}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())
         em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)
         em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}" , icon_url= ctx.author.avatar)
         em.set_thumbnail(url= music_track["thumbnail_url"])
         await ctx.send(embed= em)
-        if str(ctx.guild.id) in self.player():
+        if str(ctx.guild.id) in self.player:
             self.player[str(ctx.guild.id)].append(music_track)
-            #await self.music_player(ctx, "playafter")
         else:
-            self.player[str(ctc.guild.id)] = [music_track]
-            await self.music_player(ctx, "play")
+            self.player[str(ctx.guild.id)] = [music_track]
+            await self.play_next(ctx)
 
     @commands.command(aliases=["q"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -166,15 +220,33 @@ class Muisk_and_Media(commands.Cog):
     @commands.bot_has_permissions()
     async def queue(self, ctx):
         """Shows the songs queue list 🎵"""
-        await ctx.send("This command is yet to be made :/")
-
+        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"[**{song["title"]}**]({song["url"]}) - {song["duration"]}" for song in self.player[str(ctx.guild.id)] ]), color = Color.purple())
+        em.set_footer(text= f"Requested by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)
+        await ctx.send(embed = em)
+    
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def skip(self, ctx):
         """Skips the current playing song. Requires voting from all vc members."""
-        pass
+        music = self.current_track.get(str(ctx.guild.id), None)
+        if not music:
+            await ctx.send("No Track is being played currently.")
+            return
+        em = Embed(color= Color.green())
+        em.add_author(name= "▶️ Now Playing")
+        em.title = f"{music["emoji"]} {music["title"]}"
+        em.url = music["link"]
+        em.description = f"**Artists**: {",".join(music["artists"])}\n**Duration**: {music["duration"]}"
+        em.thumbnail(url= music["thumbnail_url"])
+        msg = await ctx.send(embed=em)
+        await ctx.send("React with controller buttons to interact with music player.", delete_after= 3)
+        await msg.add_reaction("⏮️")
+        await msg.add_reaction("⏸️")
+        await msg.add_reaction("📝")
+        await msg.add_reaction("⏭️")
+        self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -182,7 +254,24 @@ class Muisk_and_Media(commands.Cog):
     @commands.bot_has_permissions()
     async def stop(self, ctx):
         """Stops playing the current song. Requires voting from all vc members."""
-        pass
+        
+        music = self.current_track.get(str(ctx.guild.id), None)
+        if not music:
+            await ctx.send("No Track is being played currently.")
+            return
+        em = Embed(color= Color.green())
+        em.add_author(name= "▶️ Now Playing")
+        em.title = f"{music["emoji"]} {music["title"]}"
+        em.url = music["link"]
+        em.description = f"**Artists**: {",".join(music["artists"])}\n**Duration**: {music["duration"]}"
+        em.thumbnail(url= music["thumbnail_url"])
+        msg = await ctx.send(embed=em)
+        await ctx.send("React with controller buttons to interact with music player.", delete_after= 3)
+        await msg.add_reaction("⏮️")
+        await msg.add_reaction("⏸️")
+        await msg.add_reaction("📝")
+        await msg.add_reaction("⏭️")
+        self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id
         
 async def setup(bot):
     await bot.add_cog(Muisk_and_Media(bot))
