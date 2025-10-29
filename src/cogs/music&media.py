@@ -6,10 +6,11 @@ import sclib
 
 class Muisk_and_Media(commands.Cog):
     def __init__(self, client: commands.Bot):
+        self.qualified_name = "Music & Media"
         self.client = client
         self.sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
-            client_id="SPOTIFY_CLIENT_ID",
-            client_secret="SPOTIFY_CLIENT_SECRET"
+            client_id= os.getenv("SPOTIFY_ID"),
+            client_secret= os.getenv("SPOTIFY_SECRET")
         ))
         self.player = {}
 
