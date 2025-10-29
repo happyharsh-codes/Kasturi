@@ -1,5 +1,7 @@
 from __init__ import*
 import requests
+from apify_client import ApifyClient
+import instaloader
 
 class Dev_Tech_Tools(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -143,13 +145,74 @@ class Dev_Tech_Tools(commands.Cog):
     @commands.bot_has_permissions()
     async def insta(self, ctx, username: str):
         """Search from any Insta Id"""
+        # Initialize the ApifyClient with your API token
+        client = ApifyClient("apify_api_0fpZM8x4rIRwsAt2J7WGY6d6oxTPJu2OBkTp")
+
+        # Prepare the Actor input
+        run_input = {
+            "directUrls": [f"https://www.instagram.com/{username}"],
+            "resultsType": "posts",
+            "resultsLimit": 200,
+            "searchType": "hashtag",
+            "searchLimit": 10,
+            "addParentData": False,
+        }
+
+        # Run the Actor and wait for it to finish
+        try:
+            L = instaloader.Instaloader(download_pictures=False, download_videos=False)
+            profile = instaloader.Profile.from_username(L.context, username)
+            run = client.actor("shu8hvrXbJbY3Eb9W").call(run_input=run_input)
+        except:
+            await ctx.reply("Invalid Username Provided")
+            return
+        posts = []
+        page = 1
+        # Fetch and print Actor results from the run's dataset (if there are any)
+        for item in client.dataset(run["defaultDatasetId"]).iterate_items():
+          posts = {"url": item["url"], "caption": item["caption"], "likes": item["likeCounts"], "comments": item["commentCounts"], "img": item["displayUrl"]}
         em = Embed(
             title="📷 Instagram Lookup",
-            description=f"Feature to lookup Instagram profile `{username}` is under construction.",
+            description=f"[{profile.username}](https://instagram.com/{username}) **{profile.full_name}**\n**{profile.followers}** Followers **|** **{profile.followees}** Following **|** **{profile.mediacount}** Posts\n{profile.biography}",
             color=Color.purple()
         )
+        em.set_thumbnail(url= profile.profile_pic_url)
+        em.set_author(name= username, icon_url= profile.profile_pic_url)
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
-        await ctx.send(embed=em)
+        left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        watch = Button(style=ButtonStyle.link, row=0, label = "Watch")
+        view = View(timeout=45)
+
+        def updator():
+            nonlocal em, posts, page
+            mypost = posts[page-1]
+            em.clear_fields()
+            em.add_field(name= f"{mypost["caption"]}", value= f"❤️ {mypost["likes"]} 💬 {mypost["comments"]}"
+            em.set_image(url = mypost["img"])
+            watch.url = mypost["url"]
+        async def onleftright(interaction: Interaction):
+            nonlocal page, updator, posts, em, view
+            left.disabled = (page == 1)
+            right.disabled = (page == len(posts))
+            if interaction.data["custom_id"] == "left":
+                page -= 1
+            else:
+                page += 1
+            updator()
+            await interaction.response.edit_message(embed= em, view= view)
+        async def on_timeout():
+            nonlocal em, msg
+            em.color = Color.greyple()
+            msg.edit(embed= em, view=None)
+
+        left.callback = onleftright
+        right.callback = onleftright
+        view.on_timeout = on_timeout
+        view.add_item(left)
+        view.add_item(watch)
+        view.add_item(right)
+        msg = await ctx.send(embed=em, view=view)
 
 async def setup(bot):
     await bot.add_cog(Dev_Tech_Tools(bot))
