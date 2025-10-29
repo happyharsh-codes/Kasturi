@@ -37,6 +37,7 @@ instaloader==4.14.2
 itsdangerous==2.2.0
 Jinja2==3.1.6
 jiter==0.11.1
+lyricsgenius==3.7.5
 MarkupSafe==3.0.3
 more-itertools==10.8.0
 multidict==6.7.0
@@ -65,4 +66,5 @@ urllib3==2.5.0
 Werkzeug==3.1.3
 yarl==1.22.0
 yt-dlp==2025.10.22
+
 
