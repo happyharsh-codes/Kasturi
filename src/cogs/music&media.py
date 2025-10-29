@@ -104,7 +104,7 @@ class Muisk_and_Media(commands.Cog):
             async with ctx.typing():
                 try:
                     lyrics = GENIUS.search_song(self.current_track[str(ctx.guild.id)]["music"]["title"])
-                    await ctx.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]```")
+                    await ctx.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]}```")
                 except:
                     await ctx.send("Couldn't get any lyrics for this song")
         try:
