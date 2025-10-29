@@ -24,6 +24,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import yt_dlp
 import sclib
+from lyricsgenius import Genius
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -64,7 +65,7 @@ CLIENT4 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY
 CLIENT5 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY4"))#ai model connection
 CLIENT6 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY5"))#ai model connection
 CLIENT7 = ApifyClient(os.getenv("KEYZ"))
-
+GENIUS = Genius(os.getenv("GENIUS"))
 
 clients = [CLIENT0, CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
 
