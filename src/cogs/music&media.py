@@ -299,7 +299,7 @@ class Muisk_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["pause_voters"] >= required:
                         await self.music_player(ctx, str(payload.emoji))
                     else:
-                        await ctx.send(embed=Embed(description= f"Pausing, **{self.current_track[str(guild.id)]["pause_voters"]}**/**{members_count}** (**{required}** Votes required)")
+                        await ctx.send(embed=Embed(description= f"Pausing, **{self.current_track[str(guild.id)]["pause_voters"]}**/**{members_count}** (**{required}** Votes required)"))
                     
                 elif "⏮️" in str(payload.emoji):
                     try:
@@ -309,7 +309,7 @@ class Muisk_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["rewind_voters"] >= required:
                         await self.music_player(ctx, str(payload.emoji))
                     else:
-                        await ctx.send(embed=Embed(description= f"Rewinding, **{self.current_track[str(guild.id)]["rewind_voters"]}**/**{members_count}** (**{required}** Votes required)")
+                        await ctx.send(embed=Embed(description= f"Rewinding, **{self.current_track[str(guild.id)]["rewind_voters"]}**/**{members_count}** (**{required}** Votes required)"))
                     
                 elif "⏭️" in str(payload.emoji):
                     try:
@@ -319,7 +319,7 @@ class Muisk_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["skip_voters"] >= required:
                         await self.music_player(ctx, str(payload.emoji))
                     else:
-                        await ctx.send(embed=Embed(description= f"Skipping, **{self.current_track[str(guild.id)]["skip_voters"]}**/**{members_count}** (**{required}** Votes required)")
+                        await ctx.send(embed=Embed(description= f"Skipping, **{self.current_track[str(guild.id)]["skip_voters"]}**/**{members_count}** (**{required}** Votes required)"))
                 else:
                     await self.music_player(ctx, str(payload.emoji))         
                 return
