@@ -129,8 +129,10 @@ class Musik_and_Media(commands.Cog):
         tracks = results["tracks"]["items"][0]
         ydl_opts = {
             "format": "bestaudio/best",
-            "nonplaylist": True,
+            "noplaylist": True,
             "quiet": True,
+            "nopart": True,
+            "extract_flat": True,
             "default_search": "ytsearch",
             "cookiefile": "assets//cookie.txt"
         }
