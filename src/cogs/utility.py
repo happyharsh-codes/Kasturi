@@ -198,7 +198,7 @@ class Utility(commands.Cog):
                 em.description = ""
                 em.clear_fields()
                 if command.aliases:
-                    em.description += f"**Aliases**: {", ".join(command.aliases)}" + "\n"
+                    em.description += f"**Aliases**: {', '.join(command.aliases)}" + "\n"
                 em.description += f"**Category**: {menu[category]}" + "\n"
                 em.add_field(name="Description", value=command.help)
                 perms = []
