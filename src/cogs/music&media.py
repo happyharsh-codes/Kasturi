@@ -111,7 +111,7 @@ class Muisk_and_Media(commands.Cog):
         else:
             track["emoji"] = "<:youtube:1432179973367533578>"
             track["title"] = info["title"]
-            track["artists"] = info["artists]
+            track["artists"] = info["artists"]
             track["link"] = info["webpage_url"]
 
         return track
