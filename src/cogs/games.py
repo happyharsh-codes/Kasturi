@@ -27,8 +27,8 @@ class Games(commands.Cog):
     async def cash(self, ctx):
         """Shows your bank cash balance 🏦"""
         amt = Profiles.get(str(ctx.author.id)).get("cash")
-        emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
-        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **₹{amt}** cash {EMOJI.get("cash")}")
+        emoji = EMOJI[f"kelly{choice(['hiding', 'interesting', 'owolove', 'heart', 'simping'])}"]
+        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **₹{amt}** cash <:cash:1433171762668896388>")
 
     @commands.command(aliases=['g', 'gem'])
     @commands.cooldown(1,10, type = commands.BucketType.user )
@@ -38,8 +38,8 @@ class Games(commands.Cog):
     async def gems(self, ctx):
         """Shows your bank gem balance 🏦""" 
         amt = Profiles.get(str(ctx.author.id)).get("gem")
-        emoji = EMOJI[f"kelly{choice(["hiding", "interesting", "owolove", "heart", "simping"])}"]
-        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **{EMOJI.get("gem")}** {amt} gems")
+        emoji = EMOJI[f"kelly{choice(['hiding', 'interesting', 'owolove', 'heart', 'simping'])}"]
+        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **{amt}** gems <:gem:1433171777017610260>")
 
     @commands.command(aliases=["inventory"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
@@ -53,7 +53,7 @@ class Games(commands.Cog):
         if not inv:
             await ctx.reply("You don't have anything in your inventory haha 😆")
             return
-        em = Embed(title=f"Showing {ctx.author.name}'s Inventory {EMOJI.get("inventory")}")
+        em = Embed(title=f"Showing {ctx.author.name}'s Inventory <:chest:1433174074569396416>")
         breakline = 0
         descrip =  ""
         for items, value in inv.items():
@@ -77,21 +77,21 @@ class Games(commands.Cog):
             await ctx.send("Given User profile not found")
         if  isinstance(item, int):
             if item <= 0:
-                emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
+                emoji = EMOJI[f"kelly{choice(['annoyed', 'bweh', 'watching'])}"]
                 await ctx.send(f"**{emoji} | **Invalid Cash amount")
                 return
             user_cash = user_profile.get("cash")
             if user_cash >= item:
                 Profiles[str(user)]["cash"] += item
                 Profiles[str(ctx.author.id)]["cash"] -= item
-                emoji = EMOJI[f"kelly{choice(["heart", "owolove", "salute"])}"]
+                emoji = EMOJI[f"kelly{choice(['heart', 'owolove', 'salute'])}"]
                 await ctx.send(f"**{emoji} | **{ctx.author.mention} gave ₹{item} to {self.client.get_user(user).mention}")
             else:
-                emoji = EMOJI[f"kelly{choice(["thinking", "bweh", "watching"])}"]
+                emoji = EMOJI[f"kelly{choice(['thinking', 'bweh', 'watching'])}"]
                 await ctx.send(f"**{emoji} | **You dont own that much money what are you doing")
         if item in DATA["inv_items"]:
             if amount <= 0:
-                emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
+                emoji = EMOJI[f"kelly{choice(['annoyed', 'bweh', 'watching'])}"]
                 await ctx.send(f"**{emoji} | **Invalid amount given")
                 return
             if user_profile["inv"][item] >= amount:
@@ -100,13 +100,13 @@ class Games(commands.Cog):
                     Profiles[str(user)]["inv"][item] += amount
                 else:
                     Profiles[str(user)]["inv"][item] = amount
-                emoji = EMOJI[f"kelly{choice(["heart", "owolove"])}"]
+                emoji = EMOJI[f"kelly{choice(['heart', 'owolove'])}"]
                 await ctx.send(f"**{emoji}| **{ctx.author.mention} gave {amount} {item.capitalize()} {EMOJI.get(item)} to {self.client.get_user(user).mention}")
             else:
-                emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
+                emoji = EMOJI[f"kelly{choice(['annoyed', 'bweh', 'watching'])}"]
                 await ctx.send(f"**{emoji} | **You dont even own that much item what are you doing")
         else:
-            emoji = EMOJI[f"kelly{choice(["annoyed", "bweh", "watching"])}"]
+            emoji = EMOJI[f"kelly{choice(['annoyed', 'bweh', 'watching'])}"]
             await ctx.reply(f"**{emoji} | **Invalid item given")
 
     @commands.command(aliases=[])
@@ -143,7 +143,7 @@ class Games(commands.Cog):
     @has_profile()
     async def craft(self, ctx, item, amt=1):
         """Crafts a new item from inventory"""
-        emoji = EMOJI[f"kelly{choice(["hiding", "ok", "fight", "interesting", "owolove", "interesting", "thinking", "bored", "interesting"])}"]
+        emoji = EMOJI[f"kelly{choice(['hiding', 'ok', 'fight', 'interesting', 'owolove', 'interesting', 'thinking', 'bored', 'interesting'])}"]
         if item not in DATA["craft"]:
             await ctx.send(f"**{emoji} | ** that isnt a craftable item")
             return
@@ -200,7 +200,7 @@ class Games(commands.Cog):
             value = 86
         Profiles[str(ctx.author.id)]["cash"] += cash * value
 
-        await ctx.send(f"**{EMOJI["kelly"+choice(["embaress","laugh","owolove","hiding"])]} | **You got {sign}{cash}")
+        await ctx.send(f"**{EMOJI["kelly"+choice(['embaress','laugh','owolove','hiding'])]} | **You got {sign}{cash}")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
