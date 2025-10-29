@@ -237,16 +237,16 @@ class Bot:
 
     async def on_guild_remove(self, guild: discord.Guild):
         me = self.client.get_user(894072003533877279)  
-        await me.send(f"Left a server: {Server_Settings[str(guild.id)]["name"]}\n{Server_Settings[str(guild.id)]["invite_link"]}")
+        await me.send(f"Left a server: {Server_Settings[str(guild.id)]['name']}\n{Server_Settings[str(guild.id)]['invite_link']}")
         Server_Settings.pop(str(guild.id))
     
     async def on_member_join(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             welcome_message = Server_Settings[str(member.guild.id)]["welcome_message"]
-            em = Embed(title= f"<:heeriye:1428773558062153768> **{welcome_message.split("\n")[0]}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
+            em = Embed(title= f"<:heeriye:1428773558062153768> **{welcome_message.split('\n')[0]}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
             em.set_author(name= member.name, icon_url= member.avatar)
             em.set_thumbnail(url=member.avatar)
-            em.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{Server_Settings[str(member.guild.id)]["welcome_image"]}.gif")
+            em.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{Server_Settings[str(member.guild.id)]['welcome_image']}.gif")
             em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
             try:
                 channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
@@ -305,12 +305,12 @@ class Bot:
             await ctx.send("***Oho*** you are missing an argumemt.\nUse `k help <command>` to get help")
 
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send(f"Ayoo you dont have permissions to do that!! {EMOJI[choice(["kellyidontcare","kellyannoyed", "kellycheekspull", "kellygigle", "kellybweh", "kellywatching"])]}")
+            await ctx.send(f"Ayoo you dont have permissions to do that!! {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}")
 
         elif isinstance(error, commands.CheckFailure):
             code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
-            emoji = EMOJI[f"kelly{choice(["blush", "thinking", "laugh", "gigle", "waiting", "idontcare"])}"]
-            await ctx.reply(f"**{emoji} | ** you dont even have a profile\n**{choice(["📃","📜","📄","📑","📰","🗞","📚","📙","📕","📖","📗","📘","✒","✏","🖋","📝","📋"])} | **Type this to create new profile `{code}`")
+            emoji = EMOJI[f"kelly{choice(['blush', 'thinking', 'laugh', 'gigle', 'waiting', 'idontcare'])}"]
+            await ctx.reply(f"**{emoji} | ** you dont even have a profile\n**{choice(['📃','📜','📄','📑','📰','🗞','📚','📙','📕','📖','📗','📘','✒','✏','🖋','📝','📋'])} | **Type this to create new profile `{code}`")
             try:
                 msg = await ctx.bot.wait_for("message", check= lambda x: x.author.id == ctx.author.id, timeout= 120)
             except asyncio.TimeoutError:
@@ -321,7 +321,7 @@ class Bot:
                 em.set_footer(text=f"{ctx.author.name} created acc at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
                 await ctx.send(embed = em)
             else:
-                emoji = EMOJI[f"kelly{choice(["annoyed", "laugh", "gigle", "waiting", "idontcare", "chips", "bweh", "bweh"])}"]
+                emoji = EMOJI[f"kelly{choice(['annoyed', 'laugh', 'gigle', 'waiting', 'idontcare', 'chips', 'bweh', 'bweh'])}"]
                 await msg.reply(f"**{emoji} | ** you dont even do a single thing properly disgusting!! Dont ever come to me again")
         else:
             await ctx.send("Unknown error happened :/")
