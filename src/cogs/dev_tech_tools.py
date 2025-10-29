@@ -156,7 +156,7 @@ class Dev_Tech_Tools(commands.Cog):
         # Run the Actor and wait for it to finish
         try:
             run_input = { "usernames": [username]}
-            run = client.actor("dSCLg0C3YEZ83HzYX").call(run_input=run_input)
+            run = CLIENT7.actor("dSCLg0C3YEZ83HzYX").call(run_input=run_input)
         except:
             await ctx.reply("Invalid Username Provided")
             return
