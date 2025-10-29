@@ -200,7 +200,7 @@ class Games(commands.Cog):
             value = 86
         Profiles[str(ctx.author.id)]["cash"] += cash * value
 
-        await ctx.send(f"**{EMOJI["kelly"+choice(['embaress','laugh','owolove','hiding'])]} | **You got {sign}{cash}")
+        await ctx.send(f"**{EMOJI['kelly'+choice(['embaress','laugh','owolove','hiding'])]} | **You got {sign}{cash}")
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
