@@ -148,7 +148,7 @@ class Muisk_and_Media(commands.Cog):
             await ctx.send(embed=em)
             return
         estimated_time = "0:0"
-        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track["title"]}**]({music_track["link"])\n**Artist**: {",".join(music_track["artists"])}\n**Duration**: {music_track["duration"]}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())
+        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track["title"]}**]({music_track["link"]})\n**Artist**: {",".join(music_track["artists"])}\n**Duration**: {music_track["duration"]}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())
         em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)
         em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}" , icon_url= ctx.author.avatar)
         em.set_thumbnail(url= music_track["thumbnail_url"])
