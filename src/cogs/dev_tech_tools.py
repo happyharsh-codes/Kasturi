@@ -185,7 +185,7 @@ class Dev_Tech_Tools(commands.Cog):
             nonlocal em, posts, page
             mypost = posts[page-1]
             em.clear_fields()
-            em.add_field(name= f"{mypost["caption"]}", value= f"❤️ {mypost["likes"]} 💬 {mypost["comments"]}"
+            em.add_field(name= f"{mypost["caption"]}", value= f"❤️ {mypost["likes"]} 💬 {mypost["comments"]}")
             em.set_image(url = mypost["img"])
             watch.url = mypost["url"]
         async def onleftright(interaction: Interaction):
