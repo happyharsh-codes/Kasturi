@@ -61,7 +61,7 @@ class Dev_Tech_Tools(commands.Cog):
             f"maxResults=10&q={search_query}&"
             "type=video&"
             "key=AIzaSyA95DL_DoZMbLZ2brkhWMrfNUq-ErJXYuA"
-            )
+        )
         videos = []
         page = 1
         response = requests.get(url).json()
@@ -73,53 +73,64 @@ class Dev_Tech_Tools(commands.Cog):
                 thumbnail_url = item["snippet"]["thumbnails"]["default"]["url"]
                 author_name = item["snippet"]["channelTitle"]
                 channel_id = item["snippet"]["channelId"]
-                url2 = f'https://www.googleapis.com/youtube/v3/channels?part=snippet&id={channel_id}&key=AIzaSyA95DL_DoZMbLZ2brkhWMrfNUq-ErJXYuA'
+                url2 = f"https://www.googleapis.com/youtube/v3/channels?part=snippet&id={channel_id}&key=AIzaSyA95DL_DoZMbLZ2brkhWMrfNUq-ErJXYuA"
                 response2 = requests.get(url2).json()
-                channel_avatar = response2['items'][0]['snippet']['thumbnails']['default']['url']
+                channel_avatar = response2["items"][0]["snippet"]["thumbnails"]["default"]["url"]
                 
-                vid_info = {"title": video_title, "link": video_link, "thumbnail_url": thumbnail_url, "author":author_name, "avatar_url": channel_avatar}
+                vid_info = {
+                    "title": video_title,
+                    "link": video_link,
+                    "thumbnail_url": thumbnail_url,
+                    "author": author_name,
+                    "avatar_url": channel_avatar
+                }
                 videos.append(vid_info)
 
         length = len(videos)
         em = Embed(color=Color.dark_gold())
         if not videos:
             return await ctx.reply("No Video found for the search")
+
         def updator():
             nonlocal em, videos, page, view, left, right
             current_vid = videos[page-1]
-            em.title = f"**{current_vid["title"]}**"
+            em.title = f"**{current_vid['title']}**"
             em.url = current_vid["link"]
-            em.set_image(url= current_vid["thumbnail_url"])
-            em.set_author(name= current_vid["author"], icon_url= current_vid["avatar_url"])
-            em.set_footer(text=f"Showing video {page} out of {length} | {ctx.author.id}", icon_url = ctx.author.avatar)
-            watch = Button(style= ButtonStyle.link, url=current_vid["link"], label = "Watch", row= 0)
+            em.set_image(url=current_vid["thumbnail_url"])
+            em.set_author(name=current_vid["author"], icon_url=current_vid["avatar_url"])
+            em.set_footer(text=f"Showing video {page} out of {length} | {ctx.author.id}", icon_url=ctx.author.avatar)
+            
+            watch = Button(style=ButtonStyle.link, url=current_vid["link"], label="Watch", row=0)
             view.clear_items()
             view.add_item(left)
             view.add_item(watch)
             view.add_item(right)
-        left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
-        right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
-        view = View(timeout= 45)
+
+        left = Button(style=ButtonStyle.secondary, custom_id="left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        right = Button(style=ButtonStyle.secondary, custom_id="right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        view = View(timeout=45)
         updator()
 
         async def on_timeout():
             nonlocal em, msg
             em.color = Color.greyple()
-            await msg.edit(embed = em, view = None)
+            await msg.edit(embed=em, view=None)
         view.on_timeout = on_timeout
+
         async def on_leftright(interaction: Interaction):
             nonlocal left, right, page, length, updator, em, view
             if interaction.data["custom_id"] == "left":
                 page -= 1
-            else: page += 1
+            else:
+                page += 1
             left.disabled = (page == 1)
             right.disabled = (page == length)
             updator()
-            await interaction.response.edit_message(embed = em, view = view)
+            await interaction.response.edit_message(embed=em, view=view)
             
         left.callback = on_leftright
         right.callback = on_leftright
-        msg = await ctx.reply(embed= em, view= view)
+        msg = await ctx.reply(embed=em, view=view)
 
     @commands.command(aliases=["codesnippet"])
     @commands.cooldown(1, 60, type=commands.BucketType.user)
@@ -130,6 +141,7 @@ class Dev_Tech_Tools(commands.Cog):
         if not snippet:
             await ctx.send("❌ Please provide a code snippet.")
             return
+        
         em = Embed(
             title=f"🧠 Code Snippet ({language})",
             description=f"```{language}\n{snippet}```",
@@ -144,53 +156,56 @@ class Dev_Tech_Tools(commands.Cog):
     @commands.bot_has_permissions()
     async def insta(self, ctx, username: str):
         """Search for any Instagram Profile"""
-        run_input = {
-            "directUrls": [f"https://www.instagram.com/{username}"],
-            "resultsType": "posts",
-            "resultsLimit": 200,
-            "searchType": "hashtag",
-            "searchLimit": 10,
-            "addParentData": False,
-        }
+        run_input = { "usernames": [username] }
 
-        # Run the Actor and wait for it to finish
         try:
-            run_input = { "usernames": [username]}
             run = CLIENT7.actor("dSCLg0C3YEZ83HzYX").call(run_input=run_input)
         except:
             await ctx.reply("Invalid Username Provided")
             return
+
         posts = []
         data = {}
         page = 1
-        # Fetch and print Actor results from the run's dataset (if there are any)
+
         for item in CLIENT7.dataset(run["defaultDatasetId"]).iterate_items():
             data.update(item)
+
         for item in data["latestPosts"]:
-            posts.append({"url": item["url"], "caption": item["caption"], "likes": item["likesCount"], "comments": item["commentsCount"], "img": item["displayUrl"]})
+            posts.append({
+                "url": item["url"],
+                "caption": item["caption"],
+                "likes": item["likesCount"],
+                "comments": item["commentsCount"],
+                "img": item["displayUrl"]
+            })
+
         em = Embed(
             title="📷 Instagram Lookup",
-            description=f"[{data["username"]}]({data["url"]}) **{data["fullName"]}**\n**{data["followersCount"]}** Followers **|** **{data["followsCount"]}** Following **|** **{data["postsCount"]}** Posts\n{data["biography"]}",
+            description=f"[{data['username']}]({data['url']}) **{data['fullName']}**\n**{data['followersCount']}** Followers **|** **{data['followsCount']}** Following **|** **{data['postsCount']}** Posts\n{data['biography']}",
             color=Color.purple()
         )
-        em.set_thumbnail(url= data["profilePicUrlHD"])
-        em.set_author(name= username, icon_url= data["profilePicUrlHD"])
+        em.set_thumbnail(url=data["profilePicUrlHD"])
+        em.set_author(name=username, icon_url=data["profilePicUrlHD"])
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
-        left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
-        right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+
+        left = Button(style=ButtonStyle.secondary, custom_id="left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        right = Button(style=ButtonStyle.secondary, custom_id="right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         view = View(timeout=45)
 
         def updator():
             nonlocal em, posts, page, view, left, right
             mypost = posts[page-1]
             em.clear_fields()
-            em.add_field(name= f"{mypost["caption"]}", value= f"❤️ {mypost["likes"]} 💬 {mypost["comments"]}")
-            em.set_image(url = mypost["img"])
-            watch = Button(style= ButtonStyle.link, url= mypost["url"], label= username, row=0)
+            em.add_field(name=f"{mypost['caption']}", value=f"❤️ {mypost['likes']} 💬 {mypost['comments']}")
+            em.set_image(url=mypost["img"])
+
+            watch = Button(style=ButtonStyle.link, url=mypost["url"], label=username, row=0)
             view.clear_items()
             view.add_item(left)
             view.add_item(watch)
             view.add_item(right)
+
         async def onleftright(interaction: Interaction):
             nonlocal page, updator, posts, em, view
             left.disabled = (page == 1)
@@ -200,11 +215,12 @@ class Dev_Tech_Tools(commands.Cog):
             else:
                 page += 1
             updator()
-            await interaction.response.edit_message(embed= em, view= view)
+            await interaction.response.edit_message(embed=em, view=view)
+
         async def on_timeout():
             nonlocal em, msg
             em.color = Color.greyple()
-            msg.edit(embed= em, view=None)
+            msg.edit(embed=em, view=None)
 
         left.callback = onleftright
         right.callback = onleftright
