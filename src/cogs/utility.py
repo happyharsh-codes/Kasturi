@@ -229,7 +229,7 @@ class Utility(commands.Cog):
             elif cmd is None:
                 cmd = menu_cmds[category][0]
                 view.clear_items()
-                get_started.label = "Try Command"
+                get_started.label = "Show Examples"
                 view.add_item(left)
                 view.add_item(get_started)
                 view.add_item(right)
@@ -336,7 +336,7 @@ class Utility(commands.Cog):
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Welcome Message")
-                self.input_box = TextInput(label="Edit the Format and Enter.",custom_id="welcome", default= "Welcome to <guild_name>\n✦ Text 1- eg: Take Roles\n✦ Text 2 - eg Read Rules\n✦ Text 3 - eg Have Fun Here", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                self.input_box = TextInput(label="Edit the Format and Submit.",custom_id="welcome", default= "Welcome to <guild_name>\n✦ <Text 1>- eg: Take Roles\n✦ <Text 2> - eg Read Rules\n✦ <Text 3> - eg Have Fun Here", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
             async def on_submit(self, interaction: Interaction):
               try:
@@ -430,7 +430,7 @@ class Utility(commands.Cog):
                 welcome_message = welcome_message.split("\n")[0]
                 values = [option.value for option in channel_select2.options if option.default]
                 for index, i in enumerate(temp):
-                    welcome_message += f"\n[**{i}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
+                    welcome_message += f"\n{i.split()[0]} [**{i[2:]}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
                 for option in channel_select.options:
                     if option.default:
                         welcome_channel = int(option.value)
