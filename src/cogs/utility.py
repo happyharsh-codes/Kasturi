@@ -198,10 +198,8 @@ class Utility(commands.Cog):
                 em.description = ""
                 em.clear_fields()
                 if command.aliases:
-                    em.description += f"**Aliases**: {", ".join(command.aliases)}\n"
-                if command.cooldown:
-                    em.description += f"**Cooldown**: {int(command.cooldown.get_retry_after())}\n"
-                em.description += f"**Category**: {menu[category]}\n"
+                    em.description += f"**Aliases**: {", ".join(command.aliases)}" + "\n"
+                em.description += f"**Category**: {menu[category]}" + "\n"
                 em.add_field(name="Description", value=command.help)
                 perms = []
                 for check in command.checks:
