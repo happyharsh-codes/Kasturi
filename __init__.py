@@ -16,10 +16,10 @@ from huggingface_hub import InferenceClient
 import instaloader
 from apify_client import ApifyClient
 
-import Spotipy
+import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import yt_dlp
-import soundcloud
+import sclib
 
 from dotenv import load_dotenv
 load_dotenv()
