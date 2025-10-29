@@ -438,7 +438,8 @@ class Utility(commands.Cog):
                         break
                 em.description= "Welcome channel set up perfectly.\nYou can have a preview here:"
                 em.set_image(url=None)
-                em2 = Embed(title= f"<:heeriye:1428773558062153768> **{welcome_message.split("\n")[0]}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
+                part1 = welcome_message.split("\n")[0]
+                em2 = Embed(title= f"<:heeriye:1428773558062153768> **{part1}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
                 em2.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)
                 em2.set_thumbnail(url= ctx.author.avatar)
                 em2.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
