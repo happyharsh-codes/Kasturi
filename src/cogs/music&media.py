@@ -5,7 +5,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import sclib
 import lyricsgenius 
 
-class Muisk_and_Media(commands.Cog):
+class Musik_and_Media(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
         self.sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
@@ -188,7 +188,7 @@ class Muisk_and_Media(commands.Cog):
             return
         estimated_time = 0
         if str(ctx.guild.id) in self.player:
-            duration = self.current_track["music"]["duration"]
+            duration = self.current_track[str(ctx.guild.id)]["music"]["duration"]
             seconds = (int(duration.split(":")[0])*60) + int(duration.split(":")[1])
             for song in self.player[str(ctx.guild.id)]:
                 duration = song["duration"]
@@ -278,16 +278,17 @@ class Muisk_and_Media(commands.Cog):
         self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id
 
 
-    @commands.Cog.listner()
+    @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         if str(payload.guild_id) not in self.current_track:
             return 
         if payload.message_id != self.current_track[str(payload.guild_id)]["msg_id"]:
             return
         guild = self.client.get_guild(payload.guild_id)
+        channel = self.client.get_channel(payload.channel_id)
         for member in guild.voice_client.channel.members:
             if member.id == payload.user_id:
-                msg = await guild.fetch_message(self.current_track[str(guild.id)]["msg_id"])
+                msg = await channel.fetch_message(self.current_track[str(guild.id)]["msg_id"])
                 ctx = await self.client.get_context(msg)
                 members_count = len([m for m in guild.voice_client.channel.members])
                 required = ceil(0.7 * members_count)
