@@ -144,13 +144,15 @@ class Musik_and_Media(commands.Cog):
                 info = info["entries"][0]
             track["audio_url"] = info["url"]
             track["thumbnail_url"] = info.get("thumbnail", None)
-            duration = info["duration"]
+            duration = info.get("duration", 0)
             track["duration"] = f"{duration//60}:{duration%60}"
         if tracks:
             for artist in tracks["artists"]:
                 track["artists"].append(artist["name"])
             track["title"] = f"{tracks["name"]} - {",".join(track["artists"])}"
             track["link"] = tracks["external_urls"]["spotify"]
+            duration = tracks.get("duration_ms", 0)//1000
+            track["duration"] = f"{duration//60}:{duration%60}"
             if not track["thumbnail_url"]:
                 track["thumbnail_url"] = tracks["album"]["images"][0]["url"]
         else:
