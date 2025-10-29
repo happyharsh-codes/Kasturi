@@ -313,16 +313,15 @@ class Utility(commands.Cog):
         view = View(timeout=60)
         process_no = 0
         welcome_theme_no = 1
-        welcome_message = ""
-        welcome_channel = 0
-        yt = None
-        insta = None 
-        twitter = None
-        social_channel = None
-        rank_channel = 0
+        welcome_message = Server_Settings[str(ctx.guild.id)]["welcome_message"]
+        welcome_channel = Server_Settings[str(ctx.guild.id)]["join/leave_channel"]
+        yt = Server_Settings[str(ctx.guild.id)]["social"]["yt"]
+        insta = Server_Settings[str(ctx.guild.id)]["social"]["insta"]
+        twitter = Server_Settings[str(ctx.guild.id)]["social"]["twitter"]
+        social_channel = Server_Settings[str(ctx.guild.id)]["social"]["social_channel"]
+        rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
         activated_channels = []
         timer_messages = False
-        temp = ""
         
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
@@ -411,6 +410,7 @@ class Utility(commands.Cog):
                 
               if process_no == 2:
                 if interaction.data["custom_id"] == "skip":
+                    welcome_theme_no = Server_Settings[str(ctx.guild.id)]["welcome_image"]
                     process_no += 1
                     proceed_button.row = 0
                     proceed_button.label = "Set Social Media Updates"
@@ -556,7 +556,7 @@ class Utility(commands.Cog):
             await interaction.response.edit_message(embed=em, view=view)
         async def select_channels(interaction: Interaction):
           try: 
-            nonlocal proceed_button, view, temp, channel_select, channel_select2
+            nonlocal proceed_button, view, channel_select, channel_select2
             proceed_button.disabled = False
             selected_values = interaction.data.get("values",[])
             for option in channel_select.options:
