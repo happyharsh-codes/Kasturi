@@ -1,7 +1,6 @@
 from __init__ import*
 import requests
 from apify_client import ApifyClient
-import instaloader
 
 class Dev_Tech_Tools(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -144,11 +143,7 @@ class Dev_Tech_Tools(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def insta(self, ctx, username: str):
-        """Search from any Insta Id"""
-        # Initialize the ApifyClient with your API token
-        client = ApifyClient("apify_api_0fpZM8x4rIRwsAt2J7WGY6d6oxTPJu2OBkTp")
-
-        # Prepare the Actor input
+        """Search for any Instagram Profile"""
         run_input = {
             "directUrls": [f"https://www.instagram.com/{username}"],
             "resultsType": "posts",
@@ -160,24 +155,26 @@ class Dev_Tech_Tools(commands.Cog):
 
         # Run the Actor and wait for it to finish
         try:
-            L = instaloader.Instaloader(download_pictures=False, download_videos=False)
-            profile = instaloader.Profile.from_username(L.context, username)
-            run = client.actor("shu8hvrXbJbY3Eb9W").call(run_input=run_input)
+            run_input = { "usernames": [username]}
+            run = client.actor("dSCLg0C3YEZ83HzYX").call(run_input=run_input)
         except:
             await ctx.reply("Invalid Username Provided")
             return
         posts = []
+        data = {}
         page = 1
         # Fetch and print Actor results from the run's dataset (if there are any)
         for item in client.dataset(run["defaultDatasetId"]).iterate_items():
-          posts = {"url": item["url"], "caption": item["caption"], "likes": item["likeCounts"], "comments": item["commentCounts"], "img": item["displayUrl"]}
+            data.update(item)
+        for item in data["latestPosts"]:
+            posts.append({"url": item["url"], "caption": item["caption"], "likes": item["likeCounts"], "comments": item["commentCounts"], "img": item["displayUrl"]})
         em = Embed(
             title="📷 Instagram Lookup",
-            description=f"[{profile.username}](https://instagram.com/{username}) **{profile.full_name}**\n**{profile.followers}** Followers **|** **{profile.followees}** Following **|** **{profile.mediacount}** Posts\n{profile.biography}",
+            description=f"[{data["username"]}]({data["url"]}) **{data["fullName"]}**\n**{data["followersCount"]}** Followers **|** **{data["followsCount"]** Following **|** **{data["postsCount"]}** Posts\n{data["biography"]}",
             color=Color.purple()
         )
-        em.set_thumbnail(url= profile.profile_pic_url)
-        em.set_author(name= username, icon_url= profile.profile_pic_url)
+        em.set_thumbnail(url= data["profilePicUrlHD"])
+        em.set_author(name= username, icon_url= data["profilePicUrlHD"])
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
