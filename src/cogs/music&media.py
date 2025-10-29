@@ -33,7 +33,7 @@ class Muisk_and_Media(commands.Cog):
         try:
             source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **fmpeg_options)
             voice = ctx.voice_client
-            voice.play(source, after= lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop)
+            voice.play(source, after= lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exceptions as e:
             await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
             await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
