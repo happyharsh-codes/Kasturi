@@ -164,7 +164,7 @@ class Dev_Tech_Tools(commands.Cog):
         data = {}
         page = 1
         # Fetch and print Actor results from the run's dataset (if there are any)
-        for item in client.dataset(run["defaultDatasetId"]).iterate_items():
+        for item in CLIENT7.dataset(run["defaultDatasetId"]).iterate_items():
             data.update(item)
         for item in data["latestPosts"]:
             posts.append({"url": item["url"], "caption": item["caption"], "likes": item["likeCounts"], "comments": item["commentCounts"], "img": item["displayUrl"]})
