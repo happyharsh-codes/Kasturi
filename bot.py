@@ -71,7 +71,7 @@ class Bot:
                 except:
                     continue
             if str(guild.id) not in Server_Settings:
-                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"afk": [],"friends": []}
+                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
         for cmd in self.client.commands:
             if not cmd.help and cmd.callback.__doc__:
                 cmd.help = cmd.callback.__doc__.strip()
