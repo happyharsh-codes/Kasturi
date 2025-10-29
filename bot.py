@@ -42,8 +42,9 @@ class Bot:
     @tasks.loop(minutes=1)
     async def mood_swings(self):
         action = self.kelly.mood.moodSwing()
-        if randint(1,7):
-            await self.kelly.reportAction(action)
+        for settings in Server_Settings.values():
+            if randint(1,7) == 7 and settings["timer_messages"]:
+                await self.kelly.reportAction(action)
 
     @tasks.loop(minutes=100)
     async def save_files(self):
@@ -260,24 +261,27 @@ class Bot:
             em.thumnail(url= member.avatar)
             em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
             try:
-                channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
+                channel = await self.client.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
                 await channel.send(embed=em)
             except:
                 print("No perms allowed")
 
     async def on_presence_update(self, before, after):
-        if before.status == discord.Status.offline and after.status != discord.Status.offline:
-            if str(before.id) in Relation and Relation[str(before.id)] > 10:
-                if randint(1,5) == 1:
-                    for guilds in self.client.guilds:
-                        member = guilds.get_member(before.id)
-                        if member:
-                            allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
-                            if allowed_channels != []:
-                                channel = await guilds.fetch_channel(allowed_channels[0])
-                                if channel:
-                                  await channel.send(f"{member.mention} " + getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0))
-        
+        try:
+            if before.status == discord.Status.offline and after.status != discord.Status.offline:
+                if str(before.id) in Relation and Relation[str(before.id)] > 10:
+                    if randint(1,5) == 1:
+                        for guilds in self.client.guilds:
+                            member = guilds.get_member(before.id)
+                            if member:
+                                allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
+                                if allowed_channels != []:
+                                    channel = await guilds.fetch_channel(allowed_channels[0])
+                                    if channel:
+                                        await channel.send(f"{member.mention} " + getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0))
+                                break
+        except Exception as e:
+            await self.client.get_user(894072003533877279).send("Exception on presence change:" +e)
         
     async def on_command_completion(self, ctx):
         try:
@@ -320,7 +324,7 @@ class Bot:
                 emoji = EMOJI[f"kelly{choice(["annoyed", "laugh", "gigle", "waiting", "idontcare", "chips", "bweh", "bweh"])}"]
                 await msg.reply(f"**{emoji} | ** you dont even do a single thing properly disgusting!! Dont ever come to me again")
         else:
-            print("Unknown error happened")
+            await ctx.send("Unknown error happened :/")
             user = self.client.get_user(894072003533877279)
             if user != None:
                 await user.send(f"Crash report on command error: {error}")
