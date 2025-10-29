@@ -85,21 +85,21 @@ class Dev_Tech_Tools(commands.Cog):
         if not videos:
             return await ctx.reply("No Video found for the search")
         def updator():
-            nonlocal em, videos, page, watch
+            nonlocal em, videos, page, watch, view, left, right
             current_vid = videos[page-1]
             em.title = f"**{current_vid["title"]}**"
             em.url = current_vid["link"]
             em.set_image(url= current_vid["thumbnail_url"])
             em.set_author(name= current_vid["author"], icon_url= current_vid["avatar_url"])
             em.set_footer(text=f"Showing video {page} out of {length} | {ctx.author.id}", icon_url = ctx.author.avatar)
-            watch.url = current_vid["link"]
+            watch = Button(style= ButtonStyle.link, url=current_vid["link"], label = "Watch", row= 0)
+            view.clear_items()
+            view.add_item(left)
+            view.add_item(watch)
+            view.add_item(right)
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
-        watch = Button(style=ButtonStyle.link, row=0, label = "Watch")
         view = View(timeout= 45)
-        view.add_item(left)
-        view.add_item(watch)
-        view.add_item(right)
         updator()
 
         async def on_timeout():
@@ -167,7 +167,7 @@ class Dev_Tech_Tools(commands.Cog):
         for item in CLIENT7.dataset(run["defaultDatasetId"]).iterate_items():
             data.update(item)
         for item in data["latestPosts"]:
-            posts.append({"url": item["url"], "caption": item["caption"], "likes": item["likeCounts"], "comments": item["commentCounts"], "img": item["displayUrl"]})
+            posts.append({"url": item["url"], "caption": item["caption"], "likes": item["likesCount"], "comments": item["commentsCount"], "img": item["displayUrl"]})
         em = Embed(
             title="📷 Instagram Lookup",
             description=f"[{data["username"]}]({data["url"]}) **{data["fullName"]}**\n**{data["followersCount"]}** Followers **|** **{data["followsCount"]}** Following **|** **{data["postsCount"]}** Posts\n{data["biography"]}",
