@@ -128,7 +128,7 @@ class Musik_and_Media(commands.Cog):
         track = {"title": "", "artists": [], "duration": "0:0",  "link": "", "thumbnail_url": "", "emoji": "<:spotify:1432179988647645336>", "audio_url": ""}
         tracks = results["tracks"]["items"][0]
         ydl_opts = {
-            "format": "bestaudio/best",
+            "format": "bestaudio[ext=webm]/bestaudio/best",
             "noplaylist": True,
             "quiet": True,
             "nopart": True,
@@ -140,7 +140,7 @@ class Musik_and_Media(commands.Cog):
             info = ydl.extract_info(track_name, download=False)
             if not info:
                 return None
-            if "entries" in data and len(data["entries"])>0:
+            if "entries" in info and len(info["entries"])>0:
                 info = info["entries"][0]
             track["audio_url"] = info["url"]
             track["thumbnail_url"] = info.get("thumbnail", None)
