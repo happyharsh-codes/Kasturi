@@ -156,7 +156,7 @@ class Musik_and_Media(commands.Cog):
         return track
 
     @commands.command(aliases=["p"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def play(self, ctx, search):
@@ -176,12 +176,16 @@ class Musik_and_Media(commands.Cog):
             return
         voice_client = ctx.guild.voice_client
         if voice_client:
-            await voice_client.move_to(channel)
+            if voice_client.is_playing():
+                await ctx.send(embed= Embed(f"Cannot join your channel because currently playing in <#{voice_client.channel.id}>", color = Color.red()))
+                return
+            else:
+                await voice_client.move_to(channel)
         else:
             voice_client = await channel.connect()
             if str(ctx.guild.id) in self.player:
                 self.player.pop(str(ctx.guild.id))
-
+                
         music_track = self.search_song(search)
         if not music_track:
             em = Embed(title= "Unable to Find song", description= "We are unable to find any song with the given name 😔 anywhere on Spotify, Youtube, SoundCloud, etx. Please forgive us and try again using more specific name", color = Color.greyple())
@@ -206,10 +210,11 @@ class Musik_and_Media(commands.Cog):
             self.player[str(ctx.guild.id)].append(music_track)
         else:
             self.player[str(ctx.guild.id)] = [music_track]
+            self.current_track[str(ctx.guild.id)]["music"] = music_track
             await self.play_next(ctx)
 
     @commands.command(aliases=["q"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def queue(self, ctx):
@@ -219,21 +224,22 @@ class Musik_and_Media(commands.Cog):
         await ctx.send(embed = em)
     
     @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def skip(self, ctx):
         """Skips the current playing song. Requires voting from all vc members."""
         music = self.current_track.get(str(ctx.guild.id), None)
+        if not music:
+            await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))
+            return
         for m in ctx.voice_client.channel.members:
             if m.id == ctx.author.id:
                 break
         else:
-            await ctx.send(embed= Embed(description="You are not in a voice channel.", color=Color.red()))
+            await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than me.", color=Color.red()))
             return
-        if not music:
-            await ctx.send("No Track is being played currently.")
-            return
+        
         em = Embed(color= Color.green())
         em.set_author(name= "▶️ Now Playing")
         em.title = f"{music["emoji"]} {music["title"]}"
@@ -249,20 +255,19 @@ class Musik_and_Media(commands.Cog):
         self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id
 
     @commands.command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def stop(self, ctx):
         """Stops playing the current song. Requires voting from all vc members."""
+        if not music:
+            await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))
+            return
         for m in ctx.voice_client.channel.members:
             if m.id == ctx.author.id:
                 break
         else:
-            await ctx.send(embed= Embed(description="You are not in a voice channel.", color=Color.red()))
-            return
-        music = self.current_track.get(str(ctx.guild.id), None)
-        if not music:
-            await ctx.send("No Track is being played currently.")
+            await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than me.", color=Color.red()))
             return
         em = Embed(color= Color.green())
         em.set_author(name= "▶️ Now Playing")
