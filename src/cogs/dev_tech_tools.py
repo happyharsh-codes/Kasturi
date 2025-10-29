@@ -170,7 +170,7 @@ class Dev_Tech_Tools(commands.Cog):
             posts.append({"url": item["url"], "caption": item["caption"], "likes": item["likeCounts"], "comments": item["commentCounts"], "img": item["displayUrl"]})
         em = Embed(
             title="📷 Instagram Lookup",
-            description=f"[{data["username"]}]({data["url"]}) **{data["fullName"]}**\n**{data["followersCount"]}** Followers **|** **{data["followsCount"]** Following **|** **{data["postsCount"]}** Posts\n{data["biography"]}",
+            description=f"[{data["username"]}]({data["url"]}) **{data["fullName"]}**\n**{data["followersCount"]}** Followers **|** **{data["followsCount"]}** Following **|** **{data["postsCount"]}** Posts\n{data["biography"]}",
             color=Color.purple()
         )
         em.set_thumbnail(url= data["profilePicUrlHD"])
