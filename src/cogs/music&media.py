@@ -329,5 +329,5 @@ class Musik_and_Media(commands.Cog):
 
             
 async def setup(bot):
-    await bot.add_cog(Muisk_and_Media(bot))
+    await bot.add_cog(Musik_and_Media(bot))
     print("Loaded cogs: MusikMedia")
