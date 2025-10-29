@@ -178,16 +178,19 @@ class Dev_Tech_Tools(commands.Cog):
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
-        watch = Button(style=ButtonStyle.link, row=0, label = "Watch")
         view = View(timeout=45)
 
         def updator():
-            nonlocal em, posts, page
+            nonlocal em, posts, page, view, left, right
             mypost = posts[page-1]
             em.clear_fields()
             em.add_field(name= f"{mypost["caption"]}", value= f"❤️ {mypost["likes"]} 💬 {mypost["comments"]}")
             em.set_image(url = mypost["img"])
-            watch.url = mypost["url"]
+            watch = Button(style= ButtonStyle.link, url= mypost["url"], label= username, row=0)
+            view.clear_items()
+            view.add_item(left)
+            view.add_item(watch)
+            view.add_item(right)
         async def onleftright(interaction: Interaction):
             nonlocal page, updator, posts, em, view
             left.disabled = (page == 1)
@@ -206,9 +209,7 @@ class Dev_Tech_Tools(commands.Cog):
         left.callback = onleftright
         right.callback = onleftright
         view.on_timeout = on_timeout
-        view.add_item(left)
-        view.add_item(watch)
-        view.add_item(right)
+        updator()
         msg = await ctx.send(embed=em, view=view)
 
 async def setup(bot):
