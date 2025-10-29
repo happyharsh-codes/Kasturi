@@ -2,6 +2,7 @@ from __init__ import*
 import yt_dlp
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+import sclib
 
 class Muisk_and_Media(commands.Cog):
     def __init__(self, client: commands.Bot):
