@@ -119,7 +119,7 @@ class Moderation(commands.Cog):
         await ctx.guild.ban(user=user, reason=reason, delete_message_days=0)
         em = Embed(title="Member Banned", description=f"{user.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.", color=Color.pink())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
-        em.set_author(name=user.name, icon_url=member.avatar)
+        em.set_author(name=user.name, icon_url= user.avatar)
         await ctx.send(embed=em)
 
     @commands.command(aliases=["kelly_ban", "kban"])
@@ -196,8 +196,8 @@ class Moderation(commands.Cog):
         """Deafens a member from all voice chat 🔇  
         Blocks audio from VC entirely.
         If voice channel is specified works for that channel only otherwise defens from all voice channel by default."""
-        await member.edit(deafen=state)
-        status = "Deafened" if state else "Undeafened"
+        await member.edit(deafen=True)
+        status = "Deafened"
         em = Embed(title="Voice Status Changed", description=f"{member.mention} was {status.lower()} by {ctx.author.mention}.", color=Color.light_gray())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
