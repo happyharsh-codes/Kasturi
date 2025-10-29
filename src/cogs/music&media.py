@@ -209,7 +209,7 @@ class Musik_and_Media(commands.Cog):
             estimated_time = f"{seconds//60}:{seconds%60}"  
         else:  
             estimated_time = "0:0"  
-        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track["title"]}**]({music_track["link"]})\n**Artist**: {",".join(music_track["artists"])}\n**Duration**: {music_track["duration"]}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
+        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track['title']}**]({music_track['link']})\n**Artist**: {','.join(music_track['artists'])}\n**Duration**: {music_track['duration']}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
         em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
         em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}" , icon_url= ctx.author.avatar)  
         em.set_thumbnail(url= music_track["thumbnail_url"])  
@@ -227,7 +227,7 @@ class Musik_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def queue(self, ctx):  
         """Shows the songs queue list 🎵"""  
-        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"[**{song["title"]}**]({song["link"]}) - {song["duration"]}" for song in self.player[str(ctx.guild.id)] ]), color = Color.purple())  
+        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"[**{song['title']}**]({song['link']}) - {song['duration']}" for song in self.player[str(ctx.guild.id)] ]), color = Color.purple())  
         em.set_footer(text= f"Requested by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
         await ctx.send(embed = em)  
       
@@ -250,9 +250,9 @@ class Musik_and_Media(commands.Cog):
           
         em = Embed(color= Color.green())  
         em.set_author(name= "▶️ Now Playing")  
-        em.title = f"{music["emoji"]} {music["title"]}"  
+        em.title = f"{music['emoji']} {music['title']}"  
         em.url = music["link"]  
-        em.description = f"**Artists**: {",".join(music["artists"])}\n**Duration**: {music["duration"]}"  
+        em.description = f"**Artists**: {','.join(music['artists'])}"+ "\n"+ f"**Duration**: {music['duration']}"  
         em.set_thumbnail(url= music["thumbnail_url"])  
         msg = await ctx.send(embed=em)  
         await ctx.send("React with controller buttons to interact with music player.", delete_after= 3)  
@@ -279,9 +279,9 @@ class Musik_and_Media(commands.Cog):
             return  
         em = Embed(color= Color.green())  
         em.set_author(name= "▶️ Now Playing")  
-        em.title = f"{music["emoji"]} {music["title"]}"  
+        em.title = f"{music['emoji']} {music['title']}"  
         em.url = music["link"]  
-        em.description = f"**Artists**: {",".join(music["artists"])}\n**Duration**: {music["duration"]}"  
+        em.description = f"**Artists**: {','.join(music['artists'])}"+"\n" + f"**Duration**: {music['duration']}"  
         em.set_thumbnail(url= music["thumbnail_url"])  
         msg = await ctx.send(embed=em)  
         await ctx.send("React with controller buttons to interact with music player.", delete_after= 3)  
@@ -314,7 +314,7 @@ class Musik_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["pause_voters"] >= required:  
                         await self.music_player(ctx, str(payload.emoji))  
                     else:  
-                        await ctx.send(embed=Embed(description= f"Pausing, **{self.current_track[str(guild.id)]["pause_voters"]}**/**{members_count}** (**{required}** Votes required)"))  
+                        await ctx.send(embed=Embed(description= f"Pausing, **{self.current_track[str(guild.id)]['pause_voters']}**/**{members_count}** (**{required}** Votes required)"))  
                       
                 elif "⏮️" in str(payload.emoji):  
                     try:  
@@ -324,7 +324,7 @@ class Musik_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["rewind_voters"] >= required:  
                         await self.music_player(ctx, str(payload.emoji))  
                     else:  
-                        await ctx.send(embed=Embed(description= f"Rewinding, **{self.current_track[str(guild.id)]["rewind_voters"]}**/**{members_count}** (**{required}** Votes required)"))  
+                        await ctx.send(embed=Embed(description= f"Rewinding, **{self.current_track[str(guild.id)]['rewind_voters']}**/**{members_count}** (**{required}** Votes required)"))  
                       
                 elif "⏭️" in str(payload.emoji):  
                     try:  
@@ -334,7 +334,7 @@ class Musik_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["skip_voters"] >= required:  
                         await self.music_player(ctx, str(payload.emoji))  
                     else:  
-                        await ctx.send(embed=Embed(description= f"Skipping, **{self.current_track[str(guild.id)]["skip_voters"]}**/**{members_count}** (**{required}** Votes required)"))  
+                        await ctx.send(embed=Embed(description= f"Skipping, **{self.current_track[str(guild.id)]['skip_voters']}**/**{members_count}** (**{required}** Votes required)"))  
                 else:  
                     await self.music_player(ctx, str(payload.emoji))           
                 return  
