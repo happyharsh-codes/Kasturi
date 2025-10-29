@@ -3,14 +3,23 @@ import time
 import asyncio
 import requests
 from datetime import datetime, UTC, timedelta
+from json import load, dump, loads
+from random import choice, randint, choices
+
 import discord
 from discord.ext import commands, tasks
 from discord.ui import View, Button, Select, TextInput
 from discord import Interaction, ButtonStyle, Embed, Color, SelectOption, TextStyle
-from json import load, dump, loads
-from random import choice, randint, choices
+
 from openai import OpenAI
 from huggingface_hub import InferenceClient
+import instaloader
+from apify_client import ApifyClient
+
+import Spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+import yt_dlp
+import soundcloud
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -54,6 +63,7 @@ CLIENT6 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY
 clients = [CLIENT0, CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
 
 def getResponse(usermessage, prompt, assistant="", client=0):
+    """Universal AI Response Provider"""
     global client_lastRequest
     messages = [{"role":"system","content": prompt}]
     
