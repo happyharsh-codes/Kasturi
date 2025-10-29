@@ -131,7 +131,8 @@ class Musik_and_Media(commands.Cog):
             "format": "bestaudio/best",
             "nonplaylist": True,
             "quiet": True,
-            "default_search": "ytsearch"
+            "default_search": "ytsearch",
+            "cookiefile": "assets//cookie.txt"
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(track_name, download=False)["entries"][0]
