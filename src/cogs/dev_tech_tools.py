@@ -85,7 +85,7 @@ class Dev_Tech_Tools(commands.Cog):
         if not videos:
             return await ctx.reply("No Video found for the search")
         def updator():
-            nonlocal em, videos, page, watch, view, left, right
+            nonlocal em, videos, page, view, left, right
             current_vid = videos[page-1]
             em.title = f"**{current_vid["title"]}**"
             em.url = current_vid["link"]
