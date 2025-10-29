@@ -195,8 +195,8 @@ class Bot:
                     try:         
                         invite = await channel.create_invite(max_age=0, max_uses=0)
                         em = Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey Everyone, Thanks for inviting Kelly here.\nUse `K activate` to complete up Kelly Setup\nUse `k help` to get started with user guide.",color = discord.Colour.green())
-                        em.set_author(name= "Kelly", icon_url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(":")[1]}")
-                        em.thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(":")[1]}")
+                        em.set_author(name= "Kelly", icon_url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
+                        em.thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
                         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
                         await channel.send(embed= em)
                         break
@@ -217,23 +217,7 @@ class Bot:
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
         me = self.client.get_user(894072003533877279)  
         await me.send(embed=msg)
-        Server_Settings[str(guild.id)] = {
-        "name": guild.name,
-        "allowed_channels": [],
-        "premium": False,
-        "invite_link": str(invite),
-        "owner": int(guild.owner_id),
-        "moderators": [],
-        "banned_words": [],
-        "block_list": [],
-        "muted": {},
-        "rank": {},
-        "rank_channel": 0,
-        "join/leave_channel": 0,
-        "afk": [],
-        "friends": [],
-        "reviver": False
-    }
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
 
     async def on_guild_remove(self, guild: discord.Guild):
         me = self.client.get_user(894072003533877279)  
