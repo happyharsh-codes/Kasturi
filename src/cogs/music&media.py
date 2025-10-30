@@ -13,50 +13,72 @@ class Musik_and_Media(commands.Cog):
             client_secret= os.getenv("SPOTIFY_SECRET")
         ))
         self.player = {}
-        self.current_track = {}# keeps track of current music, current music player message and no of users voted.
 
-    async def play_next(self, ctx):
+    async def send_player(self, ctx, music):
+        em = Embed(color= Color.green())
+        em.set_author(name= "▶️ Now Playing")
+        em.title = f"{music['emoji']} {music['title']}"
+        em.url = music["link"]
+        em.description = f"**Artist**: {music['artists'][0])}\n**Duration**: {music['duration']}"
+        em.set_thumbnail(url= music["thumbnail_url"])
+        em.set_footer(text= ". Operate Music Player with buttons")
+        
+        pause = Button(style=ButtonStyle.secondary, custom_id="pause", label="⏸️")
+        play = Button(style=ButtonStyle.secondary, custom_id="play", label="▶️", disabled = True)
+        rewind = Button(style=ButtonStyle.secondary, custom_id="rewind", label="⏮️")
+        skip = Button(style=ButtonStyle.secondary, custom_id="skip", label="⏭️")
+        lyrics = Button(style=ButtonStyle.secondary, custom_id="lyrics", label="📝")
+
+        pause.callback = self.music_player
+        play.callback = self.music_player
+        rewind.callback = self.music_player
+        skip.callback = self.music_player
+        lyrics.callback = self.music_player
+        
+        view = View(timeout=20)
+        async def on_timeout():
+            nonlocal msg
+            await msg.edit(view=None)
+        view.on_timeout = timeout
+        view.add_item(rewind)
+        view.add_item(pause)
+        view.add_item(play)
+        view.add_item(lyrics)
+        view.add_item(skip)
+        
+        msg = await ctx.send(embed= em, view= view)
+        
+    async def play_next(self, ctx, start = False):
         if len([m for m in ctx.voice_client.channel.members]) == 0:
             await ctx.send(embed = Embed(description= "No listeners leaving VC..."))
-            try:
-                self.current_track.pop(str(ctx.guild.id))
+            try: 
                 self.player.pop(str(ctx.guild.id))
                 await ctx.voice_client.disconnect()
             except:
                 pass
             return
-        if str(ctx.guild.id) not in self.player:
-            await ctx.send(embed = Embed(title= "Queue Finished | Leaving VC . . ."))
-            self.current_track.pop(str(ctx.guild.id), None)
-            return
-        music = self.player[str(ctx.guild.id)].pop(0)
-        self.current_track[str(ctx.guild.id)]["music"] = music
+        if not start:
+            self.player[str(ctx.guild.id)].pop(0)
         if self.player[str(ctx.guild.id)] == []:
-            self.player.pop(str(ctx.guild.id), None)
-        em = Embed(color= Color.green())
-        em.set_author(name= "▶️ Now Playing")
-        em.title = f"{music['emoji']} {music['title']}"
-        em.url = music["link"]
-        em.description = f"**Artists**: {','.join(music['artists'])}\n**Duration**: {music['duration']}"
-        em.set_thumbnail(url= music["thumbnail_url"])
-        msg = await ctx.send(embed= em)
-        await msg.add_reaction("⏮️")
-        await msg.add_reaction("⏸️")
-        if str(ctx.guild.id) in self.player:
-            await msg.add_reaction("⏭️")
-        self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id
+            await ctx.send(embed = Embed(title= "Queue Finished \nLeaving VC . . ."),color = Color.dark_gold())
+            return
+            
+        #sending music player
+        music = self.player[str(ctx.guild.id)][0]
+        await self.send_player(ctx, music)
+        
         #start streaming
         ffmpeg_options = {
         "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -protocol_whitelist file,http,https,tcp,tls,crypto",
         "options": "-vn -af volume=1.0"
         }
+        
         try:
             source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
             voice = ctx.voice_client
             if not voice:
                 await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
                 try:
-                    self.current_track.pop(str(ctx.guild.id))
                     self.player.pop(str(ctx.guild.id))
                 except:
                     pass
@@ -65,76 +87,111 @@ class Musik_and_Media(commands.Cog):
         except Exception as e:
             await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
             await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
+    
+    async def music_player(self, interaction: Interaction):
+        if not str(interaction.guild_id) in self.player:
+            return
+        music = self.player[str(interaction.guild_id)][0]
+        pressed = interaction.data["custom_id"]
+        em = interaction.message.embeds[0]
+
+        voice_client = interaction.guild.voice_client
+        if not voice_client:
+            return
+        if not interaction.user.voice.channel.id != voice_client.channel.id:
+            return
             
-    async def music_player(self, ctx, action):
-        """Action can be pause, play, rewind, or skip"""
-        em = Embed(color= Color.green())
-        try:
-            music = self.current_track[str(ctx.guild.id)]["music"]
-        except:
-            return 
-        if action == "▶️":
-            em.set_author(name= "▶️ Now Playing")
-            em.title = f"{music['emoji']} {music['title']}"
-            em.url = music["link"]
-            em.description = f"**Artists**: {','.join(music['artists'])}\n**Duration**: {music['duration']}"
-            em.set_thumbnail(url= music["thumbnail_url"])
-            em.set_footer(f"Resumed by {ctx.author.display_name}", icon_url= ctx.author.avatar)
-            if ctx.voice_client.is_paused():
-                ctx.voice_client.resume()
-        elif action == "⏸️":
-            em.set_author(name="⏸️ Stopped Playing")
-            em.title = f"{music['emoji']} {music['title']}"
-            em.url = music["link"]
-            em.color = Color.red()
-            em.set_thumbnail(url= music["thumbnail_url"])
-            em.set_footer(f"Paused by {ctx.author.display_name}", icon_url= ctx.author.avatar)
-            if ctx.voice_client and ctx.voice_client.is_playing():
-                ctx.voice_client.pause()
-        elif action == "⏮️":
-            em.color = Color.dark_gold()
-            em.set_author(name= f"⏮️ Song Rewinded")
-            em.title = f"{music['emoji']} {music['title']}"
-            em.url = music["link"]
-            em.description = f"**Artists**: {','.join(music['artists'])}\n**Duration**: {music['duration']}"
-            em.set_thumbnail(url= music["thumbnail_url"])
-            em.set_footer(f"Rewinded by {ctx.author.display_name}", icon_url= ctx.author.avatar)
-            self.player[str(ctx.guild.id)].insert(0, music)
-            ctx.voice_client.stop()
-        elif action == "⏭️":
-            if not str(ctx.guild.id) in self.player:
-                await ctx.send("Can't Skip this is the last song")
-                return
-            em.color = Color.dark_gold()
-            em.set_author(name= f"⏭️ Song Skipped")
-            em.title = f"{music['emoji']} {music['title']}"
-            em.url = music["link"]
-            em.description = f"**Artists**: {','.join(music['artists'])}\n**Duration**: {music['duration']}"
-            em.set_thumbnail(url= music["thumbnail_url"])
-            em.set_footer(f"Skipped by {ctx.author.display_name}", icon_url= ctx.author.avatar)
-            ctx.voice_client.stop()
-        elif action == "📝":
+        member_count = len([m for m in voice_client.channel.members]) - 1#for own
+        majority = ceil(0.7 * member_count)
+        voted = 0
+        description = interaction.message.embeds[0].description.lower()
+
+        view = View(timeout=20)
+        async def on_timeout():
+            await interaction.response.edit_message(view=None)
+        view.on_timeout = on_timeout
+        
+        pause = Button(style=ButtonStyle.secondary, custom_id="pause", label="⏸️")
+        play = Button(style=ButtonStyle.secondary, custom_id="play", label="▶️", disabled = True)
+        rewind = Button(style=ButtonStyle.secondary, custom_id="rewind", label="⏮️")
+        skip = Button(style=ButtonStyle.secondary, custom_id="skip", label="⏭️")
+        lyrics = Button(style=ButtonStyle.secondary, custom_id="lyrics", label="📝")
+
+        pause.callback = self.music_player
+        play.callback = self.music_player
+        rewind.callback = self.music_player
+        skip.callback = self.music_player
+        lyrics.callback = self.music_player
+
+        view.add_item(rewind)
+        view.add_item(pause)
+        view.add_item(play)
+        view.add_item(lyrics)
+        view.add_item(skip)
+        
+        if pressed == "pause":
+            if "pause_voters" in music:
+                voted = music["pause_voters"] + 1
+                self.player[str(interaction.guild_id)][0]["pause_voters"] += 1
+            else:
+                self.player[str(interaction.guild_id)][0]["pause_voters"] = 1
+                voted = 1
+            if voted >= majority:  
+                em.set_author(name="▶️ Song Paused")
+                em.set_footer(name=f"Paused by **{voted}**/**{member_count}**")
+                await voice_client.pause()
+                pause.disabled = True
+                play.disabled = False
+            else:
+                em.description = f"\nPausing, **{voted}**/**{member_count}** (**{majority}** votes required)"
+        elif pressed == "play":
+            await voice_client.play()
+            pause.disabled = False
+            play.disabled = True 
+        elif pressed == "rewind":
+            if "rewind_voters" in music:
+                voted = music["rewind_voters"] + 1
+                self.player[str(interaction.guild_id)][0]["rewind_voters"] += 1
+            else:
+                self.player[str(interaction.guild_id)][0]["rewind_voters"] = 1
+                voted = 1
+            if voted >= majority:  
+                em.set_author(name="⏮️ Song Rewinded")
+                em.set_footer(name=f"Rewinded by **{voted}**/**{member_count}**")
+                self.player[str(interaction.guild_id)].insert(1, music)
+                await voice_client.stop()
+                rewinded.disabled = True
+            else:
+                em.description = f"\nRewinding, **{voted}**/**{member_count}** (**{majority}** votes required)"
+        
+        elif pressed == "skip":
+            if "skip_voters" in music:
+                voted = music["skip_voters"] + 1
+                self.player[str(interaction.guild_id)][0]["skip_voters"] += 1
+            else:
+                self.player[str(interaction.guild_id)][0]["skip_voters"] = 1
+                voted = 1
+            if voted >= majority:  
+                em.set_author(name="⏭️ Song Skipped")
+                em.set_footer(name=f"Skipped by **{voted}**/**{member_count}**")
+                await voice_client.stop()
+                pause.disabled = True
+                rewind.disabled = True
+                skip.disabled = True
+                lyrics.disabled = True
+            else:
+                em.description = f"\nSkipping, **{voted}**/**{member_count}** (**{majority}** votes required)"
+        
+        elif pressed == "lyrics";
             async with ctx.typing():
                 try:
-                    lyrics = GENIUS.search_song(self.current_track[str(ctx.guild.id)]['music']['title'])
-                    await ctx.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]}```")
+                    lyrics = GENIUS.search_song(music['title'])
+                    await interaction.message.channel.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]}```")
                 except:
                     await ctx.send("Couldn't get any lyrics for this song")
-        try:
-            msg = await ctx.channel.fetch_message(self.current_track[str(ctx.guild.id)]["msg_id"])
-            if action != "📝":
-                await msg.edit(embed= em)
-            await msg.clear_reactions()
-            await msg.add_reaction("⏮️")
-            if ctx.voice_client.is_paused():
-                await msg.add_reaction("▶️")
-            else:
-                await msg.add_reaction("⏸️")
-            if action != "📝":
-                await msg.add_reaction("📝")
-            if str(ctx.guild.id) in self.player:
-                await msg.add_reaction("⏭️")
-        except: pass
+            lyrics.disabled = True
+        
+        await interaction.response.edit_message(embed=em, view=view)
         
     async def search_song(self, track_name):
         results = self.sp.search(track_name ,limit=1, type= "track")
@@ -162,7 +219,6 @@ class Musik_and_Media(commands.Cog):
                 track["duration"] = f"{duration//60}:0{duration%60}"
             else:
                 track["duration"] = f"{duration//60}:{duration%60}"
-        print(f"{tracks} |||| {info}")
         if tracks:
             for artist in tracks["artists"]:
                 track["artists"].append(artist["name"])
@@ -220,8 +276,6 @@ class Musik_and_Media(commands.Cog):
             return  
         estimated_time = 0  
         if str(ctx.guild.id) in self.player:  
-            duration = self.current_track[str(ctx.guild.id)]["music"]["duration"]  
-            seconds = (int(duration.split(":")[0])*60) + int(duration.split(":")[1])  
             for song in self.player[str(ctx.guild.id)]:  
                 duration = song["duration"]  
                 seconds += (int(duration.split(":")[0])*60) + int(duration.split(":")[1])  
@@ -231,17 +285,16 @@ class Musik_and_Media(commands.Cog):
                 estimated_time = f"{seconds//60}:{seconds%60}"  
         else:  
             estimated_time = "00:00"  
-        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track['title']}**]({music_track['link']})\n**Artist**: {','.join(music_track['artists'])}\n**Duration**: {music_track['duration']}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
+        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track['title']}**]({music_track['link']})\n**Artist**: {music_track['artists'][0]}\n**Duration**: {music_track['duration']}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
         em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
-        em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}" , icon_url= ctx.author.avatar)  
+        em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
         em.set_thumbnail(url= music_track["thumbnail_url"])  
         await ctx.send(embed= em)  
-        if str(ctx.guild.id) in self.current_track:  
+        if str(ctx.guild.id) in self.player:  
             self.player[str(ctx.guild.id)].append(music_track)  
         else:  
             self.player[str(ctx.guild.id)] = [music_track]  
-            self.current_track[str(ctx.guild.id)] = {"music": None, "msg_id": None, "pause_voters": 0, "skip_voters": 0, "rewind_voters": 0}  
-            await self.play_next(ctx)  
+            await self.play_next(ctx, start = True)  
   
     @commands.command(aliases=["q"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -249,16 +302,15 @@ class Musik_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def queue(self, ctx):  
         """Shows the songs queue list 🎵"""
-        if str(ctx.guild.id) in self.current_track:
-            song = self.current_track[str(ctx.guild.id)]["music"]
+        if str(ctx.guild.id) in self.player:
+            songs = self.player[str(ctx.guild.id)]
         else:
             await ctx.send(embed= Embed(description= "Playlist empty. Play songs using `play` command"))
-            return 
-        description= f"[**{song['title']}**]({song['link']}) - {song['duration']}"
-        if str(ctx.guild.id)in self.player:
-            for song in self.player[str(ctx.guild.id)]:
-                description += "\n" + f"[**{song['title']}**]({song['link']}) - {song['duration']}" 
-        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = description , color = Color.purple())  
+            return
+        description = ""
+        for song in songs:
+            description += 
+        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"[**{song['title']}**]({song['link']}) - {song['duration']}" for song in songs]) , color = Color.purple())  
         em.set_footer(text= f"Requested by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
         await ctx.send(embed = em)  
       
@@ -268,111 +320,37 @@ class Musik_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def skip(self, ctx):  
         """Skips the current playing song. Requires voting from all vc members."""  
-        music = self.current_track.get(str(ctx.guild.id), None)  
+        music = self.player.get(str(ctx.guild.id), None)  
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        music = music["music"]
+        music = music[0]
         for m in ctx.voice_client.channel.members:  
             if m.id == ctx.author.id:  
                 break  
         else:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than me.", color=Color.red()))  
             return  
-          
-        em = Embed(color= Color.green())  
-        em.set_author(name= "▶️ Now Playing")  
-        em.title = f"{music['emoji']} {music['title']}"  
-        em.url = music["link"]  
-        em.description = f"**Artists**: {','.join(music['artists'])}"+ "\n"+ f"**Duration**: {music['duration']}"  
-        em.set_thumbnail(url= music["thumbnail_url"])  
-        msg = await ctx.send(embed=em)  
-        await ctx.send("React with controller buttons to interact with music player.", delete_after= 3)  
-        await msg.add_reaction("⏮️")  
-        await msg.add_reaction("⏸️")  
-        await msg.add_reaction("📝")  
-        await msg.add_reaction("⏭️")  
-        self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id  
-  
+        await self.send_player(ctx, music)
+        
     @commands.command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
     @commands.bot_has_permissions()  
     async def stop(self, ctx):  
         """Stops playing the current song. Requires voting from all vc members."""  
-        music = self.current_track.get(str(ctx.guild.id), None) 
+        music = self.player.get(str(ctx.guild.id), None)  
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        music = music["music"]
+        music = music[0]
         for m in ctx.voice_client.channel.members:  
             if m.id == ctx.author.id:  
                 break  
         else:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than me.", color=Color.red()))  
             return  
-        em = Embed(color= Color.green())  
-        em.set_author(name= "▶️ Now Playing")  
-        em.title = f"{music['emoji']} {music['title']}"  
-        em.url = music["link"]  
-        em.description = f"**Artists**: {','.join(music['artists'])}"+"\n" + f"**Duration**: {music['duration']}"  
-        em.set_thumbnail(url= music["thumbnail_url"])  
-        msg = await ctx.send(embed=em)  
-        await ctx.send("React with controller buttons to interact with music player.", delete_after= 3)  
-        await msg.add_reaction("⏮️")  
-        await msg.add_reaction("⏸️")  
-        await msg.add_reaction("📝")  
-        await msg.add_reaction("⏭️")  
-        self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id  
-  
-  
-    @commands.Cog.listener()  
-    async def on_raw_reaction_add(self, payload):  
-        if str(payload.guild_id) not in self.current_track:  
-            return   
-        if payload.message_id != self.current_track[str(payload.guild_id)]["msg_id"]:  
-            return  
-        guild = self.client.get_guild(payload.guild_id)  
-        channel = self.client.get_channel(payload.channel_id)  
-        msg = await channel.fetch_message(self.current_track[str(guild.id)]["msg_id"])  
-        ctx = await self.client.get_context(msg)  
-        members_count = len([m for m in guild.voice_client.channel.members]) - 1#for self
-        required = ceil(0.7 * members_count)  
-        for member in guild.voice_client.channel.members:  
-            if member.id == payload.user_id:  
-                if "⏸️" in str(payload.emoji):  
-                    try:  
-                        self.current_track[str(guild.id)]["pause_voters"] += 1  
-                    except:  
-                        self.current_track[str(guild.id)]["pause_voters"] = 1  
-                    if self.current_track[str(guild.id)]["pause_voters"] >= required:  
-                        await self.music_player(ctx, str(payload.emoji))  
-                    else:  
-                        await ctx.send(embed=Embed(description= f"Pausing, **{self.current_track[str(guild.id)]['pause_voters']}**//**{members_count}** (**{required}** Votes required)"))  
-                      
-                elif "⏮️" in str(payload.emoji):  
-                    try:  
-                        self.current_track[str(guild.id)]["rewind_voters"] += 1  
-                    except:  
-                        self.current_track[str(guild.id)]["rewind_voters"] = 1  
-                    if self.current_track[str(guild.id)]["rewind_voters"] >= required:  
-                        await self.music_player(ctx, str(payload.emoji))  
-                    else:  
-                        await ctx.send(embed=Embed(description= f"Rewinding, **{self.current_track[str(guild.id)]['rewind_voters']}**//**{members_count}** (**{required}** Votes required)"))  
-                      
-                elif "⏭️" in str(payload.emoji):  
-                    try:  
-                        self.current_track[str(guild.id)]["skip_voters"] += 1  
-                    except:  
-                        self.current_track[str(guild.id)]["skip_voters"] = 1  
-                    if self.current_track[str(guild.id)]["skip_voters"] >= required:  
-                        await self.music_player(ctx, str(payload.emoji))  
-                    else:  
-                        await ctx.send(embed=Embed(description= f"Skipping, **{self.current_track[str(guild.id)]['skip_voters']}**//**{members_count}** (**{required}** Votes required)"))  
-                else:  
-                    await self.music_player(ctx, str(payload.emoji))
-                return
-        return  
+        await self.send_player(ctx, music)
   
 async def setup(bot):  
     await bot.add_cog(Musik_and_Media(bot))  
