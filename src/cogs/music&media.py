@@ -16,6 +16,14 @@ class Musik_and_Media(commands.Cog):
         self.current_track = {}# keeps track of current music, current music player message and no of users voted.
 
     async def play_next(self, ctx):
+        if len([m for m in ctx.voice_client.channel.members]) == 0:
+            await ctx.send(embed = Embed(description= "No listeners leaving VC..."))
+            try:
+                self.current_track.pop(str(ctx.guild.id))
+                self.player.pop(str(ctx.guild.id))
+            except:
+                pass
+            return
         if str(ctx.guild.id) not in self.player:
             await ctx.send(embed = Embed(title= "Queue Finished | Leaving VC . . ."))
             self.current_track.pop(str(ctx.guild.id), None)
@@ -46,6 +54,11 @@ class Musik_and_Media(commands.Cog):
             voice = ctx.voice_client
             if not voice:
                 await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
+                try:
+                    self.current_track.pop(str(ctx.guild.id))
+                    self.player.pop(str(ctx.guild.id))
+                except:
+                    pass
                 return 
             voice.play(source, after= lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exception as e:
@@ -55,11 +68,11 @@ class Musik_and_Media(commands.Cog):
     async def music_player(self, ctx, action):
         """Action can be pause, play, rewind, or skip"""
         em = Embed(color= Color.green())
-        channel = 0
-        player = []
-        music = self.player.get(str(ctx.guild.id), None)
+        try:
+            music = self.current_track.[str(ctx.guild.id)]["music"]
+        except:
+            return 
         if action == "▶️":
-            music = self.current_track[str(ctx.guild.id)]["music"]
             em.set_author(name= "▶️ Now Playing")
             em.title = f"{music['emoji']} {music['title']}"
             em.url = music["link"]
@@ -69,7 +82,6 @@ class Musik_and_Media(commands.Cog):
             if ctx.voice_client.is_paused():
                 ctx.voice_client.resume()
         elif action == "⏸️":
-            music = self.current_track[str(ctx.guild.id)]["music"]
             em.set_author(name="⏸️ Stopped Playing")
             em.title = f"{music['emoji']} {music['title']}"
             em.url = music["link"]
@@ -79,7 +91,6 @@ class Musik_and_Media(commands.Cog):
             if ctx.voice_client and ctx.voice_client.is_playing():
                 ctx.voice_client.pause()
         elif action == "⏮️":
-            music = self.current_track[str(ctx.guild.id)]["music"]
             em.color = Color.dark_gold()
             em.set_author(name= f"⏮️ Song Rewinded")
             em.title = f"{music['emoji']} {music['title']}"
@@ -93,8 +104,6 @@ class Musik_and_Media(commands.Cog):
             if not str(ctx.guild.id) in self.player:
                 await ctx.send("Can't Skip this is the last song")
                 return
-            self.player[str(ctx.guild.id)].pop(0)
-            music = self.current_track[str(ctx.guild.id)]["music"]
             em.color = Color.dark_gold()
             em.set_author(name= f"⏭️ Song Skipped")
             em.title = f"{music['emoji']} {music['title']}"
@@ -191,8 +200,8 @@ class Musik_and_Media(commands.Cog):
             return  
         voice_client = ctx.guild.voice_client  
         if voice_client:  
-            if voice_client.is_playing():  
-                await ctx.send(embed= Embed(f"Cannot join your channel because currently playing in <#{voice_client.channel.id}>", color = Color.red()))  
+            if voice_client.is_playing() and voice_client.channel.id != channel.id:  
+                await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in <#{voice_client.channel.id}>", color = Color.red()))  
                 return  
             else:  
                 await voice_client.move_to(channel)  
@@ -238,8 +247,17 @@ class Musik_and_Media(commands.Cog):
     @commands.has_permissions()  
     @commands.bot_has_permissions()  
     async def queue(self, ctx):  
-        """Shows the songs queue list 🎵"""  
-        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"[**{song['title']}**]({song['link']}) - {song['duration']}" for song in self.player[str(ctx.guild.id)] ]), color = Color.purple())  
+        """Shows the songs queue list 🎵"""
+        if str(ctx.guild.id) in self.current_track:
+            song = self.current_track[str(ctx.guild.id)]["music"]
+        else:
+            await ctx.send(embed= Emebd(description= "Playlist empty. Play songs using `play` command"))
+            return 
+        description= f"[**{song['title']}**]({song['link']}) - {song['duration']}"
+        if str(ctx.guild.id)in self.player:
+            for song in self.player[str(ctx.guild.id)]:
+                description += "\n" + f"[**{song['title']}**]({song['link']}) - {song['duration']}" 
+        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = description , color = Color.purple())  
         em.set_footer(text= f"Requested by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
         await ctx.send(embed = em)  
       
@@ -280,6 +298,7 @@ class Musik_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def stop(self, ctx):  
         """Stops playing the current song. Requires voting from all vc members."""  
+        music = self.current_track.get(str(ctx.guild.id), None) 
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return  
@@ -312,12 +331,12 @@ class Musik_and_Media(commands.Cog):
             return  
         guild = self.client.get_guild(payload.guild_id)  
         channel = self.client.get_channel(payload.channel_id)  
+        msg = await channel.fetch_message(self.current_track[str(guild.id)]["msg_id"])  
+        ctx = await self.client.get_context(msg)  
+        members_count = len([m for m in guild.voice_client.channel.members]) - 1#for self
+        required = ceil(0.7 * members_count)  
         for member in guild.voice_client.channel.members:  
             if member.id == payload.user_id:  
-                msg = await channel.fetch_message(self.current_track[str(guild.id)]["msg_id"])  
-                ctx = await self.client.get_context(msg)  
-                members_count = len([m for m in guild.voice_client.channel.members])  
-                required = ceil(0.7 * members_count)  
                 if "⏸️" in str(payload.emoji):  
                     try:  
                         self.current_track[str(guild.id)]["pause_voters"] += 1  
@@ -326,7 +345,7 @@ class Musik_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["pause_voters"] >= required:  
                         await self.music_player(ctx, str(payload.emoji))  
                     else:  
-                        await ctx.send(embed=Embed(description= f"Pausing, **{self.current_track[str(guild.id)]['pause_voters']}**/**{members_count}** (**{required}** Votes required)"))  
+                        await ctx.send(embed=Embed(description= f"Pausing, **{self.current_track[str(guild.id)]['pause_voters']}**//**{members_count}** (**{required}** Votes required)"))  
                       
                 elif "⏮️" in str(payload.emoji):  
                     try:  
@@ -336,7 +355,7 @@ class Musik_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["rewind_voters"] >= required:  
                         await self.music_player(ctx, str(payload.emoji))  
                     else:  
-                        await ctx.send(embed=Embed(description= f"Rewinding, **{self.current_track[str(guild.id)]['rewind_voters']}**/**{members_count}** (**{required}** Votes required)"))  
+                        await ctx.send(embed=Embed(description= f"Rewinding, **{self.current_track[str(guild.id)]['rewind_voters']}**//**{members_count}** (**{required}** Votes required)"))  
                       
                 elif "⏭️" in str(payload.emoji):  
                     try:  
@@ -346,14 +365,12 @@ class Musik_and_Media(commands.Cog):
                     if self.current_track[str(guild.id)]["skip_voters"] >= required:  
                         await self.music_player(ctx, str(payload.emoji))  
                     else:  
-                        await ctx.send(embed=Embed(description= f"Skipping, **{self.current_track[str(guild.id)]['skip_voters']}**/**{members_count}** (**{required}** Votes required)"))  
+                        await ctx.send(embed=Embed(description= f"Skipping, **{self.current_track[str(guild.id)]['skip_voters']}**//**{members_count}** (**{required}** Votes required)"))  
                 else:  
-                    await self.music_player(ctx, str(payload.emoji))           
-                return  
-        else:  
-            return  
+                    await self.music_player(ctx, str(payload.emoji))
+                return
+         return  
   
-              
 async def setup(bot):  
     await bot.add_cog(Musik_and_Media(bot))  
     print("Loaded cogs: MusikMedia")
