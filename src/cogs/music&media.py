@@ -193,10 +193,9 @@ class Musik_and_Media(commands.Cog):
             lyrics.disabled = True
         
         await interaction.response.edit_message(embed=em, view=view)
-      except:
-        except Exception as e:
-            await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
-            await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
+      except Exception as e:
+        await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
+        await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
     
     async def search_song(self, track_name):
         results = self.sp.search(track_name ,limit=1, type= "track")
