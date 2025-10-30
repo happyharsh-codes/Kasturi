@@ -145,7 +145,10 @@ class Musik_and_Media(commands.Cog):
             track["audio_url"] = info["url"]
             track["thumbnail_url"] = info.get("thumbnail", None)
             duration = info.get("duration", 0)
-            track["duration"] = f"{duration//60}:{duration%60}"
+            if (durarion%60) < 10:
+                track["duration"] = f"{duration//60}:0{duration%60}"
+            else:
+                track["duration"] = f"{duration//60}:{duration%60}"
         print(f"{tracks} |||| {info}")
         if tracks:
             for artist in tracks["artists"]:
@@ -209,9 +212,12 @@ class Musik_and_Media(commands.Cog):
             for song in self.player[str(ctx.guild.id)]:  
                 duration = song["duration"]  
                 seconds += (int(duration.split(":")[0])*60) + int(duration.split(":")[1])  
-            estimated_time = f"{seconds//60}:{seconds%60}"  
+            if (seconds%60) < 10:
+                estimated_time = f"{seconds//60}:0{seconds%60}"  
+            else:
+                estimated_time = f"{seconds//60}:{seconds%60}"  
         else:  
-            estimated_time = "0:0"  
+            estimated_time = "00:00"  
         em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track['title']}**]({music_track['link']})\n**Artist**: {','.join(music_track['artists'])}\n**Duration**: {music_track['duration']}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
         em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
         em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}" , icon_url= ctx.author.avatar)  
