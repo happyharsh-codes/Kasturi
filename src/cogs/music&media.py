@@ -38,8 +38,8 @@ class Musik_and_Media(commands.Cog):
         self.current_track[str(ctx.guild.id)]["msg_id"] = msg.id
         #start streaming
         ffmpeg_options = {
-        'before_options': "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
-        'options': "-vn"
+        "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -protocol_whitelist file,http,https,tcp,tls,crypto",
+        "options": "-vn -af volume=1.0"
         }
         try:
             source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
@@ -128,16 +128,16 @@ class Musik_and_Media(commands.Cog):
         track = {"title": "", "artists": [], "duration": "0:0",  "link": "", "thumbnail_url": "", "emoji": "<:spotify:1432179988647645336>", "audio_url": ""}
         tracks = results["tracks"]["items"][0]
         ydl_opts = {
-            "format": "bestaudio[ext=webm]/bestaudio/best",
+            "format": "bestaudio/best",
             "noplaylist": True,
             "quiet": True,
             "nopart": True,
-            "extract_flat": True,
+            #"extract_flat": True,
             "default_search": "ytsearch",
             "cookiefile": "assets//cookie.txt"
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(track_name, download=False)
+            info = ydl.extract_info(f"ytsearch1: {track_name}", download=False)
             if not info:
                 return None
             if "entries" in info and len(info["entries"])>0:
