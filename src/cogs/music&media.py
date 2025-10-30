@@ -123,7 +123,7 @@ class Musik_and_Media(commands.Cog):
                 await msg.add_reaction("⏭️")
         except: pass
         
-    async def search_song(self, ctx, track_name):
+    async def search_song(self, track_name):
         results = self.sp.search(track_name ,limit=1, type= "track")
         track = {"title": "", "artists": [], "duration": "0:0",  "link": "", "thumbnail_url": "", "emoji": "<:spotify:1432179988647645336>", "audio_url": ""}
         tracks = results["tracks"]["items"][0]
@@ -146,7 +146,7 @@ class Musik_and_Media(commands.Cog):
             track["thumbnail_url"] = info.get("thumbnail", None)
             duration = info.get("duration", 0)
             track["duration"] = f"{duration//60}:{duration%60}"
-        await ctx.send(f"{tracks} | {info}")
+        print(f"{tracks} |||| {info}")
         if tracks:
             for artist in tracks["artists"]:
                 track["artists"].append(artist["name"])
@@ -195,8 +195,8 @@ class Musik_and_Media(commands.Cog):
             if str(ctx.guild.id) in self.player:  
                 self.player.pop(str(ctx.guild.id))  
         async with ctx.typing():
-            msg = await ctx.send("-# 🔍 Searching for song <:musicloader:1433171921524232302> ")
-            music_track = await self.search_song(ctx, search)  
+            msg = await ctx.send("-# 🔍 Searching for song <a:musicloader:1433171921524232302> ")
+            music_track = await self.search_song(search)  
             await msg.delete()
         if not music_track:  
             em = Embed(title= "Unable to Find song", description= "We are unable to find any song with the given name 😔 anywhere on Spotify, Youtube, SoundCloud, etx. Please forgive us and try again using more specific name", color = Color.greyple())  
