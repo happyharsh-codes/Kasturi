@@ -146,8 +146,7 @@ class Musik_and_Media(commands.Cog):
             track["thumbnail_url"] = info.get("thumbnail", None)
             duration = info.get("duration", 0)
             track["duration"] = f"{duration//60}:{duration%60}"
-        await ctx.send(tracks)
-        await ctx.send(info)
+        await ctx.send(f"{tracks} | {info}")
         if tracks:
             for artist in tracks["artists"]:
                 track["artists"].append(artist["name"])
