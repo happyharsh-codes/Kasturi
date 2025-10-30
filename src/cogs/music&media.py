@@ -21,6 +21,7 @@ class Musik_and_Media(commands.Cog):
             try:
                 self.current_track.pop(str(ctx.guild.id))
                 self.player.pop(str(ctx.guild.id))
+                await ctx.voice_client.disconnect()
             except:
                 pass
             return
@@ -235,7 +236,7 @@ class Musik_and_Media(commands.Cog):
         em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}" , icon_url= ctx.author.avatar)  
         em.set_thumbnail(url= music_track["thumbnail_url"])  
         await ctx.send(embed= em)  
-        if str(ctx.guild.id) in self.player:  
+        if str(ctx.guild.id) in self.current_track:  
             self.player[str(ctx.guild.id)].append(music_track)  
         else:  
             self.player[str(ctx.guild.id)] = [music_track]  
@@ -251,7 +252,7 @@ class Musik_and_Media(commands.Cog):
         if str(ctx.guild.id) in self.current_track:
             song = self.current_track[str(ctx.guild.id)]["music"]
         else:
-            await ctx.send(embed= Emebd(description= "Playlist empty. Play songs using `play` command"))
+            await ctx.send(embed= Embed(description= "Playlist empty. Play songs using `play` command"))
             return 
         description= f"[**{song['title']}**]({song['link']}) - {song['duration']}"
         if str(ctx.guild.id)in self.player:
@@ -270,7 +271,8 @@ class Musik_and_Media(commands.Cog):
         music = self.current_track.get(str(ctx.guild.id), None)  
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
-            return  
+            return
+        music = music["music"]
         for m in ctx.voice_client.channel.members:  
             if m.id == ctx.author.id:  
                 break  
@@ -301,7 +303,8 @@ class Musik_and_Media(commands.Cog):
         music = self.current_track.get(str(ctx.guild.id), None) 
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
-            return  
+            return
+        music = music["music"]
         for m in ctx.voice_client.channel.members:  
             if m.id == ctx.author.id:  
                 break  
