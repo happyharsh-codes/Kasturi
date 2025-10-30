@@ -19,7 +19,7 @@ class Musik_and_Media(commands.Cog):
         em.set_author(name= "▶️ Now Playing")
         em.title = f"{music['emoji']} {music['title']}"
         em.url = music["link"]
-        em.description = f"**Artist**: {music['artists'][0]}\n**Duration**: {music['duration']}"
+        em.description = f"**Artist**: {",".join(music['artists'])}\n**Duration**: {music['duration']}"
         em.set_thumbnail(url= music["thumbnail_url"])
         em.set_footer(text= ". Operate Music Player with buttons")
         
@@ -37,12 +37,16 @@ class Musik_and_Media(commands.Cog):
         
         view = View(timeout=120)
         async def on_timeout():
-            nonlocal msg
-            await msg.edit(view=None)
+            nonlocal msg, view, pause, rewind, skip, lyrics
+            pause.disabled = True
+            rewind.disabled = True
+            skip.disabled = True 
+            lyrics.disabled = True
+            await msg.edit(view=view)
+            
         view.on_timeout = on_timeout
         view.add_item(rewind)
         view.add_item(pause)
-        view.add_item(play)
         view.add_item(lyrics)
         view.add_item(skip)
         
@@ -109,11 +113,16 @@ class Musik_and_Media(commands.Cog):
 
         view = View(timeout=120)
         async def on_timeout():
-            await interaction.response.edit_message(view=None)
+            nonlocal view, pause, rewind, skip, lyrics
+            pause.disabled = True
+            rewind.disabled = True
+            skip.disabled = True 
+            lyrics.disabled = True
+            await interaction.response.edit_message(view=view)
         view.on_timeout = on_timeout
         
         pause = Button(style=ButtonStyle.secondary, custom_id="pause", label="⏸️")
-        play = Button(style=ButtonStyle.secondary, custom_id="play", label="▶️", disabled = True)
+        play = Button(style=ButtonStyle.secondary, custom_id="play", label="▶️")
         rewind = Button(style=ButtonStyle.secondary, custom_id="rewind", label="⏮️")
         skip = Button(style=ButtonStyle.secondary, custom_id="skip", label="⏭️")
         lyrics = Button(style=ButtonStyle.secondary, custom_id="lyrics", label="📝")
@@ -126,7 +135,6 @@ class Musik_and_Media(commands.Cog):
 
         view.add_item(rewind)
         view.add_item(pause)
-        view.add_item(play)
         view.add_item(lyrics)
         view.add_item(skip)
         
@@ -141,14 +149,20 @@ class Musik_and_Media(commands.Cog):
                 em.set_author(name="▶️ Song Paused")
                 em.set_footer(name=f"Paused by **{voted}**/**{member_count}**")
                 await voice_client.pause()
-                pause.disabled = True
-                play.disabled = False
+                view.clear_items()
+                view.add_item(rewind)
+                view.add_item(play)
+                view.add_item(lyrics)
+                view.add_item(skip)
             else:
                 em.description = f"\nPausing, **{voted}**/**{member_count}** (**{majority}** votes required)"
         elif pressed == "play":
             await voice_client.resume()
-            pause.disabled = False
-            play.disabled = True 
+            view.clear_items()
+            view.add_item(rewind)
+            view.add_item(pause)
+            view.add_item(lyrics)
+            view.add_item(skip)
         elif pressed == "rewind":
             if "rewind_voters" in music:
                 voted = music["rewind_voters"] + 1
@@ -161,7 +175,6 @@ class Musik_and_Media(commands.Cog):
                 em.set_footer(name=f"Rewinded by **{voted}**/**{member_count}**")
                 self.player[str(interaction.guild_id)].insert(1, music)
                 await voice_client.stop()
-                rewind.disabled = True
             else:
                 em.description = f"\nRewinding, **{voted}**/**{member_count}** (**{majority}** votes required)"
         
@@ -226,9 +239,9 @@ class Musik_and_Media(commands.Cog):
         if tracks:
             for artist in tracks["artists"]:
                 track["artists"].append(artist["name"])
-            track["title"] = f"{tracks['name']} - {','.join(track['artists'])}"
+            track["title"] = f"{tracks['name']}"
             track["link"] = tracks["external_urls"]["spotify"]
-            if track["duration"] = "0:00":
+            if track["duration"] == "0:00":
                 duration = tracks.get("duration_ms", 0)//1000
                 track["duration"] = f"{duration//60}:{duration%60}"
             if not track["thumbnail_url"]:
