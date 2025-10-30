@@ -19,7 +19,7 @@ class Musik_and_Media(commands.Cog):
         em.set_author(name= "▶️ Now Playing")
         em.title = f"{music['emoji']} {music['title']}"
         em.url = music["link"]
-        em.description = f"**Artist**: {music['artists'][0])}\n**Duration**: {music['duration']}"
+        em.description = f"**Artist**: {music['artists'][0]}\n**Duration**: {music['duration']}"
         em.set_thumbnail(url= music["thumbnail_url"])
         em.set_footer(text= ". Operate Music Player with buttons")
         
@@ -39,7 +39,7 @@ class Musik_and_Media(commands.Cog):
         async def on_timeout():
             nonlocal msg
             await msg.edit(view=None)
-        view.on_timeout = timeout
+        view.on_timeout = on_timeout
         view.add_item(rewind)
         view.add_item(pause)
         view.add_item(play)
@@ -98,7 +98,7 @@ class Musik_and_Media(commands.Cog):
         voice_client = interaction.guild.voice_client
         if not voice_client:
             return
-        if not interaction.user.voice.channel.id != voice_client.channel.id:
+        if interaction.user.voice is None or interaction.user.voice.channel.id != voice_client.channel.id:
             return
             
         member_count = len([m for m in voice_client.channel.members]) - 1#for own
@@ -145,7 +145,7 @@ class Musik_and_Media(commands.Cog):
             else:
                 em.description = f"\nPausing, **{voted}**/**{member_count}** (**{majority}** votes required)"
         elif pressed == "play":
-            await voice_client.play()
+            await voice_client.resume()
             pause.disabled = False
             play.disabled = True 
         elif pressed == "rewind":
@@ -160,7 +160,7 @@ class Musik_and_Media(commands.Cog):
                 em.set_footer(name=f"Rewinded by **{voted}**/**{member_count}**")
                 self.player[str(interaction.guild_id)].insert(1, music)
                 await voice_client.stop()
-                rewinded.disabled = True
+                rewind.disabled = True
             else:
                 em.description = f"\nRewinding, **{voted}**/**{member_count}** (**{majority}** votes required)"
         
@@ -182,8 +182,8 @@ class Musik_and_Media(commands.Cog):
             else:
                 em.description = f"\nSkipping, **{voted}**/**{member_count}** (**{majority}** votes required)"
         
-        elif pressed == "lyrics";
-            async with ctx.typing():
+        elif pressed == "lyrics":
+            async with interaction.channel.typing():
                 try:
                     lyrics = GENIUS.search_song(music['title'])
                     await interaction.message.channel.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]}```")
@@ -274,7 +274,7 @@ class Musik_and_Media(commands.Cog):
             em = Embed(title= "Unable to Find song", description= "We are unable to find any song with the given name 😔 anywhere on Spotify, Youtube, SoundCloud, etx. Please forgive us and try again using more specific name", color = Color.greyple())  
             await ctx.send(embed=em)  
             return  
-        estimated_time = 0  
+        seconds = 0
         if str(ctx.guild.id) in self.player:  
             for song in self.player[str(ctx.guild.id)]:  
                 duration = song["duration"]  
@@ -307,9 +307,6 @@ class Musik_and_Media(commands.Cog):
         else:
             await ctx.send(embed= Embed(description= "Playlist empty. Play songs using `play` command"))
             return
-        description = ""
-        for song in songs:
-            description += 
         em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"[**{song['title']}**]({song['link']}) - {song['duration']}" for song in songs]) , color = Color.purple())  
         em.set_footer(text= f"Requested by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
         await ctx.send(embed = em)  
