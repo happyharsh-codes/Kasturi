@@ -69,7 +69,7 @@ class Musik_and_Media(commands.Cog):
         """Action can be pause, play, rewind, or skip"""
         em = Embed(color= Color.green())
         try:
-            music = self.current_track.[str(ctx.guild.id)]["music"]
+            music = self.current_track[str(ctx.guild.id)]["music"]
         except:
             return 
         if action == "▶️":
