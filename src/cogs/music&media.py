@@ -19,7 +19,7 @@ class Musik_and_Media(commands.Cog):
         em.set_author(name= "▶️ Now Playing")
         em.title = f"{music['emoji']} {music['title']}"
         em.url = music["link"]
-        em.description = f"**Artist**: {",".join(music['artists'])}\n**Duration**: {music['duration']}"
+        em.description = f"**Artist**: {','.join(music['artists'])}\n**Duration**: {music['duration']}"
         em.set_thumbnail(url= music["thumbnail_url"])
         em.set_footer(text= ". Operate Music Player with buttons")
         
