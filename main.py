@@ -17,7 +17,7 @@ def run_web():
     server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
     server.serve_forever()
 
-intents = discord.Intents(messages = True, moderation = True, guilds = True, dm_messages = True, members = True, presences = True, dm_reactions = True, reactions = True, emojis = True, emojis_and_stickers = True, voice_states= True, message_content = True)
+intents = discord.Intents(messages = True, moderation = True, guilds = True, message_content = True, dm_messages = True, members = True, presences = True, dm_reactions = True, reactions = True, emojis = True, emojis_and_stickers = True, voice_states= True, message_content = True)
 client = commands.Bot(command_prefix="???",case_insensetive=True, help_command=None,intents=intents)
 
 async def start():
