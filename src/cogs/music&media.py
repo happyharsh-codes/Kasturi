@@ -35,7 +35,7 @@ class Musik_and_Media(commands.Cog):
         skip.callback = self.music_player
         lyrics.callback = self.music_player
         
-        view = View(timeout=20)
+        view = View(timeout=120)
         async def on_timeout():
             nonlocal msg
             await msg.edit(view=None)
@@ -89,6 +89,7 @@ class Musik_and_Media(commands.Cog):
             await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
     
     async def music_player(self, interaction: Interaction):
+      try:
         if not str(interaction.guild_id) in self.player:
             return
         music = self.player[str(interaction.guild_id)][0]
@@ -106,7 +107,7 @@ class Musik_and_Media(commands.Cog):
         voted = 0
         description = interaction.message.embeds[0].description.lower()
 
-        view = View(timeout=20)
+        view = View(timeout=120)
         async def on_timeout():
             await interaction.response.edit_message(view=None)
         view.on_timeout = on_timeout
@@ -192,7 +193,11 @@ class Musik_and_Media(commands.Cog):
             lyrics.disabled = True
         
         await interaction.response.edit_message(embed=em, view=view)
-        
+      except:
+        except Exception as e:
+            await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
+            await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
+    
     async def search_song(self, track_name):
         results = self.sp.search(track_name ,limit=1, type= "track")
         track = {"title": "", "artists": [], "duration": "0:0",  "link": "", "thumbnail_url": "", "emoji": "<:spotify:1432179988647645336>", "audio_url": ""}
@@ -224,8 +229,9 @@ class Musik_and_Media(commands.Cog):
                 track["artists"].append(artist["name"])
             track["title"] = f"{tracks['name']} - {','.join(track['artists'])}"
             track["link"] = tracks["external_urls"]["spotify"]
-            duration = tracks.get("duration_ms", 0)//1000
-            track["duration"] = f"{duration//60}:{duration%60}"
+            if track["duration"] = "0:00":
+                duration = tracks.get("duration_ms", 0)//1000
+                track["duration"] = f"{duration//60}:{duration%60}"
             if not track["thumbnail_url"]:
                 track["thumbnail_url"] = tracks["album"]["images"][0]["url"]
         else:
