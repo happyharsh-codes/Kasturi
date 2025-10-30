@@ -44,6 +44,9 @@ class Musik_and_Media(commands.Cog):
         try:
             source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
             voice = ctx.voice_client
+            if not voice:
+                await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
+                return 
             voice.play(source, after= lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exception as e:
             await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
@@ -145,7 +148,7 @@ class Musik_and_Media(commands.Cog):
             track["audio_url"] = info["url"]
             track["thumbnail_url"] = info.get("thumbnail", None)
             duration = info.get("duration", 0)
-            if (durarion%60) < 10:
+            if (duration%60) < 10:
                 track["duration"] = f"{duration//60}:0{duration%60}"
             else:
                 track["duration"] = f"{duration//60}:{duration%60}"
