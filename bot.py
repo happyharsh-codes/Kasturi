@@ -203,13 +203,7 @@ class Bot:
         view = View()
         view.add_item(kelly)
         view.add_item(developer)
-        em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey \@everyone, Thanks for inviting Kelly here.\nUnreavel the fun by chatting with me, say `kelly hi`.\nActivate your guild using `k activate`.\nUse `k help` to get started with user guide.\nAny bugs, queries or suggestions leave down with `k bug`.\nPrefixes: `k`, `kelly`, `@kelly`",color = discord.Colour.green())
-        emoji = choice(list(EMOJI.values()))
-        if "a:" in emoji:
-            ext = ".gif"
-        else:
-            ext = ".png"
-        em.set_author(name= "Kelly", icon_url= f"https://cdn.discordapp.com/emojis/{emoji}{ext}")
+        em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey everyone, Thanks for inviting Kelly here.\nUnreavel the fun by chatting with me, say `kelly hi`.\nActivate your guild using `k activate`.\nUse `k help` to get started with user guide.\nAny bugs, queries or suggestions leave down with `k bug`.\nPrefixes: `k`, `kelly`, `@kelly`",color = discord.Colour.green())
         emoji = choice(list(EMOJI.values()))
         if "a:" in emoji:
             ext = ".gif"
@@ -224,7 +218,7 @@ class Bot:
                 if "general" in channel.name.lower() or "chat" in channel.name.lower():
                     try:         
                         invite = await channel.create_invite(max_age=0, max_uses=0)
-                        await channel.send(embed= em, view=view)
+                        await channel.send("@everyone", embed= em, view=view)
                         break
                     except:
                         continue
@@ -233,7 +227,7 @@ class Bot:
                 if isinstance(channel, discord.TextChannel):
                     try:
                         invite = await channel.create_invite(max_age=0,max_uses=0)
-                        await channel.send(embed= em, view=view)
+                        await channel.send("@everyone", embed= em, view=view)
                         break
                     except:
                         continue
