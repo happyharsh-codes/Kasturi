@@ -53,11 +53,8 @@ class Musik_and_Media(commands.Cog):
         msg = await ctx.send(embed= em, view= view)
         
     async def play_next(self, ctx, start = False):
-        for client in self.client.voice_clients:
-            if client.guild.id == ctx.guild.id:
-                voice = client
-                break
-        else:
+        voice = ctx.guild.voice_client
+        if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
                 self.player.pop(str(ctx.guild.id))
@@ -78,7 +75,7 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed = Embed(title= "Queue Finished \nLeaving VC . . ."),color = Color.dark_gold())
             self.player.pop(str(ctx.guild.id))
             try:
-                await ctx.voice_client.disconnect()
+                await ctx.guild.voice_client.disconnect()
             except:
                 pass
             return
@@ -90,10 +87,11 @@ class Musik_and_Media(commands.Cog):
         #start streaming
         ffmpeg_options = {
         "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -protocol_whitelist file,http,https,tcp,tls,crypto",
-        "options": "-vn -af volume=1.0"
+        "options": "-vn -c:a libopus -b:a 96k -af volume=1.0"
         }
         
         try:
+            voice = ctx.guild.voice_client
             if not voice or not voice.channel:
                 return  # don't error if voice disconnected
             source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
@@ -112,21 +110,13 @@ class Musik_and_Media(commands.Cog):
         pressed = interaction.data["custom_id"]
         em = interaction.message.embeds[0]
 
-        for client in self.client.voice_clients:
-            if client.guild.id == interaction.guild_id:
-                voice = client
-                break
-        else:
-            await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-            try:
-                self.player.pop(str(ctx.guild.id))
-            except:
-                pass
+        voice = interaction.guild.voice_client
+        if not voice:
             return 
         if interaction.user.voice is None or interaction.user.voice.channel.id != voice.channel.id:
             return
             
-        member_count = len([m for m in voice.channel.members]) - 1#for own
+        member_count = len(voice.channel.members) - 1#for own
         majority = math.ceil(0.7 * member_count)
         voted = 0
         description = interaction.message.embeds[0].description.lower()
@@ -235,13 +225,15 @@ class Musik_and_Media(commands.Cog):
         track = {"title": "", "artists": [], "duration": "0:0",  "link": "", "thumbnail_url": "", "emoji": "<:spotify:1432179988647645336>", "audio_url": ""}
         tracks = results["tracks"]["items"][0]
         ydl_opts = {
-            "format": "bestaudio/best",
+            "format": "bestaudio[abr<=96]/best",
             "noplaylist": True,
             "quiet": True,
             "nopart": True,
             #"extract_flat": True,
             "default_search": "ytsearch",
             "cookiefile": "assets//cookie.txt"
+            "youtube_include_dash_manifest": False,
+            "youtube_include_hsl_manifest": False
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(f"ytsearch1: {track_name}", download=False)
@@ -359,11 +351,8 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
         music = music[0]
-        for client in self.client.voice_clients:
-            if client.guild.id == ctx.guild.id:
-                voice = client
-                break
-        else:
+        voice = ctx.guild.voice_client
+        if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
                 self.player.pop(str(ctx.guild.id))
@@ -389,11 +378,8 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
         music = music[0]
-        for client in self.client.voice_clients:
-            if client.guild.id == ctx.guild.id:
-                voice = client
-                break
-        else:
+        voice = ctx.guild.voice_client
+        if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
                 self.player.pop(str(ctx.guild.id))
@@ -419,11 +405,8 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
         music = music[0]
-        for client in self.client.voice_clients:
-            if client.guild.id == ctx.guild.id:
-                voice = client
-                break
-        else:
+        voice = ctx.guild.voice_client
+        if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
                 self.player.pop(str(ctx.guild.id))
@@ -449,11 +432,8 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
         music = music[0]
-        for client in self.client.voice_clients:
-            if client.guild.id == ctx.guild.id:
-                voice = client
-                break
-        else:
+        voice = client.guild.voice_client
+        if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
                 self.player.pop(str(ctx.guild.id))
@@ -479,11 +459,8 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
         music = music[0]
-        for client in self.client.voice_clients:
-            if client.guild.id == ctx.guild.id:
-                voice = client
-                break
-        else:
+        voice = ctx.guild.voice_client
+        if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
                 self.player.pop(str(ctx.guild.id))
