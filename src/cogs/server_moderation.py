@@ -17,9 +17,9 @@ class Moderation(commands.Cog):
         em = Embed(
             title="🔇 Member Muted From Kelly Talkings",
             description=f"{member.mention} was muted for **{minutes} minutes from talking to kelly.**.\n**Reason: ** {reason}",
-            color=Color.orange()
+            color=Color.pink()
         )
-        em.set_footer(text=f"{ctx.author.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Muted by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
         em.set_author(name=member.name,icon_url=member.avatar)
         await ctx.send(embed=em)
         
@@ -38,9 +38,9 @@ class Moderation(commands.Cog):
             em = Embed(
                 title="🔇 Member Muted",
                 description=f"{member.mention} was muted for **{minutes} minutes**.\n**Reason: ** {reason}",
-                color=Color.orange()
+                color=Color.pink()
             )
-            em.set_footer(text=f"Muted by {ctx.author}", icon_url=ctx.author.avatar)
+            em.set_footer(text=f"Muted by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
             em.set_author(name=member.name,icon_url=member.avatar)
             await ctx.send(embed=em)
         except Exception as e:
@@ -58,9 +58,9 @@ class Moderation(commands.Cog):
             em = Embed(
                 title="Member Unmuted",
                 description=f"{member.mention} was unmuted.\n**Reason: ** {reason}\nNow you can talk to Kelly again using `kelly hi`. Please be respectful this time.",
-                color=Color.orange()
+                color=Color.pink()
             )
-            em.set_footer(text=f"Unmuted by {ctx.author}", icon_url=ctx.author.avatar)
+            em.set_footer(text=f"Unmuted by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
             em.set_author(name=member.name,icon_url=member.avatar)
             await ctx.send(embed=em)
         except:
@@ -81,8 +81,8 @@ class Moderation(commands.Cog):
         except Exception as e:
             await ctx.send(f"❌ Could not unmute user")
             return
-        em = Embed(title="Member Unmuted", description=f"{member.mention} was unmuted.", color=Color.light_gray())
-        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em = Embed(title="Member Unmuted", description=f"{member.mention} was unmuted.", color=Color.pink())
+        em.set_footer(text=f"Unmuted by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
         em.set_author(name= member.name, icon_url= member.avatar)
         await ctx.send(embed=em)
 
@@ -95,7 +95,7 @@ class Moderation(commands.Cog):
         Instantly removes them without banning."""
         await ctx.guild.kick(user=user, reason=reason)
         em = Embed(title="Member Kicked", description=f"{user.mention} was kicked by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
-        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Muted by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
     @commands.command()
@@ -115,7 +115,10 @@ class Moderation(commands.Cog):
             await dm_channel.send(embed=embed)
         except:
             await ctx.send(f"{member.mention}", embed=embed)
-        await ctx.send(embed= Embed(title= "Warned User", description= f"**Reason:** {reason}", color = Color.blue()))
+        em = Embed(title= "Warned User", description= f"**Reason:** {reason}", color = Color.pink())
+        em.set_author(name= ctx.author.name, icon_url = ctx.author.avatar)
+        em.set_footer(text=f"Warned by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
+        await ctx.send(embed= em)
     
     @commands.command(aliases= [])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -127,11 +130,11 @@ class Moderation(commands.Cog):
         Moderators Only - Please consider case properly before using this command."""
         await ctx.guild.ban(user=member, reason=reason, delete_message_days=0)
         em = Embed(title="Member Banned", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.", color=Color.pink())
-        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Banned by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
         em.set_author(name=member.name, icon_url= member.avatar)
         await ctx.send(embed=em)
         em = Embed(title= f"You were Banned from {ctx.guild.name}", description= f"**Reason:** {reason}", color = Color.red())
-        em.set_footer(name = "If you believe this was a mistake please forgive us.")
+        em.set_footer(text = "If you believe this was a mistake please forgive us.")
         view = View()
         button = Button(style=ButtonStyle.primary, custom_id= "revive", label = "Click Here to Say your Last Words")
         
@@ -188,7 +191,7 @@ class Moderation(commands.Cog):
         Now user can never chat with Kelly, unless unbanned."""
         Server_Settings[str(ctx.guild.id)]["block_list"].append(member.id)
         em = Embed(title="Member Banned From Kelly Talkings", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
-        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Banned by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
         em.set_author(name=member.name, icon_url=member.avatar)
         await ctx.send(embed=em)
         
@@ -204,14 +207,16 @@ class Moderation(commands.Cog):
             if entry.user.name.lower() == user_tag.lower() or entry.user.id == int(user_tag):
                 await ctx.guild.unban(entry.user, reason= reason)
                 em = Embed(title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
-                em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+                em.set_footer(text=f"Unbanned by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
                 dm_channel = entry.user.dm_channel
                 if not dm_channel:
                     dm_channel = await entey.user.create_dm()
                 try:
                     invite_link = Server_Settings[str(ctx.guild.id)]["invite_link"]
-                    await dm_channel.send(content=f"Hurray! You just got unbanned from the guild `{ctx.guild.name}`.\n Click here to join again:\n{invite_link}")
+                    em = Embed(title = f"You were Unbanned from {ctx.guild.name}", description= f"You just got unbanned from the guild.\nClick here to join again\n{invite_link}", color=Color.green())
+                    em.set_footer(text=f"Unbanned by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
+                    await dm_channel.send(embed = em)
                 except:
                     pass
                 return
@@ -231,7 +236,7 @@ class Moderation(commands.Cog):
             description=f"{member.mention} was unbanned from kelly talking.\n**Reason: ** {reason}\nYou can Chat with Kelly using `kelly hi`.\nPlease be respectful this time.",
             color=Color.orange()
         )
-        em.set_footer(text=f"Unbanned by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Unbanned by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
         em.set_author(name=member.name,icon_url=member.avatar)
         await ctx.send(embed=em)
     
@@ -244,7 +249,7 @@ class Moderation(commands.Cog):
         Given role hierarchy should be equivalent to or less than your role."""
         await member.add_roles(role)
         em = Embed(title="Role Assigned", description=f"{role.mention} assigned to {member.mention}", color=Color.green())
-        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Role Assigned by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
     @commands.command()
@@ -258,7 +263,7 @@ class Moderation(commands.Cog):
         await member.edit(deafen=True)
         status = "Deafened"
         em = Embed(title="Voice Status Changed", description=f"{member.mention} was {status.lower()} by {ctx.author.mention}.", color=Color.light_gray())
-        em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Deafened by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
     @commands.command()
