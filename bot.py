@@ -356,7 +356,7 @@ class Bot:
             await ctx.send(embed=Embed(description="Unknown error happened :/"))
             user = self.client.get_user(894072003533877279)
             if user != None:
-                await user.send(embed=Embed(title= f"Crash report on command error", description = f"```{error}```")
+                await user.send(embed=Embed(title= f"Crash report on command error", description = f"```{error}```"))
 
     async def on_error(self, event_method):
         print(f"Error in event: {event_method}")
