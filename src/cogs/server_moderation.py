@@ -201,7 +201,7 @@ class Moderation(commands.Cog):
                 await interaction.response.defer()
         
         async def last_words(interaction: Interaction):
-            nonlocal view
+            nonlocal view, msg
             modal = LastWordsModal(member, view, msg)
             await interaction.response.send_modal(modal)
             
