@@ -99,8 +99,8 @@ class Musik_and_Media(commands.Cog):
             source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
             voice.play(source,after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exception as e:
-            if voice_client:
-                await voice_client.disconnect()
+            if voice:
+                await voice.disconnect()
             await ctx.send("Music stopped due to an unexpected error", delete_after=30)
             await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
     
