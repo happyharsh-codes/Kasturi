@@ -120,13 +120,13 @@ class Bot:
                     return
                 if message.content == self.client.user.mention:
                     em = discord.Embed(title= f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
-                    em.set_thumbnail(url = self.client.user.avatar)
+                    em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
                     em.add_field(name= "Help", value="Get Help using `k help` command")
                     em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
                     await message.channel.send(embed=em)
                     return
                 else:
-                    message.content = message.conten.replace(self.client.user.mention, "kelly")
+                    message.content = message.content.replace(self.client.user.mention, "kelly")
             
             #Giving xp
             if Server_Settings[str(guild)]["rank_channel"] != 0:
