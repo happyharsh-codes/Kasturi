@@ -116,8 +116,8 @@ class Games(commands.Cog):
     @has_profile()
     async def use(self, ctx, item= None):
         """Uses the selected item from inventory"""
-        await ctx.send("This command is yet to be made :/")
-
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+        
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
@@ -125,8 +125,8 @@ class Games(commands.Cog):
     @has_profile()
     async def kill(self, ctx):
         """To Kill spawned mob"""
-        await ctx.send("This command is yet to be made :/")
-
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+        
     @commands.command(aliases=["adv"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
@@ -134,7 +134,7 @@ class Games(commands.Cog):
     @has_profile()
     async def adventure(self, ctx):
         """To find new places, results in exciting rewards"""
-        await ctx.send("This command is yet to be made :/")
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
     @commands.command(aliases=['cr'])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -184,7 +184,7 @@ class Games(commands.Cog):
     @has_profile()
     async def bankrob(self, ctx):
         """Attempts bankrobbing someones account bases on your aura level"""
-        await ctx.send("This command is yet to be made :/")
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -209,8 +209,8 @@ class Games(commands.Cog):
     @has_profile()
     async def hunt(self, ctx):
         """Goes hunting in the woods"""
-        pass
-
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+    
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
@@ -220,7 +220,7 @@ class Games(commands.Cog):
         """Battle someone: Show your strength.
         Amazing rewards.
         Can also mention user to battle with them otherwise opponent will be selected randomly."""
-        pass
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -229,7 +229,7 @@ class Games(commands.Cog):
     @has_profile()
     async def buy(self, ctx):
         """Welcome to the Shop: Buy anything using cash or gems"""
-        pass
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -238,7 +238,7 @@ class Games(commands.Cog):
     @has_profile()
     async def sell(self, ctx):
         """Welcome to the Shop: Sell anything and its estimated value on Cash or Gem"""
-        pass
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
     
 async def setup(bot):
