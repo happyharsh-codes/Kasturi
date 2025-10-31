@@ -43,7 +43,7 @@ class Giyu:
                 if inviter_id:
                     inviter = self.client.get_user(inviter_id)
                 invite_text = f"{inviter.mention} - {inviter.name}"
-                em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.member.name}\n**👤 Name:** {message.member.display_name)}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(member)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
+                em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.member.name}\n**👤 Name:** {message.member.display_name}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(member)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
                 em.set_thumbnail(url= message.author.avatar)
                 em.set_author(name = f"{message.author.name}")
                 await ctx.send(f"{message.author.mention}", embed= em)
@@ -169,6 +169,6 @@ class Giyu:
         }
         for emoji, kellyemoji in emoji_exchanger.items():
             if emoji in message:
-                message = message.replace(emoji, EMOJI[kellyemoji])
+                message = message.replace(emoji, EMOJI2[kellyemoji])
                 
         return message
