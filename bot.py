@@ -109,7 +109,7 @@ class Bot:
                             Server_Settings[str(guild)]["allowed_channels"].append(channel)
                             await message.channel.send(embed=discord.Embed(title="Channel Activated",description=f"<#{channel}> was succesfully activated !! Start talking with Kelly now.\n\n Use {self.client.user.mention} activate to use me in other channels too!!\nNote now Kasturi will only run in activated channels!!", color= discord.Colour.green()))
                     else:
-                        await message.channel.send("Ayoo user you need `manage channels` permission to user this command.")
+                        await message.channel.send(embed= Embed(description="Ayoo user you need `manage channels` permission to user this command.", color = Color.red()))
                     return
                 if "deactivate" in message.content.lower():
                     if channel not in Server_Settings[str(guild)]["allowed_channels"]:
@@ -118,12 +118,15 @@ class Bot:
                     Server_Settings[str(guild)]["allowed_channels"].remove(channel)
                     await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{channel}> was succesfully deactivated !!", color= discord.Colour.green()))
                     return
-                em = discord.Embed(title= 'Kasturi/Kelly', description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
-                em.set_thumbnail(url = self.client.user.avatar)
-                em.add_field(name= "Help", value="Get Help using `k help` command")
-                em.add_field(name= "Chat with me",value=f"Chat with me in activated channel use {self.client.user.mention} ``activate`` ")
-                await message.channel.send(embed=em)
-                return
+                if message.content == self.client.user.mention:
+                    em = discord.Embed(title= f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
+                    em.set_thumbnail(url = self.client.user.avatar)
+                    em.add_field(name= "Help", value="Get Help using `k help` command")
+                    em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
+                    await message.channel.send(embed=em)
+                    return
+                else:
+                    message.content = message.conten.replace(self.client.user.mention, "kelly")
             
             #Giving xp
             if Server_Settings[str(guild)]["rank_channel"] != 0:
@@ -144,7 +147,7 @@ class Bot:
                 if id == afk:
                     Server_Settings[str(guild)]['afk'].remove(afk)
                 elif self.client.get_user(afk).mentioned_in(message):
-                    await message.channel.send(f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!")
+                    await message.channel.send(embed= Embed(description=f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!"))
             #checking for allowed channel
             if Server_Settings[str(guild)]["allowed_channels"] != [] and channel not in Server_Settings[str(guild)]["allowed_channels"] and message.content.lower().startswith(("kasturi", "kelly")):
                 return
@@ -189,16 +192,21 @@ class Bot:
     async def on_guild_join(self, guild: discord.Guild):
         channels = guild.channels 
         invite = None
+        kelly = Button(style = ButtonStyle.link, url = "https://discord.gg/y56na8kN9e", label = "Kelly's Homeland")
+        developer = Button(style= ButtonStyle.link, url = "https://github.com/happyharsh-codes", label = "Developer")
+        view = View()
+        view.add_item(kelly)
+        view.add_item(developer)
         for channel in channels:
             if isinstance(channel, discord.TextChannel):
-                if "general" in channel.name or "chat" in channel.name:
+                if "general" in channel.name.lower() or "chat" in channel.name.lower():
                     try:         
                         invite = await channel.create_invite(max_age=0, max_uses=0)
-                        em = Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey Everyone, Thanks for inviting Kelly here.\nUse `K activate` to complete up Kelly Setup\nUse `k help` to get started with user guide.",color = discord.Colour.green())
+                        em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey \@everyone, Thanks for inviting Kelly here.\nUnreavel the fun by chatting with me, say `kelly hi`.\nActivate your guild using `k activate`.\nUse `k help` to get started with user guide.\nAny bugs, queries or suggestions leave down with `k bug`.\nPrefixes: `k`, `kelly`, `@kelly`",color = discord.Colour.green())
                         em.set_author(name= "Kelly", icon_url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
-                        em.thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
+                        em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
                         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
-                        await channel.send(embed= em)
+                        await channel.send(embed= em, view=view)
                         break
                     except:
                         continue
@@ -207,7 +215,11 @@ class Bot:
                 if isinstance(channel, discord.TextChannel):
                     try:
                         invite = await channel.create_invite(max_age=0,max_uses=0)
-                        await channel.send(embed= discord.Embed(title = "Kasturi/Kelly", description=f"Hey Everyone, Thanks for inviting Kelly/Kasturi here.\nType {self.client.user.mention} activate to start convo in a channel\nUse `k help` to get started with user guide.",color = discord.Colour.green()))
+                        em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey \@everyone, Thanks for inviting Kelly here.\nUnreavel the fun by chatting with me, say `kelly hi`.\nActivate your guild using `k activate`.\nUse `k help` to get started with user guide.\nAny bugs, queries or suggestions leave down with `k bug`.\nPrefixes: `k`, `kelly`, `@kelly`",color = discord.Colour.green())
+                        em.set_author(name= "Kelly", icon_url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
+                        em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
+                        em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
+                        await channel.send(embed= em, view=view)
                         break
                     except:
                         continue
@@ -217,7 +229,7 @@ class Bot:
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
         me = self.client.get_user(894072003533877279)  
         await me.send(embed=msg)
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
 
     async def on_guild_remove(self, guild: discord.Guild):
         me = self.client.get_user(894072003533877279)  
@@ -243,10 +255,10 @@ class Bot:
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\nHope you'd come back soon.", color= Color.dark_gray())
             em.set_author(name= member.name, icon_url = member.avatar)
-            em.thumnail(url= member.avatar)
+            em.thumbnail(url= member.avatar)
             em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
             try:
-                channel = await self.client.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
+                channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
                 await channel.send(embed=em)
             except:
                 print("No perms allowed")
@@ -266,7 +278,7 @@ class Bot:
                                         await channel.send(f"{member.mention} " + getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0))
                                 break
         except Exception as e:
-            await self.client.get_user(894072003533877279).send("Exception on presence change:" +e)
+            await self.client.get_user(894072003533877279).send(f"Exception on presence change: {e}")
         
     async def on_command_completion(self, ctx):
         try:
