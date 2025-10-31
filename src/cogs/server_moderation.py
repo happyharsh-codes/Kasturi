@@ -43,6 +43,16 @@ class Moderation(commands.Cog):
             em.set_footer(text=f"Muted by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
             em.set_author(name=member.name,icon_url=member.avatar)
             await ctx.send(embed=em)
+            embed = Embed(title = f"You have been Muted in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
+            em.set_footer(text=f"Muted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+            try:
+                dm_channel = member.dm_channel
+                if not dm_channel:
+                    dm_channel = await member.create_dm()
+                await dm_channel.send(embed=embed)
+            except:
+                await ctx.send(content= f"{member.mention}", embed=embed)
+        
         except Exception as e:
             await ctx.send(f"❌ Could not mute {member.mention}. Error: {e}")
 
@@ -81,6 +91,15 @@ class Moderation(commands.Cog):
         except Exception as e:
             await ctx.send(f"❌ Could not unmute user")
             return
+        embed = Embed(title = f"You have been Unmuted in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
+        em.set_footer(text=f"Unmuted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        try:
+            dm_channel = member.dm_channel
+            if not dm_channel:
+                dm_channel = await member.create_dm()
+            await dm_channel.send(embed=embed)
+        except:
+            await ctx.send(content= f"{member.mention}", embed=embed)
         em = Embed(title="Member Unmuted", description=f"{member.mention} was unmuted.", color=Color.pink())
         em.set_footer(text=f"Unmuted by {ctx.author.name} | {timestamp()}", icon_url=ctx.author.avatar)
         em.set_author(name= member.name, icon_url= member.avatar)
@@ -90,11 +109,20 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
-    async def kick(self, ctx: commands.Context, user: discord.Member, *, reason: str = "No reason provided"):
+    async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         """Kicks a member from the server 👢  
         Instantly removes them without banning."""
-        await ctx.guild.kick(user=user, reason=reason)
-        em = Embed(title="Member Kicked", description=f"{user.mention} was kicked by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
+        embed = Embed(title = f"You have been Kicked from {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
+        em.set_footer(text=f"Kicked by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        try:
+            dm_channel = member.dm_channel
+            if not dm_channel:
+                dm_channel = await member.create_dm()
+            await dm_channel.send(embed=embed)
+        except:
+            pass
+        await ctx.guild.kick(user=member, reason=reason)
+        em = Embed(title="Member Kicked", description=f"{member.mention} was kicked by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
         em.set_footer(text=f"Muted by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
@@ -107,7 +135,7 @@ class Moderation(commands.Cog):
         Logs the reason and warn count for moderation tracking.
         You can set up automated actions when warn count reaches the limit by using `automod` command."""
         embed = Embed(title = f"You have been Warned in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-        embed.set_footer(text = "If you believe this was a mistake, you may ignore this or contact a staff member.")
+        em.set_footer(text=f"Warned by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
         try:
             dm_channel = member.dm_channel
             if not dm_channel:
@@ -128,7 +156,6 @@ class Moderation(commands.Cog):
         """Bans a member permanently 🚫  
         Stops them from rejoining until unbanned.
         Moderators Only - Please consider case properly before using this command."""
-        await ctx.guild.ban(user=member, reason=reason, delete_message_days=0)
         em = Embed(title="Member Banned", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.", color=Color.pink())
         em.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         em.set_author(name=member.name, icon_url= member.avatar)
@@ -136,13 +163,14 @@ class Moderation(commands.Cog):
         em = Embed(title= f"You were Banned from {ctx.guild.name}", description= f"**Reason:** {reason}", color = Color.red())
         em.set_footer(text = "If you believe this was a mistake please forgive us.")
         view = View()
-        button = Button(style=ButtonStyle.primary, custom_id= "revive", label = "Click Here to Say your Last Words")
+        button = Button(style=ButtonStyle.primary, custom_id= "revive", label = "Click to Say your Last Words")
         
         class LastWordsModal(discord.ui.Modal):
             
-            def __init__(self, member, view):
+            def __init__(self, member, view, msg):
                 self.member = member
                 self.view = view
+                self.msg = msg 
                 super().__init__(title="Last Words Apology Form")
                 self.input_box = TextInput(label="Enter Your Last Words Here:", custom_id="last_words", required= True, min_length=50, max_length=1024, style=TextStyle.paragraph, default="I'm sorry")
                 self.add_item(self.input_box)
@@ -151,6 +179,7 @@ class Moderation(commands.Cog):
               try:
                 view = self.view
                 member = self.member
+                msg = self.msg
                 last_words = self.input_box.value
                 owner = ctx.bot.get_user(ctx.guild.owner_id)
                 em = Embed(title = f"{member.name}/{member.username} Says their Last Words befor getting Banned.", description= f"```{last_words}```", color = Color.blue())
@@ -173,7 +202,7 @@ class Moderation(commands.Cog):
         
         async def last_words(interaction: Interaction):
             nonlocal view
-            modal = LastWordsModal(member, view)
+            modal = LastWordsModal(member, view, msg)
             await interaction.response.send_modal(modal)
             
         
@@ -186,6 +215,7 @@ class Moderation(commands.Cog):
             msg = await dm_channel.send(embed=em, view=view)
         except:
             pass
+        await ctx.guild.ban(user=member, reason=reason, delete_message_days=0)
 
     @commands.command(aliases=["kelly_ban", "kban"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -194,6 +224,17 @@ class Moderation(commands.Cog):
     async def ban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         """Just Bans a member from ever Chatting to Kelly Not from Server 🚫  
         Now user can never chat with Kelly, unless unbanned."""
+        embed = Embed(title = f"You have been Banned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
+        em.set_footer(text=f"Kelly Ban by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        
+        try:
+            dm_channel = member.dm_channel
+            if not dm_channel:
+                dm_channel = await member.create_dm()
+            await dm_channel.send(embed=embed)
+        except:
+            await ctx.send(content= f"{member.mention}", embed=embed)
+        
         Server_Settings[str(ctx.guild.id)]["block_list"].append(member.id)
         em = Embed(title="Member Banned From Kelly Talkings", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
         em.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
@@ -235,6 +276,18 @@ class Moderation(commands.Cog):
         """Unbans a user by name or ID 🔓 from Kelly. 
         Now they can start chatting with Kelly again.
         This is not related with server."""
+        embed = Embed(title = f"You have been Unbanned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
+        em.set_footer(text=f"Kelly Umban by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        
+        try:
+            dm_channel = member.dm_channel
+            if not dm_channel:
+                dm_channel = await member.create_dm()
+            await dm_channel.send(embed=embed)
+        except:
+            await ctx.send(content= f"{member.mention}", embed=embed)
+        
+        
         Server_Settings[str(ctx.guild.id)]["block_list"].remove(member.id)
         em = Embed(
             title="Member Unbanned from Kelly Talk",
@@ -252,6 +305,17 @@ class Moderation(commands.Cog):
     async def assignrole(self, ctx: commands.Context, member: discord.Member, role: discord.Role):
         """Assigns given role to the user.
         Given role hierarchy should be equivalent to or less than your role."""
+        embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: {role.mention}\n**", color = Color.blue())
+        em.set_footer(text=f"Assigned Role by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        
+        try:
+            dm_channel = member.dm_channel
+            if not dm_channel:
+                dm_channel = await member.create_dm()
+            await dm_channel.send(embed=embed)
+        except:
+            await ctx.send(content= f"{member.mention}", embed=embed)
+        
         await member.add_roles(role)
         em = Embed(title="Role Assigned", description=f"{role.mention} assigned to {member.mention}", color=Color.green())
         em.set_footer(text=f"Role Assigned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
