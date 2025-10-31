@@ -262,8 +262,7 @@ class Utility(commands.Cog):
             update()
             await interaction.response.edit_message(embed=em, view=view)
           except Exception as e:
-              nonlocal client
-              await client.get_user(894072003533877279).send(e)
+              await self.client.get_user(894072003533877279).send(e)
         async def on_leftright(interaction: Interaction):
           try:
             nonlocal cmd, left, right, category, update, menu_cmds, em, view, get_started
@@ -543,8 +542,11 @@ class Utility(commands.Cog):
 
               if process_no == 9:
                 await interaction.response.edit_message(view=None)
-                embed= Embed(title= "Guild Setup Complete", description= "Thanks for setting up my bot on your server.\n`k help` for user guide.\nAny bugs, query or suggestions submit with `k bug`\nEnjoy and explore all features.\nMeet the devloper [here](https://discord.gg/y56na8kN9e)", color = color.Green())
-                await ctx.author.dm_channel.send(embed=embed)
+                embed= Embed(title= "Guild Setup Complete", description= "Thanks for setting up my bot on your server.\n`k help` for user guide.\nAny bugs, query or suggestions submit with `k bug`\nEnjoy and explore all features.\nMeet the devloper [here](https://discord.gg/y56na8kN9e)", color = Color.green())
+                dm_channel = ctx.author.dm_channel
+                if not dm_channel:
+                    dm_channel = await ctx.author.create_dm()
+                await dm_channel.send(embed=embed)
                 return
             except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
