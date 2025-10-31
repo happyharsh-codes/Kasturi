@@ -131,7 +131,7 @@ class Utility(commands.Cog):
         em = Embed(title = "Report Bugs", description="Ow got some bugs, queries, or suggestions ?\nDrop them down below", color = Color.green())
         em.set_thumbnail(url= "https://cdn.discordapp.com/emojis/1372191175133368411.png")
         view = View(timeout = 45)
-        async def callback():
+        async def callback(interaction: Interaction):
             nonlocal button, msg, view
             modal = ReportBugModal(button, msg, view, ctx)
             await interaction.response.send_modal(modal)
