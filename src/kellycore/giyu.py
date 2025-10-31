@@ -49,7 +49,7 @@ class Giyu:
                 em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.author.name}\n**👤 Name:** {message.author.display_name}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(message.author)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
                 em.set_thumbnail(url= message.author.avatar)
                 em.set_author(name = f"{message.author.name}")
-                await ctx.send(f"{message.author.mention}", embed= em)
+                await message.channel.send(f"{message.author.mention}", embed= em)
                 Relation[str(message.author.id)] = 1
                 em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with Discord TOC And our Kelly TOC.Hope you like my boy, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
                 emoji = choice(list(EMOJI.values()))
