@@ -6,7 +6,7 @@ import requests
 import flask
 import threading
 import http.server
-from datetime import datetime, UTC, timedelta
+from datetime import datetime, UTC, timedelta, timezone
 from json import load, dump, loads
 from random import choice, randint, choices
 
