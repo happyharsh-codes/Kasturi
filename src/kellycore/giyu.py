@@ -35,22 +35,26 @@ class Giyu:
 
                     return ", ".join(devices) if devices else "❌ Offline / Invisible"
 
-                if message.member.premium_since:
-                    booster_text= f"Boosting since <t:{int(message.member.premium_since.timestamp())}:D>"
+                if message.author.premium_since:
+                    booster_text= f"Boosting since <t:{int(message.author.premium_since.timestamp())}:D>"
                 else:
                     booster_text = 'Not Boosting'
-                inviter_id = INVITER[str(message.guild.id)].get(str(member.author.id),None)
+                inviter_id = INVITER[str(message.guild.id)].get(str(message.author.id),None)
                 if inviter_id:
                     inviter = self.client.get_user(inviter_id)
                 invite_text = f"{inviter.mention} - {inviter.name}"
-                em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.member.name}\n**👤 Name:** {message.member.display_name}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(member)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
+                em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.author.name}\n**👤 Name:** {message.author.display_name}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(message.author)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
                 em.set_thumbnail(url= message.author.avatar)
                 em.set_author(name = f"{message.author.name}")
                 await ctx.send(f"{message.author.mention}", embed= em)
                 Relation[str(message.author.id)] = 1
                 em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with Discord TOC And our Kelly TOC.Hope you like my boy, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
-                em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}.png")
-                dm_channel = message.author.dm_channel
+                emoji = choice(list(EMOJI.values()))
+                if "a:" in emoji:
+                    ext = ".gif"
+                else:
+                    ext = ".png"dm_channel = message.author.dm_channel
+                em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{emoji}{ext}")
                 if not dm_channel:
                     dm_channel = message.author.create_dm()
                 try:
