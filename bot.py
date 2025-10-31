@@ -101,16 +101,6 @@ class Bot:
                     break
             #Handelling Bot mentions
             if self.client.user.mention in message.content:
-                if " activate" in message.content.lower():
-                    if message.channel.permissions_for(message.author).manage_channels:
-                        if channel in Server_Settings[str(guild)]["allowed_channels"]:
-                            await message.channel.send("Ayo this channel is already activated !! haha")
-                        else:
-                            Server_Settings[str(guild)]["allowed_channels"].append(channel)
-                            await message.channel.send(embed=discord.Embed(title="Channel Activated",description=f"<#{channel}> was succesfully activated !! Start talking with Kelly now.\n\n Use {self.client.user.mention} activate to use me in other channels too!!\nNote now Kasturi will only run in activated channels!!", color= discord.Colour.green()))
-                    else:
-                        await message.channel.send(embed= Embed(description="Ayoo user you need `manage channels` permission to user this command.", color = Color.red()))
-                    return
                 if "deactivate" in message.content.lower():
                     if channel not in Server_Settings[str(guild)]["allowed_channels"]:
                         await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
@@ -120,7 +110,7 @@ class Bot:
                     return
                 if message.content == self.client.user.mention:
                     em = discord.Embed(title= f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
-                    em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
+                    em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}.png")
                     em.add_field(name= "Help", value="Get Help using `k help` command")
                     em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
                     await message.channel.send(embed=em)
@@ -203,8 +193,8 @@ class Bot:
                     try:         
                         invite = await channel.create_invite(max_age=0, max_uses=0)
                         em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey \@everyone, Thanks for inviting Kelly here.\nUnreavel the fun by chatting with me, say `kelly hi`.\nActivate your guild using `k activate`.\nUse `k help` to get started with user guide.\nAny bugs, queries or suggestions leave down with `k bug`.\nPrefixes: `k`, `kelly`, `@kelly`",color = discord.Colour.green())
-                        em.set_author(name= "Kelly", icon_url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
-                        em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}")
+                        em.set_author(name= "Kelly", icon_url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}.png")
+                        em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}.png")
                         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
                         await channel.send(embed= em, view=view)
                         break
@@ -255,7 +245,7 @@ class Bot:
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\nHope you'd come back soon.", color= Color.dark_gray())
             em.set_author(name= member.name, icon_url = member.avatar)
-            em.thumbnail(url= member.avatar)
+            em.set_thumbnail(url= member.avatar)
             em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
             try:
                 channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
