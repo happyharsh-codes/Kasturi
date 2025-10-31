@@ -123,6 +123,74 @@ class Utility(commands.Cog):
         await ctx.send("This command is yet to be made :/")
 
     @commands.command(aliases=[])
+    @commands.cooldown(1,10, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def bug(self, ctx):
+        """Report query, bugs and suggestions directly to the developer."""
+        em = Embed(title = "Report Bugs", description="Ow got some bugs, queries, or suggestions ?\nDrop them down below", color = Color.green())
+        em.set_thumbnail(url= "https://cdn.discordapp.com/emojis/1372191175133368411.png")
+        view = View(timeout = 45)
+        original_submit = ""
+        class MyPersistentView(View):
+            def __init__(self):
+                super().__init__(timeout=None)  # No timeout ✅
+
+            @discord.ui.button(label="Approve", style=discord.ButtonStyle.green, custom_id="approve_btn")
+            async def approve(self, interaction, button):
+                nonlocal ReportBugModal
+                modal = ReportBugModal(True) #reply
+                await interaction.response.send_modal(modal)
+        
+        class ReportBugModal(discord.ui.Modal):
+            def __init__(self, reply= False):
+                super().__init__(title="Submit Your Report")
+                self.reply = reply
+                if reply:
+                    self.input_box = TextInput(label="Enter your Bug/Query/Suggestion:",custom_id="query", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                else:
+                    self.input_box = TextInput(label="Enter Reply",custom_id="reply", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                self.add_item(self.input_box)
+            
+            def on_submit(self, interaction: Interaction):
+              try:
+                nonlocal button, msg, view
+                if reply:
+                    nonlocal original_submit
+                    em = Embed(title = "Reply for your Bug/Query/Suggestion Submit", description= "**Orignial Submit**:\n```{original_submit}**Response**:\n```{self.input_box.value}```", color = Color.green())
+                    em.set_footer(text= f"Replied by happy__harsh | 894072003533877279")
+                    dm_channel = ctx.author.dm_channel
+                    if not dm_channel:
+                        dm_channel = await ctx.author.create_dm()
+                    await dm.channel.send(embed = em)
+                    return 
+                
+                button.disabled = True
+                await msg.edit(view=view)
+                await interaction.channel.send(embed= Embed(title= "Your Response has been recored successfully", color = Color.green()))
+                nonlocal original_submit 
+                original_submit = self.input_box.value
+                em = Embed(title = f"Bug Reported by {ctx.author.display_name}", description= f"**Username**: {ctx.author.name}\n**Id**: {ctx.author.id}\n**Guild**: [{ctx.guild.name}]({Server_Settings[str(ctx.guild.id)]["invite_link"]})\n**Report**: {self.input_box.value}", color = Color.green())
+                em.set_footer(text= f"Reported by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
+                view = 
+                await self.client.get_user(894072003533877279).send(embed = em, view = view)
+                await interaction.response.defer()
+              except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
+        
+        async def callback():
+            modal = ReportBugModal()
+            await interaction.response.send_modal(modal)
+        async def on_timeout():
+            nonlocal msg
+            await msg.edit(view=None)
+        view.on_timeout = on_timeout
+        button = Button(style=ButtonStyle.green, custom_id= "watch", label= "Report Bugs")
+        view.add_item(button)
+        button.callback = callback
+        msg = await ctx.send(embed = em, view=view)
+        
+    @commands.command(aliases=[])
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def help(self, ctx, cmd = None):
@@ -180,12 +248,16 @@ class Utility(commands.Cog):
         category = None #the category for which help to show default None 
         command = None
         if cmd:
+            found = False
             for i, c in enumerate(menu_cmds):
                 for cm in c:
-                  if cmd in cm:
+                  if cmd.lower() == cm:
                     category = i
                     cmd = cm
                     get_started.label = "Show Examples"
+                    found = True
+                    break
+                if found:
                     break
             else:
                 await ctx.send(f"No help for {cmd} found")
@@ -348,6 +420,7 @@ class Utility(commands.Cog):
                 super().__init__(title="Set Welcome Message")
                 self.input_box = TextInput(label="Edit the Format and Submit.",custom_id="welcome", default= "Welcome to <guild_name>\n✦ <Text 1>- eg: Take Roles\n✦ <Text 2> - eg Read Rules\n✦ <Text 3> - eg Have Fun Here", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.input_box)
+            
             async def on_submit(self, interaction: Interaction):
               try:
                 nonlocal welcome_message, em, view, proceed_button, channel_select, msg, channel_select2
@@ -397,8 +470,7 @@ class Utility(commands.Cog):
                 await msg.edit(embed=em, view=view)
                 await interaction.response.defer()
               except Exception as e:
-                nonlocal client
-                await client.get_user(894072003533877279).send(e)
+                await self.client.get_user(894072003533877279).send(e)
         async def process_buttons(interaction: discord.Interaction):
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
