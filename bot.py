@@ -13,7 +13,8 @@ class Bot:
         self.client = client
         self.kelly = kelly
         self.last_request = datetime.now()
-
+        self.invite_cache = {}
+        
     @tasks.loop(minutes=1)
     async def unmute(self):
         for guild_id, settings in Server_Settings.items():
@@ -66,6 +67,7 @@ class Bot:
         self.save_files.start()
         self.unmute.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
+        #saving guilds
         for guild in self.client.guilds:
             invite_link = None
             for channel in guild.text_channels:
@@ -77,14 +79,18 @@ class Bot:
                     continue
             if str(guild.id) not in Server_Settings:
                 Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
+        #Adding help string for all functions
         for cmd in self.client.commands:
             if not cmd.help and cmd.callback.__doc__:
                 cmd.help = cmd.callback.__doc__.strip()
+        #Adding brief string for all functions
         for cmd_name, brief_text in DATA["brief"].items():
             cmd = self.client.get_command(cmd_name)
             if cmd:
                 cmd.brief = brief_text
-
+        #tracking invites
+        for guild in self.client.guilds:
+            self.invite_cache[guild.id] = {invite.code: invite.uses for invite in await guild.invites()} 
     
     async def on_message(self, message: discord.Message):
         start = time.time()
@@ -231,6 +237,23 @@ class Bot:
         Server_Settings.pop(str(guild.id))
     
     async def on_member_join(self, member: discord.Member):
+        #setting invites
+        invites_before = self.invite_cache[member.guild.id]
+        invites_after = {invite.code: invite.uses for invite in await member.guild.invites()}
+        used_invite = None
+        for code, uses in invites_after.items():
+            if code in invites_before and invites_before[code] > uses:
+                used_invite = invite
+                break
+            elif uses == 1:
+                used_invite = invite
+                break
+        self.invite_cache[member.guild.id] = invites_after
+        
+        inviter = "unknown"
+        if used_invite:
+            inviter = used_invite.inviter
+            INVITER[str(member.guild.id)][str(member.id)] = inviter.id
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             welcome_message = Server_Settings[str(member.guild.id)]["welcome_message"]
             part1 = welcome_message.split('\n')[0]
@@ -286,7 +309,8 @@ class Bot:
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner/Admin/Moderators immediately.**\n**Required permissions**: ```{'\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])}```**", color = Color.red()))
+            perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
+            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner//Admin//Moderators immediately.**\n**Required permissions**: ```{perms}```**", color = Color.red()))
         elif isinstance(error, discord.Forbidden):
             pass
         elif isinstance(error,commands.CommandOnCooldown):
@@ -309,7 +333,8 @@ class Bot:
             if ctx.author.id == 894072003533877279:
                 await ctx.reinvoke()
                 return
-            await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to do perfor this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{'\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])}", color = Color.red()))
+            perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
+            await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to do perfor this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{perms}", color = Color.red()))
 
         elif isinstance(error, commands.CheckFailure):
             code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
