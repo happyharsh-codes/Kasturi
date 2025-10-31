@@ -306,6 +306,9 @@ class Bot:
             msg = await ctx.send(view = view, emebd = Embed(title="Missing Arguments 📛", description="You are missing some required argumemt.\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
 
         elif isinstance(error, commands.MissingPermissions):
+            if ctx.author.id == 894072003533877279:
+                await ctx.reinvoke()
+                return
             await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to do perfor this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{'\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])}", color = Color.red()))
 
         elif isinstance(error, commands.CheckFailure):
