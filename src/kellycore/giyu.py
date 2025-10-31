@@ -53,7 +53,8 @@ class Giyu:
                 if "a:" in emoji:
                     ext = ".gif"
                 else:
-                    ext = ".png"dm_channel = message.author.dm_channel
+                    ext = ".png"
+                dm_channel = message.author.dm_channel
                 em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{emoji}{ext}")
                 if not dm_channel:
                     dm_channel = message.author.create_dm()
