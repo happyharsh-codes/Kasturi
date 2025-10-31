@@ -17,6 +17,9 @@ class Utility(commands.Cog):
         if not user:
             user = ctx.author
         rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
+        if rank_channel == 0 or rank_channel is None:
+            await ctx.send("This Server does not have Rank Channels set. Please set using `k set_rank_channel <#channel>", delete_after=6)
+            return
         if not ctx.channel.id == rank_channel:
             await ctx.send(f"This command only works in rank channel!! <#{rank_channel}>", delete_after=5)
             return
@@ -165,7 +168,6 @@ class Utility(commands.Cog):
        Play songs, discover tracks, and enjoy music together in VC.  
        `play`, `skip`, `queue`"""
         menu_cmds = [[cmdd.name for cmdd in cog.get_commands()] for cog in client.cogs.values()]
-        print(menu_cmds)
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=str(index)) for index, i in enumerate(menu)])
@@ -177,6 +179,16 @@ class Utility(commands.Cog):
         em.set_footer(text=f"For more help use k help <query>")
         category = None #the category for which help to show default None 
         command = None
+        if cmd:
+            for i, c in enumerate(menu_cmds):
+                if cmd in c:
+                    category = i
+                    cmd = c
+                    get_started.label = "Show Examples"
+                    break
+            else:
+                await ctx.send(f"No help for {cmd} found")
+                return
         
         def update():
             nonlocal self, cmd, descrip, category, em, menu, menu_descrip, command
@@ -531,6 +543,8 @@ class Utility(commands.Cog):
 
               if process_no == 9:
                 await interaction.response.edit_message(view=None)
+                embed= Embed(title= "Guild Setup Complete", description= "Thanks for setting up my bot on your server.\n`k help` for user guide.\nAny bugs, query or suggestions submit with `k bug`\nEnjoy and explore all features.\nMeet the devloper [here](https://discord.gg/y56na8kN9e)", color = color.Green())
+                await ctx.author.dm_channel.send(embed=embed)
                 return
             except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
