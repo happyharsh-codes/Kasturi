@@ -71,7 +71,7 @@ class Musik_and_Media(commands.Cog):
             except:
                 pass
             return
-        voice = ctx.voice_client
+        voice = ctx.guild.voice_client or ctx.voice_client
         if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
@@ -90,14 +90,11 @@ class Musik_and_Media(commands.Cog):
         }
         
         try:
-            if not ctx.voice_client or not ctx.voice_client.channel:
+            if not voice or not voice.channel:
                 return  # don't error if voice disconnected
 
             source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
-            ctx.voice_client.play(
-            source,
-            after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop)
-            )
+            voice.play(source,after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exception as e:
             if ctx.voice_client:
                 await ctx.voice_client.disconnect()
@@ -159,7 +156,7 @@ class Musik_and_Media(commands.Cog):
                 voted = 1
             if voted >= majority:  
                 em.set_author(name="▶️ Song Paused")
-                em.set_footer(name=f"Paused by **{voted}**/**{member_count}**")
+                em.set_footer(text=f"Paused by **{voted}**/**{member_count}**")
                 await voice_client.pause()
                 view.clear_items()
                 view.add_item(rewind)
@@ -184,7 +181,7 @@ class Musik_and_Media(commands.Cog):
                 voted = 1
             if voted >= majority:  
                 em.set_author(name="⏮️ Song Rewinded")
-                em.set_footer(name=f"Rewinded by **{voted}**/**{member_count}**")
+                em.set_footer(text=f"Rewinded by **{voted}**/**{member_count}**")
                 self.player[str(interaction.guild_id)].insert(1, music)
                 await voice_client.stop()
             else:
@@ -199,7 +196,7 @@ class Musik_and_Media(commands.Cog):
                 voted = 1
             if voted >= majority:  
                 em.set_author(name="⏭️ Song Skipped")
-                em.set_footer(name=f"Skipped by **{voted}**/**{member_count}**")
+                em.set_footer(text=f"Skipped by **{voted}**/**{member_count}**")
                 await voice_client.stop()
                 pause.disabled = True
                 rewind.disabled = True
@@ -351,11 +348,14 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
         music = music[0]
+        if not ctx.voice_client:
+            await ctx.send(embed= Embed(title = "Not connected to any voice channel."))
+            return
         for m in ctx.voice_client.channel.members:  
             if m.id == ctx.author.id:  
                 break  
         else:  
-            await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than me.", color=Color.red()))  
+            await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
         await self.send_player(ctx, music)
         
@@ -370,6 +370,9 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
         music = music[0]
+        if not ctx.voice_client:
+            await ctx.send(embed= Embed(title = "Not connected to any voice channel."))
+            return
         for m in ctx.voice_client.channel.members:  
             if m.id == ctx.author.id:  
                 break  
