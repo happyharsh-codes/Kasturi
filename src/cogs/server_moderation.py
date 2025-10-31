@@ -114,7 +114,7 @@ class Moderation(commands.Cog):
                 dm_channel = await member.create_dm()
             await dm_channel.send(embed=embed)
         except:
-            await ctx.send(f"{member.mention}", embed=embed)
+            await ctx.send(content= f"{member.mention}", embed=embed)
         em = Embed(title= "Warned User", description= f"**Reason:** {reason}", color = Color.pink())
         em.set_author(name= ctx.author.name, icon_url = ctx.author.avatar)
         em.set_footer(text=f"Warned by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar)
@@ -124,7 +124,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx: commands.Context, member: discord.Member,*, reason: str = "No reason provided"):
+    async def ban(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         """Bans a member permanently 🚫  
         Stops them from rejoining until unbanned.
         Moderators Only - Please consider case properly before using this command."""
@@ -140,14 +140,16 @@ class Moderation(commands.Cog):
         
         class LastWordsModal(discord.ui.Modal):
             
-            def __init__(self):
+            def __init__(self, member, view):
+                self.member = member
+                self.view = view
                 super().__init__(title="Last Words Apology Form")
                 self.input_box = TextInput(label="Enter Your Last Words Here:", custom_id="last_words", required= True, min_length=50, max_length=1024, style=TextStyle.paragraph, default="I'm sorry")
                 self.add_item(self.input_box)
             
             async def on_submit(self, interaction: Interaction):
               try:
-                nonlocal msg, view
+                member = self.member
                 last_words = self.input_box.value
                 owner = ctx.bot.get_user(ctx.guild.owner_id)
                 em = Embed(title = f"{member.name}/{member.username} Says their Last Words befor getting Banned.", description= f"```{last_words}```", color = Color.blue())
@@ -157,18 +159,19 @@ class Moderation(commands.Cog):
                     dm_channel = owner.dm_channel
                     if not dm_channel:
                         dm_channel = await owner.create_dm()
-                    msg = await dm_channel.send(embed=em)
+                    await dm_channel.send(embed=em)
                 except:
                     pass
                 view.clear_item()
                 view.add_item(Button(style=ButtonStyle.secondary,label="Last Words Submitted",custom_id="submitted",disabled=True))
-                await msg.edit(view=view)
+                await msg.edit(view=self.view)
                 await interaction.response.defer()
               except Exception as e:
                 await ctx.bot.get_user(894072003533877279).send(e)
         
         async def last_words(interaction: Interaction):
-            modal = LastWordsModal()
+            nonlocal view
+            modal = LastWordsModal(member, view)
             await interaction.response.send_modal(modal)
             
         
@@ -211,7 +214,7 @@ class Moderation(commands.Cog):
                 await ctx.send(embed=em)
                 dm_channel = entry.user.dm_channel
                 if not dm_channel:
-                    dm_channel = await entey.user.create_dm()
+                    dm_channel = await entry.user.create_dm()
                 try:
                     invite_link = Server_Settings[str(ctx.guild.id)]["invite_link"]
                     em = Embed(title = f"You were Unbanned from {ctx.guild.name}", description= f"You just got unbanned from the guild.\nClick here to join again\n{invite_link}", color=Color.green())
