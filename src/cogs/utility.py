@@ -181,9 +181,10 @@ class Utility(commands.Cog):
         command = None
         if cmd:
             for i, c in enumerate(menu_cmds):
-                if cmd in c:
+                for cm in c:
+                  if cmd in cm:
                     category = i
-                    cmd = c
+                    cmd = cm
                     get_started.label = "Show Examples"
                     break
             else:
