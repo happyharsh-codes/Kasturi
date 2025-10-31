@@ -248,21 +248,20 @@ class Bot:
     async def on_member_join(self, member: discord.Member):
         #setting invites
         invites_before = self.invite_cache[member.guild.id]
-        invites_after = {invite.code: invite.uses for invite in await member.guild.invites()}
         used_invite = None
-        for code, uses in invites_after.items():
-            if code in invites_before and invites_before[code] > uses:
-                used_invite = invite
+        for inv in await member.guild.invites():
+            before = invites_before.get(inv.code, 0)
+            after = inv.uses
+            if after > before:
+                used_invite = inv
                 break
-            elif uses == 1:
-                used_invite = await member.guild.fetch_invite(code)
-                break
-        self.invite_cache[member.guild.id] = invites_after
-        
-        inviter = "unknown"
+        self.invite_cache[guild.id] = {invite.code: invite.uses for invite in await member.guild.invites()}
         if used_invite:
             inviter = used_invite.inviter
-            INVITER[str(member.guild.id)][str(member.id)] = inviter.id
+            if str(member.guild.id) in INVITER:
+                INVITER[str(member.guild.id)][str(member.id)] = inviter.id
+            else:
+                INVITER[str(member.guild.id)] = {str(member.id) : inviter.id}
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             welcome_message = Server_Settings[str(member.guild.id)]["welcome_message"]
             part1 = welcome_message.split('\n')[0]
