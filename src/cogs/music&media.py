@@ -65,7 +65,7 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed = Embed(description= "No listeners leaving VC..."))
             try: 
                 self.player.pop(str(ctx.guild.id))
-                await voice.disconnect()
+                await ctx.guild.voice_client.disconnect()
             except:
                 pass
             return
@@ -95,10 +95,10 @@ class Musik_and_Media(commands.Cog):
             if not voice or not voice.channel:
                 return  # don't error if voice disconnected
             source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
-            voice.play(source,after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
+            ctx.guild.voice_client.play(source,after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exception as e:
-            if voice:
-                await voice.disconnect()
+            if ctx.guild.voice_client:
+                await ctx.guild.voice_client.disconnect()
             await ctx.send("Music stopped due to an unexpected error", delete_after=30)
             await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
     
@@ -158,7 +158,7 @@ class Musik_and_Media(commands.Cog):
             if voted >= majority:  
                 em.set_author(name="▶️ Song Paused")
                 em.set_footer(text=f"Paused by **{voted}**/**{member_count}**")
-                await voice.pause()
+                await interaction.guild.voice_client.pause()
                 view.clear_items()
                 view.add_item(rewind)
                 view.add_item(play)
@@ -167,7 +167,7 @@ class Musik_and_Media(commands.Cog):
             else:
                 em.description = f"\nPausing, **{voted}**/**{member_count}** (**{majority}** votes required)"
         elif pressed == "play":
-            await voice.resume()
+            await interaction.guild.voice_client.resume()
             view.clear_items()
             view.add_item(rewind)
             view.add_item(pause)
@@ -184,7 +184,7 @@ class Musik_and_Media(commands.Cog):
                 em.set_author(name="⏮️ Song Rewinded")
                 em.set_footer(text=f"Rewinded by **{voted}**/**{member_count}**")
                 self.player[str(interaction.guild_id)].insert(1, music)
-                await voice.stop()
+                await interaction.guild.voice_client.stop()
             else:
                 em.description = f"\nRewinding, **{voted}**/**{member_count}** (**{majority}** votes required)"
         
@@ -198,7 +198,7 @@ class Musik_and_Media(commands.Cog):
             if voted >= majority:  
                 em.set_author(name="⏭️ Song Skipped")
                 em.set_footer(text=f"Skipped by **{voted}**/**{member_count}**")
-                await voice.stop()
+                await interaction.guild.voice_client.stop()
                 pause.disabled = True
                 rewind.disabled = True
                 skip.disabled = True
@@ -269,7 +269,7 @@ class Musik_and_Media(commands.Cog):
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def play(self, ctx, search):
+    async def play(self, ctx, *, search):
         """Plays the Song music 🎶 on your VC"""  
         #Joining Vc  
         if not ctx.author.voice or not ctx.author.voice.channel:  
