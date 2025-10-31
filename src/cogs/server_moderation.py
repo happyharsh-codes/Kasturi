@@ -149,6 +149,7 @@ class Moderation(commands.Cog):
             
             async def on_submit(self, interaction: Interaction):
               try:
+                view = self.view
                 member = self.member
                 last_words = self.input_box.value
                 owner = ctx.bot.get_user(ctx.guild.owner_id)
@@ -168,6 +169,7 @@ class Moderation(commands.Cog):
                 await interaction.response.defer()
               except Exception as e:
                 await ctx.bot.get_user(894072003533877279).send(e)
+                await interaction.response.defer()
         
         async def last_words(interaction: Interaction):
             nonlocal view
