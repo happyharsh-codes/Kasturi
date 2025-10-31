@@ -57,10 +57,11 @@ class Giyu:
                     ext = ".gif"
                 else:
                     ext = ".png"
+                emoji = emoji.split(":")[2]
                 dm_channel = message.author.dm_channel
                 em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{emoji}{ext}")
                 if not dm_channel:
-                    dm_channel = message.author.create_dm()
+                    dm_channel = await message.author.create_dm()
                 try:
                     await dm_channel.send(embed=em)
                 except:
