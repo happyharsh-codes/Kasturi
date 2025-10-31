@@ -106,8 +106,17 @@ class Moderation(commands.Cog):
         """Gives an official warning ⚠️  
         Logs the reason and warn count for moderation tracking.
         You can set up automated actions when warn count reaches the limit by using `automod` command."""
-        pass
-        
+        embed = Embed(title = f"You have been Warned in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
+        embed.set_footer(name = "If you believe this was a mistake, you may ignore this or contact a staff member.")
+        try:
+            dm_channel = member.dm_channel
+            if not dm_channel:
+                dm_channel = await member.create_dm()
+            await dm_channel.send(embed=embed)
+        except:
+            await ctx.send(f"{member.mention}", embed=embed)
+        await ctx.send(embed= Embed(title= "Warned User", description= f"**Reason:** {reason}", color = Color.blue())
+    
     @commands.command(aliases= [])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
@@ -121,6 +130,54 @@ class Moderation(commands.Cog):
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         em.set_author(name=user.name, icon_url= user.avatar)
         await ctx.send(embed=em)
+        em = Embed(title= f"You were Banned from {ctx.guild.name}", description= f"**Reason:** {reason}", color = Color.red())
+        em.set_footer(name = "If you believe this was a mistake please forgive us.")
+        view = View()
+        button = Button(style=ButtonStyle.primary, custom_id= "revive", label = "Click Here to Say your Last Words")
+        
+        class SocialModal(discord.ui.Modal):
+            
+            def __init__(self):
+                super().__init__(title="Last Words Apology Form")
+                self.input_box = TextInput(label="Enter Your Last Words Here:", custom_id="last_words", required= True, min_length=50, max_length=1024, style=TextStyle.paragraph, default="I'm sorry")
+                self.add_item(self.input_box)
+            
+            async def on_submit(self, interaction: Interaction):
+              try:
+                nonlocal msg, view
+                last_words = self.input_box.value
+                owner = ctx.bot.get_user(ctx.guild.owner_id)
+                em = Embed(title = f"{member.name}/{member.username} Says their Last Words befor getting Banned.", description= f"```{last_words}```", color = Color.blue())
+                em.set_thumbnail(url=member.avatar)
+                em.set_footer(text= "If you think this was a mistake then please ignore.")
+                try:
+                    dm_channel = owner.dm_channel
+                    if not dm_channel:
+                        dm_channel = await owner.create_dm()
+                    msg = await dm_channel.send(embed=em)
+                except:
+                    pass
+                view.clear_item()
+                view.add_item(Button(style=ButtonStyle.secondary,label="Last Words Submitted",custom_id="submitted",disabled=True)
+                await msg.edit(view=view)
+                await interaction.response.defer()
+              except Exception as e:
+                await ctx.bot.get_user(894072003533877279).send(e)
+        
+        async def last_words(interaction: Interaction):
+            modal = LastWordsModal()
+            await interaction.response.send_modal(modal)
+            
+        
+        button.callback = last_words
+        view.add_item(button)
+        try:
+            dm_channel = member.dm_channel
+            if not dm_channel:
+                dm_channel = await member.create_dm()
+            msg = await dm_channel.send(embed=em, view=view)
+        except:
+            pass
 
     @commands.command(aliases=["kelly_ban", "kban"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -149,7 +206,9 @@ class Moderation(commands.Cog):
                 em = Embed(title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
                 em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
-                dm_channel = await entry.user.create_dm()
+                dm_channel = entry.user.dm_channel
+                if not dm_channel:
+                    dm_channel = await entey.user.create_dm()
                 try:
                     invite_link = Server_Settings[str(ctx.guild.id)]["invite_link"]
                     await dm_channel.send(content=f"Hurray! You just got unbanned from the guild `{ctx.guild.name}`.\n Click here to join again:\n{invite_link}")
@@ -209,7 +268,8 @@ class Moderation(commands.Cog):
     async def undeafen(self, ctx: commands.Context, member: discord.Member):
         """Undeafens user from all Voice Channels 📢
         If defened already."""
-        pass
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+        
         
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -218,7 +278,7 @@ class Moderation(commands.Cog):
     async def clean(self, ctx: commands.Context, amount: int = 5):
         """Deletes given no of messages from the channel."""
         deleted = await ctx.channel.purge(limit=amount + 1)
-        await ctx.send(f"Deleted {len(deleted) - 1} messages.", delete_after=5)
+        await ctx.send(embed=Embed(description=f"Deleted {len(deleted) - 1} messages."), delete_after=5)
 
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -227,7 +287,7 @@ class Moderation(commands.Cog):
     async def slowmode(self, ctx: commands.Context, channel: discord.TextChannel, seconds: int):
         """Adds Slowmode to the given channel. Use slowmode #channel 0 to remove slowmode"""
         await channel.edit(slowmode_delay=seconds)
-        await ctx.send(f"Slowmode set to `{seconds}` seconds in {channel.mention}")
+        await ctx.send(embed = Embed(title = f"Slowmode set to `{seconds}` seconds in {channel.mention}"))
 
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -236,7 +296,7 @@ class Moderation(commands.Cog):
     async def purge(self, ctx: commands.Context, amount: int = 5):
         """Deletes given no of messages from the channel."""
         deleted = await ctx.channel.purge(limit=amount + 1)
-        await ctx.send(f"Purged {len(deleted) - 1} messages.", delete_after=5)
+        await ctx.send(embed = Embed(title=f"Purged {len(deleted) - 1} messages."), delete_after=5)
 
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -247,7 +307,8 @@ class Moderation(commands.Cog):
         Prevents members from sending messages.
         However members with special permission can stil send messages.
         If time is provided unlocks automatically after the expiry time otherwise remains locked unless unlocked with the `unlock` command."""
-        pass
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+
 
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -256,7 +317,8 @@ class Moderation(commands.Cog):
     async def unlock(self, ctx: commands.Context):
         """Unlocks the current channel 🔓  
         Restores chat access for members."""
-        pass
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+
         
     @commands.command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -288,7 +350,8 @@ class Moderation(commands.Cog):
     async def set_social_channel(self, ctx: commands.Context):
         """Sets the social media updates channel 🌐  
         Posts updates from YouTube, Instagram, Twitter."""
-        pass 
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+ 
 
 async def setup(bot):
     await bot.add_cog(Moderation(bot))
