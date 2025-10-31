@@ -193,12 +193,10 @@ class Dev_Tech_Tools(commands.Cog):
 
         def updator():
             nonlocal em, posts, page, view, left, right
-            if posts:
-                mypost = posts[page-1]
-                em.clear_fields()
-                em.add_field(name=f"{mypost['caption']}", value=f"❤️ {mypost['likes']} 💬 {mypost['comments']}")
-                em.set_image(url=mypost["img"])
-
+            mypost = posts[page-1]
+            em.clear_fields()
+            em.add_field(name=f"{mypost['caption']}", value=f"❤️ {mypost['likes']} 💬 {mypost['comments']}")
+            em.set_image(url=mypost["img"])
             watch = Button(style=ButtonStyle.link, url=mypost["url"], label=username, row=0)
             view.clear_items()
             view.add_item(left)
@@ -224,7 +222,10 @@ class Dev_Tech_Tools(commands.Cog):
         left.callback = onleftright
         right.callback = onleftright
         view.on_timeout = on_timeout
-        updator()
+        if posts:
+            updator()
+        else:
+            view = None
         msg = await ctx.send(embed=em, view=view)
 
 async def setup(bot):
