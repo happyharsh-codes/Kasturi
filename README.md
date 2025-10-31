@@ -1,7 +1,10 @@
-# Happy Harsh
+# Meet Kelly Here
 
 <a href="https://discord.gg/SVmpbpf9H7" target="_blank">
     <img src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=Kelly's+Homeland&logoColor=white" />
+    <h1> Kelly a cute highly dignified, chatting moderator bot. She is the moderator boss of discord kingdom. A multipurpose Chatting bot that can almost do anything just by chatting, no need to run command explicitly.</h1>
+    <p>• Server Moderation<br>• Music <br> • Fun and Entertainment <br> • Games and Economy <br> • Music <br> Invites Tracking <br> • Utilty ... and many more. <br> Invite now to check out</p>
+    <img src="assets//kellybanner.png" alt = "banner" />
 </a>
 
   
