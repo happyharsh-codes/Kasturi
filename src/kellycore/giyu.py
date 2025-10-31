@@ -39,10 +39,13 @@ class Giyu:
                     booster_text= f"Boosting since <t:{int(message.author.premium_since.timestamp())}:D>"
                 else:
                     booster_text = 'Not Boosting'
-                inviter_id = INVITER[str(message.guild.id)].get(str(message.author.id),None)
-                if inviter_id:
-                    inviter = self.client.get_user(inviter_id)
-                invite_text = f"{inviter.mention} - {inviter.name}"
+                invite_text = "unknown"
+                inviter_guild = INVITER.get(str(message.guild.id), None)
+                if inviter_guild:    
+                    inviter_id = inviter_guild.get(str(message.author.id),None)
+                    if inviter_id:
+                        inviter = self.client.get_user(inviter_id)
+                        invite_text = f"{inviter.mention} - {inviter.name}"
                 em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.author.name}\n**👤 Name:** {message.author.display_name}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(message.author)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
                 em.set_thumbnail(url= message.author.avatar)
                 em.set_author(name = f"{message.author.name}")
