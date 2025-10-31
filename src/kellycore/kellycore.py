@@ -14,7 +14,7 @@ class Kelly:
         self.relations = KellyRealtion()
         self.chats = Chats
         self.mood.generateRandomMood()
-        self.giyu = Giyu()
+        self.giyu = Giyu(bot)
         self.commands = None
                 
     async def reportError(self, error):
