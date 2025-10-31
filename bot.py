@@ -42,7 +42,11 @@ class Bot:
     @tasks.loop(minutes=1)
     async def mood_swings(self):
         action = self.kelly.mood.moodSwing()
-        for settings in Server_Settings.values():
+        for id, settings in Server_Settings.values():
+            if settings["activated_channels"]:
+                guild = await self.client.fetch_guild(int(id))
+                channel = await guild.fetch_channel(int(settings["activated_channels"][0]))
+                await channel.send(f"-# Kelly went to mood {action}", delete_after = 30)
             if randint(1,7) == 7 and settings["timer_messages"]:
                 await self.kelly.reportAction(action)
 
@@ -282,17 +286,27 @@ class Bot:
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.reply("sorry I dont have perms to do that")
+            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner/Admin/Moderators immediately.**\n**Required permissions**: ```{'\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])}```**", color = Color.red()))
         elif isinstance(error, discord.Forbidden):
             pass
         elif isinstance(error,commands.CommandOnCooldown):
           await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"requested by {ctx.author.name} at  {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
         )
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("***Oho*** you are missing an argumemt.\nUse `k help <command>` to get help")
+            view = View(timeout =60)
+            def on_timeout():
+                nonlocal msg
+                await msg.edit(view=None)
+            async def helper(interaction: Interaction):
+                await interaction.response.defer()
+                await ctx.invoke(ctx.bot.get_command(help), ctx.command.name)
+            see_usage = Button(style=ButtonStyle.primary, custom_id="see_usage", label= "See Usage 🏷️")
+            see_usage.callback = helper
+            view.add_item(see_usage)
+            msg = await ctx.send(view = view, emebd = Embed(title="Missing Arguments 📛", description="You are missing some required argumemt.\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
 
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.send(f"Ayoo you dont have permissions to do that!! {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}")
+            await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to do perfor this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{'\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])}", color = Color.red()))
 
         elif isinstance(error, commands.CheckFailure):
             code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
@@ -311,14 +325,14 @@ class Bot:
                 emoji = EMOJI[f"kelly{choice(['annoyed', 'laugh', 'gigle', 'waiting', 'idontcare', 'chips', 'bweh', 'bweh'])}"]
                 await msg.reply(f"**{emoji} | ** you dont even do a single thing properly disgusting!! Dont ever come to me again")
         else:
-            await ctx.send("Unknown error happened :/")
+            await ctx.send(embed=Embed(description="Unknown error happened :/"))
             user = self.client.get_user(894072003533877279)
             if user != None:
-                await user.send(f"Crash report on command error: {error}")
+                await user.send(embed=Embed(title= f"Crash report on command error", description = f"```{error}```")
 
     async def on_error(self, event_method):
         print(f"Error in event: {event_method}")
-        await self.client.get_user(894072003533877279).send(f"Error in event: {event_method}")
+        await self.client.get_user(894072003533877279).send(embed= Embed(title=f"Error in event", description = f"```{event_method}```", color = Color.red()))
 
     async def on_disconnect(self):
         print("Disconnected")
