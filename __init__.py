@@ -130,12 +130,16 @@ def timestamp(ctx):
     return ctx.message.created_at.replace(tzinfo=timezone.utc).strftime('%d %B %Y %H:%M UTC')
 
 class BugReportView(View):
-    def __init__(self):
+    def __init__(self, button, message, view, ctx):
         super().__init__(timeout=None)  # No timeout ✅
-
+        self.buttom = button
+        self.msg = message
+        self.view = view
+        self.ctx = ctx
+    
     @discord.ui.button(label="Approve", style=discord.ButtonStyle.green, custom_id="approve_btn")
     async def approve(self, interaction, button):
-        modal = ReportBugModal(True) #reply
+        modal = ReportBugModal(self.buttom, self.msg, self.view, self.ctx, True) #reply
         await interaction.response.send_modal(modal)
         
 class ReportBugModal(discord.ui.Modal):
@@ -172,7 +176,7 @@ class ReportBugModal(discord.ui.Modal):
         await interaction.channel.send(embed= Embed(title= "Your Response has been recored successfully", color = Color.green()))
         em = Embed(title = f"Bug Reported by {ctx.author.display_name}", description= f"**Username**: {ctx.author.name}\n**Id**: {ctx.author.id}\n**Guild**: [{ctx.guild.name}]({Server_Settings[str(ctx.guild.id)]['invite_link']})\n**Report**: {self.input_box.value}", color = Color.green())
         em.set_footer(text= f"Reported by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
-        view = BugReportView()
+        view = BugReportView(button, msg, view, ctx)
         await interaction.client.get_user(894072003533877279).send(embed = em, view = view)
         await interaction.response.defer()
       except Exception as e:
