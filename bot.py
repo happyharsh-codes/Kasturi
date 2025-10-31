@@ -155,9 +155,19 @@ class Bot:
                     Server_Settings[str(guild)]['afk'].remove(afk)
                 elif self.client.get_user(afk).mentioned_in(message):
                     await message.channel.send(embed= Embed(description=f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!"))
+            #cheking for Administrator Permission given or not
+            bot_member = message.guild.me
+            if not bot_member.guild_permissions.administrator:
+                em = Embed(title= "Administrator Permission is Compulsory", description = "I need administrator permission to operate properly. This is beacause our bot is multipurpose and requries almost all kinds of permissions. Please grant me administrator permission. This is safe we do not intend to do anything malicious. If you are still not satisfied why we need this [Click Here](https://discord.gg/y56na8kN9e)", color = Color.red())
+                await message.channel.send(embed=em)
+                return
             #checking for allowed channel
             if Server_Settings[str(guild)]["allowed_channels"] != [] and channel not in Server_Settings[str(guild)]["allowed_channels"] and message.content.lower().startswith(("kasturi", "kelly")):
+                channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
+                await message.channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} Too bad cuz I only chat in these channels {channels_str}", delete_after = 8)
                 return
+            elif Server_Settings[str(guild)]["allowed_channels"] == []:
+                await message.channel.send(f"-# {choice(["Heyyy", "Oi", "Ayoo", "Abe", "Oho"])} {choice(list(EMOJI.values()))} Activate your Server using `k activate` now")
             #replying to replies i.e messages without prefixes
             if message.reference and message.reference.message_id:
                 try:
@@ -335,8 +345,7 @@ class Bot:
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
             await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner//Admin//Moderators immediately.**\n**Required permissions**: ```{perms}```", color = Color.red()))
         elif isinstance(error, discord.Forbidden):
-            perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
-            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner//Admin//Moderators immediately.**\n**Required permissions**: ```{perms}```", color = Color.red()))
+            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"Discord blocked me from performing this action. I likely don't have the required permissions. Please check that I have ```Administrator``` Permission allowed.", color = Color.red()))
         elif isinstance(error,commands.CommandOnCooldown):
           await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
         elif isinstance(error, commands.MissingRequiredArgument):
