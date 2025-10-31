@@ -51,7 +51,7 @@ class Giyu:
                 em.set_author(name = f"{message.author.name}")
                 await message.channel.send(f"{message.author.mention}", embed= em)
                 Relation[str(message.author.id)] = 1
-                em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with [Discord TOS](https://discord.com/terms) And our (Kelly TOC)[https://top.gg/bot/1368884334076891136?s=05ffa0896dc29].Hope you like my bot, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
+                em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with [Discord TOS](https://discord.com/terms) And our [Kelly TOC](https://top.gg/bot/1368884334076891136?s=05ffa0896dc29).Hope you like my bot, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
                 emoji = choice(list(EMOJI.values()))
                 if "a:" in emoji:
                     ext = ".gif"
