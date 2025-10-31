@@ -255,7 +255,7 @@ class Bot:
             if after > before:
                 used_invite = inv
                 break
-        self.invite_cache[guild.id] = {invite.code: invite.uses for invite in await member.guild.invites()}
+        self.invite_cache[member.guild.id] = {invite.code: invite.uses for invite in await member.guild.invites()}
         if used_invite:
             inviter = used_invite.inviter
             if str(member.guild.id) in INVITER:
