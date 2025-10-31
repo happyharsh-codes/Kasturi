@@ -21,7 +21,7 @@ class Musik_and_Media(commands.Cog):
         em.url = music["link"]
         em.description = f"**Artist**: {','.join(music['artists'])}\n**Duration**: {music['duration']}"
         em.set_thumbnail(url= music["thumbnail_url"])
-        em.set_footer(text= ". Operate Music Player with buttons")
+        em.set_footer(text= "Operate Music Player with buttons")
         
         pause = Button(style=ButtonStyle.secondary, custom_id="pause", label="⏸️")
         play = Button(style=ButtonStyle.secondary, custom_id="play", label="▶️", disabled = True)
@@ -90,10 +90,18 @@ class Musik_and_Media(commands.Cog):
         }
         
         try:
-            source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)    
-            voice.play(source, after= lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
+            if not ctx.voice_client or not ctx.voice_client.channel:
+                return  # don't error if voice disconnected
+
+            source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
+            ctx.voice_client.play(
+            source,
+            after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop)
+            )
         except Exception as e:
-            await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
+            if ctx.voice_client:
+                await ctx.voice_client.disconnect()
+            await ctx.send("Music stopped due to an unexpected error", delete_after=30)
             await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
     
     async def music_player(self, interaction: Interaction):
@@ -111,7 +119,7 @@ class Musik_and_Media(commands.Cog):
             return
             
         member_count = len([m for m in voice_client.channel.members]) - 1#for own
-        majority = ceil(0.7 * member_count)
+        majority = math.ceil(0.7 * member_count)
         voted = 0
         description = interaction.message.embeds[0].description.lower()
 
@@ -306,7 +314,7 @@ class Musik_and_Media(commands.Cog):
                 estimated_time = f"{seconds//60}:{seconds%60}"  
         else:  
             estimated_time = "00:00"  
-        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track['title']}**]({music_track['link']})\n**Artist**: {music_track['artists'][0]}\n**Duration**: {music_track['duration']}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
+        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track['title']}**]({music_track['link']})\n**Artist**: {','.join(music_track['artists'])}\n**Duration**: {music_track['duration']}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
         em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
         em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
         em.set_thumbnail(url= music_track["thumbnail_url"])  
