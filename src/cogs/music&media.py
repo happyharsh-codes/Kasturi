@@ -123,10 +123,10 @@ class Musik_and_Media(commands.Cog):
             except:
                 pass
             return 
-        if interaction.user.voice is None or interaction.user.voice.channel.id != voice_client.channel.id:
+        if interaction.user.voice is None or interaction.user.voice.channel.id != voice.channel.id:
             return
             
-        member_count = len([m for m in voice_client.channel.members]) - 1#for own
+        member_count = len([m for m in voice.channel.members]) - 1#for own
         majority = math.ceil(0.7 * member_count)
         voted = 0
         description = interaction.message.embeds[0].description.lower()
@@ -168,7 +168,7 @@ class Musik_and_Media(commands.Cog):
             if voted >= majority:  
                 em.set_author(name="▶️ Song Paused")
                 em.set_footer(text=f"Paused by **{voted}**/**{member_count}**")
-                await voice_client.pause()
+                await voice.pause()
                 view.clear_items()
                 view.add_item(rewind)
                 view.add_item(play)
@@ -177,7 +177,7 @@ class Musik_and_Media(commands.Cog):
             else:
                 em.description = f"\nPausing, **{voted}**/**{member_count}** (**{majority}** votes required)"
         elif pressed == "play":
-            await voice_client.resume()
+            await voice.resume()
             view.clear_items()
             view.add_item(rewind)
             view.add_item(pause)
@@ -194,7 +194,7 @@ class Musik_and_Media(commands.Cog):
                 em.set_author(name="⏮️ Song Rewinded")
                 em.set_footer(text=f"Rewinded by **{voted}**/**{member_count}**")
                 self.player[str(interaction.guild_id)].insert(1, music)
-                await voice_client.stop()
+                await voice.stop()
             else:
                 em.description = f"\nRewinding, **{voted}**/**{member_count}** (**{majority}** votes required)"
         
@@ -208,7 +208,7 @@ class Musik_and_Media(commands.Cog):
             if voted >= majority:  
                 em.set_author(name="⏭️ Song Skipped")
                 em.set_footer(text=f"Skipped by **{voted}**/**{member_count}**")
-                await voice_client.stop()
+                await voice.stop()
                 pause.disabled = True
                 rewind.disabled = True
                 skip.disabled = True
@@ -222,7 +222,7 @@ class Musik_and_Media(commands.Cog):
                     lyrics = GENIUS.search_song(music['title'])
                     await interaction.message.channel.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]}```")
                 except:
-                    await interaction.followup.send("Couldn't get any lyrics for this song")
+                    await interaction.channel.send("Couldn't get any lyrics for this song")
             lyrics.disabled = True
         
         await interaction.response.edit_message(embed=em, view=view)
