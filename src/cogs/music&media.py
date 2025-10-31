@@ -231,7 +231,7 @@ class Musik_and_Media(commands.Cog):
             "nopart": True,
             #"extract_flat": True,
             "default_search": "ytsearch",
-            "cookiefile": "assets//cookie.txt"
+            "cookiefile": "assets//cookie.txt",
             "youtube_include_dash_manifest": False,
             "youtube_include_hsl_manifest": False
         }
@@ -432,7 +432,7 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
         music = music[0]
-        voice = client.guild.voice_client
+        voice = ctx.guild.voice_client
         if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
