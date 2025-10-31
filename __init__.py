@@ -127,7 +127,7 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     return response.choices[0].message.content
 
 def timestamp(ctx):
-    return ctx.message.created_at.replace(tzinfo=timezone.utc).strftime('%d %B %Y %H:%M UTC')}
+    return ctx.message.created_at.replace(tzinfo=timezone.utc).strftime('%d %B %Y %H:%M UTC')
 
 class BugReportView(View):
     def __init__(self):
