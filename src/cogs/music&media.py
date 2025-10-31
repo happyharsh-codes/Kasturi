@@ -35,7 +35,7 @@ class Musik_and_Media(commands.Cog):
         skip.callback = self.music_player
         lyrics.callback = self.music_player
         
-        view = View(timeout=120)
+        view = View(timeout=10)
         async def on_timeout():
             nonlocal msg, view, pause, rewind, skip, lyrics
             pause.disabled = True
@@ -65,8 +65,20 @@ class Musik_and_Media(commands.Cog):
             self.player[str(ctx.guild.id)].pop(0)
         if self.player[str(ctx.guild.id)] == []:
             await ctx.send(embed = Embed(title= "Queue Finished \nLeaving VC . . ."),color = Color.dark_gold())
+            self.player.pop(str(ctx.guild.id))
+            try:
+                await ctx.voice_client.disconnect()
+            except:
+                pass
             return
-            
+        voice = ctx.voice_client
+        if not voice:
+            await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
+            try:
+                self.player.pop(str(ctx.guild.id))
+            except:
+                pass
+            return 
         #sending music player
         music = self.player[str(ctx.guild.id)][0]
         await self.send_player(ctx, music)
@@ -78,15 +90,7 @@ class Musik_and_Media(commands.Cog):
         }
         
         try:
-            source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
-            voice = ctx.voice_client
-            if not voice:
-                await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-                try:
-                    self.player.pop(str(ctx.guild.id))
-                except:
-                    pass
-                return 
+            source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)    
             voice.play(source, after= lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exception as e:
             await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
@@ -202,13 +206,13 @@ class Musik_and_Media(commands.Cog):
                     lyrics = GENIUS.search_song(music['title'])
                     await interaction.message.channel.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]}```")
                 except:
-                    await ctx.send("Couldn't get any lyrics for this song")
+                    await interaction.followup.send("Couldn't get any lyrics for this song")
             lyrics.disabled = True
         
         await interaction.response.edit_message(embed=em, view=view)
       except Exception as e:
-        await ctx.send("Unexpected error: Music Player stopped working", delete_after=30)
-        await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
+        await interaction.channel.send("Unexpected error: Music Player stopped working", delete_after=30)
+        await self.client.get_user(894072003533877279).send(f"Error in music player: {e}")
     
     async def search_song(self, track_name):
         results = self.sp.search(track_name ,limit=1, type= "track")
@@ -244,8 +248,7 @@ class Musik_and_Media(commands.Cog):
             if track["duration"] == "0:00":
                 duration = tracks.get("duration_ms", 0)//1000
                 track["duration"] = f"{duration//60}:{duration%60}"
-            if not track["thumbnail_url"]:
-                track["thumbnail_url"] = tracks["album"]["images"][0]["url"]
+            track["thumbnail_url"] = tracks["album"]["images"][0]["url"]
         else:
             track["emoji"] = "<:youtube:1432179973367533578>"
             track["title"] = info["title"]
@@ -325,7 +328,7 @@ class Musik_and_Media(commands.Cog):
         else:
             await ctx.send(embed= Embed(description= "Playlist empty. Play songs using `play` command"))
             return
-        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"[**{song['title']}**]({song['link']}) - {song['duration']}" for song in songs]) , color = Color.purple())  
+        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"{i}. [**{song['title']}**]({song['link']}) - {song['duration']}" for i, song in enumerate(songs)]) , color = Color.purple())  
         em.set_footer(text= f"Requested by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
         await ctx.send(embed = em)  
       
