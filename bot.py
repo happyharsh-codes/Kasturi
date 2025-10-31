@@ -333,9 +333,10 @@ class Bot:
             await self.kelly.kellyQuery(ctx.message)
         elif isinstance(error, commands.BotMissingPermissions):
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
-            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner//Admin//Moderators immediately.**\n**Required permissions**: ```{perms}```**", color = Color.red()))
+            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner//Admin//Moderators immediately.**\n**Required permissions**: ```{perms}```", color = Color.red()))
         elif isinstance(error, discord.Forbidden):
-            pass
+            perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
+            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner//Admin//Moderators immediately.**\n**Required permissions**: ```{perms}```", color = Color.red()))
         elif isinstance(error,commands.CommandOnCooldown):
           await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
         elif isinstance(error, commands.MissingRequiredArgument):
@@ -356,7 +357,7 @@ class Bot:
                 await ctx.reinvoke()
                 return
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
-            await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to do perfor this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{perms}```", color = Color.red()))
+            await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to perform this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{perms}```", color = Color.red()))
 
         elif isinstance(error, commands.CheckFailure):
             code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
