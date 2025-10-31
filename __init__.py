@@ -135,7 +135,6 @@ class BugReportView(View):
 
     @discord.ui.button(label="Approve", style=discord.ButtonStyle.green, custom_id="approve_btn")
     async def approve(self, interaction, button):
-        nonlocal ReportBugModal
         modal = ReportBugModal(True) #reply
         await interaction.response.send_modal(modal)
         
