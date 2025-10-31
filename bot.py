@@ -311,8 +311,23 @@ class Bot:
         except:
             pass
 
+    async def before_any_command(ctx):
+        ctx._typing = ctx.channel.typing()
+        await ctx._typing.__aenter__()
+
+    async def after_any_command(ctx):
+        try:
+            await ctx._typing.__aexit__(None, None, None)
+        except:
+            pass
+            
     async def on_command_error(self, ctx, error):
         '''Handelling errors'''
+        if hasattr(ctx, "_typing"):
+            try:
+                await ctx._typing.__aexit__(None, None, None)
+            except:
+                pass
         if isinstance(error, commands.CommandNotFound):
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
