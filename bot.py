@@ -312,11 +312,11 @@ class Bot:
         except:
             pass
 
-    async def before_any_command(ctx):
+    async def before_any_command(self, ctx):
         ctx._typing = ctx.channel.typing()
         await ctx._typing.__aenter__()
 
-    async def after_any_command(ctx):
+    async def after_any_command(self, ctx):
         try:
             await ctx._typing.__aexit__(None, None, None)
         except:
