@@ -43,11 +43,11 @@ class Bot:
     @tasks.loop(minutes=1)
     async def mood_swings(self):
         action = self.kelly.mood.moodSwing()
-        for id, settings in Server_Settings.values():
+        for id, settings in Server_Settings.items():
             if settings["activated_channels"]:
                 guild = await self.client.fetch_guild(int(id))
                 channel = await guild.fetch_channel(int(settings["activated_channels"][0]))
-                await channel.send(f"-# Kelly went to mood {action}", delete_after = 30)
+                await channel.send(f"-# Kelly went to mood {action}", delete_after = 20)
             if randint(1,7) == 7 and settings["timer_messages"]:
                 await self.kelly.reportAction(action)
 
@@ -254,7 +254,7 @@ class Bot:
                 used_invite = invite
                 break
             elif uses == 1:
-                used_invite = invite
+                used_invite = await member.guild.fetch_invite(code)
                 break
         self.invite_cache[member.guild.id] = invites_after
         
@@ -322,8 +322,7 @@ class Bot:
         elif isinstance(error, discord.Forbidden):
             pass
         elif isinstance(error,commands.CommandOnCooldown):
-          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"requested by {ctx.author.name} at  {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url=ctx.author.avatar)
-        )
+          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar))
         elif isinstance(error, commands.MissingRequiredArgument):
             view = View(timeout =60)
             async def on_timeout():
@@ -331,11 +330,11 @@ class Bot:
                 await msg.edit(view=None)
             async def helper(interaction: Interaction):
                 await interaction.response.defer()
-                await ctx.invoke(ctx.bot.get_command(help), ctx.command.name)
+                await ctx.invoke(ctx.bot.get_command("help"), ctx.command.name)
             see_usage = Button(style=ButtonStyle.primary, custom_id="see_usage", label= "See Usage 🏷️")
             see_usage.callback = helper
             view.add_item(see_usage)
-            msg = await ctx.send(view = view, emebd = Embed(title="Missing Arguments 📛", description="You are missing some required argumemt.\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
+            msg = await ctx.send(view = view, embed = Embed(title="Missing Arguments 📛", description="You are missing some required argumemt.\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
 
         elif isinstance(error, commands.MissingPermissions):
             if ctx.author.id == 894072003533877279:
