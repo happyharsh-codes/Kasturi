@@ -17,20 +17,21 @@ class Fun(commands.Cog):
         emoji = EMOJI[f"kelly{emoji}"]
         await ctx.send(f"{emoji} **|** {joke}")
 
-    @commands.command(aliases=[])
+    """@commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def picture(self, ctx, promt):
         await ctx.send("This command is yet to be made :/")
-
+    """
+    
     @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def mock(self, ctx, user:discord.Member):
-        """Mock somone"""
-        mock_response = getResponse(f"Mock {ctx.author.name} for me", "you are mocker expert (in 20 words)", client=0)
+    async def roast(self, ctx, user:discord.Member):
+        """Roast somone"""
+        mock_response = getResponse(f"Mock {ctx.author.name} for me", "you are roaster expert (in 20 words)", client=0)
         await ctx.send(f"{user.mention} {mock_response}")
 
     @commands.command(aliases=[])
