@@ -13,7 +13,48 @@ class Giyu:
                 prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
                 response = getResponse(message.content, prompt, client=0)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+                badges = []
+                flags = message.author.public_flags
+                if flags.hypesquad_bravery: badges.append("🦁 Bravery")
+                if flags.hypesquad_brilliance: badges.append("🧠 Brilliance")
+                if flags.hypesquad_balance: badges.append("⚖️ Balance")
+                if flags.verified_bot: badges.append("✅ Verified Bot")
+                if flags.staff: badges.append("🛡️ Discord Staff")
+                badge_text = ", ".join(badges) if badges else "No Public Badges"
+                created = int(message.author.created_at.timestamp())
+                joined = int(message.author.joined_at.timestamp())
+                
+                def get_device(member):
+                    devices = []
+                    if str(member.mobile_status) != "offline":
+                        devices.append("📱 Mobile")
+                    if str(member.desktop_status) != "offline":
+                        devices.append("🖥️ Desktop")
+                    if str(member.web_status) != "offline":
+                        devices.append("🌐 Web")
+
+                    return ", ".join(devices) if devices else "❌ Offline / Invisible"
+
+                if member.premium_since:
+                    booster_text= f"Boosting since <t:{int(member.premium_since.timestamp())}:D>"
+                else:
+                    booster_text = 'Not Boosting'
+                
+                em.add_field(name="🏅 Badges"
+                em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.member.name}\n**👤 Name:** {message.member.display_name)}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(member)}\n**🚀 Server Booster**: {booster_text}", color= Color.purple())
+                em.set_thumbnail(url= message.author.avatar)
+                em.set_author(name = f"{message.author.name}")
+                await ctx.send(f"{message.author.mention}", embed= em)
                 Relation[str(message.author.id)] = 1
+                em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with Discord TOC And our Kelly TOC.Hope you like my boy, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
+                em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{choice(list(EMOJI.values())).split(':')[1]}.png")
+                dm_channel = message.author.dm_channel
+                if not dm_channel:
+                    dm_channel = message.author.create_dm()
+                try:
+                    await dm_channel.send(embed=em)
+                except:
+                    pass
                 return False
             elif message.author.id in Server_Settings[str(message.guild.id)]["block_list"]:
                 prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is already BANNED by kelly shoo him away.\nGenerate: Your Response in 20 words with emojis"
