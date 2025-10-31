@@ -93,7 +93,12 @@ class Musik_and_Media(commands.Cog):
         try:
             if not voice or not voice.channel:
                 return  # don't error if voice disconnected
-            source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
+            loop = asyncio.get_event_loop()
+            source = await loop.run_in_executor(
+            None,
+            lambda: discord.FFmpegOpusAudio(music["audio_url"], **ffmpeg_options)
+            )
+            #source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
             voice.play(source,after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exception as e:
             if ctx.guild.voice_client:
@@ -234,8 +239,12 @@ class Musik_and_Media(commands.Cog):
             "youtube_include_dash_manifest": False,
             "youtube_include_hsl_manifest": False
         }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f"ytsearch1: {track_name}", download=False)
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:  
+            loop = asyncio.get_event_loop()
+            info = await loop.run_in_executor(
+            None,
+            lambda: ydl.extract_info(f"ytsearch1: {track_name}", download=False)
+            ) 
             if not info:
                 return None
             if "entries" in info and len(info["entries"])>0:
