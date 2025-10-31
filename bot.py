@@ -67,7 +67,7 @@ class Bot:
         self.save_files.start()
         self.unmute.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
-        self.client.add_view(BotReportView())
+        self.client.add_view(BugReportView())
         #saving guilds
         for guild in self.client.guilds:
             invite_link = None
@@ -337,7 +337,7 @@ class Bot:
         elif isinstance(error, discord.Forbidden):
             pass
         elif isinstance(error,commands.CommandOnCooldown):
-          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | <t:{int(datetime.now(timezone.utc).timestamp())}:f>", icon_url=ctx.author.avatar))
+          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
         elif isinstance(error, commands.MissingRequiredArgument):
             view = View(timeout =60)
             async def on_timeout():
@@ -356,7 +356,7 @@ class Bot:
                 await ctx.reinvoke()
                 return
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
-            await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to do perfor this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{perms}", color = Color.red()))
+            await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to do perfor this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{perms}```", color = Color.red()))
 
         elif isinstance(error, commands.CheckFailure):
             code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
@@ -369,7 +369,7 @@ class Bot:
             if msg.content.lower() == code:
                 Profiles[str(ctx.author.id)] = {"name": ctx.author.name, "cash": 100, "gem": 1, "kelly_repect": 0, "inv": {}, "aura":0, "skills": []}
                 em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile is created successfully you can now start playing will all commands.\n\n:white_check_mark: You obatained bonous ₹100 cash 💵\n:white_check_mark: You obtained 1 gem 💎\n\nUse `k help games` to get more help and info.",color=Color.green())
-                em.set_footer(text=f"{ctx.author.name} created acc at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
+                em.set_footer(text=f"{ctx.author.name} created acc at {timestamp(ctx)}", icon_url= ctx.author.avatar)
                 await ctx.send(embed = em)
             else:
                 emoji = EMOJI[f"kelly{choice(['annoyed', 'laugh', 'gigle', 'waiting', 'idontcare', 'chips', 'bweh', 'bweh'])}"]
