@@ -141,8 +141,12 @@ class BugReportView(View):
 class ReportBugModal(discord.ui.Modal):
     def __init__(self, button, message, view, ctx, reply= False):
         super().__init__(title="Submit Your Report")
+        self.button = button
+        self.view = view
+        self.ctx = ctx
+        self.message = message
         self.reply = reply
-        if reply:
+        if not reply:
             self.input_box = TextInput(label="Enter your Bug/Query/Suggestion:",custom_id="query", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
         else:
             self.input_box = TextInput(label="Enter Reply",custom_id="reply", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
@@ -151,7 +155,7 @@ class ReportBugModal(discord.ui.Modal):
     async def on_submit(self, interaction: Interaction):
       try:
         button = self.button
-        msg = self.msg
+        msg = self.message
         view = self.view
         ctx = self.ctx
         if self.reply:
