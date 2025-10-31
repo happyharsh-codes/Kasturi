@@ -318,7 +318,7 @@ class Bot:
         )
         elif isinstance(error, commands.MissingRequiredArgument):
             view = View(timeout =60)
-            def on_timeout():
+            async def on_timeout():
                 nonlocal msg
                 await msg.edit(view=None)
             async def helper(interaction: Interaction):
