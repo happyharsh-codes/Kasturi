@@ -161,7 +161,7 @@ class Musik_and_Media(commands.Cog):
                 voted = 1
             if voted >= majority:  
                 em.set_author(name="▶️ Song Paused")
-                em.set_footer(text=f"Paused by **{voted}**/**{member_count}**")
+                em.description = f"Paused by **{voted}**/**{member_count}** Members."
                 voice.pause()
                 view.clear_items()
                 view.add_item(rewind)
@@ -171,7 +171,7 @@ class Musik_and_Media(commands.Cog):
             else:
                 em.description = f"\nPausing, **{voted}**/**{member_count}** (**{majority}** votes required)"
         elif pressed == "play":
-            await interaction.guild.voice_client.resume()
+            voice.resume()
             view.clear_items()
             view.add_item(rewind)
             view.add_item(pause)
@@ -186,7 +186,7 @@ class Musik_and_Media(commands.Cog):
                 voted = 1
             if voted >= majority:  
                 em.set_author(name="⏮️ Song Rewinded")
-                em.set_footer(text=f"Rewinded by **{voted}**/**{member_count}**")
+                em.description = f"Rewinded by **{voted}**/**{member_count}** Members")
                 self.player[str(interaction.guild_id)].insert(1, music)
                 voice.stop()
             else:
@@ -201,7 +201,7 @@ class Musik_and_Media(commands.Cog):
                 voted = 1
             if voted >= majority:  
                 em.set_author(name="⏭️ Song Skipped")
-                em.set_footer(text=f"Skipped by **{voted}**/**{member_count}**")
+                em.description = f"Skipped by **{voted}**/**{member_count}** Members"
                 voice.stop()
                 pause.disabled = True
                 rewind.disabled = True
