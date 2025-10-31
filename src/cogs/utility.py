@@ -204,11 +204,17 @@ class Utility(commands.Cog):
         if cmd:
             found = False
             for i, c in enumerate(menu_cmds):
-                for cm in c:
+                for index, cm in enumerate(c):
                   if cmd.lower() == cm:
                     category = i
                     cmd = cm
                     get_started.label = "Show Examples"
+                    view.clear_items()
+                    left.disabled = (index==0) and (category==0)
+                    right.disabled = (index==len(menu_cmds[-1])-1) and (category==len(menu_cmds)-1)
+                    view.add_item(left)
+                    view.add_item(get_started)
+                    view.add_item(right)
                     found = True
                     break
                 if found:
