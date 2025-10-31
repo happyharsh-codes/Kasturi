@@ -126,4 +126,8 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     print(f"#==========Response==========#\nModel: {model}\n\nINPUT: {messages}\nOUTPUT: {response.choices[0].message.content}\n#============================#")
     return response.choices[0].message.content
 
+def timestamp(ctx):
+    return ctx.message.created_at.replace(tzinfo=timezone.utc).strftime('%d %B %Y %H:%M UTC')}
+
+
 print("__init__ was runned")
