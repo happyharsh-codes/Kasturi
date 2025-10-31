@@ -21,7 +21,7 @@ class Musik_and_Media(commands.Cog):
         em.url = music["link"]
         em.description = f"**Artist**: {','.join(music['artists'])}\n**Duration**: {music['duration']}"
         em.set_thumbnail(url= music["thumbnail_url"])
-        em.set_footer(text= "Operate Music Player with buttons")
+        em.set_footer(text= "⟡ Operate Music Player with buttons")
         
         pause = Button(style=ButtonStyle.secondary, custom_id="pause", label="⏸️")
         play = Button(style=ButtonStyle.secondary, custom_id="play", label="▶️", disabled = True)
@@ -65,7 +65,7 @@ class Musik_and_Media(commands.Cog):
             await ctx.send(embed = Embed(description= "No listeners leaving VC..."))
             try: 
                 self.player.pop(str(ctx.guild.id))
-                ctx.guild.voice_client.disconnect()
+                await ctx.guild.voice_client.disconnect()
             except:
                 pass
             return
@@ -102,7 +102,7 @@ class Musik_and_Media(commands.Cog):
             voice.play(source,after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
         except Exception as e:
             if ctx.guild.voice_client:
-                ctx.guild.voice_client.disconnect()
+                await ctx.guild.voice_client.disconnect()
             await ctx.send("Music stopped due to an unexpected error", delete_after=30)
             await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
     
@@ -186,7 +186,7 @@ class Musik_and_Media(commands.Cog):
                 voted = 1
             if voted >= majority:  
                 em.set_author(name="⏮️ Song Rewinded")
-                em.description = f"Rewinded by **{voted}**/**{member_count}** Members")
+                em.description = f"Rewinded by **{voted}**/**{member_count}** Members"
                 self.player[str(interaction.guild_id)].insert(1, music)
                 voice.stop()
             else:
@@ -324,7 +324,7 @@ class Musik_and_Media(commands.Cog):
             estimated_time = "00:00"  
         em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track['title']}**]({music_track['link']})\n**Artist**: {','.join(music_track['artists'])}\n**Duration**: {music_track['duration']}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
         em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
-        em.set_footer(text= f"Song added by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
+        em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar)  
         em.set_thumbnail(url= music_track["thumbnail_url"])  
         await ctx.send(embed= em)  
         if str(ctx.guild.id) in self.player:  
