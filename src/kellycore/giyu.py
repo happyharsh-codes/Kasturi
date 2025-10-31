@@ -35,8 +35,8 @@ class Giyu:
 
                     return ", ".join(devices) if devices else "❌ Offline / Invisible"
 
-                if member.premium_since:
-                    booster_text= f"Boosting since <t:{int(member.premium_since.timestamp())}:D>"
+                if message.member.premium_since:
+                    booster_text= f"Boosting since <t:{int(message.member.premium_since.timestamp())}:D>"
                 else:
                     booster_text = 'Not Boosting'
                 inviter_id = INVITER[str(message.guild.id)].get(str(member.author.id),None)
