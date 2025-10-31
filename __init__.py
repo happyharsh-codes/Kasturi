@@ -148,7 +148,7 @@ class ReportBugModal(discord.ui.Modal):
             self.input_box = TextInput(label="Enter Reply",custom_id="reply", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
         self.add_item(self.input_box)
             
-    def on_submit(self, interaction: Interaction):
+    async def on_submit(self, interaction: Interaction):
       try:
         button = self.button
         msg = self.msg
