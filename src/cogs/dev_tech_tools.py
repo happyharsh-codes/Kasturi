@@ -170,8 +170,7 @@ class Dev_Tech_Tools(commands.Cog):
 
         for item in CLIENT7.dataset(run["defaultDatasetId"]).iterate_items():
             data.update(item)
-
-        for item in data["latestPosts"]:
+        for item in data.get("latestPosts", []):
             posts.append({
                 "url": item["url"],
                 "caption": item["caption"],
@@ -179,14 +178,13 @@ class Dev_Tech_Tools(commands.Cog):
                 "comments": item["commentsCount"],
                 "img": item["displayUrl"]
             })
-
         em = Embed(
             title="📷 Instagram Lookup",
             description=f"[{data['username']}]({data['url']}) **{data['fullName']}**\n**{data['followersCount']}** Followers **|** **{data['followsCount']}** Following **|** **{data['postsCount']}** Posts\n{data['biography']}",
             color=Color.purple()
         )
-        em.set_thumbnail(url=data["profilePicUrlHD"])
-        em.set_author(name=username, icon_url=data["profilePicUrlHD"])
+        em.set_thumbnail(url=data.get("profilePicUrlHD", None))
+        em.set_author(name=username, icon_url=data.get("profilePicUrlHD", None))
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
 
         left = Button(style=ButtonStyle.secondary, custom_id="left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
