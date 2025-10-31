@@ -107,7 +107,7 @@ class Moderation(commands.Cog):
         Logs the reason and warn count for moderation tracking.
         You can set up automated actions when warn count reaches the limit by using `automod` command."""
         embed = Embed(title = f"You have been Warned in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-        embed.set_footer(name = "If you believe this was a mistake, you may ignore this or contact a staff member.")
+        embed.set_footer(text = "If you believe this was a mistake, you may ignore this or contact a staff member.")
         try:
             dm_channel = member.dm_channel
             if not dm_channel:
@@ -115,27 +115,27 @@ class Moderation(commands.Cog):
             await dm_channel.send(embed=embed)
         except:
             await ctx.send(f"{member.mention}", embed=embed)
-        await ctx.send(embed= Embed(title= "Warned User", description= f"**Reason:** {reason}", color = Color.blue())
+        await ctx.send(embed= Embed(title= "Warned User", description= f"**Reason:** {reason}", color = Color.blue()))
     
     @commands.command(aliases= [])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx: commands.Context, user: discord.Member,*, reason: str = "No reason provided"):
+    async def ban(self, ctx: commands.Context, member: discord.Member,*, reason: str = "No reason provided"):
         """Bans a member permanently 🚫  
         Stops them from rejoining until unbanned.
         Moderators Only - Please consider case properly before using this command."""
-        await ctx.guild.ban(user=user, reason=reason, delete_message_days=0)
-        em = Embed(title="Member Banned", description=f"{user.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.", color=Color.pink())
+        await ctx.guild.ban(user=member, reason=reason, delete_message_days=0)
+        em = Embed(title="Member Banned", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.", color=Color.pink())
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
-        em.set_author(name=user.name, icon_url= user.avatar)
+        em.set_author(name=member.name, icon_url= member.avatar)
         await ctx.send(embed=em)
         em = Embed(title= f"You were Banned from {ctx.guild.name}", description= f"**Reason:** {reason}", color = Color.red())
         em.set_footer(name = "If you believe this was a mistake please forgive us.")
         view = View()
         button = Button(style=ButtonStyle.primary, custom_id= "revive", label = "Click Here to Say your Last Words")
         
-        class SocialModal(discord.ui.Modal):
+        class LastWordsModal(discord.ui.Modal):
             
             def __init__(self):
                 super().__init__(title="Last Words Apology Form")
@@ -158,7 +158,7 @@ class Moderation(commands.Cog):
                 except:
                     pass
                 view.clear_item()
-                view.add_item(Button(style=ButtonStyle.secondary,label="Last Words Submitted",custom_id="submitted",disabled=True)
+                view.add_item(Button(style=ButtonStyle.secondary,label="Last Words Submitted",custom_id="submitted",disabled=True))
                 await msg.edit(view=view)
                 await interaction.response.defer()
               except Exception as e:
