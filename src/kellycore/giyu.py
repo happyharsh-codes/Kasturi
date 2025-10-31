@@ -2,8 +2,8 @@ from __init__ import*
 
 class Giyu:
 
-    def __init__(self):
-        pass
+    def __init__(self, client):
+        self.client = client
 
     async def giyuQuery(self, message, mood):
         '''Gives giyu (kelly's guard) response'''
@@ -39,9 +39,11 @@ class Giyu:
                     booster_text= f"Boosting since <t:{int(member.premium_since.timestamp())}:D>"
                 else:
                     booster_text = 'Not Boosting'
-                
-                em.add_field(name="🏅 Badges"
-                em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.member.name}\n**👤 Name:** {message.member.display_name)}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(member)}\n**🚀 Server Booster**: {booster_text}", color= Color.purple())
+                inviter_id = INVITER[str(message.guild.id)].get(str(member.author.id),None)
+                if inviter_id:
+                    inviter = self.client.get_user(inviter_id)
+                invite_text = f"{inviter.mention} - {inviter.name}"
+                em = Embed(title = "⚙️ New Member Initialisation 🛠️ <a:coder1433171910224646294>", description= f"**📛 Username**:{message.member.name}\n**👤 Name:** {message.member.display_name)}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(member)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
                 em.set_thumbnail(url= message.author.avatar)
                 em.set_author(name = f"{message.author.name}")
                 await ctx.send(f"{message.author.mention}", embed= em)
