@@ -67,6 +67,7 @@ class Bot:
         self.save_files.start()
         self.unmute.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
+        self.client.add_view(BotReportView())
         #saving guilds
         for guild in self.client.guilds:
             invite_link = None
