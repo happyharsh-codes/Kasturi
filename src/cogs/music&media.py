@@ -277,7 +277,7 @@ class Musik_and_Media(commands.Cog):
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def play(self, ctx, *, search):
+    async def play(self, ctx, *, search: str):
         """Plays the Song music 🎶 on your VC"""  
         #Joining Vc  
         if not ctx.author.voice or not ctx.author.voice.channel:  
