@@ -744,6 +744,8 @@ class Utility(commands.Cog):
                 if not dm_channel:
                     dm_channel = await ctx.author.create_dm()
                 await dm_channel.send(embed=embed)
+                await dm_channel.send("https://discord.com/oauth2/authorize?client_id=1368884334076891136")
+                await dm_channel.send("https://discord.gg/y56na8kN9e")
                 return
             except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
