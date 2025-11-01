@@ -5,7 +5,7 @@ class Fun(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -25,7 +25,7 @@ class Fun(commands.Cog):
         await ctx.send("This command is yet to be made :/")
     """
     
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -34,7 +34,7 @@ class Fun(commands.Cog):
         mock_response = getResponse(f"Mock {ctx.author.name} for me", "you are roaster expert (in 20 words)", client=0)
         await ctx.send(f"{user.mention} {mock_response}")
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -43,7 +43,7 @@ class Fun(commands.Cog):
         answer = getResponse(question, "You are intelligent guy answer ther user question with sarcasm (in 20 words)", client=0)
         await ctx.reply(answer)
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
