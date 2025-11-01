@@ -174,6 +174,7 @@ class ReportBugModal(discord.ui.Modal):
                 view = View()
                 view.add_item(Button(style=ButtonStyle.green, label = "Replied", custom_id= "button", disabled = True))
                 await self.replymsg.edit(view=view)
+            await interaction.response.defer()
             return 
                 
         button.disabled = True
