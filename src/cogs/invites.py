@@ -31,5 +31,5 @@ class Invites_Tracker(commands.Cog):
         await ctx.send(embed = em)
 
 async def setup(bot):
-    await bot.add_cog(Moderation(bot))
+    await bot.add_cog(Invites_Tracker(bot))
     print("Loaded cogs: Moderation")
