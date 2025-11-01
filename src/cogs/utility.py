@@ -267,8 +267,7 @@ class Utility(commands.Cog):
         view = View(timeout = 45)
         async def callback(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
-                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                await interaction.response.defer()
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
             nonlocal button, msg, view
             modal = ReportBugModal(button, msg, view, ctx)
@@ -403,8 +402,7 @@ class Utility(commands.Cog):
         async def on_click(interaction: Interaction):
           try:
             if interaction.user.id != ctx.author.id:
-                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                await interaction.response.defer()
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return
             nonlocal em, view, update, left, right, menu_cmds, category, cmd, command
             if category is None:
@@ -447,8 +445,7 @@ class Utility(commands.Cog):
         async def on_select(interaction: Interaction):
           try:
             if interaction.user.id != ctx.author.id:
-                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                await interaction.response.defer()
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return
             nonlocal update, em, view, category
             category = int(interaction.data["values"][0])
@@ -461,8 +458,7 @@ class Utility(commands.Cog):
         async def on_leftright(interaction: Interaction):
           try:
             if interaction.user.id != ctx.author.id:
-                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                await interaction.response.defer()
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
             nonlocal cmd, left, right, category, update, menu_cmds, em, view, get_started
             index = menu_cmds[category].index(cmd)
@@ -598,8 +594,7 @@ class Utility(commands.Cog):
                 await interaction.client.get_user(894072003533877279).send(e)
         async def process_buttons(interaction: discord.Interaction):
             if interaction.user.id != ctx.author.id:
-                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                await interaction.response.defer()
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
@@ -759,8 +754,7 @@ class Utility(commands.Cog):
 
         async def go_callback(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
-                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                await interaction.response.defer()
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
             nonlocal welcome_theme_no, go_left, go_right,em
             go_left.disabled = False
@@ -778,8 +772,7 @@ class Utility(commands.Cog):
         async def select_channels(interaction: Interaction):
           try:
             if interaction.user.id != ctx.author.id:
-                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                await interaction.response.defer()
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
             nonlocal proceed_button, view, channel_select, channel_select2
             proceed_button.disabled = False
@@ -791,8 +784,7 @@ class Utility(commands.Cog):
             await self.client.get_user(894072003533877279).send(e)
         async def select_channels2(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
-                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                await interaction.response.defer()
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
             nonlocal channel_select2
             selected_values = interaction.data["values"]
