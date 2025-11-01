@@ -67,7 +67,7 @@ class Bot:
         self.save_files.start()
         self.unmute.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
-        #self.client.add_view(BugReportView())
+        self.client.add_view(BugReportView())
         #saving guilds
         for guild in self.client.guilds:
             invite_link = None
@@ -216,6 +216,8 @@ class Bot:
             return
         except Exception as e:
             print("error in on_message: ", e)
+            import traceback
+            traceback.print_exc()
 
     async def on_guild_join(self, guild: discord.Guild):
         channels = guild.channels 
