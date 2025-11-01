@@ -171,7 +171,7 @@ class ReportBugModal(discord.ui.Modal):
             await dm_channel.send(embed = em)
             if self.replymsg:
                 view = View()
-                view.add_item(Button(style=ButtonStyle.green, label = "Replied", custom_id="", disabled = True))
+                view.add_item(Button(style=ButtonStyle.green, label = "Replied", custom_id= "button", disabled = True))
                 await self.replymsg.edit(view=view)
             return 
                 
