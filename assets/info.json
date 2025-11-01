@@ -93,7 +93,10 @@
     "queue": "View the current music queue.",
     "skip": "Skip the currently playing track.",
     "stop": "Stop the music and clear the queue.",
-
+    "now_playing": "Shows the current playing track and Media player",
+    "lyrics": "Shows lyrics for currently playing track",
+    "rewind": "Rewinds the current song",
+        
     "rank": "Check your level, XP, and rank in the server.",
     "top": "View the top-ranked members on the leaderboard.",
     "invite": "Get Kelly’s invite link or server invite.",
@@ -101,6 +104,8 @@
     "afk": "Set an AFK (away from keyboard) status.",
     "avatar": "Show your or someone else’s profile picture.",
     "premium": "Learn about Kelly’s premium features.",
+    "info": "Shows info for any user,guild,channel,role,web,etc",
+    "bug": "Report bugs, queries, suggestions using this",
     "help": "Show a list of available commands.",
     "activate": "Activate Kelly’s advanced features for your server.",
 
@@ -117,8 +122,10 @@
     "hunt": "Go hunting to earn loot or XP.",
     "battle": "Battle another player for rewards.",
     "buy": "Purchase an item from the shop.",
-    "sell": "Sell an item from your inventory."
-    },
+    "sell": "Sell an item from your inventory.",
+    
+    "invites": "Shows your invites profile",
+    "},
 
     "foods": {
         "Level1": [],
