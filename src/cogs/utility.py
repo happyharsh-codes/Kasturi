@@ -5,7 +5,7 @@ class Utility(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(aliases=["r"])
+    @commands.hybrid_command(aliases=["r"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -35,7 +35,7 @@ class Utility(commands.Cog):
         em = Embed(title=f"{user.name}'s Rank", description=f"LEVEl: {int(level)}\nXP: {int(total_xp)}\nRank: {rank_values.index(total_xp) + 1}", color=Color.dark_gold())
         await ctx.send(embed=em)
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -76,7 +76,7 @@ class Utility(commands.Cog):
         em.set_author(name=f"{ctx.author.id}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
                
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -84,7 +84,7 @@ class Utility(commands.Cog):
         """Invite link for the bot"""
         await ctx.send("[Meet Kelly here](https://top.gg/bot/1368884334076891136?s=0332b997edcc8)")
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -92,7 +92,7 @@ class Utility(commands.Cog):
         """Vote link for the bot"""
         await ctx.send("This command is yet to be made :/")
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -102,7 +102,7 @@ class Utility(commands.Cog):
         await ctx.send(f"{ctx.author.mention} has gone afk for **{time}** : {reason}. Dont ping him unnecessarily")
         await ctx.send("Dont worry I'll notify everyone in your absense not to disturb you...")
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -114,7 +114,7 @@ class Utility(commands.Cog):
         em.set_image(url=user.display_avatar)
         await ctx.send(embed=em)
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -123,7 +123,7 @@ class Utility(commands.Cog):
         await ctx.send("This command is yet to be made :/")
 
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -243,7 +243,7 @@ class Utility(commands.Cog):
                 return
             url = ""
             
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -269,7 +269,7 @@ class Utility(commands.Cog):
         button.callback = callback
         msg = await ctx.send(embed = em, view=view)
         
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def help(self, ctx, cmd = None):
@@ -492,7 +492,7 @@ class Utility(commands.Cog):
         msg = await ctx.send(embed=em, view=view)
         
         
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions()
     async def activate(self, ctx):
