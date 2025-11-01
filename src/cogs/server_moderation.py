@@ -27,7 +27,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def mute(self, ctx: commands.Context, member: discord.Member, minutes, *, reason: str):
+    async def mute(self, ctx: commands.Context, member: discord.Member, minutes: int, *, reason: str):
         """Temporarily mutes a member 🔇
         Prevents them from sending messages or speaking.
         Useful during moderation or chaos in chat."""
