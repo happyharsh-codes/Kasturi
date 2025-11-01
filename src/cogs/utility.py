@@ -122,6 +122,127 @@ class Utility(commands.Cog):
         """Get the premium version for your server."""
         await ctx.send("This command is yet to be made :/")
 
+
+    @commands.command(aliases=[])
+    @commands.cooldown(1,10, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def info(self, ctx, *, search = None):
+        """Provides info about Literally ANYTHING. Search query can be a user, guild('guild'/'server' for own guild , guild link for other guilds), channels, roles, websites, info about kelly, etc"""
+
+        async def user_info(member):
+            badges = []
+            flags = member.public_flags
+            if flags.hypesquad_bravery: badges.append("🦁 Bravery")
+            if flags.hypesquad_brilliance: badges.append("🧠 Brilliance")
+            if flags.hypesquad_balance: badges.append("⚖️ Balance")
+            if flags.verified_bot: badges.append("✅ Verified Bot")
+            if flags.staff: badges.append("🛡️ Discord Staff")
+            badge_text = ", ".join(badges) if badges else "No Public Badges"
+            created = int(member.created_at.timestamp())
+            joined = int(member.joined_at.timestamp())
+                
+            devices = []
+            if str(member.mobile_status) != "offline":
+                devices.append("📱 Mobile")
+            if str(member.desktop_status) != "offline":
+                devices.append("🖥️ Desktop")
+            if str(member.web_status) != "offline":
+                devices.append("🌐 Web")
+            device_text = ", ".join(devices) if devices else "❌ Offline / Invisible"
+
+            if member.premium_since:
+                booster_text= f"Boosting since <t:{int(member.premium_since.timestamp())}:D>"
+            else:
+                booster_text = 'Not Boosting'
+            invite_text = "unknown"
+            inviter_guild = INVITER.get(str(member.guild.id), None)
+            if inviter_guild:    
+                inviter_id = inviter_guild.get(str(member.id),None)
+                if inviter_id:
+                    inviter = self.client.get_user(inviter_id)
+                    invite_text = f"{inviter.mention}"
+            em = Embed(title = "⚙️ Member Initialisation 🛠️", description= f"**📛 Username**:{member.name}\n**👤 Name:** {member.display_name}\n**🪪 ID**: {member.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {device_text}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
+            em.set_thumbnail(url = member.avatar)
+            em.set_author(name = f"{member.name}")
+            await ctx.send(f"{member.mention}", embed= em)          
+
+        async def guild_info(guild):
+            moderators = []
+            for member in guild.members:
+                if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
+                    moderators.append(member.mention)
+            if len(moderators) > 6:
+                moderators = moderators[:6]
+            moderator_str = ",".join(moderators)
+            em = Embed(title = "⚙️ Guild Initialisation 🛠️", description= f"**Description**: {guild.description[:100]}...\n**Owner**: {guild.owner.mention}\n**Moderators**: {moderator_str}\n**Members Count**: {guild.member_count}\n**Created At**: <t:{int(guild.created_at.timestamp())}:f>", color= Color.purple())
+            em.url = ""
+            em.set_thumbnail(url= guild.icon)
+            em.set_image(url = guild.banner)
+            em.set_author(name = ctx.author.name)
+            await message.channel.send(embed= em)          
+            
+        async def channel_info(channel):
+            em = Embed(title = "⚙️ Channel Initialisation 🛠️", description= f"{channel.mention} {channel.id}\n**Category**: {channel.category.mention}\n**Created At**: <t:{int(channel.created_at.timestamp())}:f>", color= Color.purple())
+            em.set_thumbnail(url= ctx.author.avatar)
+            em.set_author(name = f"{ctx.author.name}")
+            await message.channel.send(embed= em)          
+
+        async def role_info(role):
+            permissions = []
+            for attr in dir(role.permissions):
+                value = getattr(role.permissions, attr)
+                if value:
+                    permission.append(f"```{attr}```")
+            permission_str = ", ".join(permissions)
+            em = Embed(title = "⚙️ Role Initialisation 🛠️", description= f"{role.mention}\n**ID**: {role.id}\n**Mentionable**: {role.mentionable}\n**Created At**: <t:{int(role.created_at.timestamp())}:f>\n**Permissions**: {permission_str}\n", color= role.color)
+            em.set_thumbnail(url= role.icon if role.icon else role.display_icon)
+            em.set_author(name = f"{role.name}")
+            await message.channel.send(embed= em)          
+
+        
+        if not search:
+            pass
+        if isinstance(search, discord.Member):
+            await user_info(search)
+            return
+        elif isinstance(search, discord.TextChannel):
+            await channel_info(search)
+            return
+        elif isinstance(search, discord.Role):
+            await role_info(search)
+        elif isinstance(search, discord.Invite):
+            await guild_info(search.guild)
+            return
+        elif isinstance(search, discord.Guild):
+            await guild_info(search)
+            return
+        if " " in search:
+            pass
+        if search.isdigit():
+            id = int(search)
+            guild = ctx.bot.get_guild(id)
+            channel = ctx.bot.get_channel(id)
+            user = ctx.bot.get_user(id)
+            role = ctx.guild.get_role(id)
+            if guild:
+                await guild_info(guild)
+            elif channel:
+                await channel_info(channel)
+            elif user:
+                await user_info(channel)
+            elif role:
+                await role_info(channel)
+            else:
+                await ctx.send("No results found for your search")
+            return
+        else:
+            invite = await ctx.bot.fetch_invite(search)
+            if invite:
+                await guild_info(invite.guild)
+                return
+            url = ""
+            
     @commands.command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
@@ -297,7 +418,7 @@ class Utility(commands.Cog):
                         kwargs[name] = ctx.author.roles[0]
                     elif params.annotation == str:
                         kwargs[name] = "example"
-                    elif params.annotation = int:
+                    elif params.annotation == int:
                         kwargs[name] = 1
                     elif not param.required:
                         continue
