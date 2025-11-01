@@ -118,6 +118,9 @@ class Dev_Tech_Tools(commands.Cog):
         view.on_timeout = on_timeout
 
         async def on_leftright(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
             nonlocal left, right, page, length, updator, em, view
             if interaction.data["custom_id"] == "left":
                 page -= 1
@@ -204,6 +207,9 @@ class Dev_Tech_Tools(commands.Cog):
             view.add_item(right)
 
         async def onleftright(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
             nonlocal page, updator, posts, em, view
             left.disabled = (page == 1)
             right.disabled = (page == len(posts))
