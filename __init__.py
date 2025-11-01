@@ -168,7 +168,7 @@ class ReportBugModal(discord.ui.Modal):
             dm_channel = ctx.author.dm_channel
             if not dm_channel:
                 dm_channel = await ctx.author.create_dm()
-            await dm_channel.channel.send(embed = em)
+            await dm_channel.send(embed = em)
             if self.replymsg:
                 self.replymsg.edit(view=None)
             return 
