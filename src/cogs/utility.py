@@ -132,6 +132,10 @@ class Utility(commands.Cog):
         em.set_thumbnail(url= "https://cdn.discordapp.com/emojis/1372191175133368411.png")
         view = View(timeout = 45)
         async def callback(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                await interaction.response.defer()
+                return 
             nonlocal button, msg, view
             modal = ReportBugModal(button, msg, view, ctx)
             await interaction.response.send_modal(modal)
@@ -264,6 +268,10 @@ class Utility(commands.Cog):
         
         async def on_click(interaction: Interaction):
           try:
+            if interaction.user.id != ctx.author.id:
+                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                await interaction.response.defer()
+                return
             nonlocal em, view, update, left, right, menu_cmds, category, cmd, command
             if category is None:
                 category = randint(0,5)
@@ -304,6 +312,10 @@ class Utility(commands.Cog):
               await self.client.get_user(894072003533877279).send(e)
         async def on_select(interaction: Interaction):
           try:
+            if interaction.user.id != ctx.author.id:
+                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                await interaction.response.defer()
+                return
             nonlocal update, em, view, category
             category = int(interaction.data["values"][0])
             get_started.label = f"Explore {menu[category]}"
@@ -314,6 +326,10 @@ class Utility(commands.Cog):
               await self.client.get_user(894072003533877279).send(e)
         async def on_leftright(interaction: Interaction):
           try:
+            if interaction.user.id != ctx.author.id:
+                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                await interaction.response.defer()
+                return 
             nonlocal cmd, left, right, category, update, menu_cmds, em, view, get_started
             index = menu_cmds[category].index(cmd)
             get_started.style = ButtonStyle.green
@@ -447,6 +463,10 @@ class Utility(commands.Cog):
               except Exception as e:
                 await interaction.client.get_user(894072003533877279).send(e)
         async def process_buttons(interaction: discord.Interaction):
+            if interaction.user.id != ctx.author.id:
+                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                await interaction.response.defer()
+                return 
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
             nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
             nonlocal WelcomeModal, SocialModal, channel_select, channel_select2, client
@@ -604,6 +624,10 @@ class Utility(commands.Cog):
             await msg.edit(embed=em, view=None)
 
         async def go_callback(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                await interaction.response.defer()
+                return 
             nonlocal welcome_theme_no, go_left, go_right,em
             go_left.disabled = False
             go_right.disabled = False
@@ -618,7 +642,11 @@ class Utility(commands.Cog):
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
         async def select_channels(interaction: Interaction):
-          try: 
+          try:
+            if interaction.user.id != ctx.author.id:
+                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                await interaction.response.defer()
+                return 
             nonlocal proceed_button, view, channel_select, channel_select2
             proceed_button.disabled = False
             selected_values = interaction.data.get("values",[])
@@ -628,6 +656,10 @@ class Utility(commands.Cog):
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
         async def select_channels2(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                await interaction.response.defer()
+                return 
             nonlocal channel_select2
             selected_values = interaction.data["values"]
             for option in channel_select2.options:
