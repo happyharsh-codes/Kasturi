@@ -25,15 +25,8 @@ class Bot:
 
                     try:
                         user = await self.client.fetch_user(int(muted_id))
-                        em = Embed(
-                            title="You were Unmuted",
-                            description="**Reason:** Expired\nYou can again start chatting with Kelly using `kelly hii`.\nPlease be respectful this time.",
-                            color=Color.green()
-                        )
-                        em.set_footer(
-                            text=f"{user.id} | {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
-                            icon_url=self.client.user.avatar
-                        )
+                        em = Embed(title="✅ You’ve Been Unmuted",description="**Reason:** Mute expired.\nYou may chat again. Please follow the server rules and behave.",color=Color.green())
+                        em.set_footer(text=f"Please refrain from sending messages like this. Future violations may result in a ban.")
                         em.set_author(name=user.name, icon_url=user.avatar)
                         await user.send(embed=em)
                     except Exception as dm_error:
@@ -155,7 +148,7 @@ class Bot:
                     total_xp += 2
                     if total_xp > max_xp:
                         channel = await message.guild.fetch_channel(metadata["rank_channel"])
-                        await channel.send(f"{message.author.mention} you reached Level {level+1}") 
+                        await channel.send(f"{message.author.mention} has reached **Level {level+1}!** 🎉") 
                     Server_Settings[str(guild)]["rank"][str(id)] += 2
                 else: 
                     Server_Settings[str(guild)]["rank"][str(id)] = 2
@@ -165,12 +158,12 @@ class Bot:
                 if id == afk:
                     Server_Settings[str(guild)]['afk'].remove(afk)
                 elif self.client.get_user(afk).mentioned_in(message):
-                    await message.channel.send(embed= Embed(description=f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!"))
+                    await message.channel.send(embed= Embed(description=f"Please don’t mention **@{self.client.get_user(afk).name}** — they are currently AFK.",color=Color.red()))
         
             #checking for allowed channel
             if metadata["allowed_channels"] != [] and channel not in metadata["allowed_channels"] and message.content.lower().startswith(("kasturi", "kelly")):
                 channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
-                await message.channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} Too bad cuz I only chat in these channels {channels_str}", delete_after = 8)
+                await message.channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} I only chat in the activated channels: {channels_str}", delete_after = 8)
                 return
             elif metadata["allowed_channels"] == [] and message.content.lower().startswith(("k ", "kelly", "kasturi")) and not "activate" in message.content:
                 if randint(1,3) == 3:
@@ -195,7 +188,7 @@ class Bot:
                     #cheking for Administrator Permission given or not
                     bot_member = message.guild.me
                     if not bot_member.guild_permissions.administrator:
-                        em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup.", color = Color.red())
+                        em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
                         await message.channel.send(embed=em)
                         return
                     await self.kelly.kellyQuery(message)
@@ -207,6 +200,7 @@ class Bot:
                 em = Embed(title= "Administrator Permission is Compulsory", description = "I need administrator permission to operate properly. This is beacause our bot is multipurpose and requries almost all kinds of permissions. Please grant me administrator permission. This is safe we do not intend to do anything malicious. If you are still not satisfied why we need this [Click Here](https://discord.gg/y56na8kN9e)", color = Color.red())
                 await message.channel.send(embed=em)
                 return
+                
             if message.content[0] == "k":
                 message.content = message.content[1:].strip()
                 for command in self.client.commands:
@@ -235,7 +229,7 @@ class Bot:
         view = View()
         view.add_item(kelly)
         view.add_item(developer)
-        em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description=f"Hey everyone, Thanks for inviting Kelly here.\nUnreavel the fun by chatting with me, say `kelly hi`.\nActivate your guild using `k activate`.\nUse `k help` to get started with user guide.\nAny bugs, queries or suggestions leave down with `k bug`.\nPrefixes: `k`, `kelly`, `@kelly`",color = discord.Colour.green())
+        em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly has Arrived!**", description=f"Thanks for adding me!\n• Say `kelly hi` to talk\n• Use `k activate` to enable chat\n• Use `k help` to view commands\n• Found a bug? Use `k bug`",color = discord.Colour.green())
         emoji = choice(list(EMOJI.values()))
         if "a:" in emoji:
             ext = ".gif"
@@ -380,15 +374,18 @@ class Bot:
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
-            await ctx.send(embed= Embed(title= "‼️ Invalid Command Usage 🚫", description= "You have used the command incorrectly. Please check the help guide using `k help <command_name> and try again.", color = Color.red()))
+            em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
+            await ctx.send(embed= em)
             await ctx.invoke(ctx.bot.get_command("help"), ctx.command.name)
         elif isinstance(error, commands.BotMissingPermissions):
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
-            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner//Admin//Moderators immediately.**\n**Required permissions**: ```{perms}```", color = Color.red()))
+            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJIS.values()))}\nPlease ensure I have:\n```{perms}```",color=Color.red())
+            await ctx.reply(embed=em)
         elif isinstance(error, discord.Forbidden):
-            await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"Discord blocked me from performing this action. I likely don't have the required permissions. Please check that I have ```Administrator``` Permission allowed.", color = Color.red()))
+            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJIS.values()))}\nPlease ensure I have `Administrator` Permission Enabled.",color=Color.red())
+            await ctx.reply(embed=em)
         elif isinstance(error,commands.CommandOnCooldown):
-          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest, try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
+          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJIS.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
         elif isinstance(error, commands.MissingRequiredArgument):
             view = View(timeout =60)
             async def on_timeout():
@@ -403,14 +400,15 @@ class Bot:
             see_usage = Button(style=ButtonStyle.primary, custom_id="see_usage", label= "See Usage 🏷️")
             see_usage.callback = helper
             view.add_item(see_usage)
-            msg = await ctx.send(view = view, embed = Embed(title="Missing Arguments 📛", description="You are missing some required argumemt.\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
+            msg = await ctx.send(view = view, embed = Embed(title="Missing Arguments 📛", description=f"You are missing some required argumemt.{choice(list(EMOJIS.values()))}\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
 
         elif isinstance(error, commands.MissingPermissions):
             if ctx.author.id == 894072003533877279:
                 await ctx.reinvoke()
                 return
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
-            await ctx.send(embed=Embed(title = "❌ No Permission 🚫", description= f"You dont have any permissions to perform this action. {EMOJI[choice(['kellyidontcare','kellyannoyed', 'kellycheekspull', 'kellygigle', 'kellybweh', 'kellywatching'])]}\n**Required Permissions**:\n ```{perms}```", color = Color.red()))
+            em = Embed(title="❌ Permission Denied", description=f"You don’t have permission to use this command. {choice(list(EMOJIS.values()))}\n**Required:**\n```{perms}```",color=Color.red())
+            await ctx.send(embed=em)
 
         elif isinstance(error, commands.CheckFailure):
             code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
