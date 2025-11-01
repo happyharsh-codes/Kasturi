@@ -4,7 +4,7 @@ class Invites_Tracker(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(aliases=["kelly_mute", "kmute"])
+    @commands.command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -18,6 +18,7 @@ class Invites_Tracker(commands.Cog):
             if inviter == ctx.author.id:
                 invited.append(int(invited))
         em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: {len(invited)}\n", color = Color.purple())
+        em.set_thumbnail(url= ctx.author.avatar)
         if invited:
             if len(invited) > 5:
                 invited = invited[:5]
