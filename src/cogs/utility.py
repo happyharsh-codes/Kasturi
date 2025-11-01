@@ -418,7 +418,7 @@ class Utility(commands.Cog):
                 em.clear_fields()
                 kwargs = {}
                 for name, param in ctx.bot.get_command(cmd).clean_params.items():
-                    if param.annotation == discord.member:
+                    if param.annotation == discord.Member:
                         kwargs[name] = ctx.author
                     elif param.annotation == discord.TextChannel:
                         kwargs[name] = ctx.channel
