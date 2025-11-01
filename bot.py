@@ -382,6 +382,10 @@ class Bot:
                 nonlocal msg
                 await msg.edit(view=None)
             async def helper(interaction: Interaction):
+                if interaction.user.id != ctx.author.id:
+                    await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                    await interaction.response.defer()
+                    return 
                 await interaction.response.defer()
                 await ctx.invoke(ctx.bot.get_command("help"), ctx.command.name)
             see_usage = Button(style=ButtonStyle.primary, custom_id="see_usage", label= "See Usage 🏷️")
