@@ -18,11 +18,9 @@ class Utility(commands.Cog):
             user = ctx.author
         rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
         if rank_channel == 0 or rank_channel is None:
-            await ctx.send("This Server does not have Rank Channels set. Please set using `k set_rank_channel <#channel>", delete_after=6)
-            return
+            return await ctx.send("Rank channel isn't configured. Use `k set_rank_channel <#channel>` to set it.", delete_after=6)
         if not ctx.channel.id == rank_channel:
-            await ctx.send(f"This command only works in rank channel!! <#{rank_channel}>", delete_after=5)
-            return
+            return await ctx.send(f"This command only works in the rank channel: <#{rank_channel}>", delete_after=5)
         rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
         total_xp = rank_list.get(str(user.id))
         level = (math.sqrt(1+8*(total_xp//15))-1)//2
@@ -32,7 +30,8 @@ class Utility(commands.Cog):
         if not total_xp: 
             total_xp = 0
             level = 0
-        em = Embed(title=f"{user.name}'s Rank", description=f"LEVEl: {int(level)}\nXP: {int(total_xp)}\nRank: {rank_values.index(total_xp) + 1}", color=Color.dark_gold())
+        
+        em = Embed(title=f"{user.name}'s Rank",description=(f"**Level:** {int(level)}\n**XP:** {int(total_xp)}\n**Position:** #{rank_values.index(total_xp) + 1}",color=Color.dark_gold())
         await ctx.send(embed=em)
 
     @commands.hybrid_command(aliases=[])
@@ -46,11 +45,9 @@ class Utility(commands.Cog):
         Updates automatically as people chat and interact."""
         rank_channel = Server_Settings[str(ctx.guild.id)]["rank_channel"]
         if rank_channel == 0 or rank_channel is None:
-            await ctx.send("This Server does not have Rank Channels set. Please set using `k set_rank_channel <#channel>", delete_after=6)
-            return
+            return await ctx.send("Rank channel isn’t configured. Use `k set_rank_channel <#channel>`.", delete_after=6)
         if not ctx.channel.id == rank_channel:
-            await ctx.send(f"This command only works in rank channel!!\nPlease go to <#{rank_channel}>.", delete_after=5)
-            return
+            return await ctx.send(f"This command only works in the rank channel.\nPlease go to <#{rank_channel}>", delete_after=5)
         rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
         total_xp = rank_list.get(str(ctx.author.id))
         level = (math.sqrt(1+8*(total_xp//15))-1)//2
@@ -71,8 +68,8 @@ class Utility(commands.Cog):
                     break
             lvl = (math.sqrt(1+8*(xp//15))-1)//2
             descrip += f"**#{index+1}.** `{name}` Level: {int(lvl)} - {xp}xp\n"
-        em = Embed(title=f"{ctx.guild.name} Rank Leaderboard", description=descrip, color=Color.dark_gold())
-        em.set_footer(text=f"{ctx.author.name} at #{rank_values.index(total_xp) +1} - {total_xp}xp", icon_url= ctx.author.avatar)
+        em = Embed(title=f"{ctx.guild.name} Leaderboard 🏆",description=descrip,color=Color.dark_gold())
+        em.set_footer(text=f"{ctx.author.name} • Rank #{rank_values.index(total_xp) +1} • {total_xp} XP",icon_url=ctx.author.avatar)
         em.set_author(name=f"{ctx.author.id}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
                
@@ -82,7 +79,7 @@ class Utility(commands.Cog):
     @commands.bot_has_permissions()
     async def invite(self, ctx):
         """Invite link for the bot"""
-        await ctx.send("[Meet Kelly here](https://top.gg/bot/1368884334076891136?s=0332b997edcc8)")
+        await ctx.send("[Invite Kelly to your server](https://discord.com/oauth2/authorize?client_id=1368884334076891136)")
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
@@ -90,8 +87,8 @@ class Utility(commands.Cog):
     @commands.bot_has_permissions()
     async def vote(self, ctx):
         """Vote link for the bot"""
-        await ctx.send("This command is yet to be made :/")
-
+        await ctx.send("Voting page is currently under development. Please check back soon!")
+        
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
@@ -99,8 +96,8 @@ class Utility(commands.Cog):
     async def afk(self, ctx, time, reason):
         """Sets your status as afk. No one will disturb you here after. After you return all your ping will be sent in DMs"""
         Server_Settings[str(ctx.guild.id)]["afk"].append(ctx.author.id)
-        await ctx.send(f"{ctx.author.mention} has gone afk for **{time}** : {reason}. Dont ping him unnecessarily")
-        await ctx.send("Dont worry I'll notify everyone in your absense not to disturb you...")
+        await ctx.send(f"{ctx.author.mention} is now **AFK** for **{time}** — Reason: {reason}\nI’ll notify others not to disturb you.")
+        await ctx.send("Don’t worry, I’ll DM you all missed mentions once you're back.")
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
@@ -110,7 +107,7 @@ class Utility(commands.Cog):
         """Shows User's Avatar"""
         if user is None:
             user = ctx.author
-        em = Embed(title=f"{user.display_name}'s Avatar", timestamp=datetime.now(UTC))
+        em = Embed(title=f"{user.display_name}'s Avatar",timestamp=datetime.now(UTC))
         em.set_image(url=user.display_avatar)
         await ctx.send(embed=em)
 
@@ -262,7 +259,7 @@ class Utility(commands.Cog):
     @commands.bot_has_permissions()
     async def bug(self, ctx):
         """Report query, bugs and suggestions directly to the developer."""
-        em = Embed(title = "Report Bugs", description="Ow got some bugs, queries, or suggestions ?\nDrop them down below", color = Color.green())
+        em = Embed(title = "Report Bugs", description="Ow got some bugs, queries, or have suggestions ?\nDrop them down below", color = Color.green())
         em.set_thumbnail(url= "https://cdn.discordapp.com/emojis/1372191175133368411.png")
         view = View(timeout = 45)
         async def callback(interaction: Interaction):
@@ -534,7 +531,7 @@ class Utility(commands.Cog):
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
         channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=channel.name,value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=5, min_values=1)
                 
-        em = Embed(title="Welcome to Kelly Bot Setup", description="We are glad that you invited our bot to your server. Follow these simple instructions to set up settings and start chatting with Kelly right now. Thanks for inviting Kelly.", color = Color.gold(), type = "rich")
+        em = Embed(title="Welcome to Kelly Setup",description="Thank you for inviting Kelly!\nFollow this guided setup to configure everything:\n✅ Welcome messages\n✅ Social media updates\n✅ Rank system\n✅ Chat activation\n✅ Timer messages",color=Color.gold())
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
         em.set_author(name= ctx.author.name, icon_url=ctx.author.avatar)
         class WelcomeModal(discord.ui.Modal):
@@ -721,8 +718,9 @@ class Utility(commands.Cog):
               if process_no == 8:
                 if interaction.data["custom_id"] == "proceed":
                     timer_messages = True
+                em.title = "Server Setup Complete ✅"
+                em.description = "Your server is now fully configured!\nYou can now chat with Kelly in activated channels — just say `kelly hi`.\n• Music → `k music`\n• Games → `k games`\n• Developer tools → `k dev`\n• Need help? → `k help <command>`"
                 em.title="Server Setup Completed Successfully ✅"
-                em.description="Hurray you completed the server setup. Start Chatting with Kelly, just say `kelly hi`.\n\nExplore music with `k music`\nCheck out fun games with `k games`\nExciting social media search with `k dev`\n"
                 em.set_footer(text="Whenever lost in trouble use `k help <query>`.", icon_url = ctx.author.avatar)
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/finished.gif")
                 Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
@@ -739,7 +737,7 @@ class Utility(commands.Cog):
 
               if process_no == 9:
                 await interaction.response.edit_message(view=None)
-                embed= Embed(title= "Guild Setup Complete", description= "Thanks for setting up my bot on your server.\n`k help` for user guide.\nAny bugs, query or suggestions submit with `k bug`\nEnjoy and explore all features.\nMeet the devloper [here](https://discord.gg/y56na8kN9e)", color = Color.green())
+                embed = Embed(title="Setup Complete ✅",description="Thanks for setting up Kelly in your server!\nUse `k help` anytime to explore commands.\nFound bugs or suggestions? Use `k bug` to report.\nEnjoy exploring Kelly’s features! 🎉",color=Color.green())
                 dm_channel = ctx.author.dm_channel
                 if not dm_channel:
                     dm_channel = await ctx.author.create_dm()
