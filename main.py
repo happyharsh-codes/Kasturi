@@ -34,6 +34,7 @@ async def start():
     client.add_listener(bot.on_error)
     client.add_listener(bot.on_disconnect)
     client.add_listener(bot.on_presence_update)
+    client.add_listener(bot.on_member_update)
     client.after_invoke(bot.after_any_command)
     client.before_invoke(bot.before_any_command)
     try:
