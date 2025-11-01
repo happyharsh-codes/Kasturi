@@ -205,7 +205,7 @@ class Utility(commands.Cog):
             found = False
             for i, c in enumerate(menu_cmds):
                 for index, cm in enumerate(c):
-                  if cmd.lower() == cm:
+                  if cmd.lower() == cm or cmd.lower() in ctx.bot.get_command(cm).aliases:
                     category = i
                     cmd = cm
                     get_started.label = "Show Examples"
@@ -279,7 +279,23 @@ class Utility(commands.Cog):
                 update()
             else:
                 em.clear_fields()
-                await ctx.invoke(self.client.get_command(cmd))
+                kwargs = {}
+                for name, param in ctx.bot.get_command(cmd).clean_params.items():
+                    if param.annotation == discord.member:
+                        kwargs[name] = ctx.author
+                    elif param.annotation == discord.TextChannel:
+                        kwargs[name] = ctx.channel
+                    elif params.annotation == discord.Role:
+                        kwargs[name] = ctx.author.roles[0]
+                    elif params.annotation == str:
+                        kwargs[name] = "example"
+                    elif params.annotation = int:
+                        kwargs[name] = 1
+                    elif not param.required:
+                        continue
+                    else:
+                        kwargs[name] = None
+                await ctx.invoke(self.client.get_command(cmd), **kwargs)
                 get_started.style = ButtonStyle.grey
                 get_started.disabled = True
             
