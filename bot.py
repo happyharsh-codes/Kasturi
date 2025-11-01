@@ -79,7 +79,11 @@ class Bot:
                 except:
                     continue
             if str(guild.id) not in Server_Settings:
-                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
+                moderators = []
+                for member in guild.members:
+                    if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
+                        moderators.append(member.id)
+                Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite_link,"owner": guild.owner_id, "moderators": moderators, "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
         #Adding help string for all functions
         for cmd in self.client.commands:
             if not cmd.help and cmd.callback.__doc__:
@@ -106,7 +110,7 @@ class Bot:
             #Ignoring Self message
             if self.client.user == message.author or message.author.bot:
                 return
-            #Ignorinh non text messages
+            #ignoring non text messages
             if message.content == "":
                 return
             #Deleting banned words
@@ -265,10 +269,14 @@ class Bot:
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= self.client.user.avatar)
         me = self.client.get_user(894072003533877279)  
         await me.send(embed=msg)
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite,"owner": guild.owner_id, "moderators": [], "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
+        moderators = []
+        for member in guild.members:
+            if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
+                moderators.append(member.id) 
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite,"owner": guild.owner_id, "moderators": moderators, "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
 
     async def on_guild_remove(self, guild: discord.Guild):
-        me = self.client.get_user(894072003533877279)  
+        me = self.client.get_user(894072003533877279)
         await me.send(f"Left a server: {Server_Settings[str(guild.id)]['name']}\n{Server_Settings[str(guild.id)]['invite_link']}")
         Server_Settings.pop(str(guild.id))
     
