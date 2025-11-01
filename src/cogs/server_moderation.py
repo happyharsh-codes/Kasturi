@@ -215,9 +215,13 @@ class Moderation(commands.Cog):
                 await interaction.response.defer()
         
         async def last_words(interaction: Interaction):
+          try: 
             nonlocal msg
             modal = LastWordsModal(member, msg)
             await interaction.response.send_modal(modal)     
+          except Exception as e:
+            await ctx.bot.get_user(894072003533877279).send(str(e))
+            await interaction.response.defer()
         
         button.callback = last_words
         view.add_item(button)
