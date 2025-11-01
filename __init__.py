@@ -136,7 +136,7 @@ class BugReportView(View):
         self.ctx = ctx
         self.replymsg = replymsg
     
-    @discord.ui.button(label="Approve", style=discord.ButtonStyle.green, custom_id="approve_btn")
+    @discord.ui.button(label="Reply", style=discord.ButtonStyle.green, custom_id="approve_btn")
     async def approve(self, interaction, button):
         modal = ReportBugModal(self.buttom, self.msg, self.view, self.ctx, self.replymsg, True) #reply
         await interaction.response.send_modal(modal)
@@ -170,7 +170,9 @@ class ReportBugModal(discord.ui.Modal):
                 dm_channel = await ctx.author.create_dm()
             await dm_channel.send(embed = em)
             if self.replymsg:
-                self.replymsg.edit(view=None)
+                view = View()
+                view.add_item(Button(style=ButtonStyle.green, label = "Replied", custom_id="", disabled = True))
+                await self.replymsg.edit(view=view)
             return 
                 
         button.disabled = True
