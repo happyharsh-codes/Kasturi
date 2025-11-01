@@ -44,7 +44,7 @@ class Moderation(commands.Cog):
             em.set_author(name=member.name,icon_url=member.avatar)
             await ctx.send(embed=em)
             embed = Embed(title = f"You have been Muted in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-            em.set_footer(text=f"Muted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+            embed.set_footer(text=f"Muted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
             try:
                 dm_channel = member.dm_channel
                 if not dm_channel:
@@ -92,7 +92,7 @@ class Moderation(commands.Cog):
             await ctx.send(f"❌ Could not unmute user")
             return
         embed = Embed(title = f"You have been Unmuted in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-        em.set_footer(text=f"Unmuted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Unmuted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
         try:
             dm_channel = member.dm_channel
             if not dm_channel:
@@ -113,7 +113,7 @@ class Moderation(commands.Cog):
         """Kicks a member from the server 👢  
         Instantly removes them without banning."""
         embed = Embed(title = f"You have been Kicked from {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-        em.set_footer(text=f"Kicked by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Kicked by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
         try:
             dm_channel = member.dm_channel
             if not dm_channel:
@@ -135,7 +135,7 @@ class Moderation(commands.Cog):
         Logs the reason and warn count for moderation tracking.
         You can set up automated actions when warn count reaches the limit by using `automod` command."""
         embed = Embed(title = f"You have been Warned in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-        em.set_footer(text=f"Warned by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Warned by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
         try:
             dm_channel = member.dm_channel
             if not dm_channel:
@@ -190,6 +190,19 @@ class Moderation(commands.Cog):
                     if not dm_channel:
                         dm_channel = await owner.create_dm()
                     await dm_channel.send(embed=em)
+                    moderators = Server_Settings[str(ctx.guild.id)]["moderators"]
+                    if moderators:
+                        for mod in moderator:
+                            user = ctx.bot.get_user(int(mod))
+                            if not user:
+                                break
+                            dm_channel = user.dm_channel
+                            if not dm_channel:
+                                dm_channel = await user.create_dm()
+                            try:
+                                await dm_channel.send(embed=em)
+                            except:
+                                pass
                 except:
                     pass
                 view.clear_item()
@@ -225,7 +238,7 @@ class Moderation(commands.Cog):
         """Just Bans a member from ever Chatting to Kelly Not from Server 🚫  
         Now user can never chat with Kelly, unless unbanned."""
         embed = Embed(title = f"You have been Banned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
-        em.set_footer(text=f"Kelly Ban by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Kelly Ban by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
         
         try:
             dm_channel = member.dm_channel
@@ -277,7 +290,7 @@ class Moderation(commands.Cog):
         Now they can start chatting with Kelly again.
         This is not related with server."""
         embed = Embed(title = f"You have been Unbanned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
-        em.set_footer(text=f"Kelly Umban by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Kelly Umban by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
         
         try:
             dm_channel = member.dm_channel
@@ -306,7 +319,7 @@ class Moderation(commands.Cog):
         """Assigns given role to the user.
         Given role hierarchy should be equivalent to or less than your role."""
         embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: {role.mention}\n**", color = Color.blue())
-        em.set_footer(text=f"Assigned Role by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Assigned Role by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
         
         try:
             dm_channel = member.dm_channel
