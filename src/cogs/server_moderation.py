@@ -4,150 +4,163 @@ class Moderation(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
+    # ===== Utility Functions =====
+
+    async def safe_dm(self, member: discord.Member, embed: discord.Embed):
+        """Safely tries to DM a user, fallback to channel if DMs are closed."""
+        try:
+            if not member.dm_channel:
+                await member.create_dm()
+            await member.dm_channel.send(embed=embed)
+        except:
+            return False
+        return True
+
+    def action_embed(self, title: str, desc: str, ctx: commands.Context, member=None, color=Color.pink()):
+        """Creates a consistent embed style for actions."""
+        embed = Embed(title=title, description=desc, color=color)
+        embed.set_footer(text=f"{ctx.command.name.title()} by {ctx.author.name} • {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        if member:
+            embed.set_author(name=member.name, icon_url=member.avatar)
+        return embed
+
+    # ===== Kelly-Only Mute =====
+
     @commands.hybrid_command(aliases=["kelly_mute", "kmute"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
-        """Temporarily mutes a member 🔇 from Kelly
-        It only prevents them from talking to kelly, this is not mute for server.
-        Useful handling chaos in chat"""
-        minutes = randint(5,15)
-        Server_Settings[str(ctx.guild.id)]["muted"].update({str(member.id): (datetime.now(UTC) + timedelta(minutes=minutes)).isoformat()})
-        em = Embed(
-            title="🔇 Member Muted From Kelly Talkings",
-            description=f"{member.mention} was muted for **{minutes} minutes from talking to kelly.**.\n**Reason: ** {reason}",
-            color=Color.pink()
+        """Temporarily prevents a user from chatting with Kelly, not server-wide."""
+        minutes = randint(5, 15)
+        until = (datetime.now(UTC) + timedelta(minutes=minutes)).isoformat()
+        Server_Settings[str(ctx.guild.id)]["muted"][str(member.id)] = until
+
+        embed = self.action_embed(
+            "🔇 Kelly Chat Mute Applied",
+            f"{member.mention} has been muted for **{minutes} minutes**.\n**Reason:** {reason}",
+            ctx, member
         )
-        em.set_footer(text=f"Muted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
-        em.set_author(name=member.name,icon_url=member.avatar)
-        await ctx.send(embed=em)
-        
+        await ctx.send(embed=embed)
+
+    # ===== Server Mute =====
+
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def mute(self, ctx: commands.Context, member: discord.Member, minutes: int, *, reason: str):
-        """Temporarily mutes a member 🔇
-        Prevents them from sending messages or speaking.
-        Useful during moderation or chaos in chat."""
+        """Server mute — prevents member from sending messages."""
         try:
-            duration = timedelta(minutes=int(minutes))
+            duration = timedelta(minutes=minutes)
             await member.timeout(duration, reason=reason)
 
-            em = Embed(
-                title="🔇 Member Muted",
-                description=f"{member.mention} was muted for **{minutes} minutes**.\n**Reason: ** {reason}",
-                color=Color.pink()
+            embed_dm = Embed(
+                title=f"You have been muted in {ctx.guild.name}",
+                description=f"**Reason:** {reason}\nPlease follow server rules.",
+                color=Color.red()
             )
-            em.set_footer(text=f"Muted by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
-            em.set_author(name=member.name,icon_url=member.avatar)
-            await ctx.send(embed=em)
-            embed = Embed(title = f"You have been Muted in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-            embed.set_footer(text=f"Muted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
-            try:
-                dm_channel = member.dm_channel
-                if not dm_channel:
-                    dm_channel = await member.create_dm()
-                await dm_channel.send(embed=embed)
-            except:
-                await ctx.send(content= f"{member.mention}", embed=embed)
-        
+            await self.safe_dm(member, embed_dm)
+
+            embed = self.action_embed(
+                "🔇 Member Muted",
+                f"{member.mention} muted for **{minutes} minutes**.\n**Reason:** {reason}",
+                ctx, member
+            )
+            await ctx.send(embed=embed)
+
         except Exception as e:
-            await ctx.send(f"❌ Could not mute {member.mention}. Error: {e}")
+            await ctx.send(f"❌ Could not mute {member.mention}. Error: `{e}`")
+
+    # ===== Kelly-Only Unmute =====
 
     @commands.hybrid_command(aliases=["kelly_unmute", "kunmute"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def unmute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
-        """Removes mute from a user for Kelly.🔊  
-           Now they can start chatting with Kelly."""
-        try:
-            Server_Settings[str(ctx.guild.id)]["muted"].pop(str(member.id))
-            em = Embed(
-                title="Member Unmuted",
-                description=f"{member.mention} was unmuted.\n**Reason: ** {reason}\nNow you can talk to Kelly again using `kelly hi`. Please be respectful this time.",
-                color=Color.pink()
-            )
-            em.set_footer(text=f"Unmuted by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
-            em.set_author(name=member.name,icon_url=member.avatar)
-            await ctx.send(embed=em)
-        except:
-            await ctx.send("Ayoo! That user isn't muted")
-            
+        """Removes Kelly-only chat mute."""
+        muted = Server_Settings[str(ctx.guild.id)]["muted"]
+        if str(member.id) not in muted:
+            return await ctx.send("⚠️ That user is not muted from Kelly.")
+
+        muted.pop(str(member.id))
+
+        embed = self.action_embed(
+            "🔊 Kelly Chat Unmuted",
+            f"{member.mention} can now talk to Kelly again.\n**Reason:** {reason}",
+            ctx, member, Color.green()
+        )
+        await ctx.send(embed=embed)
+
+    # ===== Server Unmute =====
+
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def unmute(self, ctx: commands.Context, member: discord.Member, *, reason: str):
-        """Removes mute from a user 🔊  
-        Restores chat and voice access."""
-        if member.timed_out_until is None:
-            await ctx.send("Ayoo member isn't muted what are you doing sarr.") 
-            return
-        try:
-            await member.edit(timed_out_until=None, reason=reason)
-        except Exception as e:
-            await ctx.send(f"❌ Could not unmute user")
-            return
-        embed = Embed(title = f"You have been Unmuted in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-        embed.set_footer(text=f"Unmuted by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
-        try:
-            dm_channel = member.dm_channel
-            if not dm_channel:
-                dm_channel = await member.create_dm()
-            await dm_channel.send(embed=embed)
-        except:
-            await ctx.send(content= f"{member.mention}", embed=embed)
-        em = Embed(title="Member Unmuted", description=f"{member.mention} was unmuted.", color=Color.pink())
-        em.set_footer(text=f"Unmuted by {ctx.author.name} | {timestamp()}", icon_url=ctx.author.avatar)
-        em.set_author(name= member.name, icon_url= member.avatar)
-        await ctx.send(embed=em)
+        """Restores user's chat permissions server-wide."""
+        if not member.timed_out_until:
+            return await ctx.send("⚠️ That member is not muted.")
+
+        await member.edit(timed_out_until=None, reason=reason)
+
+        embed_dm = Embed(
+            title=f"You have been Unmuted in {ctx.guild.name}",
+            description=f"**Reason:** {reason}",
+            color=Color.green()
+        )
+        embed_dm.set_footer(text=f"Unmuted by {ctx.author.name}")
+        await self.safe_dm(member, embed_dm)
+
+        embed = self.action_embed("🔊 Member Unmuted", f"{member.mention} is unmuted.", ctx, member, Color.green())
+        await ctx.send(embed=embed)
+
+    # ===== Kick =====
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str):
-        """Kicks a member from the server 👢  
-        Instantly removes them without banning."""
-        embed = Embed(title = f"You have been Kicked from {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-        embed.set_footer(text=f"Kicked by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
-        try:
-            dm_channel = member.dm_channel
-            if not dm_channel:
-                dm_channel = await member.create_dm()
-            await dm_channel.send(embed=embed)
-        except:
-            pass
-        await ctx.guild.kick(user=member, reason=reason)
-        em = Embed(title="Member Kicked", description=f"{member.mention} was kicked by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
-        em.set_footer(text=f"Muted by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        await ctx.send(embed=em)
+        """Kick a member from the server."""
+        embed_dm = Embed(
+            title=f"You were kicked from {ctx.guild.name}",
+            description=f"**Reason:** {reason}",
+            color=Color.red()
+        )
+        await self.safe_dm(member, embed_dm)
+
+        await ctx.guild.kick(member, reason=reason)
+
+        embed = self.action_embed(
+            "👢 Member Kicked",
+            f"{member.mention} was kicked.\n**Reason:** {reason}",
+            ctx, member
+        )
+        await ctx.send(embed=embed)
+
+    # ===== Warn =====
 
     @commands.hybrid_command()
-    @commands.cooldown(1,10, type=commands.BucketType.user)
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def warn(self, ctx, member: discord.Member, *, reason: str):
-        """Gives an official warning ⚠️  
-        Logs the reason and warn count for moderation tracking.
-        You can set up automated actions when warn count reaches the limit by using `automod` command."""
-        embed = Embed(title = f"You have been Warned in {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
-        embed.set_footer(text=f"Warned by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
-        try:
-            dm_channel = member.dm_channel
-            if not dm_channel:
-                dm_channel = await member.create_dm()
-            await dm_channel.send(embed=embed)
-        except:
-            await ctx.send(content= f"{member.mention}", embed=embed)
-        em = Embed(title= "Warned User", description= f"**Reason:** {reason}", color = Color.pink())
-        em.set_author(name= ctx.author.name, icon_url = ctx.author.avatar)
-        em.set_footer(text=f"Warned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        await ctx.send(embed= em)
-    
+        """Send official warning to a member."""
+        embed_dm = Embed(
+            title=f"You were warned in {ctx.guild.name}",
+            description=f"**Reason:** {reason}",
+            color=Color.orange()
+        )
+        await self.safe_dm(member, embed_dm)
+
+        embed = self.action_embed("⚠️ Member Warned", f"{member.mention}\n**Reason:** {reason}", ctx, member, Color.orange())
+        await ctx.send(embed=embed)
+
+    # ===== BAN / UNBAN ==== 
+
     @commands.hybrid_command(aliases= [])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
