@@ -67,7 +67,7 @@ class Bot:
         self.save_files.start()
         self.unmute.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
-        self.client.add_view(BugReportView())
+        #self.client.add_view(BugReportView())
         #saving guilds
         for guild in self.client.guilds:
             invite_link = None
@@ -98,12 +98,16 @@ class Bot:
         id = message.author.id
         guild = message.guild.id
         channel = message.channel.id
+        metadata = Server_Settings[str(guild)]
         try:
             #Ignoring Self message
             if self.client.user == message.author or message.author.bot:
                 return
+            #Ignorinh non text messages
+            if message.content == "":
+                return
             #Deleting banned words
-            for word in Server_Settings[str(message.guild.id)]["banned_words"]:
+            for word in metadata["banned_words"]:
                 if word in message.content:
                     try:
                         await message.delete()
@@ -113,7 +117,7 @@ class Bot:
             #Handelling Bot mentions
             if self.client.user.mention in message.content:
                 if "deactivate" in message.content.lower():
-                    if channel not in Server_Settings[str(guild)]["allowed_channels"]:
+                    if channel not in metadata["allowed_channels"]:
                         await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
                         return
                     Server_Settings[str(guild)]["allowed_channels"].remove(channel)
@@ -136,32 +140,32 @@ class Bot:
                     message.content = message.content.replace(self.client.user.mention, "kelly")
             
             #Giving xp
-            if Server_Settings[str(guild)]["rank_channel"] != 0:
-                if str(id) in Server_Settings[str(guild)]["rank"]:
-                    total_xp = Server_Settings[str(guild)]["rank"][str(id)]
+            if metadata["rank_channel"] != 0:
+                if str(id) in metadata["rank"]:
+                    total_xp = metadata["rank"][str(id)]
                     level = (math.sqrt(1+8*(total_xp//15)) -1)//2
                     max_xp = ((level+1)*(level+2)*15)//2
                     total_xp += 2
                     if total_xp > max_xp:
-                        channel = await message.guild.fetch_channel(Server_Settings[str(guild)]["rank_channel"])
+                        channel = await message.guild.fetch_channel(metadata["rank_channel"])
                         await channel.send(f"{message.author.mention} you reached Level {level+1}") 
                     Server_Settings[str(guild)]["rank"][str(id)] += 2
                 else: 
                     Server_Settings[str(guild)]["rank"][str(id)] = 2
 
             #checking for afk user
-            for afk in Server_Settings[str(guild)]['afk']:
+            for afk in metadata['afk']:
                 if id == afk:
                     Server_Settings[str(guild)]['afk'].remove(afk)
                 elif self.client.get_user(afk).mentioned_in(message):
                     await message.channel.send(embed= Embed(description=f"Please dont mention `@{self.client.get_user(afk).name}` they have gone afk!!"))
         
             #checking for allowed channel
-            if Server_Settings[str(guild)]["allowed_channels"] != [] and channel not in Server_Settings[str(guild)]["allowed_channels"] and message.content.lower().startswith(("kasturi", "kelly")):
+            if metadata["allowed_channels"] != [] and channel not in metadata["allowed_channels"] and message.content.lower().startswith(("kasturi", "kelly")):
                 channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
                 await message.channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} Too bad cuz I only chat in these channels {channels_str}", delete_after = 8)
                 return
-            elif Server_Settings[str(guild)]["allowed_channels"] == [] and message.content.lower().startswith("k ", "kelly", "kasturi"):
+            elif metadata["allowed_channels"] == [] and message.content.lower().startswith("k ", "kelly", "kasturi"):
                 await message.channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate` now")
             #replying to replies i.e messages without prefixes
             if message.reference and message.reference.message_id:
