@@ -6,7 +6,7 @@ class Dev_Tech_Tools(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -47,7 +47,7 @@ class Dev_Tech_Tools(commands.Cog):
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command(aliases=["youtube"])
+    @commands.hybrid_command(aliases=["youtube"])
     @commands.cooldown(1, 30, type=commands.BucketType.user)
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -132,7 +132,7 @@ class Dev_Tech_Tools(commands.Cog):
         right.callback = on_leftright
         msg = await ctx.reply(embed=em, view=view)
 
-    @commands.command(aliases=["codesnippet"])
+    @commands.hybrid_command(aliases=["codesnippet"])
     @commands.cooldown(1, 60, type=commands.BucketType.user)
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -150,7 +150,7 @@ class Dev_Tech_Tools(commands.Cog):
         em.set_footer(text=f"Shared by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command(aliases=["instagram"])
+    @commands.hybrid_command(aliases=["instagram"])
     @commands.cooldown(1, 30, type=commands.BucketType.user)
     @commands.has_permissions()
     @commands.bot_has_permissions()
