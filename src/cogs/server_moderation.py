@@ -8,7 +8,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+    async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Temporarily mutes a member 🔇 from Kelly
         It only prevents them from talking to kelly, this is not mute for server.
         Useful handling chaos in chat"""
@@ -27,7 +27,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def mute(self, ctx: commands.Context, member: discord.Member, minutes, *, reason: str = "No reason provided"):
+    async def mute(self, ctx: commands.Context, member: discord.Member, minutes, *, reason: str):
         """Temporarily mutes a member 🔇
         Prevents them from sending messages or speaking.
         Useful during moderation or chaos in chat."""
@@ -80,7 +80,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def unmute(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason Provided"):
+    async def unmute(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Removes mute from a user 🔊  
         Restores chat and voice access."""
         if member.timed_out_until is None:
@@ -109,7 +109,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
-    async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+    async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Kicks a member from the server 👢  
         Instantly removes them without banning."""
         embed = Embed(title = f"You have been Kicked from {ctx.guild.name}", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this. Future violations may result in a ban.**", color = Color.red())
@@ -130,7 +130,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1,10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def warn(self, ctx, member: discord.Member, *, reason=None):
+    async def warn(self, ctx, member: discord.Member, *, reason: str):
         """Gives an official warning ⚠️  
         Logs the reason and warn count for moderation tracking.
         You can set up automated actions when warn count reaches the limit by using `automod` command."""
@@ -152,7 +152,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+    async def ban(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Bans a member permanently 🚫  
         Stops them from rejoining until unbanned.
         Moderators Only - Please consider case properly before using this command."""
@@ -234,7 +234,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def ban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+    async def ban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Just Bans a member from ever Chatting to Kelly Not from Server 🚫  
         Now user can never chat with Kelly, unless unbanned."""
         embed = Embed(title = f"You have been Banned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
@@ -258,7 +258,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def unban(self, ctx: commands.Context, user_tag: str, *, reason: str = "No reason provided"):
+    async def unban(self, ctx: commands.Context, user_tag: str, *, reason: str):
         """Unbans a user by name or ID 🔓  
         Lets them rejoin your server.
         Sends them a Unbanned message."""
@@ -285,7 +285,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def unban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
+    async def unban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Unbans a user by name or ID 🔓 from Kelly. 
         Now they can start chatting with Kelly again.
         This is not related with server."""
