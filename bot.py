@@ -67,7 +67,7 @@ class Bot:
         self.save_files.start()
         self.unmute.start()
         #await self.client.change_presence(activity=discord.Game(name=""))
-        self.client.add_view(BugReportView())
+        
         #saving guilds
         for guild in self.client.guilds:
             invite_link = None
@@ -92,6 +92,9 @@ class Bot:
         #tracking invites
         for guild in self.client.guilds:
             self.invite_cache[guild.id] = {invite.code: invite.uses for invite in await guild.invites()} 
+
+        self.client.add_view(BugReportView())
+
     
     async def on_message(self, message: discord.Message):
         start = time.time()
