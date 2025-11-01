@@ -4,7 +4,7 @@ class Moderation(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(aliases=["kelly_mute", "kmute"])
+    @commands.hybrid_command(aliases=["kelly_mute", "kmute"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -23,7 +23,7 @@ class Moderation(commands.Cog):
         em.set_author(name=member.name,icon_url=member.avatar)
         await ctx.send(embed=em)
         
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -56,7 +56,7 @@ class Moderation(commands.Cog):
         except Exception as e:
             await ctx.send(f"❌ Could not mute {member.mention}. Error: {e}")
 
-    @commands.command(aliases=["kelly_unmute", "kunmute"])
+    @commands.hybrid_command(aliases=["kelly_unmute", "kunmute"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -76,7 +76,7 @@ class Moderation(commands.Cog):
         except:
             await ctx.send("Ayoo! That user isn't muted")
             
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -105,7 +105,7 @@ class Moderation(commands.Cog):
         em.set_author(name= member.name, icon_url= member.avatar)
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
@@ -126,7 +126,7 @@ class Moderation(commands.Cog):
         em.set_footer(text=f"Muted by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1,10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -148,7 +148,7 @@ class Moderation(commands.Cog):
         em.set_footer(text=f"Warned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         await ctx.send(embed= em)
     
-    @commands.command(aliases= [])
+    @commands.hybrid_command(aliases= [])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
@@ -230,7 +230,7 @@ class Moderation(commands.Cog):
             pass
         await ctx.guild.ban(user=member, reason=reason, delete_message_days=0)
 
-    @commands.command(aliases=["kelly_ban", "kban"])
+    @commands.hybrid_command(aliases=["kelly_ban", "kban"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -254,7 +254,7 @@ class Moderation(commands.Cog):
         em.set_author(name=member.name, icon_url=member.avatar)
         await ctx.send(embed=em)
         
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
@@ -281,7 +281,7 @@ class Moderation(commands.Cog):
                 return
         await ctx.send("User not found in ban list.")
 
-    @commands.command(aliases=["kelly_unban", "kunban"])
+    @commands.hybrid_command(aliases=["kelly_unban", "kunban"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -311,7 +311,7 @@ class Moderation(commands.Cog):
         em.set_author(name=member.name,icon_url=member.avatar)
         await ctx.send(embed=em)
     
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
@@ -334,7 +334,7 @@ class Moderation(commands.Cog):
         em.set_footer(text=f"Role Assigned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(deafen_members=True)
     @commands.bot_has_permissions(deafen_members=True)
@@ -348,7 +348,7 @@ class Moderation(commands.Cog):
         em.set_footer(text=f"Deafened by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(deafen_members=True)
     @commands.bot_has_permissions(deafen_members=True)
@@ -358,7 +358,7 @@ class Moderation(commands.Cog):
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
         
         
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
@@ -367,7 +367,7 @@ class Moderation(commands.Cog):
         deleted = await ctx.channel.purge(limit=amount + 1)
         await ctx.send(embed=Embed(description=f"Deleted {len(deleted) - 1} messages."), delete_after=5)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions(manage_channels=True)
@@ -376,7 +376,7 @@ class Moderation(commands.Cog):
         await channel.edit(slowmode_delay=seconds)
         await ctx.send(embed = Embed(title = f"Slowmode set to `{seconds}` seconds in {channel.mention}"))
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
@@ -385,7 +385,7 @@ class Moderation(commands.Cog):
         deleted = await ctx.channel.purge(limit=amount + 1)
         await ctx.send(embed = Embed(title=f"Purged {len(deleted) - 1} messages."), delete_after=5)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
@@ -397,7 +397,7 @@ class Moderation(commands.Cog):
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
@@ -407,7 +407,7 @@ class Moderation(commands.Cog):
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
         
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.bot_has_permissions(administrator=True)
@@ -418,7 +418,7 @@ class Moderation(commands.Cog):
         em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.bot_has_permissions(administrator=True)
@@ -430,7 +430,7 @@ class Moderation(commands.Cog):
         em = Embed(title="Welcome Channel Set :white_check_mark:", description=f"Welcome Channel set successfully.\nNow you'll recieve exclusive messages on members joining and leaving the server in {channel.mention}\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     @commands.bot_has_permissions(administrator=True)
