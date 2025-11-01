@@ -127,7 +127,7 @@ class Utility(commands.Cog):
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def info(self, ctx, *, search = None):
+    async def info(self, ctx, *, search: str = None):
         """Provides info about Literally ANYTHING. Search query can be a user, guild('guild'/'server' for own guild , guild link for other guilds), channels, roles, websites, info about kelly, etc"""
 
         async def user_info(member):
