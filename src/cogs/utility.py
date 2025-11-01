@@ -180,13 +180,13 @@ class Utility(commands.Cog):
             em.set_thumbnail(url= guild.icon)
             em.set_image(url = guild.banner)
             em.set_author(name = ctx.author.name)
-            await message.channel.send(embed= em)          
+            await ctx.send(embed= em)          
             
         async def channel_info(channel):
             em = Embed(title = "⚙️ Channel Initialisation 🛠️", description= f"{channel.mention} {channel.id}\n**Category**: {channel.category.mention}\n**Created At**: <t:{int(channel.created_at.timestamp())}:f>", color= Color.purple())
             em.set_thumbnail(url= ctx.author.avatar)
             em.set_author(name = f"{ctx.author.name}")
-            await message.channel.send(embed= em)          
+            await ctx.send(embed= em)          
 
         async def role_info(role):
             permissions = []
@@ -198,63 +198,63 @@ class Utility(commands.Cog):
             em = Embed(title = "⚙️ Role Initialisation 🛠️", description= f"{role.mention}\n**ID**: {role.id}\n**Mentionable**: {role.mentionable}\n**Created At**: <t:{int(role.created_at.timestamp())}:f>\n**Permissions**: {permission_str}\n", color= role.color)
             em.set_thumbnail(url= role.icon if role.icon else role.display_icon)
             em.set_author(name = f"{role.name}")
-            await message.channel.send(embed= em)          
+            await ctx.send(embed= em)          
 
         
         if not search:
-            pass
+            em = Embed(title = "Seach For any info", description="Use k seach <item>\nItem can be from the following:\n```• User: @user | <user_id>\n• Guild: 'Guild' | 'Server' | <guild_id> | <guild_invite_link>\n• Channel: <#channel> | <channel_id>\n • Role: <@&role> | <role_id>", color = Color.purple())
+            await ctx.send(embed = em)
+            return 
         if isinstance(search, discord.Member):
-            await user_info(search)
-            return
+            return await user_info(search)
         elif isinstance(search, discord.TextChannel):
-            await channel_info(search)
-            return
+            return await channel_info(search)
         elif isinstance(search, discord.Role):
-            await role_info(search)
+            return await role_info(search)
         elif isinstance(search, discord.Invite):
-            await guild_info(search.guild)
-            return
+            return await guild_info(search.guild)
         elif isinstance(search, discord.Guild):
-            await guild_info(search)
-            return
+            return await guild_info(search)
             
         if " " in search:
-            pass
+            return await ctx.send("No info found")
             
         if search.isdigit():
             id = int(search)
-            guild = ctx.bot.get_guild(id)
-            channel = ctx.bot.get_channel(id)
-            user = ctx.bot.get_user(id)
-            role = ctx.guild.get_role(id)
-            if guild:
-                await guild_info(guild)
-            elif channel:
-                await channel_info(channel)
-            elif user:
-                await user_info(user)
-            elif role:
-                await role_info(role)
-            else:
-                await ctx.send("No results found for your search")
-            return
-        else:
-            if "guild" in search or "server" in search:
-                await guild_info(ctx.guild)
-                return
             try:
-                invite = await ctx.bot.fetch_invite(search)
-                guild = invite.guild
-                await guild_info(guild)
-                return
+                guild = await ctx.bot.fetch_guild(id)
+                return await guild_info(guild)
             except:
                 pass
-            if invite:
-                await guild_info(invite.guild)
-                return
-            url = ""
-            await ctx.send(embed= Embed("No information found :/ I'm sorry"))
-            return 
+            try:
+                channel = await ctx.bot.fetch_channel(id)
+                return await channel_info(channel)
+            except:
+                pass
+            try:
+                user = await ctx.bot.fetch_user(id)
+                return await user_info(user)
+            except:
+                pass 
+            try:
+                role = await ctx.guild.fetch_role(id)
+                return await role_info(role)
+            except:
+                pass
+            return await ctx.send("No results found for your search")
+        try:
+            invite = await ctx.bot.fetch_invite(search)
+            guild = invite.guild
+            return await guild_info(guild)
+        except:
+            pass
+        
+        if "guild" in search.lower() or "server" in search.lower():
+            return await guild_info(ctx.guild)
+        
+        
+        await ctx.send(embed= Embed("No information found :/ I'm sorry"))
+        return 
             
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
