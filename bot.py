@@ -379,13 +379,13 @@ class Bot:
             await ctx.invoke(ctx.bot.get_command("help"), ctx.command.name)
         elif isinstance(error, commands.BotMissingPermissions):
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
-            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJIS.values()))}\nPlease ensure I have:\n```{perms}```",color=Color.red())
+            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have:\n```{perms}```",color=Color.red())
             await ctx.reply(embed=em)
         elif isinstance(error, discord.Forbidden):
-            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJIS.values()))}\nPlease ensure I have `Administrator` Permission Enabled.",color=Color.red())
+            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have `Administrator` Permission Enabled.",color=Color.red())
             await ctx.reply(embed=em)
         elif isinstance(error,commands.CommandOnCooldown):
-          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJIS.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
+          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
         elif isinstance(error, commands.MissingRequiredArgument):
             view = View(timeout =60)
             async def on_timeout():
@@ -400,14 +400,14 @@ class Bot:
             see_usage = Button(style=ButtonStyle.primary, custom_id="see_usage", label= "See Usage 🏷️")
             see_usage.callback = helper
             view.add_item(see_usage)
-            msg = await ctx.send(view = view, embed = Embed(title="Missing Arguments 📛", description=f"You are missing some required argumemt.{choice(list(EMOJIS.values()))}\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
+            msg = await ctx.send(view = view, embed = Embed(title="Missing Arguments 📛", description=f"You are missing some required argumemt.{choice(list(EMOJI.values()))}\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
 
         elif isinstance(error, commands.MissingPermissions):
             if ctx.author.id == 894072003533877279:
                 await ctx.reinvoke()
                 return
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
-            em = Embed(title="❌ Permission Denied", description=f"You don’t have permission to use this command. {choice(list(EMOJIS.values()))}\n**Required:**\n```{perms}```",color=Color.red())
+            em = Embed(title="❌ Permission Denied", description=f"You don’t have permission to use this command. {choice(list(EMOJI.values()))}\n**Required:**\n```{perms}```",color=Color.red())
             await ctx.send(embed=em)
 
         elif isinstance(error, commands.CheckFailure):
