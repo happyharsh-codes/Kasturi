@@ -27,7 +27,7 @@ class Invites_Tracker(commands.Cog):
                     em.description += f"{user.mention}\n"
                 else:
                     em.description += f"@unknown"
-        em.set_footer(text=f"Requested by {ctx.author.name} at {timestamp(ctx)", icon_url= ctx.author.avatar)
+        em.set_footer(text=f"Requested by {ctx.author.name} at {timestamp(ctx)}", icon_url= ctx.author.avatar)
         await ctx.send(embed = em)
 
 async def setup(bot):
