@@ -19,7 +19,7 @@ class Games(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(aliases=['c'])
+    @commands.hybrid_command(aliases=['c'])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -30,7 +30,7 @@ class Games(commands.Cog):
         emoji = EMOJI[f"kelly{choice(['hiding', 'interesting', 'owolove', 'heart', 'simping'])}"]
         await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **₹{amt}** cash <:cash:1433171762668896388>")
 
-    @commands.command(aliases=['g', 'gem'])
+    @commands.hybrid_command(aliases=['g', 'gem'])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -41,7 +41,7 @@ class Games(commands.Cog):
         emoji = EMOJI[f"kelly{choice(['hiding', 'interesting', 'owolove', 'heart', 'simping'])}"]
         await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **{amt}** gems <:gem:1433171777017610260>")
 
-    @commands.command(aliases=["inventory"])
+    @commands.hybrid_command(aliases=["inventory"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -65,7 +65,7 @@ class Games(commands.Cog):
         em.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
         await ctx.reply(embed=em)
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -109,7 +109,7 @@ class Games(commands.Cog):
             emoji = EMOJI[f"kelly{choice(['annoyed', 'bweh', 'watching'])}"]
             await ctx.reply(f"**{emoji} | **Invalid item given")
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -118,7 +118,7 @@ class Games(commands.Cog):
         """Uses the selected item from inventory"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
         
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -127,7 +127,7 @@ class Games(commands.Cog):
         """To Kill spawned mob"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
         
-    @commands.command(aliases=["adv"])
+    @commands.hybrid_command(aliases=["adv"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -136,7 +136,7 @@ class Games(commands.Cog):
         """To find new places, results in exciting rewards"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
-    @commands.command(aliases=['cr'])
+    @commands.hybrid_command(aliases=['cr'])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -177,7 +177,7 @@ class Games(commands.Cog):
         craft.callback = on_callback
         view.on_timeout = on_timeout
             
-    @commands.command(aliases=["brob"])
+    @commands.hybrid_command(aliases=["brob"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -186,7 +186,7 @@ class Games(commands.Cog):
         """Attempts bankrobbing someones account bases on your aura level"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -202,7 +202,7 @@ class Games(commands.Cog):
 
         await ctx.send(f"**{EMOJI['kelly'+choice(['embaress','laugh','owolove','hiding'])]} | **You got {sign}{cash}")
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -211,7 +211,7 @@ class Games(commands.Cog):
         """Goes hunting in the woods"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
     
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -222,7 +222,7 @@ class Games(commands.Cog):
         Can also mention user to battle with them otherwise opponent will be selected randomly."""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -231,7 +231,7 @@ class Games(commands.Cog):
         """Welcome to the Shop: Buy anything using cash or gems"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
-    @commands.command(aliases=[])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
