@@ -180,7 +180,7 @@ class Moderation(commands.Cog):
                 msg = self.msg
                 last_words = self.input_box.value
                 owner = ctx.bot.get_user(ctx.guild.owner_id)
-                em = Embed(title = f"{member.name}/{member.username} Says their Last Words befor getting Banned.", description= f"```{last_words}```", color = Color.blue())
+                em = Embed(title = f"{member.display_name} | {member.name} | {member.id} - \nSays their Last Words After getting Banned.", description= f"```{last_words}```", color = Color.blue())
                 em.set_thumbnail(url=member.avatar)
                 em.set_footer(text= "If you think this was a mistake then please ignore.")
                 try:
