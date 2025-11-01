@@ -167,21 +167,19 @@ class Moderation(commands.Cog):
         
         class LastWordsModal(discord.ui.Modal):
             
-            def __init__(self, member, view, msg):
-                self.member = member
-                self.view = view
-                self.msg = msg 
+            def __init__(self, member, msg):
                 super().__init__(title="Last Words Apology Form")
+                self.member = member
+                self.msg = msg 
                 self.input_box = TextInput(label="Enter Your Last Words Here:", custom_id="last_words", required= True, min_length=50, max_length=1024, style=TextStyle.paragraph, default="I'm sorry")
                 self.add_item(self.input_box)
             
             async def on_submit(self, interaction: Interaction):
               try:
-                view = self.view
                 member = self.member
                 msg = self.msg
                 last_words = self.input_box.value
-                owner = ctx.bot.get_user(ctx.guild.owner_id)
+                owner = ctx.guild.owner
                 em = Embed(title = f"{member.name}/{member.username} Says their Last Words befor getting Banned.", description= f"```{last_words}```", color = Color.blue())
                 em.set_thumbnail(url=member.avatar)
                 em.set_footer(text= "If you think this was a mistake then please ignore.")
@@ -193,9 +191,11 @@ class Moderation(commands.Cog):
                     moderators = Server_Settings[str(ctx.guild.id)]["moderators"]
                     if moderators:
                         for mod in moderators:
+                            if int(mod) == member.id:
+                                continue
                             user = ctx.bot.get_user(int(mod))
                             if not user:
-                                break
+                                continue
                             dm_channel = user.dm_channel
                             if not dm_channel:
                                 dm_channel = await user.create_dm()
@@ -205,17 +205,18 @@ class Moderation(commands.Cog):
                                 pass
                 except:
                     pass
-                view.clear_items()
+                view = View()
                 view.add_item(Button(style=ButtonStyle.secondary,label="Last Words Submitted",custom_id="submitted",disabled=True))
-                await msg.edit(view=self.view)
+                await msg.edit(view=view)
+                await msg.channel.send("**Your Last words were recorded it will be sent to the Guild Owner and Moderators**", delete_after = 120)
                 await interaction.response.defer()
               except Exception as e:
                 await ctx.bot.get_user(894072003533877279).send(str(e))
                 await interaction.response.defer()
         
         async def last_words(interaction: Interaction):
-            nonlocal view, msg
-            modal = LastWordsModal(member, view, msg)
+            nonlocal msg
+            modal = LastWordsModal(member, msg)
             await interaction.response.send_modal(modal)
             
         
