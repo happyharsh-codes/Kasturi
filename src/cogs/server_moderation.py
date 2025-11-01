@@ -169,7 +169,7 @@ class Moderation(commands.Cog):
             
             def __init__(self, member, msg):
                 super().__init__(title="Last Words Apology Form")
-                self.input_box = TextInput(label="Enter Your Last Words Here:", custom_id="last_words", required= True, min_length=50, max_length=1024, style=TextStyle.paragraph, default="I'm sorry")
+                self.input_box = TextInput(label="Enter Your Last Words Here:", custom_id="last_words", required= True, min_length=5, max_length=1024, style=TextStyle.paragraph, default="I'm sorry")
                 self.add_item(self.input_box)
                 self.member = member
                 self.msg = msg 
