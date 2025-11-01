@@ -13,10 +13,10 @@ class Invites_Tracker(commands.Cog):
         server = INVITER.get(str(ctx.guild.id), None)
         if not server:
             await ctx.send(embed = Embed(title= "No Record Found for this Guild"))
-        invited = []
+        invited_ids = []
         for invited, inviter in server.items():
             if inviter == ctx.author.id:
-                invited.append(int(invited))
+                invited_ids.append(int(invited))
         em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: {len(invited)}\n", color = Color.purple())
         em.set_thumbnail(url= ctx.author.avatar)
         if invited:
