@@ -207,7 +207,7 @@ class Moderation(commands.Cog):
                     pass
                 view = View()
                 view.add_item(Button(style=ButtonStyle.secondary,label="Last Words Submitted",custom_id="submitted",disabled=True))
-                await msg.edit(view=self.view)
+                await msg.edit(view=view)
                 await msg.channel.send("**Your Last Words were recorded and sent to the Guild Owner and Guild Moderators**", delete_after = 120)
                 await interaction.response.defer()
               except Exception as e:
