@@ -357,6 +357,9 @@ class Bot:
         if isinstance(error, commands.CommandNotFound):
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
+        elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
+            await ctx.send(embed= Embed(title= "‼️ Invalid Command Usage 🚫", description= "You have used the command incorrectly. Please check the help guide using `k help <command_name> and try again.", color = Color.red()))
+            await ctx.invoke(ctx.bot.get_command("help"), ctx.command.name)
         elif isinstance(error, commands.BotMissingPermissions):
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
             await ctx.reply(embed=Embed(title="Bot Missing Permissions ‼️", description= f"I dont have perms to perform this action. {EMOJI[choice(list(EMOJI.values()))]}\n **Please inform this to server Owner//Admin//Moderators immediately.**\n**Required permissions**: ```{perms}```", color = Color.red()))
