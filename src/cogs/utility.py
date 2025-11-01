@@ -414,11 +414,11 @@ class Utility(commands.Cog):
                         kwargs[name] = ctx.author
                     elif param.annotation == discord.TextChannel:
                         kwargs[name] = ctx.channel
-                    elif params.annotation == discord.Role:
+                    elif param.annotation == discord.Role:
                         kwargs[name] = ctx.author.roles[0]
-                    elif params.annotation == str:
+                    elif param.annotation == str:
                         kwargs[name] = "example"
-                    elif params.annotation == int:
+                    elif param.annotation == int:
                         kwargs[name] = 1
                     elif not param.required:
                         continue
