@@ -128,25 +128,27 @@ def timestamp(ctx):
     return ctx.message.created_at.replace(tzinfo=timezone.utc).strftime('%d %B %Y %H:%M')
 
 class BugReportView(View):
-    def __init__(self, button, message, view, ctx):
+    def __init__(self, button, message, view, ctx, replymsg = None):
         super().__init__(timeout=None)  # No timeout ✅
         self.buttom = button
         self.msg = message
         self.view = view
         self.ctx = ctx
+        self.replymsg = replymsg
     
     @discord.ui.button(label="Approve", style=discord.ButtonStyle.green, custom_id="approve_btn")
     async def approve(self, interaction, button):
-        modal = ReportBugModal(self.buttom, self.msg, self.view, self.ctx, True) #reply
+        modal = ReportBugModal(self.buttom, self.msg, self.view, self.ctx, self.replymsg, True) #reply
         await interaction.response.send_modal(modal)
         
 class ReportBugModal(discord.ui.Modal):
-    def __init__(self, button, message, view, ctx, reply= False):
+    def __init__(self, button, message, view, ctx, replymsg = None, reply= False):
         super().__init__(title="Submit Your Report")
         self.button = button
         self.view = view
         self.ctx = ctx
         self.message = message
+        self.replymsg = replymsg
         self.reply = reply
         if not reply:
             self.input_box = TextInput(label="Enter your Bug/Query/Suggestion:",custom_id="query", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
@@ -166,7 +168,9 @@ class ReportBugModal(discord.ui.Modal):
             dm_channel = ctx.author.dm_channel
             if not dm_channel:
                 dm_channel = await ctx.author.create_dm()
-            await dm.channel.send(embed = em)
+            await dm_channel.channel.send(embed = em)
+            if self.replymsg:
+                self.replymsg.edit(view=None)
             return 
                 
         button.disabled = True
@@ -175,7 +179,8 @@ class ReportBugModal(discord.ui.Modal):
         em = Embed(title = f"Bug Reported by {ctx.author.display_name}", description= f"**Username**: {ctx.author.name}\n**Id**: {ctx.author.id}\n**Guild**: [{ctx.guild.name}]({Server_Settings[str(ctx.guild.id)]['invite_link']})\n**Report**: {self.input_box.value}", color = Color.green())
         em.set_footer(text= f"Reported by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
         view = BugReportView(button, msg, view, ctx)
-        await interaction.client.get_user(894072003533877279).send(embed = em, view = view)
+        msg = await interaction.client.get_user(894072003533877279).send(embed = em, view = view)
+        view.replymsg = msg
         await interaction.response.defer()
       except Exception as e:
         await interaction.client.get_user(894072003533877279).send(e)
