@@ -323,6 +323,15 @@ class Bot:
             except:
                 print("No perms allowed")
 
+
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in after.roles):
+            if after.id not in Server_Settings[str(after.guild.id)]["moderators"]:
+                Server_Settings[str(after.guild.id)]["moderators"].append(after.id)
+        else:
+            if after.id in Server_Settings[str(after.guild.id)]["moderators"]:
+                Server_Settings[str(after.guild.id)]["moderators"].remove(after.id)
+                
     async def on_presence_update(self, before, after):
         try:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
@@ -383,8 +392,7 @@ class Bot:
                 await msg.edit(view=None)
             async def helper(interaction: Interaction):
                 if interaction.user.id != ctx.author.id:
-                    await ctx.reply(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                    await interaction.response.defer()
+                    await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                     return 
                 await interaction.response.defer()
                 await ctx.invoke(ctx.bot.get_command("help"), ctx.command.name)
