@@ -217,8 +217,10 @@ class Utility(commands.Cog):
         elif isinstance(search, discord.Guild):
             await guild_info(search)
             return
+            
         if " " in search:
             pass
+            
         if search.isdigit():
             id = int(search)
             guild = ctx.bot.get_guild(id)
@@ -230,18 +232,29 @@ class Utility(commands.Cog):
             elif channel:
                 await channel_info(channel)
             elif user:
-                await user_info(channel)
+                await user_info(user)
             elif role:
-                await role_info(channel)
+                await role_info(role)
             else:
                 await ctx.send("No results found for your search")
             return
         else:
-            invite = await ctx.bot.fetch_invite(search)
+            if "guild" in search or "server" in search:
+                await guild_info(ctx.guild)
+                return
+            try:
+                invite = await ctx.bot.fetch_invite(search)
+                guild = invite.guild
+                await guild_info(guild)
+                return
+            except:
+                pass
             if invite:
                 await guild_info(invite.guild)
                 return
             url = ""
+            await ctx.send(embed= Embed("No information found :/ I'm sorry"))
+            return 
             
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,10, type = commands.BucketType.user )
