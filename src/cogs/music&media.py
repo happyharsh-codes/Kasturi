@@ -273,7 +273,7 @@ class Musik_and_Media(commands.Cog):
 
         return track
 
-    @commands.command(aliases=["p"])
+    @commands.hybrid_command(aliases=["p"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -333,7 +333,7 @@ class Musik_and_Media(commands.Cog):
             self.player[str(ctx.guild.id)] = [music_track]  
             await self.play_next(ctx, start = True)  
   
-    @commands.command(aliases=["q", "up", "upcoming"])  
+    @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
     @commands.bot_has_permissions()  
@@ -348,7 +348,7 @@ class Musik_and_Media(commands.Cog):
         em.set_footer(text= f"Requested by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
         await ctx.send(embed = em)  
       
-    @commands.command(aliases=[])  
+    @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
     @commands.bot_has_permissions()  
@@ -375,7 +375,7 @@ class Musik_and_Media(commands.Cog):
             return  
         await self.send_player(ctx, music)
         
-    @commands.command(aliases=[])  
+    @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
     @commands.bot_has_permissions()  
@@ -402,7 +402,7 @@ class Musik_and_Media(commands.Cog):
             return  
         await self.send_player(ctx, music)
 
-    @commands.command(aliases=["np"])  
+    @commands.hybrid_command(aliases=["np"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
     @commands.bot_has_permissions()  
@@ -429,7 +429,7 @@ class Musik_and_Media(commands.Cog):
             return  
         await self.send_player(ctx, music)
 
-    @commands.command(aliases=[])  
+    @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
     @commands.bot_has_permissions()  
@@ -456,7 +456,7 @@ class Musik_and_Media(commands.Cog):
             return  
         await self.send_player(ctx, music)
 
-    @commands.command(aliases=[])  
+    @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
     @commands.bot_has_permissions()  
