@@ -192,7 +192,7 @@ class Moderation(commands.Cog):
                     await dm_channel.send(embed=em)
                     moderators = Server_Settings[str(ctx.guild.id)]["moderators"]
                     if moderators:
-                        for mod in moderator:
+                        for mod in moderators:
                             user = ctx.bot.get_user(int(mod))
                             if not user:
                                 break
@@ -205,12 +205,12 @@ class Moderation(commands.Cog):
                                 pass
                 except:
                     pass
-                view.clear_item()
+                view.clear_items()
                 view.add_item(Button(style=ButtonStyle.secondary,label="Last Words Submitted",custom_id="submitted",disabled=True))
                 await msg.edit(view=self.view)
                 await interaction.response.defer()
               except Exception as e:
-                await ctx.bot.get_user(894072003533877279).send(e)
+                await ctx.bot.get_user(894072003533877279).send(str(e))
                 await interaction.response.defer()
         
         async def last_words(interaction: Interaction):
