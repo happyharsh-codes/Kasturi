@@ -253,7 +253,7 @@ class Utility(commands.Cog):
             return await guild_info(ctx.guild)
         
         
-        await ctx.send(embed= Embed("No information found :/ I'm sorry"))
+        await ctx.send(embed= Embed(title = "No information found :/ I'm sorry"))
         return 
             
     @commands.hybrid_command(aliases=[])
