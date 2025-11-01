@@ -195,7 +195,7 @@ class Bot:
                     #cheking for Administrator Permission given or not
                     bot_member = message.guild.me
                     if not bot_member.guild_permissions.administrator:
-                        em = Embed(title= "Administrator Permission is Compulsory", description = "I need administrator permission to operate properly. This is beacause our bot is multipurpose and requries almost all kinds of permissions. Please grant me administrator permission. This is safe we do not intend to do anything malicious. If you are still not satisfied why we need this [Click Here](https://discord.gg/y56na8kN9e)", color = Color.red())
+                        em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup.", color = Color.red())
                         await message.channel.send(embed=em)
                         return
                     await self.kelly.kellyQuery(message)
