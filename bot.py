@@ -165,7 +165,7 @@ class Bot:
                 channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
                 await message.channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} Too bad cuz I only chat in these channels {channels_str}", delete_after = 8)
                 return
-            elif metadata["allowed_channels"] == [] and message.content.lower().startswith("k ", "kelly", "kasturi"):
+            elif metadata["allowed_channels"] == [] and message.content.lower().startswith(("k ", "kelly", "kasturi")):
                 await message.channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate` now")
             #replying to replies i.e messages without prefixes
             if message.reference and message.reference.message_id:
