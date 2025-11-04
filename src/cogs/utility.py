@@ -538,7 +538,7 @@ class Utility(commands.Cog):
         proceed_button = Button(style=ButtonStyle.success ,label="Start Setup", custom_id="proceed", row=0)
         skip_button = Button(style=ButtonStyle.secondary ,label="Skip for now", custom_id="skip", row=1)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
-        channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=5, min_values=1)
+        channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values= 5 if len(ctx.guild.channels) > 5 else len(ctx.guild.channels), min_values=1)
                 
         em = Embed(title="Welcome to Kelly Setup",description="Thank you for inviting Kelly!\nFollow this guided setup to configure everything:\n✅ Welcome messages\n✅ Social media updates\n✅ Rank system\n✅ Chat activation\n✅ Timer messages",color=Color.gold())
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
@@ -701,7 +701,7 @@ class Utility(commands.Cog):
                 em.description="Set up your activated channels. Activated channels are ones in which anyone can chat with Kelly just by saying anything including word `kelly`. You can select multiple Channels. Notev You can also run commands by say saying `kelly can you mute this @abc for spamming`"
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/activated.png")
                 view.clear_items()
-                channel_select.max_values = 5
+                channel_select.max_values = 5 if len(ctx.guild.channels) > 5 else len(ctx.guild.channels)
                 channel_select.row = 0
                 view.add_item(channel_select)
                 proceed_button.label = "Set Activated Channels"
