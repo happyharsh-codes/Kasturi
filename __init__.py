@@ -180,7 +180,7 @@ class ReportBugModal(discord.ui.Modal):
                 
         button.disabled = True
         await msg.edit(view=view)
-        await interaction.channel.send(embed= Embed(title= "Your Response has been recored successfully", color = Color.green()))
+        await interaction.channel.send(f"{ctx.author.mention}",embed= Embed(title= "Your Response has been recored successfully", color = Color.green()))
         em = Embed(title = f"Bug Reported by {ctx.author.display_name}", description= f"**Username**: {ctx.author.name}\n**Id**: {ctx.author.id}\n**Guild**: [{ctx.guild.name}]({Server_Settings[str(ctx.guild.id)]['invite_link']})\n**Report**: ```{self.input_box.value}```", color = Color.green())
         em.set_thumbnail(url = ctx.author.avatar)
         em.set_footer(text= f"Reported by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
