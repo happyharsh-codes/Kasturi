@@ -270,8 +270,10 @@ class Utility(commands.Cog):
             modal = ReportBugModal(button, msg, view, ctx)
             await interaction.response.send_modal(modal)
         async def on_timeout():
-            nonlocal msg
-            await msg.edit(view=None)
+            nonlocal msg, view
+            for children in view.children:
+                children.disabled = True
+            await msg.edit(view=view)
         view.on_timeout = on_timeout
         button = Button(style=ButtonStyle.green, custom_id= "watch", label= "Report Bugs")
         view.add_item(button)
@@ -485,9 +487,16 @@ class Utility(commands.Cog):
               nonlocal client
               await client.get_user(894072003533877279).send(e)
         async def timeout():
-            nonlocal em, msg
-            em.color = Color.light_grey()
-            await msg.edit(embed=em, view=None)
+            nonlocal em, msg, view
+            for children in view.children:
+                children.disabled = True
+            em2 = em
+            em2.color = Color.light_grey()
+            for f in em.fields:
+                em2.add_field(name = f.name, value = f.value)
+            if em.footer:
+                em2.set_footer(text = em.footer.text, icon_url = em.footer.icon_url) 
+            await msg.edit(embed=em, view=view)
         view.on_timeout = timeout
         select.callback = on_select
         get_started.callback = on_click
