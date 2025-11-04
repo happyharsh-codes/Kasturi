@@ -174,6 +174,9 @@ class Bot:
                     original = await message.channel.fetch_message(message.reference.message_id)
                     if original.author.id == self.client.user.id:
                         print(f"Reply to Kelly detected: {message.content}")
+                        #checking for embeds
+                        if message.embeds:
+                            return #Only reply to chats not to system messages
                         await self.kelly.kellyQuery(message)
                         return
                 except discord.NotFound:
