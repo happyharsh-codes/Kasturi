@@ -298,7 +298,7 @@ class Utility(commands.Cog):
     async def dev(self, ctx):
         await ctx.invoke(ctx.bot.get_command("help"), "dev")
 
-    @commands.command(hidden = True, aliases=["mod"])
+    @commands.command(hidden = True, aliases=["moderation"])
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def mod(self, ctx):
