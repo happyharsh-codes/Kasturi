@@ -595,7 +595,8 @@ class Utility(commands.Cog):
                 proceed_button.row = 2
                 proceed_button.label = "Select Welcome Channel"
                 proceed_button.disabled = True
-                em.description = f"Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. ```{welcome_message[welcome_message.find('\\n')+1:]}```Next select the channel in which you want to send welcome messages."
+                display_msg = welcome_message[welcome_message.find('\n')+1:]
+                em.description = f"Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. ```{display_msg}```Next select the channel in which you want to send welcome messages."
                 view.clear_items()
                 view.add_item(channel_select2)
                 view.add_item(channel_select)
