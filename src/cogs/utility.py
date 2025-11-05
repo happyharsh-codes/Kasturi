@@ -558,7 +558,7 @@ class Utility(commands.Cog):
                 proceed_button.row = 2
                 proceed_button.label = "Select Welcome Channel"
                 proceed_button.disabled = True
-                em.description = "Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. Next select the channel in which you want to send welcome messages."
+                em.description = f"Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. ```{welcome_message[welcome_message.find('\n')+1:]}```Next select the channel in which you want to send welcome messages."
                 view.clear_items()
                 view.add_item(channel_select2)
                 view.add_item(channel_select)
@@ -608,6 +608,9 @@ class Utility(commands.Cog):
             global Server_Settings
             process_no += 1
             try:
+              if interaction.data["custom_id"] == "skip":
+                for option in channel_select.options:
+                    option.default = False
               if process_no == 1:
                 em.title="Set Welcome message"
                 em.description="Set your beautiful welcome message Kelly will send whenever a new user joins the guild.\nSelect your theme from here."
@@ -642,7 +645,10 @@ class Utility(commands.Cog):
                 welcome_message = welcome_message.split("\n")[0]
                 values = [option.value for option in channel_select2.options if option.default]
                 for index, i in enumerate(temp):
-                    welcome_message += f"\n{i.split()[0]} [**{i[2:]}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
+                    if values.get(index):
+                        welcome_message += f"\n{i.split()[0]} [**{i[2:]}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
+                    else:
+                        welcome_message += f"\n{i.split()[0]} **{i[2:]}**"
                 for option in channel_select.options:
                     if option.default:
                         welcome_channel = int(option.value)
@@ -757,9 +763,11 @@ class Utility(commands.Cog):
             except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
         async def timeout():
-            nonlocal msg, em
+            nonlocal msg, em, view 
+            for children in view.children:
+                children.disabled = True
             em.color = Color.light_grey()
-            await msg.edit(embed=em, view=None)
+            await msg.edit(embed=em, view=view)
 
         async def go_callback(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
@@ -786,8 +794,9 @@ class Utility(commands.Cog):
             nonlocal proceed_button, view, channel_select, channel_select2
             proceed_button.disabled = False
             selected_values = interaction.data.get("values",[])
-            for option in channel_select.options:
-                option.default = option.value in selected_values
+            for val in selected_values:
+              for option in channel_select.options:
+                option.default = option.value == val
             await interaction.response.edit_message(view=view)
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
@@ -797,8 +806,9 @@ class Utility(commands.Cog):
                 return 
             nonlocal channel_select2
             selected_values = interaction.data["values"]
-            for option in channel_select2.options:
-                option.default = option.value in selected_values
+            for val in selected_values:
+                for option in channel_select2.options:
+                    option.default = option.value == val
             await interaction.response.defer()
         
         go_left.callback = go_callback
