@@ -5,7 +5,7 @@ class Utility(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.hybrid_command(aliases=["r"])
+    @commands.hybrid_command(aliases=["r"], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -34,7 +34,7 @@ class Utility(commands.Cog):
         em = Embed(title=f"{user.name}'s Rank",description=f"**Level:** {int(level)}\n**XP:** {int(total_xp)}\n**Position:** #{rank_values.index(total_xp) + 1}",color=Color.dark_gold())
         await ctx.send(embed=em)
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -73,7 +73,7 @@ class Utility(commands.Cog):
         em.set_author(name=f"{ctx.author.id}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
                
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -81,7 +81,7 @@ class Utility(commands.Cog):
         """Invite link for the bot"""
         await ctx.send("[Invite Kelly to your server](https://discord.com/oauth2/authorize?client_id=1368884334076891136)")
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -89,7 +89,7 @@ class Utility(commands.Cog):
         """Vote link for the bot"""
         await ctx.send("Voting page is currently under development. Please check back soon!")
         
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -99,7 +99,7 @@ class Utility(commands.Cog):
         await ctx.send(f"{ctx.author.mention} is now **AFK** for **{time}** — Reason: {reason}\nI’ll notify others not to disturb you.")
         await ctx.send("Don’t worry, I’ll DM you all missed mentions once you're back.")
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -111,7 +111,7 @@ class Utility(commands.Cog):
         em.set_image(url=user.display_avatar)
         await ctx.send(embed=em)
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -120,7 +120,7 @@ class Utility(commands.Cog):
         await ctx.send("This command is yet to be made :/")
 
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -253,7 +253,7 @@ class Utility(commands.Cog):
         await ctx.send(embed= Embed(title = "No information found :/ I'm sorry"))
         return 
             
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -279,8 +279,38 @@ class Utility(commands.Cog):
         view.add_item(button)
         button.callback = callback
         msg = await ctx.send(embed = em, view=view)
+
+    @commands.command(hidden = True, aliases=["games"])
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def game(self, ctx):
+        await ctx.invoke(ctx.bot.get_command("help"), "games")
+    
+    @commands.command(hidden = True, aliases=["song", "songs"])
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def music(self, ctx):
+        await ctx.invoke(ctx.bot.get_command("help"), "music")
+
+    @commands.command(hidden = True, aliases=["developer"])
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def dev(self, ctx):
+        await ctx.invoke(ctx.bot.get_command("help"), "dev")
+
+    @commands.command(hidden = True, aliases=["mod"])
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def mod(self, ctx):
+        await ctx.invoke(ctx.bot.get_command("help"), "moderation")
+
+    @commands.command(hidden = True, aliases=["utility"])
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def util(self, ctx):
+        await ctx.invoke(ctx.bot.get_command("help"), "utility")
         
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def help(self, ctx, cmd = None):
@@ -325,7 +355,7 @@ class Utility(commands.Cog):
        🎵 **Music & Media**  
        Play songs, discover tracks, and enjoy music together in VC.  
        `play`, `skip`, `queue`"""
-        menu_cmds = [[cmdd.name for cmdd in cog.get_commands()] for cog in client.cogs.values()]
+        menu_cmds = [[cmdd.name for cmdd in cog.get_commands() if not cmdd.hidden] for cog in client.cogs.values()]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         select = Select(custom_id="menu_select", placeholder="Select Category",max_values=1,min_values=1,options=[SelectOption(label=i,value=str(index)) for index, i in enumerate(menu)])
@@ -339,6 +369,13 @@ class Utility(commands.Cog):
         command = None
         if cmd:
             found = False
+            #if cmd searched for a category:
+            for index, categ in enumerate(menu):
+                if cmd.lower() in categ:
+                    category = index
+                    found = True
+                    cmd = None
+                    break
             for i, c in enumerate(menu_cmds):
                 for index, cm in enumerate(c):
                   if cmd.lower() == cm or cmd.lower() in ctx.bot.get_command(cm).aliases:
@@ -507,7 +544,7 @@ class Utility(commands.Cog):
         msg = await ctx.send(embed=em, view=view)
         
         
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.has_permissions(manage_channels=True)
     @commands.bot_has_permissions()
     async def activate(self, ctx):
@@ -558,7 +595,7 @@ class Utility(commands.Cog):
                 proceed_button.row = 2
                 proceed_button.label = "Select Welcome Channel"
                 proceed_button.disabled = True
-                em.description = f"Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. ```{welcome_message[welcome_message.find('\n')+1:]}```Next select the channel in which you want to send welcome messages."
+                em.description = f"Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. ```{welcome_message[welcome_message.find('\\n')+1:]}```Next select the channel in which you want to send welcome messages."
                 view.clear_items()
                 view.add_item(channel_select2)
                 view.add_item(channel_select)
