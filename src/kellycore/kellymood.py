@@ -11,7 +11,7 @@ class KellyMood:
     
     '''
     _MOODS = ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious", "busy", "sleepy", "lazy"]
-    _OPPOSITE_TRAIT_CHART = {"happy": {"sad", "angry", "annoyed", "depressed"}, "angry": {"happy"}, "sleepy": {"angry", "annoyed", "depressed"}, "lazy": {"depressed", "busy"}, "annoyed": {"happy"}, "busy": {"happy"}, "mischievous": {"sad", "annoyed", "angry"}, "sad": {"happy"}, "depressed": {"happy", "sleepy", "mischievous"} }
+    _OPPOSITE_TRAIT_CHART = {"happy": {"sad", "angry", "annoyed", "depressed"}, "angry": {"happy"}, "sleepy": {"angry", "annoyed", "depressed"}, "lazy": {"depressed", "busy"}, "annoyed": {"happy"}, "busy": {"happy"}, "mischevious": {"sad", "annoyed", "angry"}, "sad": {"happy"}, "depressed": {"happy", "sleepy", "mischevious"} }
     
     def __init__(self, bot):
         self.mood = self.generateRandomMood()
