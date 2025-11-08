@@ -99,7 +99,7 @@ class Bot:
         for guild in self.client.guilds:
             invite_link = None
             embed = Embed(title="✅ Kelly Updated",description="Kelly has been updated successfully and is running on the latest version 💫. Please activate your servers again.",color=Color.green())
-            embed.set_footer(text="Kelly System", url= self.client.user.avatar)
+            embed.set_footer(text="Kelly System", icon_url= self.client.user.avatar)
             embed.timestamp = datetime.utcnow()
             for channel in guild.text_channels:
                 try:
