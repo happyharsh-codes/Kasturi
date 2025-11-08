@@ -44,9 +44,9 @@ class Bot:
                     try:
                         channel = await guild.fetch_channel(int(channel_id))
                         if mood:
-                            await channel.send(f"-# {self.kelly.getEmoji(getResponse(prompt = f"Kelly just got a mood change to {mood}",prompt="Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change indirectly in 20 words with 1-5 emojis", client=0))}")
+                            await channel.send(f"-# {self.kelly.getEmoji(getResponse(f'Kelly just got a mood change to {mood}' ,prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change indirectly in 20 words with 1-5 emojis', client=0))}")
                         if randint(1,7) == 7 and settings["timer_messages"]:
-                            await channel.send(self.kelly.getEmoji(getResponse(prompt = f"Kelly needs to activate ded chat.",prompt="Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat indirectly in 20 words with 1-5 emojis", client=0)))
+                            await channel.send(self.kelly.getEmoji(getResponse(f"Kelly needs to activate ded chat.",prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat indirectly in 20 words with 1-5 emojis', client=0)))
                     except:
                         pass
         
