@@ -529,11 +529,12 @@ class Utility(commands.Cog):
                 children.disabled = True
             em2 = em
             em2.color = Color.light_grey()
+            em2.clear_fields()
             for f in em.fields:
                 em2.add_field(name = f.name, value = f.value)
             if em.footer:
                 em2.set_footer(text = em.footer.text, icon_url = em.footer.icon_url) 
-            await msg.edit(embed=em, view=view)
+            await msg.edit(embed=em2, view=view)
         view.on_timeout = timeout
         select.callback = on_select
         get_started.callback = on_click
@@ -558,7 +559,6 @@ class Utility(commands.Cog):
 
         client = self.client
         view = View(timeout=60)
-        saved = []
         process_no = 0
         welcome_theme_no = 1
         welcome_message = Server_Settings[str(ctx.guild.id)]["welcome_message"]
@@ -830,17 +830,13 @@ class Utility(commands.Cog):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
-            nonlocal proceed_button, view, channel_select, channel_select2, saved
-            if saved:
-                for val in saved:
-                    for option in channel_select2.options:
-                        option.default = option.value == val
-                saved = []
+            nonlocal proceed_button, view, channel_select, channel_select2
             proceed_button.disabled = False
             selected_values = interaction.data.get("values",[])
             for val in selected_values:
-              for option in channel_select.options:
-                option.default = option.value == val
+                for option in channel_select.options:
+                  if option.value == val:
+                    option.default = True
             await interaction.response.edit_message(view=view)
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
@@ -848,12 +844,12 @@ class Utility(commands.Cog):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
-            nonlocal channel_select2 , saved 
+            nonlocal channel_select2
             selected_values = interaction.data["values"]
-            saved = selected_values
             for val in selected_values:
                 for option in channel_select2.options:
-                    option.default = option.value == val
+                    if option.value == val:
+                        option.default = True
             await interaction.response.defer()
         
         go_left.callback = go_callback
