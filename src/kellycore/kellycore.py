@@ -169,8 +169,8 @@ class Kelly:
                 result = {"respect": 0, "mood": "happy", "personality_change": {}, "info": [], "command": None}
 
             #-----Updating Kelly Now-----#
-            if "mood" in result and isinstance(result["mood"], int):
-                self.mood.modifyMood({result["mood"]: randint(1,10)})
+            if "mood" in result:
+                self.mood.modifyMood({result["mood"]: randint(1,15)})
                 if result["mood"] == "happy":
                     self.relations.modifyUserRespect(2, message.author.id)
             if "personality_change" in result and isinstance(result["personality_change"], int):
@@ -189,8 +189,8 @@ class Kelly:
 
         except Exception as error:
             await self.reportError(error)
-        print(f">==<\n{self.mood.mood}\n>==<")
-        print(f">==<\n{self.personality.persona}\n>==<")
+        print(f">==MOOD<\n{self.mood.mood}\n>==<")
+        print(f">==PERSONALITY<\n{self.personality.persona}\n>==<")
 
     def getEmoji(self, message):
         emoji_exchanger = {
