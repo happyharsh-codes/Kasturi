@@ -558,6 +558,7 @@ class Utility(commands.Cog):
 
         client = self.client
         view = View(timeout=60)
+        saved = []
         process_no = 0
         welcome_theme_no = 1
         welcome_message = Server_Settings[str(ctx.guild.id)]["welcome_message"]
@@ -683,7 +684,7 @@ class Utility(commands.Cog):
                 welcome_message = welcome_message.split("\n")[0]
                 values = [option.value for option in channel_select2.options if option.default]
                 for index, i in enumerate(temp):
-                    if values.get(index):
+                    if index < len(values):
                         welcome_message += f"\n{i.split()[0]} [**{i[2:]}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
                     else:
                         welcome_message += f"\n{i.split()[0]} **{i[2:]}**"
@@ -829,7 +830,12 @@ class Utility(commands.Cog):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
-            nonlocal proceed_button, view, channel_select, channel_select2
+            nonlocal proceed_button, view, channel_select, channel_select2, saved
+            if saved:
+                for val in selected_values:
+                    for option in channel_select2.options:
+                        option.default = option.value == val
+                saved = []
             proceed_button.disabled = False
             selected_values = interaction.data.get("values",[])
             for val in selected_values:
@@ -842,8 +848,9 @@ class Utility(commands.Cog):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
-            nonlocal channel_select2
+            nonlocal channel_select2 , saved 
             selected_values = interaction.data["values"]
+            saved = selected_values
             for val in selected_values:
                 for option in channel_select2.options:
                     option.default = option.value == val
