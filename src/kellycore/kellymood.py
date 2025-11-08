@@ -7,11 +7,11 @@ class KellyMood:
     the first element in mood is the main current mood trait
     while the first mood may change to different mood traits others are permanent
     
-    Mood Traits : ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious", "busy", "sleepy", "lazy"]
+    Mood Traits : ["happy", "sad" , "angry", "annoyed", "depressed", "mischievous", "busy", "sleepy", "lazy"]
     
     '''
-    _MOODS = ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious", "busy", "sleepy", "lazy"]
-    _OPPOSITE_TRAIT_CHART = {"happy": {"sad", "angry", "annoyed", "depressed"}, "angry": {"happy"}, "sleepy": {"angry", "annoyed", "depressed"}, "lazy": {"depressed", "busy"}, "annoyed": {"happy"}, "busy": {"happy"}, "mischevious": {"sad", "annoyed", "angry"}, "sad": {"happy"}, "depressed": {"happy", "sleepy", "mischevious"} }
+    _MOODS = ["happy", "sad" , "angry", "annoyed", "depressed", "mischievous", "busy", "sleepy", "lazy"]
+    _OPPOSITE_TRAIT_CHART = {"happy": {"sad", "angry", "annoyed", "depressed"}, "angry": {"happy"}, "sleepy": {"angry", "annoyed", "depressed"}, "lazy": {"depressed", "busy"}, "annoyed": {"happy"}, "busy": {"happy"}, "mischievous": {"sad", "annoyed", "angry"}, "sad": {"happy"}, "depressed": {"happy", "sleepy", "mischievous"} }
     
     def __init__(self, bot):
         self.mood = self.generateRandomMood()
@@ -29,7 +29,7 @@ class KellyMood:
         mood["angry"] = 0 # triggered by chatting
         mood["annoyed"] = 0 # triggerede by chatting
         mood["depressed"] = randint(1,25) if mood["sad"] >= 60 else 0
-        mood["mischevious"] = randint(1,100)
+        mood["mischievous"] = randint(1,100)
         print(mood)
         return mood
     
@@ -72,8 +72,8 @@ class KellyMood:
             return "sleepy"
         if mood['lazy'] > 60:
             return "lazy"
-        if mood['mischevious'] > 70:
-            return "mischevious"
+        if mood['mischievous'] > 70:
+            return "mischievous"
         if mood['sad'] > 60:
             return "sad"
         if mood['angry'] > 65:
