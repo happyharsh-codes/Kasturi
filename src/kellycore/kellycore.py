@@ -194,105 +194,189 @@ class Kelly:
 
     def getEmoji(self, message):
         emoji_exchanger = {
-            "😫": "kellytired",
-            "💤": "kellytired",
-            "😪": "kellytired",
-            "😩": "kellytired",
-            "😴": "kellytired",
-            "🎭": "kellyacting",
-            "🎬": "kellyacting",
-            "🎥": "kellyacting",
-            "📽": "kellyacting",
-            "🎦": "kellyacting",
-            "📼": "kellyacting",
-            "🎞": "kellyacting",
-            "📹": "kellyacting",
-            "📷": "kellyacting",
-            "📸": "kellyacting",
-            "😣": "kellyannoyed",
-            "😳": "kellyblush",
-            "😚": "kellyblush",
-            "😏": "kellybored",
-            "😒": "kellybored",
-            "😛": "kellybweh",
-            "😜": "kellybweh",
-            "😝": "kellybweh",
-            "🤪": "kellybweh",
-            "😵": "kellycheekspull",
-            "🍟": "kellychips",
-            "" : "kellydaydreaming",
-            "⚰️": "kellyded",
-            "🤤": "kellydrooling",
-            "👅": "kellydrooling",
-            "🤡": "kellydumbfounded",
-            "🤹"; "kellydumbfounded",
-            "🤭": "kellyembaress",
-            "🥳": "kellyenjoy",
-            "👊": "kellyfight",
-            "💪": "kellyfight",
-            "🦾": "kellyfight",
-            "😊": "kellygigle",
-            "😁": "kellygigle",
-            "👋": "kellygigle",
-            "🙌": "kellyhandraise",
-            "♥": "kellyheart",
-            "😬": "kellyhiding",
-            "🙄": "kellyidontcare",
-            "😒 ": "kellyidontcare",
-            "🧩": "kellyinteresting",
-            "🧐": "kellyinteresting",
-            "🥤": "kellyjuice",
-            "🧃": "kellyjuice",
-            "😂": "kellylaugh",
-            "🤣": "kellylaugh",
-            "😄": "kellylaugh",
-            "😆": "kellylaugh",
-            "😃": "kellylaugh",
-            "👌": "kellyok",
-            "🆗": "kellyok",
-            "🙆‍♀️": "kellyok",
-            "🙆‍♂️": "kellyok",
-            "😍": "kellyowolove",
-            "😘": "kellyowolove",
-            "🥰": "kellyowolove",
-            "😻": "kellyowolove",
-            "🤗": "kellypat",
-            "🍿": "kellypopcorn",
-            "🎉": "kellypopcorn",
-            "🍾": "kellypopcorn",
-            "🛐": "kellysalute",
-            "🙇": "kellysalute",
-            "🙇‍♀️": "kellysalute",
-            "😙": "kellysimping",
-            "😉": "kellysimping",
-            "😭": "kellysob",
+            # kellytired / kellyyawn / kellysleeping
+            "😫": "kellytired", 
+            "😩": "kellytired", 
+            "😪": "kellytired", 
+            "😴": "kellysleeping", 
+            "🥱": "kellyyawn",
+            "🛌": "kellysleeping", 
             "💤": "kellysleeping",
-            "😴": "kellysleeping",
-            "🛌": "kellysleeping",
+
+            # kellyacting
+            "🎭": "kellyacting", 
+            "🎬": "kellyacting", 
+            "🎥": "kellyacting", 
+            "📽": "kellyacting",
+
+            # kellyannoyed / kellyidontcare
+            "😣": "kellyannoyed", 
+            "😒": "kellyannoyed", 
+            "🙄": "kellyidontcare", 
+            "😤": "kellyannoyed",
+
+            # kellyblush
+            "😳": "kellyblush", 
+            "☺️": "kellyblush", 
+            "😊": "kellyblush",
+
+            # kellybored / kellywaiting
+            "😐": "kellybored", 
+            "😑": "kellybored", 
+            "😶": "kellybored", 
+            "⏳": "kellywaiting",
+
+            # kellybweh
+            "😛": "kellybweh", 
+            "😜": "kellybweh", 
+            "😝": "kellybweh", 
+            "🤪": "kellybweh",
+
+            # kellycheekspull
+            "😵": "kellycheekspull", 
+            "😵‍💫": "kellycheekspull",
+
+            # kellychips / kellypopcorn
+            "🍟": "kellychips", 
+            "🍿": "kellypopcorn",
+
+            # kellycry / kellysob
+            "😢": "kellycry",
+            "🥺": "kellycry",
+            "😰": "kellycry",
+            "😭": "kellysob",
+
+            # kellyded
+            "💀": "kellyded", 
+            "☠️": "kellyded",
+            "⚰️": "kellyded",
+
+            # kellydaydreaming
+            "🤤": "kellydaydreaming", 
+            "💭": "kellydaydreaming",
+
+            # kellydrooling
+            "🤤": "kellydrooling", 
+            "👅": "kellydrooling",
+
+            # kellydumbfounded
+            "🤡": "kellydumbfounded", 
+            "🤹": "kellydumbfounded",
+
+            # kellyembaress (embarrassed)
+            "🤭": "kellyembaress", 
+            "😳": "kellyembaress",
+
+            # kellyenjoying
+            "🥳": "kellyenjoying",
+            "😄": "kellyenjoying", 
+            "😃": "kellyenjoying",
+ 
+            # kellyfight
+            "👊": "kellyfight", 
+            "💪": "kellyfight", 
+            "🦾": "kellyfight",
+
+            # kellygigle
+            "😁": "kellygigle", 
+            "😆": "kellygigle", 
+            "😄": "kellygigle",
+
+            # kellyhandraise
+            "🙌": "kellyhandraise", 
+            "🙋": "kellyhandraise",
+
+            # kellyheart
+            "♥": "kellyheart", 
+            "❤️": "kellyheart", 
+            "💖": "kellyheart", 
+            "💗": "kellyheart",
+
+            # kellyhiding
+            "😬": "kellyhiding", 
+            "😶‍🌫️": "kellyhiding",
+
+            # kellyidontcare (also above)
+            "🙂‍↔️": "kellyidontcare",
+            "😏": "kellyidontcare",
+
+            # kellyinteresting
+            "🧩": "kellyinteresting", 
+            "🧐": "kellyinteresting",
+
+            # kellyjuice
+            "🥤": "kellyjuice", 
+            "🧃": "kellyjuice",
+
+            # kellylaugh
+            "😂": "kellylaugh", 
+            "🤣": "kellylaugh", 
+            "😹": "kellylaugh",
+
+            # kellyok
+            "👌": "kellyok", 
+            "🆗": "kellyok",
+
+            # kellyowolove
+            "😍": "kellyowolove", 
+            "😘": "kellyowolove", 
+            "🥰": "kellyowolove", 
+            "😻": "kellyowolove",
+
+            # kellypat
+            "🤗": "kellypat", 
+            "🤝": "kellypat",
+
+            # kellysalute
+            "🫡": "kellysalute", 
+            "🙇": "kellysalute", 
+            "🙇‍♀️": "kellysalute", 
+            "🙇‍♂️": "kellysalute",
+
+            # kellysimping
+            "😙": "kellysimping", 
+            "😉": "kellysimping",
+
+            # kellyvibing
+            "😎": "kellyvibing", 
+            "🕺": "kellyvibing",
+            "💃": "kellyvibing",
+            "👯": "kellyvibing",
+            "👯‍♀️": "kellyvibing",
+            "👯‍♂️": "kellyvibing",
+
+            # kellythinking
             "🤔": "kellythinking",
-            "😁": "kellyvibing",
-            "🤨": "kellywatching",
-            "😠": "kellywatching",
-            "😡": "kellywatching",
-            "😤": "kellywatching",
-            "😗": "kellywatching",
-            "🥱": "kellyyawn"
+
+            # kellywatching
+            "😠": "kellywatching", 
+            "😡": "kellywatching", 
+            "👀": "kellywatching",
+
+            # fallback / synonyms (map to existing names)
+            "🙂": "kellygigle",
+            "😇": "kellyheart",
+            "😮": "kellyinteresting",
+            "😯": "kellyinteresting"
+        }
+        mood_map = {
+            "happy": {"kellypat", "kellylaugh", "kellygigle", "kellyowolove","kellypopcorn", "kellyenjoying", "kellyok", "kellyacting","kellyjuice", "kellyvibing"},
+            "sad": {"kellycry", "kellysob", "kellydaydreaming"},
+            "angry": {"kellywatching", "kellyfight", "kellyannoyed"},
+            "annoyed": {"kellyannoyed", "kellyidontcare", "kellybored", "kellywatching", "kellycheekspull"},
+            "depressed": {"kellydead", "kellydaydreaming", "kellycry"},
+            "mischevious": {"kellybweh", "kellyacting", "kellydumbfounded", "kellysimping",},
+            "busy": {"kellysalute", "kellyhandraise", "kellywatching"},
+            "sleepy": {"kellytired", "kellyyawn", "kellysleeping", "kellydrooling" },
+            "lazy": {"kellytired", "kellysleeping", "kellyyawn", "kellychips"}
         }
         for emoji, kellyemoji in emoji_exchanger.items():
             if emoji in message:
                 message = message.replace(emoji, EMOJI[kellyemoji])
-                if kellyemoji == "kellyyawn" or kellyemoji == "kellysleeping" or kellyemoji == "kellydrooling" or kellyemoji == "kellytired":
-                    self.mood.modifyMood({"sleepy": randint(1,15)})
-                if kellyemoji == "kellycry":
-                    self.mood.modifyMood({"sad": randint(1, 15)})
-                if kellyemoji == "kellywatching":
-                    self.mood.modifyMood({"angry": randint(1, 15)})
-                    self.mood.modifyMood({"annoyed": randint(1, 15)})
-                if kellyemoji == "kellypat" and kellyemoji == "kellylaugh" and kellyemoji == "kellygigle":
-                    self.mood.modifyMood({"happy": randint(1, 10)})
-                if kellyemoji == "kellyannoyed" or kellyemoji == "kellyidontcare" or kellyemoji == "kellybored":
-                    self.mood.modifyMood({"annoyed": randint(1, 15)})
-                
+
+            for mood, triggers in mood_map.items():
+                if kellyemoji in triggers:
+                    self.mood.modifyMood({mood: randint(1, 15)})
             
         return message
 
