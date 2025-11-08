@@ -51,7 +51,7 @@ class Bot:
                         pass
         
 
-    @task.loop(minutes=100)
+    @tasks.loop(minutes=100)
     async def save_files(self):
         with open("res/server/profiles.json", "w") as f:
             dump(Profiles, f, indent=4)
