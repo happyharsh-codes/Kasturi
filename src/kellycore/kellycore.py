@@ -130,7 +130,7 @@ class Kelly:
             #self.generateSessionId(message)            
 
             #kelly Mood
-            if self.mood.mood["mischevious"] > 80:
+            if self.mood.mood["mischievous"] > 80:
                 prompt += " Kelly is feeling extra mischevious today"
             elif self.mood.mood["sad"] > 80 or self.mood.mood["depressed"] > 80:
                 prompt += " Kelly is extremely sad and depressed"
