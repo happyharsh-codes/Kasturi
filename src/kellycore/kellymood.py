@@ -21,17 +21,14 @@ class KellyMood:
     def generateRandomMood(self):
         from random import randint
         mood = {}
-        mood["happy"] = randint(1,100)
-        mood["busy"] = randint(1,100)
-        mood["sleepy"] = randint(1,100)
-        mood["lazy"] = randint(1,100)
-        mood["sad"] = 100 - mood["happy"]
+        mood["happy"] = randint(30,100)
+        mood["busy"] = randint(1,90)
+        mood["sleepy"] = randint(1,90)
+        mood["lazy"] = randint(1,90)
+        mood["sad"] = max(0, 100 - mood["happy"])
         mood["angry"] = 0 # triggered by chatting
         mood["annoyed"] = 0 # triggerede by chatting
-        if mood["sad"] >= 60:
-            mood["depressed"] = randint(1,20)
-        else: 
-            mood["depressed"] = 0
+        mood["depressed"] = randint(1,25) if mood["sad"] >= 60 else 0
         mood["mischevious"] = randint(1,100)
         print(mood)
         return mood
@@ -43,7 +40,7 @@ class KellyMood:
                 self.mood[mood] = 100
             elif self.mood[mood] < 0:
                 self.mood[mood] = 0
-            for trait in _OPPOSITE_TRAIT_CHART[mood]:
+            for trait in self._OPPOSITE_TRAIT_CHART[mood]:
                 self.mood[trait] -= mood_change[mood]//2
                 if self.mood[trait] < 0:
                     self.mood[trait] = 0
@@ -51,7 +48,7 @@ class KellyMood:
     def moodSwing(self):
         initial_mood = self.getMood()
         for mood, val in self.mood.items():
-            if val > 40:
+            if val > 30:
                 self.mood[mood] -= randint(1,15)
                 if self.mood[mood] < 0:
                     self.modifyMood({mood: randint(0,40)})
