@@ -832,7 +832,7 @@ class Utility(commands.Cog):
                 return 
             nonlocal proceed_button, view, channel_select, channel_select2, saved
             if saved:
-                for val in selected_values:
+                for val in saved:
                     for option in channel_select2.options:
                         option.default = option.value == val
                 saved = []
