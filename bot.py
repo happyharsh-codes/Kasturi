@@ -50,7 +50,7 @@ class Bot:
                             special_lines = {
                             "angry": "Kelly is fuming right now 🔥 with anger",
                             "sad": "Kelly feels a bit emotional 💔 so sad",
-                            "mischevious": "Kelly is up to something suspicious 😼",
+                            "mischievous": "Kelly is up to something suspicious 😼",
                             "busy": "Kelly is too busy for your nonsense ⏳",
                             "lazy": "Kelly is too lazy to even get her ass up right now",
                             "depressed": "Kelly is so depressed needs someone to comfort her"}
@@ -61,7 +61,7 @@ class Bot:
                             prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change indirectly in 20 words with 1-5 emojis'
                             loop = asyncio.get_event_loop()
                             response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
-                            await channel.send(f"-# {self.kelly.getEmoji(response)}")
+                            await channel.send(self.kelly.getEmoji(response))
                         if randint(1,7) == 7 and settings["timer_messages"]:
                             text = "Kelly got to revive the ded chat"
                             prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat indirectly in 20 words with 1-5 emojis'
