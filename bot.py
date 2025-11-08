@@ -45,10 +45,27 @@ class Bot:
                     try:
                         channel = await guild.fetch_channel(int(channel_id))
                         if mood:
-                            response = getResponse(f'Kelly just got a mood change to {mood}' ,prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change indirectly in 20 words with 1-5 emojis', client=0)
+                            prev_mood = mood[1]
+                            new_mood = mood[0]
+                            special_lines = {
+                            "angry": "Kelly is fuming right now 🔥 with anger",
+                            "sad": "Kelly feels a bit emotional 💔 so sad",
+                            "mischevious": "Kelly is up to something suspicious 😼",
+                            "busy": "Kelly is too busy for your nonsense ⏳",
+                            "lazy": "Kelly is too lazy to even get her ass up right now",
+                            "depressed": "Kelly is so depressed needs someone to comfort her"}
+
+                            text = special_lines.get(new_mood, f"Kelly just got a mood change to **{new_mood}**")
+                            if new_mood == "happy" and prev_mood == "sleepy":
+                                text = f'Kelly just woke up from her deep slumber'
+                            prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change indirectly in 20 words with 1-5 emojis'
+                            loop = asyncio.get_event_loop()
+                            response = await loop.run_in_executor(None, getResponse, text, prompt, 0)
                             await channel.send(f"-# {self.kelly.getEmoji(response)}")
                         if randint(1,7) == 7 and settings["timer_messages"]:
-                            response = getResponse(f"Kelly needs to activate ded chat.",prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat indirectly in 20 words with 1-5 emojis', client=0)
+                            prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat indirectly in 20 words with 1-5 emojis'
+                            loop = asyncio.get_event_loop()
+                            response = await loop.run_in_executor(None, getResponse, input, prompt, 0)
                             await channel.send(self.kelly.getEmoji(response))
                     except Exception as e:
                         await self.client.get_user(894072003533877279).send(f"Exception on Mood change: {e}")
