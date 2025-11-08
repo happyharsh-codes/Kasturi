@@ -5,6 +5,7 @@ from json import dump, load
 from random import randint
 import time
 import math
+import re
 from __init__ import *
 
 class Bot:
@@ -35,16 +36,22 @@ class Bot:
 
     @tasks.loop(minutes=1)
     async def mood_swings(self):
-        action = self.kelly.mood.moodSwing()
+        mood = self.kelly.mood.moodSwing()
         for id, settings in Server_Settings.items():
             if settings["activated_channels"]:
                 guild = await self.client.fetch_guild(int(id))
-                channel = await guild.fetch_channel(int(settings["activated_channels"][0]))
-                await channel.send(f"-# Kelly went to mood {action}", delete_after = 20)
-            if randint(1,7) == 7 and settings["timer_messages"]:
-                await self.kelly.reportAction(action)
+                for channel_id in settings["activated_channels"]:
+                    try:
+                        channel = await guild.fetch_channel(int(channel_id))
+                        if mood:
+                            await channel.send(f"-# {self.kelly.getEmoji(getResponse(prompt = f"Kelly just got a mood change to {mood}",prompt="Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change indirectly in 20 words with 1-5 emojis", client=0))}")
+                        if randint(1,7) == 7 and settings["timer_messages"]:
+                            await channel.send(self.kelly.getEmoji(getResponse(prompt = f"Kelly needs to activate ded chat.",prompt="Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat indirectly in 20 words with 1-5 emojis", client=0)))
+                    except:
+                        pass
+        
 
-    @tasks.loop(minutes=100)
+    @task.loop(minutes=100)
     async def save_files(self):
         with open("res/server/profiles.json", "w") as f:
             dump(Profiles, f, indent=4)
@@ -175,17 +182,15 @@ class Bot:
                     if original.author.id == self.client.user.id:
                         print(f"Reply to Kelly detected: {message.content}")
                         #checking for embeds
-                        if message.embeds:
+                        if original.embeds:
                             return #Only reply to chats not to system messages
                         await self.kelly.kellyQuery(message)
                         return
                 except discord.NotFound:
-                    pass  # original message not found (maybe deleted)
-                return
+                    return # original message not found (maybe deleted)
 
             # Otherwise, only handle messages with valid prefixes
-            message.content = message.content.lower()
-
+            message.content = re.sub(r"<a?:\w+:\d+>", "", message.content).strip().lower() # removing emojis
             if not message.content.startswith(("kasturi", "kelly", "k")):
                 if "kasturi" in message.content.lower() or "kelly" in message.content.lower():
                     #cheking for Administrator Permission given or not
@@ -353,6 +358,8 @@ class Bot:
     async def on_command_completion(self, ctx):
         try:
             Profiles[ctx.author.id]["aura"] += 1
+            if ranint(1,10) == 8:
+                await ctx.send(choice(list(TIP.values())))
         except:
             pass
 
@@ -376,6 +383,8 @@ class Bot:
         if isinstance(error, commands.CommandNotFound):
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
+            if ranint(1,10) == 8:
+                await ctx.send(choice(list(TIP.values())))
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
             em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
             await ctx.send(embed= em)
