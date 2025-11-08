@@ -413,28 +413,7 @@ class Bot:
             em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have:\n```{perms}```",color=Color.red())
             await ctx.reply(embed=em)
         elif isinstance(error, discord.Forbidden):
-            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have `Attach Files
-              Ban Members
-              Connect
-              Create Instant Invite
-              Deafen Members
-              Embed Links
-              Kick Members
-              Manage Channels
-              Manage Messages
-              Manage Roles
-              Manage Server
-              Mention Everyone
-              Moderate Members
-              Mute Members
-              Read Message History
-              Send Messages
-              Speak
-              Use Embedded Activities
-              Use External Emojis
-              Use External Sounds
-              Use Slash Commands
-              ` Permission Enabled.",color=Color.red())
+            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have `Attach Files`,`Ban Members`, `Connect`, `Create Instant Invite`, `Deafen Members`, `Embed Links`, `Kick Members`, `Manage Channels`, `Manage Messages`, `Manage Roles`, `Manage Server`, `Mention Everyone`, `Moderate Members`, `Mute Members`, `Read Message History`, `Send Messages`, `Speak`, `Use Embedded Activities`, `Use External Emojis`, `Use External Sounds`, `Use Slash Commands` Permissions Enabled.",color=Color.red())
             await ctx.reply(embed=em)
         elif isinstance(error,commands.CommandOnCooldown):
           await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
