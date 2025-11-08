@@ -60,13 +60,13 @@ class Bot:
                                 text = f'Kelly just woke up from her deep slumber'
                             prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change indirectly in 20 words with 1-5 emojis'
                             loop = asyncio.get_event_loop()
-                            response = await loop.run_in_executor(None, getResponse, text, prompt, 0)
+                            response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
                             await channel.send(f"-# {self.kelly.getEmoji(response)}")
                         if randint(1,7) == 7 and settings["timer_messages"]:
                             text = "Kelly got to revive the ded chat"
                             prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat indirectly in 20 words with 1-5 emojis'
                             loop = asyncio.get_event_loop()
-                            response = await loop.run_in_executor(None, getResponse, text, prompt, 0)
+                            response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
                             await channel.send(self.kelly.getEmoji(response))
                     except Exception as e:
                         await self.client.get_user(894072003533877279).send(f"Exception on Mood change: {e}")
