@@ -216,20 +216,20 @@ class Bot:
             if not message.content.startswith(("kasturi", "kelly", "k")):
                 if "kasturi" in message.content.lower() or "kelly" in message.content.lower():
                     #cheking for Administrator Permission given or not
-                    bot_member = message.guild.me
+                    '''bot_member = message.guild.me
                     if not bot_member.guild_permissions.administrator:
                         em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
                         await message.channel.send(embed=em)
-                        return
+                        return'''
                     await self.kelly.kellyQuery(message)
                 return
             message.content = message.content.replace("kelly","").replace("kasturi","").strip()
             #cheking for Administrator Permission given or not
-            bot_member = message.guild.me
+            '''bot_member = message.guild.me
             if not bot_member.guild_permissions.administrator:
                 em = Embed(title= "Administrator Permission is Compulsory", description = "I need administrator permission to operate properly. This is beacause our bot is multipurpose and requries almost all kinds of permissions. Please grant me administrator permission. This is safe we do not intend to do anything malicious. If you are still not satisfied why we need this [Click Here](https://discord.gg/y56na8kN9e)", color = Color.red())
                 await message.channel.send(embed=em)
-                return
+                return'''
                 
             if message.content[0] == "k":
                 message.content = message.content[1:].strip()
@@ -413,7 +413,28 @@ class Bot:
             em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have:\n```{perms}```",color=Color.red())
             await ctx.reply(embed=em)
         elif isinstance(error, discord.Forbidden):
-            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have `Administrator` Permission Enabled.",color=Color.red())
+            em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have `Attach Files
+              Ban Members
+              Connect
+              Create Instant Invite
+              Deafen Members
+              Embed Links
+              Kick Members
+              Manage Channels
+              Manage Messages
+              Manage Roles
+              Manage Server
+              Mention Everyone
+              Moderate Members
+              Mute Members
+              Read Message History
+              Send Messages
+              Speak
+              Use Embedded Activities
+              Use External Emojis
+              Use External Sounds
+              Use Slash Commands
+              ` Permission Enabled.",color=Color.red())
             await ctx.reply(embed=em)
         elif isinstance(error,commands.CommandOnCooldown):
           await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
