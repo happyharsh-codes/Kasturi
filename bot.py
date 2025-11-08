@@ -38,6 +38,25 @@ class Bot:
     async def mood_swings(self):
       try:
         mood = self.kelly.mood.moodSwing()
+        if mood:
+            prev_mood = mood[1]
+            new_mood = mood[0]
+            special_lines = {
+            "angry": "Kelly is fuming right now 🔥 with anger (mood change = angry)",
+            "sad": "Kelly feels a bit emotional 💔 so sad (mood change = sad)",
+            "mischievous": "Kelly is up to something suspicious 😼 (mood change = mischievous)",
+            "busy": "Kelly is too busy for your nonsense ⏳ (mood change = busy)",
+            "lazy": "Kelly is too lazy to even get her ass up right now (mood change = lazy)",
+            "depressed": "Kelly is so depressed needs someone to comfort her (mood change = depressed)"}
+
+            text = special_lines.get(new_mood, f"Kelly just got a mood change to **{new_mood}**")
+            if new_mood == "happy" and prev_mood == "sleepy":
+                text = f'Kelly just woke up from her deep slumber (mood change = woke up)'
+            prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change in 20 words with 1-5 emojis'
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
+            message = self.kelly.getEmoji(response)
+                        
         for id, settings in Server_Settings.items():
             if settings["allowed_channels"]:
                 guild = await self.client.fetch_guild(int(id))
@@ -45,26 +64,10 @@ class Bot:
                     try:
                         channel = await guild.fetch_channel(int(channel_id))
                         if mood:
-                            prev_mood = mood[1]
-                            new_mood = mood[0]
-                            special_lines = {
-                            "angry": "Kelly is fuming right now 🔥 with anger",
-                            "sad": "Kelly feels a bit emotional 💔 so sad",
-                            "mischievous": "Kelly is up to something suspicious 😼",
-                            "busy": "Kelly is too busy for your nonsense ⏳",
-                            "lazy": "Kelly is too lazy to even get her ass up right now",
-                            "depressed": "Kelly is so depressed needs someone to comfort her"}
-
-                            text = special_lines.get(new_mood, f"Kelly just got a mood change to **{new_mood}**")
-                            if new_mood == "happy" and prev_mood == "sleepy":
-                                text = f'Kelly just woke up from her deep slumber'
-                            prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change indirectly in 20 words with 1-5 emojis'
-                            loop = asyncio.get_event_loop()
-                            response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
-                            await channel.send(self.kelly.getEmoji(response))
-                        if randint(1,7) == 7 and settings["timer_messages"]:
+                            await channel.send(message)
+                        elif randint(1,7) == 7 and settings["timer_messages"]:
                             text = "Kelly got to revive the ded chat"
-                            prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat indirectly in 20 words with 1-5 emojis'
+                            prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat in 20 words with 1-4 emojis'
                             loop = asyncio.get_event_loop()
                             response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
                             await channel.send(self.kelly.getEmoji(response))
