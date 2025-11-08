@@ -39,9 +39,9 @@ class Bot:
       try:
         mood = self.kelly.mood.moodSwing()
         for id, settings in Server_Settings.items():
-            if settings["activated_channels"]:
+            if settings["allowed_channels"]:
                 guild = await self.client.fetch_guild(int(id))
-                for channel_id in settings["activated_channels"]:
+                for channel_id in settings["allowed_channels"]:
                     try:
                         channel = await guild.fetch_channel(int(channel_id))
                         if mood:
