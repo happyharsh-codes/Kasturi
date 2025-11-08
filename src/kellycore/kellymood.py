@@ -58,7 +58,7 @@ class KellyMood:
                     self.mood["sleepy"] = 0
 
     def moodSwing(self):
-        mood_change = None
+        initial_mood = self.getMood()
         for mood in ["angry", "annoyed"]:
             self.mood[mood] -= 6
             if self.mood[mood] < 0:
@@ -66,8 +66,10 @@ class KellyMood:
         for mood in ["happy", "busy","sleepy","lazy", "mischevious"]:
             self.mood[mood] -= 6
             if self.mood[mood] < 0:
-                self.mood[mood] = 100
-                mood_change = mood
+                self.modifyMood({mood: randint(0,100)})
+        mood_change = self.getMood()
+        if mood_change == initial_mood:
+            return None
         return mood_change
     
     def getMood(self):
