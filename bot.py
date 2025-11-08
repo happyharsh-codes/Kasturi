@@ -34,7 +34,7 @@ class Bot:
                         print(f"Could not DM {muted_id}: {dm_error}")
                         
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes=2)
     async def mood_swings(self):
       try:
         mood = self.kelly.mood.moodSwing()
@@ -47,7 +47,8 @@ class Bot:
             "mischievous": "Kelly is up to something suspicious 😼 (mood change = mischievous)",
             "busy": "Kelly is too busy for your nonsense ⏳ (mood change = busy)",
             "lazy": "Kelly is too lazy to even get her ass up right now (mood change = lazy)",
-            "depressed": "Kelly is so depressed needs someone to comfort her (mood change = depressed)"}
+            "depressed": "Kelly is so depressed needs someone to comfort her (mood change = depressed)"
+            }
 
             text = special_lines.get(new_mood, f"Kelly just got a mood change to **{new_mood}**")
             if new_mood == "happy" and prev_mood == "sleepy":
@@ -64,8 +65,8 @@ class Bot:
                     try:
                         channel = await guild.fetch_channel(int(channel_id))
                         if mood:
-                            await channel.send(message)
-                        elif randint(1,7) == 7 and settings["timer_messages"]:
+                            await channel.send(message, delete_after = 120)
+                        elif randint(1,10) == 7 and settings["timer_messages"]:
                             text = "Kelly got to revive the ded chat"
                             prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response activating ded chat in 20 words with 1-4 emojis'
                             loop = asyncio.get_event_loop()
@@ -97,10 +98,14 @@ class Bot:
         #saving guilds
         for guild in self.client.guilds:
             invite_link = None
+            embed = Embed(title="✅ Kelly Updated",description="Kelly has been updated successfully and is running on the latest version 💫. Please activate your servers again.",color=Color.green())
+            embed.set_footer(text="Kelly System", url= self.client.user.avatar)
+            embed.timestamp = datetime.utcnow()
             for channel in guild.text_channels:
                 try:
                     invite = await channel.create_invite(max_age=0, max_uses=0)  # infinite invite
                     invite_link = str(invite)
+                    await channel.send(embed=embed)
                     break
                 except:
                     continue
