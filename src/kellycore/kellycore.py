@@ -193,6 +193,7 @@ class Kelly:
         print(f">==PERSONALITY<\n{self.personality.persona}\n>==<")
 
     def getEmoji(self, message):
+        message = str(message)
         emoji_exchanger = {
             # kellytired / kellyyawn / kellysleeping
             "😫": "kellytired", 
