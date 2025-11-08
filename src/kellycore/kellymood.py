@@ -11,7 +11,8 @@ class KellyMood:
     
     '''
     _MOODS = ["happy", "sad" , "angry", "annoyed", "depressed", "mischevious", "busy", "sleepy", "lazy"]
-
+    _OPPOSITE_TRAIT_CHART = {"happy": {"sad", "angry", "annoyed", "depressed"}, "angry": {"happy"}, "sleepy": {"angry", "annoyed", "depressed"}, "lazy": {"depressed", "busy"}, "annoyed": {"happy"}, "busy": {"happy"}, "mischievous": {"sad", "annoyed", "angry"}, "sad": {"happy"}, "depressed": {"happy", "sleepy", "mischievous"} }
+    
     def __init__(self, bot):
         self.mood = self.generateRandomMood()
         self.client = bot
@@ -42,41 +43,28 @@ class KellyMood:
                 self.mood[mood] = 100
             elif self.mood[mood] < 0:
                 self.mood[mood] = 0
-            if mood == "happy":
-                opposite_traits = ["sad", "depressed", "angry", "annoyed"]
-                for trait in opposite_traits:
-                    self.mood[trait] -= mood_change[mood]
-                    if self.mood[trait] < 0:
-                        self.mood[trait] = 0
-            elif mood in ["sad", "depressed", "angry", "annoyed"]:
-                self.mood["happy"] -= mood_change[mood]
-                if self.mood["happy"] < 0:
-                    self.mood["happy"] = 0
-            elif mood in ["depressed"]:
-                self.mood["sleepy"] -= mood_change[mood]
-                if self.mood["sleepy"] < 0:
-                    self.mood["sleepy"] = 0
+            for trait in _OPPOSITE_TRAIT_CHART[mood]:
+                self.mood[trait] -= mood_change[mood]//2
+                if self.mood[trait] < 0:
+                    self.mood[trait] = 0
 
     def moodSwing(self):
-        initial_mood = list(self.getMood().keys())[0]
-        for mood in ["angry", "annoyed"]:
-            self.mood[mood] -= 6
-            if self.mood[mood] < 0:
-                self.mood[mood] = 0
-        for mood in ["happy", "busy","sleepy","lazy", "mischevious"]:
-            self.mood[mood] -= 6
-            if self.mood[mood] < 0:
-                self.modifyMood({mood: randint(0,100)})
-        mood_change = list(self.getMood().keys())[0]
+        initial_mood = self.getMood()
+        for mood, val in self.mood.items():
+            if val > 40:
+                self.mood[mood] -= randint(1,15)
+                if self.mood[mood] < 0:
+                    self.modifyMood({mood: randint(0,40)})
+        mood_change = self.getMood()
         if mood_change == initial_mood:
             return None
-        return mood_change
+        return mood_change, initial_mood
     
     def getMood(self):
-        maxz = max(list(self.mood.values()))
-        for mood in self.mood:
-            if self.mood[mood] == maxz:
-                return {mood: maxz}
+        maxz = max(self.mood.values())
+        candidates = [m for m, v in self.mood.items() if v == maxz]
+        mood = random.choice(candidates)
+        return mood
 
     def moodToDoTasks(self):
         mood = self.mood
