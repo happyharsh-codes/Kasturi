@@ -28,8 +28,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command(aliases=["kelly_mute", "kmute"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(moderate_members=True)
+    @commands.bot_has_permissions(moderate_members=True)
     async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Temporarily prevents a user from chatting with Kelly, not server-wide."""
         minutes = randint(5, 15)
@@ -47,8 +47,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(moderate_members=True)
+    @commands.bot_has_permissions(moderate_members=True)
     async def mute(self, ctx: commands.Context, member: discord.Member, minutes: int, *, reason: str):
         """Server mute — prevents member from sending messages."""
         try:
@@ -76,8 +76,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command(aliases=["kelly_unmute", "kunmute"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(moderate_members=True)
+    @commands.bot_has_permissions(moderate_members=True)
     async def unmute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         """Removes Kelly-only chat mute."""
         muted = Server_Settings[str(ctx.guild.id)]["muted"]
@@ -97,8 +97,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(moderate_members=True)
+    @commands.bot_has_permissions(moderate_members=True)
     async def unmute(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Restores user's chat permissions server-wide."""
         if not member.timed_out_until:
@@ -145,8 +145,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(moderate_members=True)
+    @commands.bot_has_permissions(moderate_members=True)
     async def warn(self, ctx, member: discord.Member, *, reason: str):
         """Send official warning to a member."""
         embed_dm = Embed(
@@ -249,8 +249,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command(aliases=["kelly_ban", "kban"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
     async def ban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Just Bans a member from ever Chatting to Kelly Not from Server 🚫  
         Now user can never chat with Kelly, unless unbanned."""
@@ -300,8 +300,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command(aliases=["kelly_unban", "kunban"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
     async def unban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Unbans a user by name or ID 🔓 from Kelly. 
         Now they can start chatting with Kelly again.
@@ -404,8 +404,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_messages=True)
-    @commands.bot_has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_permissions(manage_channels=True)
     async def lock(self, ctx: commands.Context, minutes: int = 0):
         """Locks the current channel 🔒  
         Prevents members from sending messages.
@@ -416,8 +416,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_messages=True)
-    @commands.bot_has_permissions(manage_messages=True)
+    @commands.has_permissions(manage_channels=True)
+    @commands.bot_has_permissions(manage_channels=True)
     async def unlock(self, ctx: commands.Context):
         """Unlocks the current channel 🔓  
         Restores chat access for members."""
@@ -426,8 +426,8 @@ class Moderation(commands.Cog):
         
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(administrator=True)
-    @commands.bot_has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
+    @commands.bot_has_permissions(manage_guild=True)
     async def set_rank_channel(self, ctx: commands.Context, channel: discord.TextChannel):
         """Sets the rank update channel 📊  
         Displays level-up and XP progress here."""
@@ -437,8 +437,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(administrator=True)
-    @commands.bot_has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
+    @commands.bot_has_permissions(manage_guild=True)
     async def set_welcome_channel(self, ctx: commands.Context, channel: discord.TextChannel):
         """Sets the welcome message channel 🎉  
         Greets new members automatically here.
@@ -449,8 +449,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(administrator=True)
-    @commands.bot_has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
+    @commands.bot_has_permissions(manage_guild=True)
     async def set_social_channel(self, ctx: commands.Context):
         """Sets the social media updates channel 🌐  
         Posts updates from YouTube, Instagram, Twitter."""
