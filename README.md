@@ -15,7 +15,7 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 **✨ Features**
 🛡️ Moderation • 😂 Fun • 🎵 Music • 🎮 Games & Economy  
 📈 Invites Tracking • ⚙️ Utility • 🤖 AI Chat  
-…and many more!
+…and many more building 🚧🏗️!
 
 <img src="assets/kellybanner.png" width="100%" alt="Kelly Banner"/>
 
@@ -57,9 +57,9 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 # Kelly Moods
 Kelly reacts depending on mood 🎭
 <p align="center">
-  <img src="assets/kellylaugh.png" width="100" alt="Kelly Laughing"/>
-  <img src="assets/kellycry.png" width="100" alt="Kelly Crying"/>
-  <img src="assets/kellysleeping.png" width="100" alt="Kelly Sleeping"/>
+  <img src="assets/kellylaugh.png" width="33%" alt="Kelly Laughing"/>
+  <img src="assets/kellycry.png" width="33%" alt="Kelly Crying"/>
+  <img src="assets/kellysleeping.png" width="33%" alt="Kelly Sleeping"/>
 </p>
 
 ---
