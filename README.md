@@ -56,18 +56,18 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 
 # Kelly Moods
 Kelly reacts depending on mood 🎭
-<p align="left">
-  <img src="assets/kellylaugh.png" width="33%" alt="Kelly Laughing"/>
-  <img src="assets/kellycry.png" width="33%" alt="Kelly Crying"/>
-  <img src="assets/kellysleeping.png" width="33%" alt="Kelly Sleeping"/>
+<p align="center">
+  <img src="assets/kellylaugh.png" width="32%" alt="Kelly Laughing"/>
+  <img src="assets/kellycry.png" width="32%" alt="Kelly Crying"/>
+  <img src="assets/kellysleeping.png" width="32%" alt="Kelly Sleeping"/>
 </p>
 
 ---
 
 # 📊 Bot Stats
 <p align="center">
-  <img width="58%" src="https://github-readme-stats.vercel.app/api/pin/?username=happyharsh-codes&repo=kelly&theme=radical&hide_border=true" />
-  <img width="58%" src="https://github-readme-streak-stats.herokuapp.com/?user=happyharsh-codes&theme=radical&hide_border=true" />
+  <img width="100%" src="https://github-readme-stats.vercel.app/api/pin/?username=happyharsh-codes&repo=kelly&theme=radical&hide_border=true" />
+  <img width="100%" src="https://github-readme-streak-stats.herokuapp.com/?user=happyharsh-codes&theme=radical&hide_border=true" />
 </p>
 
 <p align="center">
