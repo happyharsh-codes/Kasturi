@@ -25,21 +25,25 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 
 # ⚙️ Tech Implants 🧬
 
-<div align="center" style="overflow-x: auto; white-space: nowrap;">
-  <a href="https://www.python.org/" target="_blank"><img src="https://skillicons.dev/icons?i=python" width="48"/></a>
-  <a href="https://discordpy.readthedocs.io/en/stable/" target="_blank"><img src="https://skillicons.dev/icons?i=discord" width="48"/></a>
-  <a href="https://www.mongodb.com/" target="_blank"><img src="https://skillicons.dev/icons?i=mongodb" width="48"/></a>
-  <a href="https://huggingface.co/" target="_blank"><img src="https://skillicons.dev/icons?i=huggingface" width="48"/></a>
-  <a href="https://openrouter.ai/" target="_blank"><img src="https://skillicons.dev/icons?i=api" width="48"/></a>
-  <a href="https://spotipy.readthedocs.io/" target="_blank"><img src="https://skillicons.dev/icons?i=spotify" width="48"/></a>
-  <a href="https://github.com/yt-dlp/yt-dlp" target="_blank"><img src="https://skillicons.dev/icons?i=youtube" width="48"/></a>
-  <a href="https://www.koyeb.com/" target="_blank"><img src="https://skillicons.dev/icons?i=cloud" width="48"/></a>
-</div>
+<p>
+<kbd>
+<a href="https://www.python.org/"><img src="https://skillicons.dev/icons?i=python" width="48"/></a>
+<a href="https://discordpy.readthedocs.io/en/stable/"><img src="https://skillicons.dev/icons?i=discord" width="48"/></a>
+<a href="https://www.mongodb.com/"><img src="https://skillicons.dev/icons?i=mongodb" width="48"/></a>
+<a href="https://huggingface.co/"><img src="https://skillicons.dev/icons?i=huggingface" width="48"/></a>
+<a href="https://openrouter.ai/"><img src="https://skillicons.dev/icons?i=api" width="48"/></a>
+<a href="https://spotipy.readthedocs.io/"><img src="https://skillicons.dev/icons?i=spotify" width="48"/></a>
+<a href="https://github.com/yt-dlp/yt-dlp"><img src="https://skillicons.dev/icons?i=youtube" width="48"/></a>
+<a href="https://www.koyeb.com/"><img src="https://skillicons.dev/icons?i=cloud" width="48"/></a>
+<a><img src="https://img.icons8.com/ios-filled/50/000000/keyboard.png" width="48"/></a>
+</kbd>
+</p>
 
 ---
 
 # Kelly Moods
-<div align="center" style="overflow-x: auto; white-space: nowrap;">
+<p>
+<kbd>
   <img src="assets/kellylaugh.png" width="90"/>
   <img src="assets/kellycry.png" width="90"/>
   <img src="assets/kellysleeping.png" width="90"/>
@@ -47,16 +51,16 @@ A multipurpose AI bot who works just by chatting — no commands needed.
   <img src="assets/kellycute.png" width="90"/>
   <img src="assets/kellyhandraise.png" width="90"/>
   <img src="assets/kellysimping.webp" width="90"/>
-  <img src="assets/kellygiggle.png" width="90"/>
+  <img src="assets/kellygigle.png" width="90"/>
   <img src="assets/kellyidontcare.png" width="90"/>
   <img src="assets/kellyheart.png" width="90"/>
   <img src="assets/kellypinch.gif" width="90"/>
-  <img src="assets/kellylcry.png" width="90"/>
+  <img src="assets/kellycry.png" width="90"/>
   <img src="assets/kellybweh.webp" width="90"/>
   <img src="assets/kellybored.gif" width="90"/>
   <img src="assets/kellyoho.webp" width="90"/>
   <img src="assets/kellyok.png" width="90"/>
-  <img src="assets/kellychips.png" width="90"/>
+  <img src="assets/kellychips.webp" width="90"/>
   <img src="assets/kellyjuice.webp" width="90"/>
   <img src="assets/kellysalute.png" width="90"/>
   <img src="assets/kellyfight.gif" width="90"/>
@@ -65,7 +69,7 @@ A multipurpose AI bot who works just by chatting — no commands needed.
   <img src="assets/kellypat.png" width="90"/>
   <img src="assets/kellypolice.png" width="90"/>
   <img src="assets/kellypopcorn.gif" width="90"/>
-  <img src="assets/kellycoffeesip.png" width="90"/>
+  <img src="assets/kellycoffsesip.png" width="90"/>
   <img src="assets/kellyenjoying.webp" width="90"/>
   <img src="assets/kellyconfused.png" width="90"/>
   <img src="assets/kellythinking.webp" width="90"/>
@@ -81,7 +85,8 @@ A multipurpose AI bot who works just by chatting — no commands needed.
   <img src="assets/kellyembaress.png" width="90"/>
   <img src="assets/kellyacting.webp" width="90"/>
   <img src="assets/kellycry.png" width="90"/>
-</div>
+</kbd>
+</p>
 
 ---
 
