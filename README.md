@@ -3,7 +3,7 @@
 [![Join Kelly's Homeland](https://img.shields.io/badge/Join-Kelly's_Homeland-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/SVmpbpf9H7)
 
 <p align="center">
-  <img width="150" src="assets/kelly$(($RANDOM % 3)).png?v=$(date +%s)" alt="Kelly Mood"/>
+  <img width="150" src="assets/kelly$(($RANDOM)).png" alt="Kelly Mood"/>
 </p>
 
 <div align="center">
@@ -56,7 +56,7 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 
 # Kelly Moods
 Kelly reacts depending on mood 🎭
-<p align="center">
+<p align="left">
   <img src="assets/kellylaugh.png" width="33%" alt="Kelly Laughing"/>
   <img src="assets/kellycry.png" width="33%" alt="Kelly Crying"/>
   <img src="assets/kellysleeping.png" width="33%" alt="Kelly Sleeping"/>
