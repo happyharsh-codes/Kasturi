@@ -163,13 +163,7 @@ class Bot:
                     return
                 if message.content == self.client.user.mention:
                     em = discord.Embed(title= f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
-                    emoji = choice(list(EMOJI.values()))
-                    if "a:" in emoji:
-                        ext = ".gif"
-                    else:
-                        ext = ".png"
-                    emoji = emoji.split(":")[2].strip(">")
-                    em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{emoji}{ext}")
+                    em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
                     em.add_field(name= "Help", value="Get Help using `k help` command")
                     em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
                     await message.channel.send(embed=em)
@@ -270,13 +264,7 @@ class Bot:
         view.add_item(developer)
         em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly has Arrived!**", description=f"Thanks for adding me!\n• Say `kelly hi` to talk\n• Use `k activate` to enable chat\n• Use `k help` to view commands\n• Found a bug? Use `k bug`",color = discord.Colour.green())
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
-        emoji = choice(list(EMOJI.values()))
-        if "a:" in emoji:
-            ext = ".gif"
-        else:
-            ext = ".png"
-        emoji = emoji.split(":")[2].strip(">")
-        em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{emoji}{ext}")
+        em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
                         
         for channel in channels:
