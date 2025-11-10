@@ -404,8 +404,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_channels=True)
-    @commands.bot_has_permissions(manage_channels=True)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
     async def lock(self, ctx: commands.Context, minutes: int = 0):
         """Locks the current channel 🔒  
         Prevents members from sending messages.
@@ -416,8 +416,8 @@ class Moderation(commands.Cog):
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions(manage_channels=True)
-    @commands.bot_has_permissions(manage_channels=True)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
     async def unlock(self, ctx: commands.Context):
         """Unlocks the current channel 🔓  
         Restores chat access for members."""
