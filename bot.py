@@ -49,8 +49,18 @@ class Bot:
             "lazy": "Kelly is too lazy to even get her ass up right now (mood change = lazy)",
             "depressed": "Kelly is so depressed needs someone to comfort her (mood change = depressed)"
             }
-
+            action = {
+                "sleepy": "-# Kelly is sleeping 😴",
+                "depressed": "-# Kelly is depressed 😔",
+                "angry": "-# Kelly is angry 😡",
+                "busy": "-# Kelly has gone busy",
+                "lazy": "-# Kelly is too lazy to respond now 😪",
+                "sad": "-# Kelly is so sad right now 😭",
+                "mischievous": "-# Kelly is feeling a little mischievous 😉",
+                "annoyed" : "-# Kelly is so annoyed now 😒"
+            }
             text = special_lines.get(new_mood, f"Kelly just got a mood change to **{new_mood}**")
+            action_text = self.kelly.getEmoji(action.get(new_mood, f"-# Kelly just got {new_mood}"))
             if new_mood == "happy" and prev_mood == "sleepy":
                 text = f'Kelly just woke up from her deep slumber (mood change = woke up)'
             prompt='Roleplay Kelly, a cute Discord Mod (human like with mood and sass).Generate response telling all audience kelly went this mood change in 20 words with 1-5 emojis'
@@ -59,12 +69,16 @@ class Bot:
             message = self.kelly.getEmoji(response)
                         
         for id, settings in Server_Settings.items():
-            if settings["allowed_channels"]:
+            try:
                 guild = await self.client.fetch_guild(int(id))
+            except:
+                continue
+            if settings["allowed_channels"]:
                 for channel_id in settings["allowed_channels"]:
                     try:
                         channel = await guild.fetch_channel(int(channel_id))
                         if mood:
+                            await channel.send(action_text)
                             await channel.send(message, delete_after = 120)
                         elif randint(1,10) == 7 and settings["timer_messages"]:
                             text = "Kelly got to revive the ded chat"
@@ -74,6 +88,13 @@ class Bot:
                             await channel.send(self.kelly.getEmoji(response))
                     except Exception as e:
                         await self.client.get_user(894072003533877279).send(f"Exception on Mood change: {e}")
+            else:
+                for channel in guild.text_channels:
+                    if channel.last_message:
+                        if mood:
+                            await channel.send(action_text)
+                            await channel.send(message, delete_after = 120)
+                            
       except Exception as e:
         await self.client.get_user(894072003533877279).send(f"Exception on Mood change: {e}")  
         
