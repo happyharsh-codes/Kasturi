@@ -27,14 +27,14 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 
 <table>
   <tr>
-    <td><a href="https://www.python.org/"><img src="https://skillicons.dev/icons?i=python" width="90"></a></td>
-    <td><a href="https://discordpy.readthedocs.io/en/stable/"><img src="https://skillicons.dev/icons?i=discord" width="90"></a></td>
-    <td><a href="https://www.mongodb.com/"><img src="https://skillicons.dev/icons?i=mongodb" width="90"></a></td>
-    <td><a href="https://huggingface.co/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKiAfiXI_9-4SkggBKXzzqsOJtPRFnCdvFMS0dqDD2kA&s=10" width="90"></a></td>
-    <td><a href="https://openrouter.ai/"><img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/openrouter.png" width="90"></a></td>
-    <td><a href="https://spotipy.readthedocs.io/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT49c5lXAsLd5sotG92t6ZKEt8uQyeKWxi_PKCqWfxztCIVnLqiK5mStsc&s=10" width="90"></a></td>
-    <td><a href="https://github.com/yt-dlp/yt-dlp"><img src="https://repository-images.githubusercontent.com/307260205/b6a8d716-9c7b-40ec-bc44-6422d8b741a0" width="90"></a></td>
-    <td><a href="https://www.koyeb.com/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9OhofyWCzldyPHX3hf6ByxPvdaaJbLqD-2iAIKTy66VTS5Zcc2B_YDKN9&s=10" width="90"></a></td>
+    <td><a href="https://www.python.org/"><img src="https://skillicons.dev/icons?i=python" width="900"></a></td>
+    <td><a href="https://discordpy.readthedocs.io/en/stable/"><img src="https://skillicons.dev/icons?i=discord" width="900"></a></td>
+    <td><a href="https://www.mongodb.com/"><img src="https://skillicons.dev/icons?i=mongodb" width="900"></a></td>
+    <td><a href="https://huggingface.co/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKiAfiXI_9-4SkggBKXzzqsOJtPRFnCdvFMS0dqDD2kA&s=10" width="900"></a></td>
+    <td><a href="https://openrouter.ai/"><img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/openrouter.png" width="900"></a></td>
+    <td><a href="https://spotipy.readthedocs.io/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT49c5lXAsLd5sotG92t6ZKEt8uQyeKWxi_PKCqWfxztCIVnLqiK5mStsc&s=10" width="900"></a></td>
+    <td><a href="https://github.com/yt-dlp/yt-dlp"><img src="https://repository-images.githubusercontent.com/307260205/b6a8d716-9c7b-40ec-bc44-6422d8b741a0" width="900"></a></td>
+    <td><a href="https://www.koyeb.com/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9OhofyWCzldyPHX3hf6ByxPvdaaJbLqD-2iAIKTy66VTS5Zcc2B_YDKN9&s=10" width="900"></a></td>
 </table>
 
 ---
