@@ -27,63 +27,63 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 
 <table>
   <tr>  
-    <td><a href="https://www.python.org/"><img src="https://skillicons.dev/icons?i=python" width="900"></a></td>
-    <td><a href="https://discordpy.readthedocs.io/en/stable/"><img src="https://skillicons.dev/icons?i=discord" width="9000px" object-fit="contain"></a></td>
-    <td><a href="https://www.mongodb.com/"><img src="https://skillicons.dev/icons?i=mongodb" width="900"></a></td>
-    <td><a href="https://huggingface.co/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKiAfiXI_9-4SkggBKXzzqsOJtPRFnCdvFMS0dqDD2kA&s=10" width="900"></a></td>
-    <td><a href="https://openrouter.ai/"><img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/openrouter.png" width="900"></a></td>
-    <td><a href="https://spotipy.readthedocs.io/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT49c5lXAsLd5sotG92t6ZKEt8uQyeKWxi_PKCqWfxztCIVnLqiK5mStsc&s=10" width="900"></a></td>
-    <td><a href="https://github.com/yt-dlp/yt-dlp"><img src="https://repository-images.githubusercontent.com/307260205/b6a8d716-9c7b-40ec-bc44-6422d8b741a0" width="900"></a></td>
-    <td><a href="https://www.koyeb.com/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9OhofyWCzldyPHX3hf6ByxPvdaaJbLqD-2iAIKTy66VTS5Zcc2B_YDKN9&s=10" width="900"></a></td>
+    <td><a href="https://www.python.org/"><img src="https://skillicons.dev/icons?i=python" width="90 !important"></a></td>
+    <td><a href="https://discordpy.readthedocs.io/en/stable/"><img src="https://skillicons.dev/icons?i=discord" width="90 !important" object-fit="contain"></a></td>
+    <td><a href="https://www.mongodb.com/"><img src="https://skillicons.dev/icons?i=mongodb" width="90 !important"></a></td>
+    <td><a href="https://huggingface.co/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKiAfiXI_9-4SkggBKXzzqsOJtPRFnCdvFMS0dqDD2kA&s=10" width="90 !important"></a></td>
+    <td><a href="https://openrouter.ai/"><img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/openrouter.png" width="90 !important"></a></td>
+    <td><a href="https://spotipy.readthedocs.io/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT49c5lXAsLd5sotG92t6ZKEt8uQyeKWxi_PKCqWfxztCIVnLqiK5mStsc&s=10" width="90 !important"></a></td>
+    <td><a href="https://github.com/yt-dlp/yt-dlp"><img src="https://repository-images.githubusercontent.com/307260205/b6a8d716-9c7b-40ec-bc44-6422d8b741a0" width="90 !important"></a></td>
+    <td><a href="https://www.koyeb.com/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9OhofyWCzldyPHX3hf6ByxPvdaaJbLqD-2iAIKTy66VTS5Zcc2B_YDKN9&s=10" width="90 !important"></a></td>
 </table>
 
 ---
 
 # Kelly Moods
 
-<div style="display: flex; gap: 10px; overflow-x: auto; padding: 10px;">
-
-  <img src="assets/kellylaugh.png" width="90 !important"/>
-  <img src="assets/kellycry.png" width="90"/>
-  <img src="assets/kellysleeping.png" width="90"/>
-  <img src="assets/kellyannoyed.png" width="90"/>
-  <img src="assets/kellycute.png" width="90"/>
-  <img src="assets/kellyhandraise.png" width="90"/>
-  <img src="assets/kellysimping.webp" width="90"/>
-  <img src="assets/kellygigle.png" width="90"/>
-  <img src="assets/kellyidontcare.png" width="90"/>
-  <img src="assets/kellyheart.png" width="90"/>
-  <img src="assets/kellypinch.gif" width="90"/>
-  <img src="assets/kellybweh.webp" width="90"/>
-  <img src="assets/kellybored.gif" width="90"/>
-  <img src="assets/kellyoho.webp" width="90"/>
-  <img src="assets/kellyok.png" width="90"/>
-  <img src="assets/kellychips.webp" width="90"/>
-  <img src="assets/kellyjuice.webp" width="90"/>
-  <img src="assets/kellysalute.png" width="90"/>
-  <img src="assets/kellyfight.gif" width="90"/>
-  <img src="assets/kellypout.png" width="90"/>
-  <img src="assets/kellyvibing.gif" width="90"/>
-  <img src="assets/kellypat.png" width="90"/>
-  <img src="assets/kellypolice.png" width="90"/>
-  <img src="assets/kellypopcorn.gif" width="90"/>
-  <img src="assets/kellycoffsesip.png" width="90"/>
-  <img src="assets/kellyenjoying.webp" width="90"/>
-  <img src="assets/kellyconfused.png" width="90"/>
-  <img src="assets/kellythinking.webp" width="90"/>
-  <img src="assets/kellywoah.gif" width="90"/>
-  <img src="assets/kellytired.png" width="90"/>
-  <img src="assets/kellyyawn.webp" width="90"/>
-  <img src="assets/kellydead.png" width="90"/>
-  <img src="assets/kellyblush.png" width="90"/>
-  <img src="assets/kellypeekaboo.gif" width="90"/>
-  <img src="assets/kellydrooling.png" width="90"/>
-  <img src="assets/kellydaydreaming.png" width="90"/>
-  <img src="assets/kellydumbfounded.png" width="90"/>
-  <img src="assets/kellyembaress.png" width="90"/>
-  <img src="assets/kellyacting.webp" width="90"/>
-
-</div>
+<table>
+  <tr>
+  <td><img src="assets/kellylaugh.png" width="90 !important"/></td>
+  <td><img src="assets/kellycry.png" width="90 !important"/></td>
+  <td><img src="assets/kellysleeping.png" width="90 !important"/></td>
+  <td><img src="assets/kellyannoyed.png" width="90 !important"/></td>
+  <td><img src="assets/kellycute.png" width="90 !important"/></td>
+  <td><img src="assets/kellyhandraise.png" width="90 !important"/></td>
+  <td><img src="assets/kellysimping.webp" width="90 !important"/></td>
+  <td><img src="assets/kellygigle.png" width="90 !important"/></td>
+  <td><img src="assets/kellyidontcare.png" width="90 !important"/></td>
+  <td><img src="assets/kellyheart.png" width="90 !important"/></td>
+  <td><img src="assets/kellypinch.gif" width="90 !important"/></td>
+  <td><img src="assets/kellybweh.webp" width="90 !important"/></td>
+  <td><img src="assets/kellybored.gif" width="90 !important"/></td>
+  <td><img src="assets/kellyoho.webp" width="90 !important"/></td>
+  <td><img src="assets/kellyok.png" width="90 !important"/></td>
+  <td><img src="assets/kellychips.webp" width="90 !important"/></td>
+  <td><img src="assets/kellyjuice.webp" width="90 !important"/></td>
+  <td><img src="assets/kellysalute.png" width="90 !important"/></td>
+  <td><img src="assets/kellyfight.gif" width="90 !important"/></td>
+  <td><img src="assets/kellypout.png" width="90 !important"/></td>
+  <td><img src="assets/kellyvibing.gif" width="90 !important"/></td>
+  <td><img src="assets/kellypat.png" width="90 !important"/></td>
+  <td><img src="assets/kellypolice.png" width="90 !important"/></td>
+  <td><img src="assets/kellypopcorn.gif" width="90 !important"/></td>
+  <td><img src="assets/kellycoffsesip.png" width="90 !important"/></td>
+  <td><img src="assets/kellyenjoying.webp" width="90 !important"/></td>
+  <td><img src="assets/kellyconfused.png" width="90 !important"/></td>
+  <td><img src="assets/kellythinking.webp" width="90 !important"/></td>
+  <td><img src="assets/kellywoah.gif" width="90 !important"/></td>
+  <td><img src="assets/kellytired.png" width="90 !important"/></td>
+  <td><img src="assets/kellyyawn.webp" width="90 !important"/></td>
+  <td><img src="assets/kellydead.png" width="90 !important"/></td>
+  <td><img src="assets/kellyblush.png" width="90 !important"/></td>
+  <td><img src="assets/kellypeekaboo.gif" width="90 !important"/></td>
+  <td><img src="assets/kellydrooling.png" width="90 !important"/></td>
+  <td><img src="assets/kellydaydreaming.png" width="90 !important"/></td>
+  <td><img src="assets/kellydumbfounded.png" width="90 !important"/></td>
+  <td><img src="assets/kellyembaress.png" width="90 !important"/></td>
+  <td><img src="assets/kellyacting.webp" width="90 !important"/></td>
+  </tr>
+</table>
 
 
 ---
