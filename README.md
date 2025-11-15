@@ -41,36 +41,50 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 
 # Kelly Moods
 
-<table>
-  <tr>
-    <td><img src="assets/kellylaugh.png" width="90"/></td>
-    <td><img src="assets/kellycry.png" width="90"/></td>
-    <td><img src="assets/kellysleeping.png" width="90"/></td>
-    <td><img src="assets/kellyannoyed.png" width="90"/></td>
-    <td><img src="assets/kellycute.png" width="90"/></td>
-    <td><img src="assets/kellyhandraise.png" width="90"/></td>
-    <td><img src="assets/kellysimping.webp" width="90"/></td>
-    <td><img src="assets/kellygigle.png" width="90"/></td>
-    <td><img src="assets/kellyidontcare.png" width="90"/></td>
-    <td><img src="assets/kellyheart.png" width="90"/></td>
-    <td><img src="assets/kellypinch.gif" width="90"/></td>
-    <td><img src="assets/kellybweh.webp" width="90"/></td>
-    <td><img src="assets/kellybored.gif" width="90"/></td>
-    <td><img src="assets/kellyoho.webp" width="90"/></td>
-    <td><img src="assets/kellyok.png" width="90"/></td>
-    <td><img src="assets/kellychips.webp" width="90"/></td>
-    <td><img src="assets/kellyjuice.webp" width="90"/></td>
-    <td><img src="assets/kellysalute.png" width="90"/></td>
-    <td><img src="assets/kellyfight.gif" width="90"/></td>
-    <td><img src="assets/kellypout.png" width="90"/></td>
-    <td><img src="assets/kellyvibing.gif" width="90"/></td>
-    <td><img src="assets/kellypat.png" width="90"/></td>
-    <td><img src="assets/kellypolice.png" width="90"/></td>
-    <td><img src="assets/kellypopcorn.gif" width="90"/></td>
-    <td><img src="assets/kellycoffsesip.png" width="90"/></td>
-    <td><img src="assets/kellyenjoying.webp" width="90"/></td>
-  </tr>
-</table>
+<div style="display: flex; gap: 10px; overflow-x: auto; padding: 10px;">
+
+  <img src="assets/kellylaugh.png" width="90 !important"/>
+  <img src="assets/kellycry.png" width="90"/>
+  <img src="assets/kellysleeping.png" width="90"/>
+  <img src="assets/kellyannoyed.png" width="90"/>
+  <img src="assets/kellycute.png" width="90"/>
+  <img src="assets/kellyhandraise.png" width="90"/>
+  <img src="assets/kellysimping.webp" width="90"/>
+  <img src="assets/kellygigle.png" width="90"/>
+  <img src="assets/kellyidontcare.png" width="90"/>
+  <img src="assets/kellyheart.png" width="90"/>
+  <img src="assets/kellypinch.gif" width="90"/>
+  <img src="assets/kellybweh.webp" width="90"/>
+  <img src="assets/kellybored.gif" width="90"/>
+  <img src="assets/kellyoho.webp" width="90"/>
+  <img src="assets/kellyok.png" width="90"/>
+  <img src="assets/kellychips.webp" width="90"/>
+  <img src="assets/kellyjuice.webp" width="90"/>
+  <img src="assets/kellysalute.png" width="90"/>
+  <img src="assets/kellyfight.gif" width="90"/>
+  <img src="assets/kellypout.png" width="90"/>
+  <img src="assets/kellyvibing.gif" width="90"/>
+  <img src="assets/kellypat.png" width="90"/>
+  <img src="assets/kellypolice.png" width="90"/>
+  <img src="assets/kellypopcorn.gif" width="90"/>
+  <img src="assets/kellycoffsesip.png" width="90"/>
+  <img src="assets/kellyenjoying.webp" width="90"/>
+  <img src="assets/kellyconfused.png" width="90"/>
+  <img src="assets/kellythinking.webp" width="90"/>
+  <img src="assets/kellywoah.gif" width="90"/>
+  <img src="assets/kellytired.png" width="90"/>
+  <img src="assets/kellyyawn.webp" width="90"/>
+  <img src="assets/kellydead.png" width="90"/>
+  <img src="assets/kellyblush.png" width="90"/>
+  <img src="assets/kellypeekaboo.gif" width="90"/>
+  <img src="assets/kellydrooling.png" width="90"/>
+  <img src="assets/kellydaydreaming.png" width="90"/>
+  <img src="assets/kellydumbfounded.png" width="90"/>
+  <img src="assets/kellyembaress.png" width="90"/>
+  <img src="assets/kellyacting.webp" width="90"/>
+
+</div>
+
 
 ---
 
