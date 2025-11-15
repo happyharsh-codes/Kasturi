@@ -25,8 +25,7 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 
 # ⚙️ Tech Implants 🧬
 
-<p>
-<kbd>
+<div style="white-space: nowrap; overflow-x: auto;">
 <a href="https://www.python.org/"><img src="https://skillicons.dev/icons?i=python" width="48"/></a>
 <a href="https://discordpy.readthedocs.io/en/stable/"><img src="https://skillicons.dev/icons?i=discord" width="48"/></a>
 <a href="https://www.mongodb.com/"><img src="https://skillicons.dev/icons?i=mongodb" width="48"/></a>
@@ -36,14 +35,12 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 <a href="https://github.com/yt-dlp/yt-dlp"><img src="https://skillicons.dev/icons?i=youtube" width="48"/></a>
 <a href="https://www.koyeb.com/"><img src="https://skillicons.dev/icons?i=cloud" width="48"/></a>
 <a><img src="https://img.icons8.com/ios-filled/50/000000/keyboard.png" width="48"/></a>
-</kbd>
-</p>
+</div>
 
 ---
 
 # Kelly Moods
-<p>
-<kbd>
+<div style="white-space: nowrap; overflow-x: auto;">
   <img src="assets/kellylaugh.png" width="90"/>
   <img src="assets/kellycry.png" width="90"/>
   <img src="assets/kellysleeping.png" width="90"/>
@@ -85,8 +82,7 @@ A multipurpose AI bot who works just by chatting — no commands needed.
   <img src="assets/kellyembaress.png" width="90"/>
   <img src="assets/kellyacting.webp" width="90"/>
   <img src="assets/kellycry.png" width="90"/>
-</kbd>
-</p>
+</div>
 
 ---
 
