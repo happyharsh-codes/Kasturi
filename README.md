@@ -40,7 +40,7 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 ---
 
 # Kelly Moods
-<div style="white-space: nowrap; overflow-x: auto;">
+<kbd style="white-space: nowrap; overflow-x: auto;">
   <img src="assets/kellylaugh.png" width="90"/>
   <img src="assets/kellycry.png" width="90"/>
   <img src="assets/kellysleeping.png" width="90"/>
@@ -82,7 +82,7 @@ A multipurpose AI bot who works just by chatting — no commands needed.
   <img src="assets/kellyembaress.png" width="90"/>
   <img src="assets/kellyacting.webp" width="90"/>
   <img src="assets/kellycry.png" width="90"/>
-</div>
+</kbd>
 
 ---
 
