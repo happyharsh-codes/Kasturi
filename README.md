@@ -40,8 +40,8 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 ---
 
 # Kelly Moods
-<div>
-<kbd style="white-space: nowrap; overflow-x: auto;">
+<div style="white-space: nowrap; overflow-x: auto;">
+<kbd>
   <img src="assets/kellylaugh.png" width="90"/>
   <img src="assets/kellycry.png" width="90"/>
   <img src="assets/kellysleeping.png" width="90"/>
