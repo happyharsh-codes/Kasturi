@@ -28,7 +28,7 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 <table>
   <tr>  
     <td><a href="https://www.python.org/"><img src="https://skillicons.dev/icons?i=python" width="900"></a></td>
-    <td><a href="https://discordpy.readthedocs.io/en/stable/"><img src="https://skillicons.dev/icons?i=discord" style="width: 90px; height: 90px; object-fit: contain;"></a></td>
+    <td><a href="https://discordpy.readthedocs.io/en/stable/"><img src="https://skillicons.dev/icons?i=discord" width="90" object-fit="contain"></a></td>
     <td><a href="https://www.mongodb.com/"><img src="https://skillicons.dev/icons?i=mongodb" width="900"></a></td>
     <td><a href="https://huggingface.co/"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKiAfiXI_9-4SkggBKXzzqsOJtPRFnCdvFMS0dqDD2kA&s=10" width="900"></a></td>
     <td><a href="https://openrouter.ai/"><img src="https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/light/openrouter.png" width="900"></a></td>
