@@ -59,6 +59,7 @@
     "mock": "Mock a user’s message in a sarcastic tone.",
     "ask": "Ask Kelly anything — she’ll reply instantly!",
     "heck": "Playfully roast someone in a fun way.",
+    "mene": "Random meme generator",
 
     "github": "Search for GitHub users or repositories.",
     "yt": "Search for YouTube videos and channels.",
@@ -71,6 +72,7 @@
     "unmute": "Unmute a previously muted from server.",
     "kick": "Kick a member out of the server.",
     "warn": "Send a formal warning to a user.",
+    "warn_action": "Set Warning infringement auto action"
     "ban": "Ban a user from the server.",
     "ban_from_kelly": "Ban someone from talking to Kelly",
     "unban": "Unban a previously banned member.",
@@ -86,6 +88,7 @@
     "set_rank_channel": "Set the channel for rank updates.",
     "set_welcome_channel": "Set the channel for welcome messages.",
     "set_social_channel": "Set the channel for social media updates.",
+    "automod": "Set automod rule for server",
 
     "play": "Play any song or audio from YouTube or Spotify.",
     "queue": "View the current music queue.",
@@ -97,6 +100,7 @@
         
     "rank": "Check your level, XP, and rank in the server.",
     "top": "View the top-ranked members on the leaderboard.",
+    "leaderboard": "Shows leaderboard across the globe",
     "invite": "Get Kelly’s invite link or server invite.",
     "vote": "Vote for Kelly and earn rewards.",
     "afk": "Set an AFK (away from keyboard) status.",
@@ -121,28 +125,92 @@
     "battle": "Battle another player for rewards.",
     "buy": "Purchase an item from the shop.",
     "sell": "Sell an item from your inventory.",
+    "quest": "Complete quest for exciting rewards",
     
     "invites": "Shows your invites profile"
     },
-
+    
+    "id": {
+        
+    },
     "foods": {
+        "Level1": "🧊 🥗 🍬 🍭 🥗 🍞 🥔 🥦 🥬 🧄 🫚 🥫 🧃 🥛",
+        "Level2": "🥥 🍠 🍄‍ 🟫 🧅 🫓 🧇 🥓 🥟 🍼 🍵 🍙 🍡 🥠"
+        "Level3": "🍒 🍎 🍅 🌶️ 🍉 🍊 🥕 🥭 🍋 🍋‍🟩 🥖 🥨 ☕ 🍿 🍯 🍪 🍩 🧋"
+        "Level4" :"🥑 🍍 🥒 🫐 🥐 🥯 🍳 🥪 🍟 🌭 🍕 🫔 🌮 🌯 🥙 🍧",
+        "Level5": "🍌 🌽 🍑 🍆 🍇 🍜 🍤 🍩 🍗 🍖 🍱 🍨 🍻 🥂 🍹 🍺 🍷 🍾"
+    },
+    "plants": {
         "Level1": [],
         "Level2": [],
-        "Level3": []
+        "Level3": [],
+        "Level4": [],
+        "Level5": []
     },
     "assets": {
         "Level1": [],
         "Level2": [],
-        "Level3": []
+        "Level3": [],
+        "Level4": [],
+        "Level5": []
     },
     "tools": {
-        "Level1": [],
+        "Level1": [🎣],
         "Level2": [],
-        "Level3": []
+        "Level3": [],
+        "Level4": [],
+        "Level5": []
     },
     "animals": {
         "Level1": [],
         "Level2": [],
-        "Level3": []
-    }
+        "Level3": [],
+        "Level4": [],
+        "Level5": []
+    },
+    "vehicles": {
+        "Level1": [],
+        "Level2": [],
+        "Level3": [],
+        "Level4": [],
+        "Level5": []
+    },
+    "weapons": {
+        "Level1": [],
+        "Level2": [],
+        "Level3": [],
+        "Level4": [],
+        "Level5": []
+    },
+    "places": {
+        "river": ["fish", ""]
+    },
+    "buy": {
+    },
+    "sell": {
+    },
+    "skill": []
+        "fishing",
+        "running",
+        "hunting",
+        "farming",
+        "robbery",
+        "programming",
+        "medical",
+        "teaching",
+        "math",
+        "science",
+        "geography",
+        "history",
+    ],
+    "jobs": [
+        "engineer",
+        "doctor",
+        "teacher",
+        "mechanic",
+        "archealogist",
+        "sailor",
+        "plumber",
+        "astronaut"
+    ]
 }
