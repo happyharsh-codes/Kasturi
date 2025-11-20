@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import math
 import asyncio
@@ -13,7 +14,7 @@ from random import choice, randint, choices
 import discord
 from discord.ext import commands, tasks
 from discord.ui import View, Button, Select, TextInput
-from discord import Interaction, ButtonStyle, Embed, Color, SelectOption, TextStyle
+from discord import Guild, Interaction, ButtonStyle, Embed, Color, SelectOption, TextStyle
 
 from openai import OpenAI
 from huggingface_hub import InferenceClient
@@ -26,6 +27,9 @@ import yt_dlp
 import sclib
 from lyricsgenius import Genius
 
+from pymongo import MongoClient
+from collections.abc import MutableMapping
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -34,31 +38,88 @@ with open("assets/info.json", "r") as f:
     EMOJI = DATA.get("emoji")
     EMOJI2 = DATA.get("emoji2")
     TIP = DATA.get("tips")
-with open("res/server/inviter.json", "r") as f:
-    INVITER = load(f)
-    print("Loaded: inviter.json")
-with open("res/server/help.json", "r") as f:
-    HELP = load(f)
-    print("Loaded: help.json")
-with open("res/server/profiles.json", "r") as f:
-    Profiles = load(f)
-    print("Loaded: profiles.json")
-with open("res/server/server_settings.json", "r") as f:
-    Server_Settings = load(f)
-    print("Loaded: server_settings.json")
 
-with open("res/kellymemory/relations.json", "r") as f:
-    Relation = load(f)
-    print("Loaded: relations.json")
-with open("res/kellymemory/chats.json", "r") as f:
-    Chats = load(f)
-    print("Loaded: chats.json")
-with open("res/kellymemory/personality.json", "r") as f:
-    Persona = load(f)
-    print("Loaded: personality.json")
-with open("res/kellymemory/behaviors.json", "r") as f:
-    Behaviours = load(f)
-    print("Loaded: behaviors.json")
+# ===== Setting Mongo Db ====
+
+class MongoNestedDict(MutableMapping):
+    def __init__(self, collection, doc_id, data=None, root=None):
+        self.collection = collection
+        self.doc_id = doc_id
+        self.root = root if root else self
+        self._data = data if data is not None else {}
+
+    # ---------- Sync database ----------
+    def _sync(self):
+        if self.root is self:  # only root writes
+            self.collection.update_one(
+                {"_id": self.doc_id},
+                {"$set": {"data": self._data}},
+                upsert=True
+            )
+
+    # ---------- Get ----------
+    def __getitem__(self, key):
+        if key not in self._data:
+            self._data[key] = {}
+            self._sync()
+        value = self._data[key]
+
+        if isinstance(value, dict):
+            return MongoNestedDict(
+                collection=self.collection,
+                doc_id=self.doc_id,
+                data=value,
+                root=self.root
+            )
+        return value
+
+    # ---------- Set ----------
+    def __setitem__(self, key, value):
+        if isinstance(value, dict):
+            value = dict(value)
+        self._data[key] = value
+        self._sync()
+
+    # ---------- Delete ----------
+    def __delitem__(self, key):
+        del self._data[key]
+        self._sync()
+
+    # ---------- Required mapping methods ----------
+    def __iter__(self):
+        return iter(self._data)
+
+    def __len__(self):
+        return len(self._data)
+
+    def __repr__(self):
+        return repr(self._data)
+          
+mongo = MongoClient(os.genenv("MONGO_URI"))
+db = mongo["KellyBotDB"]
+
+def load_mongo_dict(name, part="server"):
+    col = db[part]
+    doc = col.find_one({"_id": name})
+
+    if doc:
+        print(f"Loaded: {name}")
+        return MongoNestedDict(col, name, doc["data"])
+    
+    print(f"Created new: {name}")
+    col.insert_one({"_id": name, "data": {}})
+    return MongoNestedDict(col, name)
+    
+Profiles         = load_mongo_dict("profiles", "server")
+Server_Settings  = load_mongo_dict("server_settings", "server")
+
+Relation         = load_mongo_dict("relations", "kellymemory")
+Chats            = load_mongo_dict("chats", "kellymemory")
+Database         = load_mongo_dict("database", "kellymemory")
+Persona          = load_mongo_dict("personality", "kellymemory")
+Behaviours       = load_mongo_dict("behaviors", "kellymemory")
+
+# ===== Setting up Clients =====
 
 CLIENT0 = InferenceClient(token= os.getenv("HF_KEY"))
 CLIENT1 = OpenAI(base_url="https://openrouter.ai/api/v1",api_key= os.getenv("KEY"))#ai model connection
@@ -71,6 +132,8 @@ CLIENT7 = ApifyClient(os.getenv("KEYZ"))
 GENIUS = Genius(os.getenv("GENIUS"))
 
 clients = [CLIENT0, CLIENT1, CLIENT2, CLIENT3, CLIENT4, CLIENT5, CLIENT6]
+
+# ===== Geting AI Repaonse =====
 
 def getResponse(usermessage, prompt, assistant="", client=0):
     """Universal AI Response Provider"""
@@ -123,9 +186,37 @@ def getResponse(usermessage, prompt, assistant="", client=0):
         
     print(f"#==========Response==========#\nModel: {model}\n\nINPUT: {messages}\nOUTPUT: {response.choices[0].message.content}\n#============================#")
     return response.choices[0].message.content
-
+        
 def timestamp(ctx):
     return ctx.message.created_at.replace(tzinfo=timezone.utc).strftime('%d %B %Y %H:%M')
+
+# ===== Utility Functions =====
+
+async def safe_dm(self, member: discord.Member, embed: discord.Embed = None, message = None, view = None):
+    """Safely tries to DM a user, fallback to channel if DMs are closed."""
+    try:
+        if not member.dm_channel:
+            await member.create_dm()
+        msg = await member.dm_channel.send(content = message,embed=embed, view = view)
+    except:
+        # if dm not possible then ping in server and message
+        return False
+    return msg
+
+def action_embed(self, ctx: commands.Context, title: str = "", desc: str = "",  member=None, color=Color.pink(), text = None, thumbnail = None, url = None):
+    """Creates a consistent embed style for actions."""
+    embed = Embed(title=title, description=desc, color=color)
+    if text:
+        embed.set_footer(text=f"{text} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+    if member:
+        embed.set_author(name=member.name, icon_url=member.avatar)
+    if thumbnail:
+        embed.set_thumbnail(url = thumbnail)
+    if url:
+        embed.url = url
+    return embed
+        
+# ===== BugReportView =====
 
 class BugReportView(View):
     def __init__(self, button, message, view, ctx, replymsg = None):
@@ -191,4 +282,8 @@ class ReportBugModal(discord.ui.Modal):
       except Exception as e:
         await interaction.client.get_user(894072003533877279).send(e)
         
+# ===== Kelly Enoji ====
+def kemoji():
+    return EMOJI[choice(list(EMOJI.keys()))]
+    
 print("__init__ was runned")
