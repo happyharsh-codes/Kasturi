@@ -27,6 +27,7 @@ import yt_dlp
 import sclib
 from lyricsgenius import Genius
 
+import pytz
 from pymongo import MongoClient
 from collections.abc import MutableMapping
 
@@ -188,8 +189,28 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     return response.choices[0].message.content
         
 def timestamp(ctx):
-    return ctx.message.created_at.replace(tzinfo=timezone.utc).strftime('%d %B %Y %H:%M')
+    tz = None
+    if ctx.author and ctx.author.locale:
+        locale = ctx.author.locale.lower()
+        tz_map = {
+            "en-us": "America/New_York",
+            "en-gb": "Europe/London",
+            "en-in": "Asia/Kolkata",
+            "hi": "Asia/Kolkata",
+            "fr": "Europe/Paris",
+            "de": "Europe/Berlin"
+        }
+        if locale in tz_map:
+            tz = pytz.timezone(tz_map[locale])
 
+    if not tz:
+        tz = pytz.utc
+
+    now = datetime.now(tz)
+    formatted = now.strftime("%d %B %Y — %I:%M %p")
+
+    return formatted
+    
 # ===== Utility Functions =====
 
 async def safe_dm(self, member: discord.Member, embed: discord.Embed = None, message = None, view = None):
