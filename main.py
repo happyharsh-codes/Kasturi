@@ -97,7 +97,7 @@ async def start():
     client.add_listener(bot.on_thread_member_join)
     client.add_listener(bot.on_thread_member_remove)
     client.add_listener(bot.on_voice_state_update)
-    client add_listener(bot.on_voice_channel_effect)
+    client.add_listener(bot.on_voice_channel_effect)
     
     client.after_invoke(bot.after_any_command)
     client.before_invoke(bot.before_any_command)
