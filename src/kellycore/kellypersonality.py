@@ -20,8 +20,3 @@ class KellyPersona:
 
     def getTaskSuccessRate(self, msg):
         pass
-
-    def save(self):
-        with open("res/kellymemory/personality.json", "w") as f:
-            from json import dump
-            dump(self.persona, f, indent=4)

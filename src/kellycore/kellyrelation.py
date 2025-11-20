@@ -47,9 +47,3 @@ class KellyRealtion:
         if not str(userid) in Behaviours:
             return ""
         return Behaviours[str(userid)]
-
-    def save(self):
-        with open("res/kellymemory/relations.json", "w") as f:
-            dump(Relation, f, indent=4)
-        with open("res/kellymemory/behaviors.json", "w") as f:
-            dump(Behaviours, f, indent=4)
