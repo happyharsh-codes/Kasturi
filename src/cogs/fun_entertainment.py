@@ -17,13 +17,13 @@ class Fun(commands.Cog):
         emoji = EMOJI[f"kelly{emoji}"]
         await ctx.send(f"{emoji} **|** {joke}")
 
-    """@commands.command(aliases=[])
+    @commands.command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def picture(self, ctx, promt):
+        """Sends a picture based on your prompt"""
         await ctx.send("This command is yet to be made :/")
-    """
     
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
@@ -59,7 +59,16 @@ class Fun(commands.Cog):
         for i in range(20):
             await msg.edit(content=f"{ctx.author.name} hecked on {user.mention} : **{get_heckstring()}**")
             time.sleep(0.01)
-
+    
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1,100, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def meme(self, ctx, user:discord.Member):
+        """Random Meme Generator"""
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+        
+    
 async def setup(bot):
     await bot.add_cog(Fun(bot))
     print("Loaded cogs: Fun")

@@ -1,29 +1,23 @@
 from __init__ import *
 
+def hierarchy_check():
+    async def predicate(ctx, member):
+        if member.id == ctx.guild.owner_id:
+            await ctx.reply(embed = Embed(title="❌ Cannot take action on server owner.", color = Color.red()))
+            return False
+        if member.top_role >= ctx.author.top_role:
+            await ctx.reply(embed = Embed(title="❌ That user has higher or equal role than you.", color = Color.red()))
+            return False
+        if member.top_role >= ctx.guild.me.top_role:
+            await ctx.reply(embed = Embed(title="❌ I cannot act on that user due to role hierarchy.", color = Color.red()))
+            return False
+        return True
+    return commands.check(predicate)
+
 class Moderation(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-
-    # ===== Utility Functions =====
-
-    async def safe_dm(self, member: discord.Member, embed: discord.Embed):
-        """Safely tries to DM a user, fallback to channel if DMs are closed."""
-        try:
-            if not member.dm_channel:
-                await member.create_dm()
-            await member.dm_channel.send(embed=embed)
-        except:
-            return False
-        return True
-
-    def action_embed(self, title: str, desc: str, ctx: commands.Context, member=None, color=Color.pink()):
-        """Creates a consistent embed style for actions."""
-        embed = Embed(title=title, description=desc, color=color)
-        embed.set_footer(text=f"{ctx.command.name.title()} by {ctx.author.name} • {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        if member:
-            embed.set_author(name=member.name, icon_url=member.avatar)
-        return embed
-
+    
     # ===== Kelly-Only Mute =====
 
     @commands.hybrid_command(aliases=["kelly_mute", "kmute"])
@@ -36,10 +30,10 @@ class Moderation(commands.Cog):
         until = (datetime.now(UTC) + timedelta(minutes=minutes)).isoformat()
         Server_Settings[str(ctx.guild.id)]["muted"][str(member.id)] = until
 
-        embed = self.action_embed(
+        embed = action_embed(ctx,
             "🔇 Kelly Chat Mute Applied",
             f"{member.mention} has been muted for **{minutes} minutes**.\n**Reason:** {reason}",
-            ctx, member
+            member, Color.pink(), text=f"Kelly Muted by {ctx.author.name}"
         )
         await ctx.send(embed=embed)
 
@@ -51,26 +45,22 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(moderate_members=True)
     async def mute(self, ctx: commands.Context, member: discord.Member, minutes: int, *, reason: str):
         """Server mute — prevents member from sending messages."""
-        try:
-            duration = timedelta(minutes=minutes)
-            await member.timeout(duration, reason=reason)
+        duration = timedelta(minutes=minutes)
+        await member.timeout(duration, reason=reason)
 
-            embed_dm = Embed(
-                title=f"You have been muted in {ctx.guild.name}",
-                description=f"**Reason:** {reason}\nPlease follow server rules.",
-                color=Color.red()
+        embed_dm = Embed(
+            title=f"You have been muted in {ctx.guild.name}",
+            description=f"**Reason:** {reason}\nPlease follow server rules.",
+            color=Color.red()
+        )
+        await safe_dm(member, embed_dm)
+
+        embed = action_embed(ctx,
+            "🔇 Member Muted",
+            f"{member.mention} muted for **{minutes} minutes**.\n**Reason:** {reason}",
+            member, Color.pink(), text=f"Muted by {ctx.author.name}"
             )
-            await self.safe_dm(member, embed_dm)
-
-            embed = self.action_embed(
-                "🔇 Member Muted",
-                f"{member.mention} muted for **{minutes} minutes**.\n**Reason:** {reason}",
-                ctx, member
-            )
-            await ctx.send(embed=embed)
-
-        except Exception as e:
-            await ctx.send(f"❌ Could not mute {member.mention}. Error: `{e}`")
+        await ctx.send(embed=embed)
 
     # ===== Kelly-Only Unmute =====
 
@@ -86,12 +76,15 @@ class Moderation(commands.Cog):
 
         muted.pop(str(member.id))
 
-        embed = self.action_embed(
+        embed = action_embed(ctx,
             "🔊 Kelly Chat Unmuted",
             f"{member.mention} can now talk to Kelly again.\n**Reason:** {reason}",
-            ctx, member, Color.green()
+            member, Color.green(), text = "Unmuted by {ctx.author.name}"
         )
         await ctx.send(embed=embed)
+        
+        embed = action_embed(ctx, "🔊 Member Unmuted from Kelly Chat", f"You can chat with Kelly again in any server. Please be respectful and follow the chat rules and policy.", member, Color.green(), text= f"Kelly Unmuted by {ctx.author.name}" )
+        await safe_dm(member, embed)
 
     # ===== Server Unmute =====
 
@@ -106,15 +99,13 @@ class Moderation(commands.Cog):
 
         await member.edit(timed_out_until=None, reason=reason)
 
-        embed_dm = Embed(
-            title=f"You have been Unmuted in {ctx.guild.name}",
-            description=f"**Reason:** {reason}",
-            color=Color.green()
-        )
-        embed_dm.set_footer(text=f"Unmuted by {ctx.author.name}")
-        await self.safe_dm(member, embed_dm)
+        embed_dm = action_embed(ctx,
+            f"You have been Unmuted in {ctx.guild.name}",
+            f"**Reason:** {reason}",
+            member, Color.green(), text=f"Unmuted by {ctx.author.name}")
+        await safe_dm(member, embed_dm)
 
-        embed = self.action_embed("🔊 Member Unmuted", f"{member.mention} is unmuted.", ctx, member, Color.green())
+        embed = action_embed(ctx, "🔊 Member Unmuted", f"{member.mention} is unmuted.", member, Color.green(), text= f"Unmuted by {ctx.author.name}")
         await ctx.send(embed=embed)
 
     # ===== Kick =====
@@ -123,21 +114,18 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
+    @hierarchy_check()
     async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Kick a member from the server."""
-        embed_dm = Embed(
-            title=f"You were kicked from {ctx.guild.name}",
-            description=f"**Reason:** {reason}",
-            color=Color.red()
-        )
+        embed_dm = action_embed(ctx, f"You were kicked from {ctx.guild.name}", f"**Reason:** {reason}\nPlease Follow the guild rules and regulations.", member, Color.red(), text = f"Kicked by {ctx.author.name}")
         await self.safe_dm(member, embed_dm)
 
         await ctx.guild.kick(member, reason=reason)
 
-        embed = self.action_embed(
+        embed = action_embed(ctx,
             "👢 Member Kicked",
             f"{member.mention} was kicked.\n**Reason:** {reason}",
-            ctx, member
+            member, Color.pink(), text= f"Kicked by {ctx.author.name}"
         )
         await ctx.send(embed=embed)
 
@@ -147,123 +135,234 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(moderate_members=True)
     @commands.bot_has_permissions(moderate_members=True)
+    @hierarchy_check()
     async def warn(self, ctx, member: discord.Member, *, reason: str):
         """Send official warning to a member."""
-        embed_dm = Embed(
-            title=f"You were warned in {ctx.guild.name}",
-            description=f"**Reason:** {reason}",
-            color=Color.orange()
+        embed_dm = action_embed(ctx, f"You were warned in {ctx.guild.name}",f"**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}"
         )
         await self.safe_dm(member, embed_dm)
 
-        embed = self.action_embed("⚠️ Member Warned", f"{member.mention}\n**Reason:** {reason}", ctx, member, Color.orange())
+        embed = action_embed(ctx, "⚠️ Member Warned", f"{member.mention}\n**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}")
         await ctx.send(embed=embed)
+        
+        if str(member.id) in Server_Settings[str(ctx.guild.id)]["warn"]:
+            Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)] += 1
+        else:
+            Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)] = 1
+        if Server_Settings[str(ctx.guild.id)].get("warn_action", {}):
+            warn_action =Server_Settings[str(ctx.guild.id)].get("warn_action")
+            warn_no = Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)]
+            if str(warn_no) not in warn_action:
+                return
+            action = warn_action[str(warn_no)]
+            if "Mute" in action:
+                await ctx.invoke(ctx.bot.get_command("mute"), int(action.split()[2]), "Warn Limit Exceeded")
+            elif "Kick" in action:
+                await ctx.invoke(ctx.bot.get_command("kick"), member, "Warn Limit Exceeded")
+            elif "Ban" in action:
+                await ctx.invoke(ctx.bot.get_command("ban"), member, "Warn Limit Exceeded")
+            elif "Assign Role" in action:
+                try:
+                    role = await member.guild.fetch_role(int(action.split()[2]))
+                    await ctx.invoke(ctx.bot.get_command("assignrole"), member, role)
+                except:
+                    await ctx.send("Cannot assign role ```{action.split()[2]}``` on warn limit exceed. Please report this issue or Reset warn action using `k warn_action`")
+        
 
+    @commands.hybrid_command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_roles = True, moderate_members=True)
+    @commands.bot_has_permissions(manage_roles = True, moderate_members=True)
+    @hierarchy_check()
+    async def warn_action(self, ctx, member: discord.Member, *, reason: str):
+        """Adds Warn Infringement action when warn limit hits. Warn Automated actions can be : Mute, Kick, Ban, Assign Role"""
+        warn_no_select = Select(custom_id="warn_no", placeholder="Select Warn Limit", options=[SelectOption(label=str(i),value=str(i)) for i in range(1,11)], max_values=1, min_values=1)
+        actions = ["Mute", "Kick", "Ban", "Assign Role"]
+        action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
+        mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(1,61)], max_values=1, min_values=1)
+        role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=[SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles], max_values=1, min_values=1)
+        add = Button(style = ButtonStyle.green, label= "Add", custom_id="add", disabled = True)
+        done = Button(style = ButtonStyle.secondary, label= "Done", custom_id="done")
+       
+        view = View(timeout = 45)
+        view.add_item(warn_no_select)
+        view.add_item(action_select)
+        view.add_item(add)
+        async def timeout():
+            nonlocal msg, em, view 
+            for children in view.children:
+                children.disabled = True
+            em.color = Color.light_grey()
+            await msg.edit(embed=em, view=view)
+        
+        warn_action = Server_Settings[str(ctx.guild.id)].get("warn_action", [])
+        warn_action_text = ""
+        if warn_action:
+            for no, action in warn_action.items():
+                if "Role" in action:
+                    try:
+                        role = await ctx.guild.fetch_role(int(action.split()[2]))
+                        action = f"Assign Role {role.mention}"
+                    except:
+                        pass
+                warn_action_text += f"{no} - {action.title()}\n"
+        else:
+            warn_action_text = "No action set"
+        
+        em = Embed(title="Set Warn Action", description= "Set automated actions that will excey when user exeeds warn limit. You can set more than one action.\n**Warn Actions:**\n```{warn_action_text}```", color = Color.pink())
+        em.set_footer(text= f"Warn Action setup by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
+        
+        async def on_warn_no_select(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
+            nonlocal em, view, add, done, warn_no_select, action_select, mute_duration_select, role_add_select
+            values = interaction.data.get("values", [])
+            for option in warn_no_select.options:
+                option.default = option.value in values
+            action_select.disabled = False
+            
+            await interaction.response.edit_message(view=view)
+        
+        async def on_action_select(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
+            nonlocal em, view, add, done, warn_no_select, action_select, mute_duration_select, role_add_select
+            values = interaction.data.get("values", [])
+            for option in action_select.options:
+                option.default = option.value in values
+            if "Mute" in values or "Assign Role" in values:
+                if "Mute" in values:
+                    item = mute_duration_select
+                else:
+                    item = role_add_select
+                view.clear_items()
+                view.add_item(warn_no_select)
+                view.add_item(action_select)
+                view.add_item(item)
+                view.add_item(add)
+            else:
+                add.disabled = False
+            
+            await interaction.response.edit_message(view=view)
+        
+        async def on_mute_duration_select(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
+            nonlocal em, view, add, done, warn_no_select, action_select, mute_duration_select, role_add_select
+            values = interaction.data.get("values", [])
+            for option in mute_duration_select.options:
+                option.default = option.value in values
+            add.disabled = False
+            
+            await interaction.response.edit_message(view=view)
+        
+        async def on_role_add_select(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
+            nonlocal em, view, add, done, warn_no_select, action_select, mute_duration_select, role_add_select
+            values = interaction.data.get("values", [])
+            for option in role_add_select.options:
+                option.default = option.value in values
+            add.disabled = False
+            
+            await interaction.response.edit_message(view=view)
+        
+        async def on_add(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
+            nonlocal em, view, add, done, warn_no_select, action_select, mute_duration_select, role_add_select
+            if add.label == "Add More":
+                view.clear_items()
+                view.add_item(warn_no_select)
+                view.add_item(action_select)
+                view.add_item(add)
+                add.label = "Add"
+                add.disabled = True
+                
+                await interaction.response.edit_message(embed = em, view=view)
+                return
+            values = []
+            for select in [warn_no_select, action_select, mute_duration_select, role_add_select]:
+                for option in select.options:
+                    if option.default:
+                        option.default = False
+                        values.append(option.value)
+                        break
+                else:
+                    values.append(None)
+                    
+            warn_action = Server_Settings[str(ctx.guild.id)].get("warn_action", [])
+            text = values[1]
+            if "Mute" in text:
+                text += f" for {values[2]} minutes"
+            elif "Assign Role" in text:
+                text += f" {values[3]}"
+            warn_action[values[0]] = text
+            warn_action_text = ""
+            for no, action in warn_action.items():
+                warn_action_text += f"{no} - {action.title()}\n"
+            Server_Settings[str(ctx.guild.id)]["warn_action"] = warn_action
+            
+            em = Embed(title="Set Warn Action", description= "Set automated actions that will excey when user exeeds warn limit. You can set more than one action.\n**Warn Actions:**\n```{warn_action_text}```", color = Color.pink())
+            em.set_footer(text= f"Warn Action setup by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
+        
+            add.label = "Add More"
+            view.clear_items()
+            view.add_item(done)
+            view.add_item(add)
+            
+            await interaction.response.edit_message(embed = em, view=view)
+        
+        async def on_done(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
+  
+            await interaction.response.edit_message(view=None)
+        
+        view.on_timeout = timeout
+        warn_no_select.callback = on_warn_no_select
+        action_select.callback = on_action_select
+        role_add_select.callback = on_role_add_select
+        mute_duration_select.callback = on_mute_duration_select
+        add.callback = on_add
+        done.callback = on_done
+        
+        msg = await ctx.reply(embed = em, view = view)
+    
     # ===== BAN / UNBAN ==== 
 
     @commands.hybrid_command(aliases= [])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
+    @hierarchy_check()
     async def ban(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Bans a member permanently 🚫  
         Stops them from rejoining until unbanned.
         Moderators Only - Please consider case properly before using this command."""
-        em = Embed(title="Member Banned", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.", color=Color.pink())
-        em.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        em.set_author(name=member.name, icon_url= member.avatar)
+        em = action_embed(ctx, "Member Banned", f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.",member, color=Color.pink(), text=f"Banned by {ctx.author.name}")
         await ctx.send(embed=em)
-        em = Embed(title= f"You were Banned from {ctx.guild.name}", description= f"**Reason:** {reason}", color = Color.red())
-        em.set_footer(text = "If you believe this was a mistake please forgive us.")
-        view = View()
-        button = Button(style=ButtonStyle.primary, custom_id= "revive", label = "Click to Say your Last Words")
         
-        class LastWordsModal(discord.ui.Modal):
-            
-            def __init__(self, member, msg):
-                super().__init__(title="Last Words Apology Form")
-                self.input_box = TextInput(label="Enter Your Last Words Here:", custom_id="last_words", required= True, min_length=5, max_length=1024, style=TextStyle.paragraph, default="I'm sorry")
-                self.add_item(self.input_box)
-                self.member = member
-                self.msg = msg 
-                
-            async def on_submit(self, interaction: Interaction):
-              try:
-                member = self.member
-                msg = self.msg
-                last_words = self.input_box.value
-                owner = ctx.bot.get_user(ctx.guild.owner_id)
-                em = Embed(title = f"{member.display_name} | {member.name} | {member.id} - \nSays their Last Words After getting Banned.", description= f"```{last_words}```", color = Color.blue())
-                em.set_thumbnail(url=member.avatar)
-                em.set_footer(text= "If you think this was a mistake then please ignore.")
-                try:
-                    dm_channel = owner.dm_channel
-                    if not dm_channel:
-                        dm_channel = await owner.create_dm()
-                    await dm_channel.send(embed=em)
-                    moderators = Server_Settings[str(ctx.guild.id)]["moderators"]
-                    if moderators:
-                        for mod in moderators:
-                            if int(mod) == member.id:
-                                continue 
-                            user = ctx.bot.get_user(int(mod))
-                            if not user:
-                                continue 
-                            dm_channel = user.dm_channel
-                            if not dm_channel:
-                                dm_channel = await user.create_dm()
-                            try:
-                                await dm_channel.send(embed=em)
-                            except:
-                                pass
-                except:
-                    pass
-                view = View()
-                view.add_item(Button(style=ButtonStyle.secondary,label="Last Words Submitted",custom_id="submitted",disabled=True))
-                await msg.edit(view=view)
-                await msg.channel.send("**Your Last Words were recorded and sent to the Guild Owner and Guild Moderators**")
-                await interaction.response.defer()
-              except Exception as e:
-                await ctx.bot.get_user(894072003533877279).send(str(e))
-                await interaction.response.defer()
-        
-        async def last_words(interaction: Interaction):
-          try: 
-            nonlocal msg
-            modal = LastWordsModal(member, msg)
-            await interaction.response.send_modal(modal)     
-          except Exception as e:
-            await ctx.bot.get_user(894072003533877279).send(str(e))
-            await interaction.response.defer()
-        
-        button.callback = last_words
-        view.add_item(button)
-        try:
-            dm_channel = member.dm_channel
-            if not dm_channel:
-                dm_channel = await member.create_dm()
-            msg = await dm_channel.send(embed=em, view=view)
-        except:
-            pass
         await ctx.guild.ban(user=member, reason=reason, delete_message_days=0)
 
     @commands.hybrid_command(aliases=["kelly_ban", "kban"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
+    @hierarchy_check()
     async def ban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Just Bans a member from ever Chatting to Kelly Not from Server 🚫  
         Now user can never chat with Kelly, unless unbanned."""
         embed = Embed(title = f"You have been Banned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
-        embed.set_footer(text=f"Kelly Ban by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Kelly Ban by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
-        try:
-            dm_channel = member.dm_channel
-            if not dm_channel:
-                dm_channel = await member.create_dm()
-            await dm_channel.send(embed=embed)
-        except:
-            await ctx.send(content= f"{member.mention}", embed=embed)
+        await safe_dm(member, embed)
         
         Server_Settings[str(ctx.guild.id)]["block_list"].append(member.id)
         em = Embed(title="Member Banned From Kelly Talkings", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
@@ -285,17 +384,7 @@ class Moderation(commands.Cog):
                 em = Embed(title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
                 em.set_footer(text=f"Unbanned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
-                dm_channel = entry.user.dm_channel
-                if not dm_channel:
-                    dm_channel = await entry.user.create_dm()
-                try:
-                    invite_link = Server_Settings[str(ctx.guild.id)]["invite_link"]
-                    em = Embed(title = f"You were Unbanned from {ctx.guild.name}", description= f"You just got unbanned from the guild.\nClick here to join again\n{invite_link}", color=Color.green())
-                    em.set_footer(text=f"Unbanned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
-                    await dm_channel.send(embed = em)
-                except:
-                    pass
-                return
+                
         await ctx.send("User not found in ban list.")
 
     @commands.hybrid_command(aliases=["kelly_unban", "kunban"])
@@ -307,16 +396,9 @@ class Moderation(commands.Cog):
         Now they can start chatting with Kelly again.
         This is not related with server."""
         embed = Embed(title = f"You have been Unbanned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
-        embed.set_footer(text=f"Kelly Umban by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Kelly Umban by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
-        try:
-            dm_channel = member.dm_channel
-            if not dm_channel:
-                dm_channel = await member.create_dm()
-            await dm_channel.send(embed=embed)
-        except:
-            await ctx.send(content= f"{member.mention}", embed=embed)
-        
+        await safe_dm(member, embed)
         
         Server_Settings[str(ctx.guild.id)]["block_list"].remove(member.id)
         em = Embed(
@@ -328,53 +410,113 @@ class Moderation(commands.Cog):
         em.set_author(name=member.name,icon_url=member.avatar)
         await ctx.send(embed=em)
     
+    # ===== ASSIGN ROLE / REMOVE ROLE ====
+    
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
+    @hierarchy_check() 
     async def assignrole(self, ctx: commands.Context, member: discord.Member, role: discord.Role):
         """Assigns given role to the user.
         Given role hierarchy should be equivalent to or less than your role."""
         embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: {role.mention}\n**", color = Color.blue())
-        embed.set_footer(text=f"Assigned Role by {ctx.author.name} | <{timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"Assigned Role by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
-        try:
-            dm_channel = member.dm_channel
-            if not dm_channel:
-                dm_channel = await member.create_dm()
-            await dm_channel.send(embed=embed)
-        except:
-            await ctx.send(content= f"{member.mention}", embed=embed)
+        await safe_dm(member, embed)
         
         await member.add_roles(role)
         em = Embed(title="Role Assigned", description=f"{role.mention} assigned to {member.mention}", color=Color.green())
         em.set_footer(text=f"Role Assigned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
+        
+    @commands.hybrid_command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_roles=True)
+    @commands.bot_has_permissions(manage_roles=True)
+    @hierarchy_check() 
+    async def removerole(self, ctx: commands.Context, member: discord.Member, role: discord.Role):
+        """Assigns given role to the user.
+        Given role hierarchy should be equivalent to or less than your role."""
+        embed = Embed(title = f"You have been detained from your Role in {ctx.guild.name}", description = f"**Role**: {role.mention}\n**", color = Color.blue())
+        embed.set_footer(text=f"Role Removed by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        
+        await safe_dm(member, embed)
+        
+        await member.remove_roles(role)
+        em = Embed(title="Role Removed", description=f"{role.mention} removed from {member.mention}", color=Color.green())
+        em.set_footer(text=f"Role Removed by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        await ctx.send(embed=em)
+
+    # ===== DEAFEN / UNDEAFEN =====
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(deafen_members=True)
     @commands.bot_has_permissions(deafen_members=True)
-    async def deafen(self, ctx: commands.Context, member: discord.Member, minutes: int, channel: discord.VoiceChannel):
+    @hierarchy_check()
+    async def deafen(self, ctx: commands.Context, member: discord.Member, minutes: int = 0, channel: discord.VoiceChannel = None):
         """Deafens a member from all voice chat 🔇  
-        Blocks audio from VC entirely.
-        If voice channel is specified works for that channel only otherwise defens from all voice channel by default."""
+        If channel is provided, member will be moved there (Discord does not support channel-specific deaf)."""
+    
+        # Apply deaf
         await member.edit(deafen=True)
-        status = "Deafened"
-        em = Embed(title="Voice Status Changed", description=f"{member.mention} was {status.lower()} by {ctx.author.mention}.", color=Color.light_gray())
+
+        # If channel specified, move them there
+        if channel:
+            try:
+                await member.move_to(channel)
+            except:
+                pass
+
+        # Auto-undeafen timeout
+        if minutes > 0:
+            async def undeafen_later():
+                await asyncio.sleep(minutes * 60)
+                try:
+                    await member.edit(deafen=False)
+                except:
+                    pass
+         
+            asyncio.create_task(undeafen_later())
+
+        # Embed
+        em = Embed(
+            title="Member Deafened 🔇",
+            description=f"{member.mention} has been deafened by {ctx.author.mention}.",
+            color=Color.dark_gray()
+        )
+        if minutes > 0:
+            em.add_field(name="Duration", value=f"{minutes} minutes")
+
+        if channel:
+            em.add_field(name="Voice Channel", value=channel.mention)
+  
         em.set_footer(text=f"Deafened by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+    
         await ctx.send(embed=em)
+
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(deafen_members=True)
     @commands.bot_has_permissions(deafen_members=True)
     async def undeafen(self, ctx: commands.Context, member: discord.Member):
-        """Undeafens user from all Voice Channels 📢
-        If defened already."""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-        
-        
+        """Undeafens user from voice channels 📢"""
+   
+        await member.edit(deafen=False)
+
+        em = Embed(
+            title="Member Undeafened 📢",
+            description=f"{member.mention} has been undeafened by {ctx.author.mention}.",
+            color=Color.green()
+        )
+        em.set_footer(text=f"Undeafened by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+
+        await ctx.send(embed=em)
+    
+    # ===== CLEAN / PURGE / SLOWMODE ====
+    
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
@@ -400,30 +542,75 @@ class Moderation(commands.Cog):
     async def purge(self, ctx: commands.Context, amount: int = 5):
         """Deletes given no of messages from the channel."""
         deleted = await ctx.channel.purge(limit=amount + 1)
-        await ctx.send(embed = Embed(title=f"Purged {len(deleted) - 1} messages."), delete_after=5)
+        await ctx.send(embed = Embed(title=f"Purged {len(deleted) - 1} messages."), delete_after=6)
 
+    # ===== LOCK / UNLOCK ====
+    
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def lock(self, ctx: commands.Context, minutes: int = 0):
         """Locks the current channel 🔒  
-        Prevents members from sending messages.
-        However members with special permission can stil send messages.
-        If time is provided unlocks automatically after the expiry time otherwise remains locked unless unlocked with the `unlock` command."""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+         If minutes are given, unlocks automatically after the time."""
 
+        channel = ctx.channel
+        overwrite = channel.overwrites_for(ctx.guild.default_role)
+ 
+        if overwrite.send_messages is False:
+            return await ctx.send(embed=Embed(description="🔒 This channel is already locked."))
+
+        overwrite.send_messages = False
+        await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+
+        em = Embed(
+            title="Channel Locked 🔒",
+            description=f"{channel.mention} has been locked by {ctx.author.mention}.",
+            color=Color.red()
+        )
+
+        if minutes > 0:
+            em.add_field(name="Auto-Unlock", value=f"{minutes} minutes")
+ 
+            async def auto_unlock():
+                await asyncio.sleep(minutes * 60)
+                try:
+                    overwrite = channel.overwrites_for(ctx.guild.default_role)
+                    overwrite.send_messages = None
+                    await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+                except:
+                    pass
+
+            asyncio.create_task(auto_unlock())
+
+        await ctx.send(embed=em)
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def unlock(self, ctx: commands.Context):
-        """Unlocks the current channel 🔓  
-        Restores chat access for members."""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+        """Unlocks the current channel 🔓"""
 
+        channel = ctx.channel
+        overwrite = channel.overwrites_for(ctx.guild.default_role)
+
+        if overwrite.send_messages is None or overwrite.send_messages is True:
+            return await ctx.send(embed=Embed(description="🔓 This channel is already unlocked."))
+
+        overwrite.send_messages = None
+        await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
+
+        em = Embed(
+            title="Channel Unlocked 🔓",
+            description=f"{channel.mention} has been unlocked by {ctx.author.mention}.",
+            color=Color.green()
+        )
+
+        await ctx.send(embed=em)
         
+    # ===== SET UP CHANNELS ====
+    
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_guild=True)
@@ -443,9 +630,153 @@ class Moderation(commands.Cog):
         """Sets the welcome message channel 🎉  
         Greets new members automatically here.
         Sets up custom Welcome Message and design it."""
-        Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = channel.id
-        em = Embed(title="Welcome Channel Set :white_check_mark:", description=f"Welcome Channel set successfully.\nNow you'll recieve exclusive messages on members joining and leaving the server in {channel.mention}\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
-        await ctx.send(embed=em)
+        welcome_theme_no = 1
+        welcome_message = ""
+        welcome_channel = 0
+        
+        class WelcomeModal(discord.ui.Modal):
+            def __init__(self):
+                super().__init__(title="Set Welcome Message")
+                self.input_box = TextInput(label="Edit the Format and Submit.",custom_id="welcome", default= "Welcome to <guild_name>\n✦ <Text 1>- eg: Take Roles\n✦ <Text 2> - eg Read Rules\n✦ <Text 3> - eg Have Fun Here", required= True, min_length=2, max_length=512, style=TextStyle.paragraph)
+                self.add_item(self.input_box)
+            
+            async def on_submit(self, interaction: Interaction):
+              try:
+                nonlocal welcome_message, em, view, proceed_button, channel_select, msg, channel_select2, next_button
+                welcome_message = self.input_box.value
+                channel_select2.row = 0
+                channel_select.row = 1
+                proceed_button.row = 2
+                proceed_button.label = "Select Welcome Channel"
+                proceed_button.disabled = True
+                display_msg = welcome_message[welcome_message.find('\n')+1:]
+                em.description = f"Welcome message set sucessfully.\n Now First select your `redirect to` channels orderwise. These are the channels that each line in welcome message will redirect to. ```{display_msg}```Next select the channel in which you want to send welcome messages."
+                proceed_button.callback = next_button
+                proceed_button.disabled = True
+                view.clear_items()
+                view.add_item(channel_select2)
+                view.add_item(channel_select)
+                view.add_item(proceed_button)
+                await msg.edit(embed=em, view=view)
+                await interaction.response.defer()
+                  
+              except Exception as e:
+                await interaction.client.get_user(894072003533877279).send(e)
+                
+        go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        proceed_button = Button(style=ButtonStyle.success ,lable="Select Theme", custom_id="proceed", row=0)
+        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
+        channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values= 5 if len(ctx.guild.text_channels) > 5 else len(ctx.guild.text_channels), min_values=1)
+        
+        view = View(timeout = 45)
+        view.add(go_left)
+        view.add(proceed_button)
+        view.add(go_right)
+        
+        async def process_buttons(interaction: discord.Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return 
+            nonlocal WelcomeModal
+            modal = WelcomeModal()
+            await interaction.response.send_modal(modal)
+                
+        async def next_button(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return 
+            nonlocal welcome_message, channel_select, channel_select2, welcome_theme_no, em, welcome_channel
+            temp = welcome_message.split("\n")[1:]
+            welcome_message = welcome_message.split("\n")[0]
+            values = [option.value for option in channel_select2.options if option.default]
+            for index, i in enumerate(temp):
+                if index < len(values):
+                    welcome_message += f"\n{i.split()[0]} [**{i[2:]}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
+                else:
+                    welcome_message += f"\n{i.split()[0]} **{i[2:]}**"
+            for option in channel_select.options:
+                if option.default:
+                    welcome_channel = int(option.value)
+                    option.default = False
+                    break
+            em.description= "Welcome channel set up perfectly.\nYou can have a preview here:"
+            em.set_image(url=None)
+            part1 = welcome_message.split("\n")[0]
+            em2 = Embed(title= f"<:heeriye:1428773558062153768> **{part1}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
+            em2.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)
+            em2.set_thumbnail(url= ctx.author.avatar)
+            em2.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
+            em2.set_footer(text=f"﹒ ﹒ ⟡ {ctx.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
+            Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
+            Server_Settings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
+            Server_Settings[str(ctx.guild.id)]["welcome_message"] = welcome_message
+            await interaction.response.edit_message(embeds=[em,em2])
+           
+        async def timeout():
+            nonlocal msg, em, view 
+            for children in view.children:
+                children.disabled = True
+            em.color = Color.light_grey()
+            await msg.edit(embed=em, view=view)
+
+        async def go_callback(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return 
+            nonlocal welcome_theme_no, go_left, go_right,em
+            if interaction.data["custom_id"] == "go_left":
+                welcome_theme_no -= 1
+            else:
+                welcome_theme_no += 1
+            go_left.disabled = welcome_theme_no == 1
+            go_right.disabled = welcome_theme_no == 18
+            em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
+            await interaction.response.edit_message(embed=em, view=view)
+       
+        async def select_channels(interaction: Interaction):
+          try:
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return 
+            nonlocal proceed_button, view, channel_select, channel_select2
+            proceed_button.disabled = False
+            selected_values = interaction.data.get("values",[])
+            for val in selected_values:
+                for option in channel_select.options:
+                  if option.value == val:
+                    option.default = True
+            await interaction.response.edit_message(view=view)
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
+        async def select_channels2(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return 
+            nonlocal channel_select2
+            selected_values = interaction.data["values"]
+            for val in selected_values:
+                for option in channel_select2.options:
+                    if option.value == val:
+                        option.default = True
+            await interaction.response.defer()
+        
+        go_left.callback = go_callback
+        go_right.callback = go_callback
+        proceed_button.callback = process_buttons
+        skip_button.callback = process_buttons
+        channel_select.callback = select_channels
+        channel_select2.callback = select_channels2
+        view.on_timeout = timeout
+        view.add_item(proceed_button)
+        
+        em = Embed(color = Color.green())
+        em.title="Set Welcome message"
+        em.description="Set your beautiful welcome message Kelly will send whenever a new user joins the guild.\nSelect your theme from here."
+        em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_1.gif")
+        
+        msg = await ctx.reply(embed=em,view=view)
 
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -454,8 +785,290 @@ class Moderation(commands.Cog):
     async def set_social_channel(self, ctx: commands.Context):
         """Sets the social media updates channel 🌐  
         Posts updates from YouTube, Instagram, Twitter."""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+        social_channel = 0
+        class SocialModal(discord.ui.Modal):
+            def __init__(self):
+                super().__init__(title="Set Social Media/ Leave blank for none")
+                self.input_box1 = TextInput(label="YouTube Link", custom_id="yt", placeholder="Enter your YouTube Channel Link:", required= False, min_length=0, max_length=50, style=TextStyle.short, default="idk")
+                self.input_box2 = TextInput(label="Insta Id", custom_id="insta", placeholder="Enter your Insta id", required= False, min_length=0, max_length=20, style=TextStyle.short, default="ion have")
+                self.input_box3 = TextInput(label="Twitter Id", custom_id="twitter", placeholder="Enter your Twitter Id: ", required= False, min_length=0, max_length=20, style=TextStyle.short, default="idgaf")
+                self.add_item(self.input_box1)
+                self.add_item(self.input_box2)
+                self.add_item(self.input_box3)
+                
+            async def on_submit(self, interaction: Interaction):
+              try:
+                nonlocal em, view, proceed_button, msg, channel_select, social_channel
+                yt = self.input_box1.value
+                insta = self.input_box2.value
+                twitter = self.input_box3.value
+                em.title="Social Media Notification Set Successfully ✅"
+                em.description=f"Now youl get your updates in the <#{social_channel}>."
+                em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
+                Server_Settings[str(ctx.guild.id)]["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
+                await msg.edit(embed=em, view=view)
+                await interaction.response.defer()
+              except Exception as e:
+                await interaction.client.get_user(894072003533877279).send(e)
  
+        em = Embed(color = Color.green())
+        em.title="Set up Social Media Notification"
+        em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
+        em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
+         
+        proceed_button = Button(style= ButtonStyle.green, lable = "Set Social Media", custom_id= "social", disabled = True)
+        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
+        view = View(timeout = 40)
+        view.add_item(channel_select)
+        view.add_item(proceed_button)
+        msg = await ctx.reply(embed=em, view=view)
+         
+        async def timeout():
+             nonlocal em, view, msg
+             em.color = Color.light_grey()
+             for children in view.children:
+                 children.disabled = True
+             await msg.edit(embed = em, view= view)
+              
+        async def on_click(interaction: Interaction):
+            modal = SocialModal()
+            await interaction.response.send_modal(modal)
+            
+        view.on_timeout = timeout
+        proceed_button.callback = on_click
+        
+        async def select_channels(interaction: Interaction):
+            if interaction.user.id != ctx.author.id:
+                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return 
+            nonlocal proceed_button, view, channel_select, social_channel
+            proceed_button.disabled = False
+            selected_values = interaction.data.get("values",[])
+            for val in selected_values:
+                for option in channel_select.options:
+                  if option.value == val:
+                    option.default = True
+                    social_channel = int(val)
+            await interaction.response.edit_message(view=view)
+             
+    # ===== AUTOMOD SETUP ====
+    @commands.hybrid_command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_guild=True)
+    @commands.bot_has_permissions(manage_guild=True)
+    async def automod(self, ctx: commands.Context):
+        """Sets the automod services for the guild."""
+        add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add")
+        skip_btn = Button(style=ButtonStyle.secondary, label="Skip", custom_id="skip")
+        raid_nuke_protect = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in ["User Join rate Monitor", "Anti-Rapid Role Delete", "Anti-Channel Wipe", "Anti-Webhook Spam", "Auto Lockdown", "Auto Unverified Kick", "Alerts to Moderation Channel"]], max_values=7, min_values=1)
+        
+        
+        em = Embed(title= "Automod Setup",color = Color.pink())
+        em.set_footer(text=f"Initiated by Moderator: {ctx.author.name} | {timestamp(ctx)} | Aura++", icon_url = ctx.author.avatar)
+        page = 1
+        
+        feature = {
+            "spam_detector": "Automau Detect spam in channels and takes action. Whenever spam is detected auto deletes messages and mutes the member.",
+            "chat_rate_limiter": "",
+            "caps block": "",
+            "link_filtre": "",
+            "nsfw_filtre": "",
+            "toxicity_filtre": "",
+            "duplicate/similar message detector": "",
+            "scam_link_block": "",
+            "mass_mention_block": ""
+        }
+        
+        view = View(timeout=45)
+        
+        def updator():
+            nonlocal em, page
+            em.clear_fields()
+            em.add_field(list(feature.keys())[page-1], list(feature.values())[page-1])
+        
+        async def next_page(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+            nonlocal em, view, page, updator
+            page += 1
+            updator()
+            await inter.response.edit_message(embed=em, view=view)
+        
+        msg = await ctx.send(embed=em, view=view)
+        
+    # ===== RANK REWARD ====
+
+    @commands.hybrid_command()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @commands.has_permissions(manage_guild=True)
+    @commands.bot_has_permissions(manage_guild=True)
+    async def rank_reward(self, ctx: commands.Context):
+        """Allows you to set up level up rank reward."""
+
+        guild_id = str(ctx.guild.id)
+
+        # Safety check
+        if not Server_Settings[guild_id].get("rank_channel", 0):
+            return await ctx.send(
+                embed=Embed(
+                    description=":x: You must set a Rank Channel first.\nUse `k set_rank_channel`.",
+                    color=Color.red()
+                )
+            )
+
+        # Load existing rewards (dict like { "5": {"Role": 12345}, ... })
+        rank_reward: dict = Server_Settings[guild_id].get("rank_reward", {})
+
+        # --- Components ---
+        reward_select = Select(
+            custom_id="reward_type",
+            placeholder="Select Reward Type",
+            options=[SelectOption(label=i, value=i) for i in ["Role", "Cash", "Aura", "Gems", "Nitro"]],
+            max_values=1,
+            min_values=1,
+            disabled=True
+        )
+
+        level_select = Select(
+            custom_id="level_select",
+            placeholder="Select Level",
+            options=[SelectOption(label=str(i), value=str(i)) for i in range(1, 101)],
+            max_values=1,
+            min_values=1
+        )
+
+        role_select = Select(
+            custom_id="role_add",
+            placeholder="Select Role",
+            options=[SelectOption(label=role.name, value=str(role.id)) for role in ctx.guild.roles],
+            max_values=1,
+            min_values=1
+        )
+
+        add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add", disabled=True)
+        done_btn = Button(style=ButtonStyle.secondary, label="Done", custom_id="done")
+
+        view = View(timeout=45)
+        view.add_item(level_select)
+        view.add_item(reward_select)
+        view.add_item(add_btn)
+        async def timeout():
+            nonlocal em, view, msg
+            fields = em.fields
+            em.color = Color.light_grey()
+            em.fields = fields
+            for children in view.children:
+                children.disabled = True
+            await msg.edit(embed=em, view=view)
+        view.on_timeout = timeout
+
+        em = Embed(
+            title="Set Rank Level-Up Rewards",
+            description="Select a Reward that will be automatically given when users reach a level.",
+            color=Color.pink()
+        )
+
+        def update_embed():
+            em.clear_fields()
+            if rank_reward:
+                txt = ""
+                for level, reward in rank_reward.items():
+                    txt += f"**Level {level} →** `{reward}`\n"
+            else:
+                txt = "No rewards set yet."
+
+            em.add_field(name="Current Rewards", value=f"```{txt}```", inline=False)
+
+        update_embed()
+
+        async def on_level_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+
+            reward_select.disabled = False
+            for o in level_select.options:
+                o.default = (o.value == inter.data["values"][0])
+
+            await inter.response.edit_message(view=view)
+
+        async def on_reward_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+
+            selected_reward = inter.data["values"][0]
+
+            # Enable correct UI
+            if selected_reward == "Role":
+                view.clear_items()
+                view.add_item(level_select)
+                view.add_item(reward_select)
+                view.add_item(role_select)
+                view.add_item(add_btn)
+            else:
+                add_btn.disabled = False
+
+            for o in reward_select.options:
+                o.default = (o.value == selected_reward)
+
+            await inter.response.edit_message(view=view)
+
+        async def on_role_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+
+            for o in role_select.options:
+                o.default = (o.value == inter.data["values"][0])
+
+            await inter.response.edit_message(view=view)
+
+        async def on_add(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+
+            level = level_select.values[0]
+            reward_type = reward_select.values[0]
+
+            reward_value = None
+            if reward_type == "Role":
+                reward_value = int(role_select.values[0])
+            else:
+                reward_value = reward_type  # simple string reward
+
+            rank_reward[level] = reward_value
+            Server_Settings[guild_id]["rank_reward"] = rank_reward
+
+            update_embed()
+            await inter.response.edit_message(embed=em, view=view)
+
+        async def on_done(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+                
+            nonlocal em, update_embed
+            update_embed()
+            await inter.response.edit_message(embed=em, view= None)
+
+        # Attach handlers
+        level_select.callback = on_level_select
+        reward_select.callback = on_reward_select
+        role_select.callback = on_role_select
+        add_btn.callback = on_add
+        done_btn.callback = on_done
+
+        msg = await ctx.send(embed=em, view=view)
+
 
 async def setup(bot):
     await bot.add_cog(Moderation(bot))

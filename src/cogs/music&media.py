@@ -5,7 +5,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import sclib
 import lyricsgenius 
 
-class Musik_and_Media(commands.Cog):
+class Music_and_Media(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
         self.sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
@@ -484,5 +484,5 @@ class Musik_and_Media(commands.Cog):
         await self.send_player(ctx, music)
   
 async def setup(bot):  
-    await bot.add_cog(Musik_and_Media(bot))  
+    await bot.add_cog(Music_and_Media(bot))  
     print("Loaded cogs: MusikMedia")

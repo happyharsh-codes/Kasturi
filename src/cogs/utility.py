@@ -73,13 +73,22 @@ class Utility(commands.Cog):
         em.set_author(name=f"{ctx.author.id}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
                
+               
+    @commands.hybrid_command(aliases=["lb"], with_app_command = True)
+    @commands.cooldown(1,10, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def leaderboard(self, ctx):
+        """Displays Global Leaderboard 🏆 in all sectors: Balance, Xp, Quests"""
+        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
+        
     @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def invite(self, ctx):
         """Invite link for the bot"""
-        await ctx.send("[Invite Kelly to your server](https://discord.com/oauth2/authorize?client_id=1368884334076891136)")
+        await ctx.send("[**Invite Kelly to your Server**](https://discord.com/oauth2/authorize?client_id=1368884334076891136)")
 
     @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.cooldown(1,10, type = commands.BucketType.user )
@@ -346,7 +355,7 @@ class Utility(commands.Cog):
 
         🛠️ **Server Management**  
         Commands for moderators and admins to maintain order and manage server functionality.  
-        `mute`, `ban`, `set_rank_channel`, `lock`...
+        `mute`, `ban`, `set_rank_channel`, `lock`..
 
         💻 **Dev-Ops**  
         Useful for developers and content creators to fetch or explore content across platforms.  
@@ -354,7 +363,7 @@ class Utility(commands.Cog):
 
        🎵 **Music & Media**  
        Play songs, discover tracks, and enjoy music together in VC.  
-       `play`, `skip`, `queue`"""
+       `play`, `skip`, `queue`.."""
         menu_cmds = [[cmdd.name for cmdd in cog.get_commands() if not cmdd.hidden] for cog in client.cogs.values()]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
@@ -371,7 +380,7 @@ class Utility(commands.Cog):
             found = False
             #if cmd searched for a category:
             for index, categ in enumerate(menu):
-                if cmd.lower() in categ:
+                if cmd.title() in categ:
                     category = index
                     found = True
                     cmd = None
@@ -807,22 +816,18 @@ class Utility(commands.Cog):
                 children.disabled = True
             em.color = Color.light_grey()
             await msg.edit(embed=em, view=view)
-
+        
         async def go_callback(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
             nonlocal welcome_theme_no, go_left, go_right,em
-            go_left.disabled = False
-            go_right.disabled = False
             if interaction.data["custom_id"] == "go_left":
                 welcome_theme_no -= 1
-                if welcome_theme_no == 1:
-                    go_left.disabled = True
             else:
                 welcome_theme_no += 1
-                if welcome_theme_no == 18:
-                    go_right.disabled = True
+            go_left.disabled = welcome_theme_no == 1
+            go_right.disabled = welcome_theme_no == 18
             em.set_image(url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             await interaction.response.edit_message(embed=em, view=view)
         async def select_channels(interaction: Interaction):

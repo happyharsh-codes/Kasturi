@@ -7,28 +7,39 @@ class Invites_Tracker(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.bot_has_permissions(manage_guilds = True)
     async def invites(self, ctx: commands.Context):
         """Shows how many users have Joines using your invite link."""
-        server = INVITER.get(str(ctx.guild.id), None)
-        if not server:
+        invites = Server_Settings.get(str(ctx.guild.id)).get("invites", None)
+        if not invited:
             await ctx.send(embed = Embed(title= "No Record Found for this Guild"))
+            return
+            
         invited_ids = []
-        for invited, inviter in server.items():
-            if inviter == ctx.author.id:
-                invited_ids.append(int(invited))
-        em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: {len(invited)}\n", color = Color.purple())
+        for invite in await ctx.guild.invites():
+            if invite.inviter.id == ctx.author.id:
+                invited_ids.extend(invites.get(str(invite.code), None))
+        
+        if not invited ids:
+            em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: 0\n**Invitees**: N\A", color = Color.purple())
+            em.set_thumbnail(url= ctx.author.avatar)
+            em.set_footer(text=f"Requested by {ctx.author.name} at {timestamp(ctx)} Aura++", icon_url= ctx.author.avatar)
+            await ctx.send(embed=em)
+            return
+            
+        invite_text = ""
+        for index, id in enumerate(invited_ids):
+            try:
+                user = await ctx.guild.fetch_member(id)
+                invited_text += f"{user.mention} "
+            except:
+                invited_text += f"@unknown"
+            if index > 9:
+                break
+                
+        em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: {len(invited_ids)}\n**Invitees**: {invited_text}", color = Color.purple())
         em.set_thumbnail(url= ctx.author.avatar)
-        if invited:
-            if len(invited) > 5:
-                invited = invited[:5]
-            for id in invited:
-                user = self.client.get_user(int(id))
-                if user:
-                    em.description += f"{user.mention}\n"
-                else:
-                    em.description += f"@unknown"
-        em.set_footer(text=f"Requested by {ctx.author.name} at {timestamp(ctx)}", icon_url= ctx.author.avatar)
+        em.set_footer(text=f"Requested by {ctx.author.name} at {timestamp(ctx)} Aura++", icon_url= ctx.author.avatar)
         await ctx.send(embed = em)
 
 async def setup(bot):
