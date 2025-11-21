@@ -688,7 +688,7 @@ class Games(commands.Cog):
         """Complete quests to revir exciting rewards: ✓ Daily Quest ✓ Adventure Quest ✓ Burial Treasure Quest ✓ Premium Quest"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
     
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["w"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -739,7 +739,7 @@ class Games(commands.Cog):
         em.set_footer(text=f"Mine by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
     
-    @commands.hybrid_command(aliases=["crop", "crops"])
+    @commands.hybrid_command(aliases=["crop", "crops", "harvest"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
@@ -826,7 +826,7 @@ class Games(commands.Cog):
         em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
         
-    @commands.hybrid_command(aliases=["exp"])
+    @commands.hybrid_command(aliases=[])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
