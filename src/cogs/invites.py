@@ -7,7 +7,7 @@ class Invites_Tracker(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions()
-    @commands.bot_has_permissions(manage_guilds = True)
+    @commands.bot_has_permissions(manage_guild = True)
     async def invites(self, ctx: commands.Context):
         """Shows how many users have Joines using your invite link."""
         invites = Server_Settings.get(str(ctx.guild.id)).get("invites", None)
