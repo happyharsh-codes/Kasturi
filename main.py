@@ -42,7 +42,7 @@ async def start():
     client.add_listener(bot.on_entitlement_update)
     client.add_listener(bot.on_entitlement_delete)
     client.add_listener(bot.on_ready)
-    client.add_listener(bot.on_unavailable)
+    client.add_listener(bot.on_guild_unavailable)
     client.add_listener(bot.on_guild_unavailable)
     client.add_listener(bot.on_guild_join)
     client.add_listener(bot.on_guild_remove)
