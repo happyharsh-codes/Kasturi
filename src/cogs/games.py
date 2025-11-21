@@ -679,7 +679,7 @@ class Games(commands.Cog):
         """Welcome to the Shop: Sell anything and its estimated value on Cash or Gem"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
-    @commands.hybrid_command(aliases=["quests", "q"])
+    @commands.hybrid_command(aliases=["quests"])
     @commands.cooldown(1,100, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
