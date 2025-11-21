@@ -1041,7 +1041,7 @@ class Bot:
             return
         em = Embed(
             title="📛 Role Updated",
-            description=f"Role: {after.mention}\n + \n.join(changes),
+            description=f"Role: {after.mention}\n" + "\n".join(changes),
             color=Color.yellow()
         )
         await self.send_log(guild, em)
