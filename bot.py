@@ -327,7 +327,7 @@ class Bot:
                     "invites": {},
                     "rank": {},
                     "rank_channel": 0,
-                    "rank_reward": {}
+                    "rank_reward": {},
                     "join/leave_channel": 0,
                     "welcome_message": "",
                     "welcome_image": 1,
@@ -419,8 +419,8 @@ class Bot:
         moderators = []
         for member in guild.members:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
-                moderators.append(member.id) 
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite,"owner": guild.owner_id, "moderators": moderators, "banned_words": [],"block_list": [],"muted": {},"rank": {},"rank_channel": 0,"join/leave_channel": 0,"welcome_message": "", "welcome_image": 1, "social": {"yt": None, "insta": None, "twitter": None, "social_channel": 0}, "timer_messages": False, "afk": [],"friends": []}
+                moderators.append(member.id)
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite,"owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"join/leave_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {},"friends": [],"logging": 0}
 
     async def on_guild_remove(self, guild: discord.Guild):
         try:
@@ -430,7 +430,6 @@ class Bot:
                 em = Embed(title="I got banned",description=f"I got banned from {guild.name}\nAction taken by: {moderator.name} {moderator.id} {moderator.display_name}", color = Color.red())
                 em.url = Server_Settings[str(ctx.guild.id)]["invite_link"]
                 em.set_thumbnail(url = moderator.avatar)
-                em.set_image(url=guild.icon)
                 em.set_footer(text = "Banned by {moderator.name}", icon_url = moderator.avatar)
                 await me.send(embed = em)
                 for channel in guild.text_channels:
