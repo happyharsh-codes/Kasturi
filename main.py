@@ -36,7 +36,6 @@ async def start():
     client.add_listener(bot.on_private_channel_update)
     client.add_listener(bot.on_private_channel_pins_update)
     client.add_listener(bot.on_typing)
-    client.add_listener(bot.on_connect)
     client.add_listener(bot.on_disconnect)
     client.add_listener(bot.on_error)
     client.add_listener(bot.on_entitlement_create)
