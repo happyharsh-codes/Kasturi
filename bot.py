@@ -1216,6 +1216,24 @@ class Bot:
         )
         await self.send_log(guild, em)
 
+    async def on_thread_member_join(self, member):
+        guild = member.guild
+        em = Embed(
+            title="🧵 Member Joined Thread ",
+            description=f"Thread: {member.thread.mention}\nMember: {member.mention}",
+            color=Color.red()
+        )
+        await self.send_log(guild, em)
+
+    async def on_thread_member_remove(self, member):
+        guild = member.guild
+        em = Embed(
+            title="🧵 Member Left Thread",
+            description=f"Thread: {member.thread.mention}\nMember: {member.mention}",
+            color=Color.red()
+        )
+        await self.send_log(guild, em)
+        
     async def on_voice_state_update(self, member, before, after):
         guild = member.guild
         if before.channel != after.channel:
