@@ -1,4 +1,5 @@
-from __init__ import* 
+from __init__ import*
+from typing import Optional
 
 """Inventory Items:-
 Foods: [🍻🍖🌭🍨🌮..]
@@ -153,7 +154,7 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
-    async def chop(self, ctx, user: None):
+    async def chop(self, ctx):
         """Shows user profile or mentioned user profile"""
         if not user:
             user = ctx.author
@@ -348,7 +349,7 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
-    async def use(self, ctx, item= None):
+    async def use(self, ctx, item: Optional[str] = None):
         """Uses the selected item from inventory"""
         await ctx.send(embed= Embed(description="This command is yet to be made :/"))
         
@@ -412,7 +413,7 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
-    async def go(self, ctx, *, place:str = None):
+    async def go(self, ctx, *, place:str = ""):
         """Travel to a whole different locations that's your have discovered already using `adventure` or `explore`."""
         places = Profiles[str(ctx.author.id)]["places"]
         if not places:
@@ -654,7 +655,7 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
-    async def battle(self, ctx, user: discord.Member = None):
+    async def battle(self, ctx, user: Optional[discord.Member] = None):
         """Battle someone: Show your strength.
         Amazing rewards.
         Can also mention user to battle with them otherwise opponent will be selected randomly."""
@@ -774,7 +775,7 @@ class Games(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     @has_profile()
-    async def steal(self, ctx, user):
+    async def steal(self, ctx, user: discord.Member):
         """Steal item from a user very risky unless you have aura and skill ;>"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
