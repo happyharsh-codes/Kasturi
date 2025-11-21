@@ -102,7 +102,7 @@ async def start():
     client.before_invoke(bot.before_any_command)
     client.on_command_error = bot.on_command_error
     client.on_error = bot.on_error
-    client.add_listener(bot.on_command_complete)
+    client.add_listener(bot.on_command_completion)
     
     try:
         await client.start(os.getenv("TOKEN"))
