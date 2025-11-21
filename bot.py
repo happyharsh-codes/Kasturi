@@ -132,7 +132,7 @@ class Bot:
 
     # ------------- EVENTS -------------
 
-    async def on_automode_rule_create(self, rule):
+    async def on_automod_rule_create(self, rule):
         guild = rule.guild
         em = Embed(
             title="🛡️ AutoMod Rule Created",
@@ -141,7 +141,7 @@ class Bot:
         )
         await self.send_log(guild, em)
 
-    async def on_automode_rule_update(self, rule):
+    async def on_automod_rule_update(self, rule):
         guild = rule.guild
         em = Embed(
             title="🛡️ AutoMod Rule Updated",
@@ -150,7 +150,7 @@ class Bot:
         )
         await self.send_log(guild, em)
 
-    async def on_automode_rule_delete(self, rule):
+    async def on_automod_rule_delete(self, rule):
         guild = rule.guild
         em = Embed(
             title="🛡️ AutoMod Rule Deleted",
@@ -159,7 +159,7 @@ class Bot:
         )
         await self.send_log(guild, em)
 
-    async def on_automode_action(self, execution):
+    async def on_automod_action(self, execution):
         guild = execution.guild
         em = Embed(
             title="🛡️ AutoMod Triggered",
