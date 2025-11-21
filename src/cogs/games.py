@@ -472,7 +472,7 @@ class Games(commands.Cog):
                     loc = option.value
                     option.default = False
                     break
-            em.description = f"You started your journey to the {loc.replace("_"," ").title()}. Wait untill you reach the destination"
+            em.description = f"You started your journey to the {loc.replace('_',' ').title()}. Wait untill you reach the destination"
             em.set_img(url = None)
             view.clear_items()
             view.add_item(return_btn)
