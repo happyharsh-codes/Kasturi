@@ -96,7 +96,7 @@ class MongoNestedDict(MutableMapping):
     def __repr__(self):
         return repr(self._data)
           
-mongo = MongoClient(os.genenv("MONGO_URI"))
+mongo = MongoClient(os.getenv("MONGO_URI"))
 db = mongo["KellyBotDB"]
 
 def load_mongo_dict(name, part="server"):
