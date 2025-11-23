@@ -758,6 +758,8 @@ class Bot:
     async def on_message(self, message: discord.Message):
         start = time.time()
         id = message.author.id
+        if not messsge.content or message.content == "":
+            return
         if isinstance(message.channel, discord.DMChannel):
             message.content = re.sub(r"<a?:\w+:\d+>", "", message.content).strip().lower() # removing emojis
             if not message.content.startswith(("kasturi", "kelly", "k")):
