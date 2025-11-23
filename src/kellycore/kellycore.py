@@ -108,19 +108,18 @@ class Kelly:
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.relations.getUserInfo(message.author.id)
             type = ""
+            
             if message.author.id == 894072003533877279:
                 type = "God aka your creator"
-            if message.author.id == message.guild.owner_id:
+            elif isinstance(message.channel, discord.DMChannel):
+                type = "Dm channel"
+            elif message.author.id == message.guild.owner_id:
                 type += " Server owner"
-                if not Server_Settings[str(message.guild.id)]["owner"]:
-                    Server_Settings[str(message.guild.id)]["owner"] = message.author.id
-            elif any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in message.author.roles):
+            elif message.author.id in Server_Settings[str(message.guild.id)]["moderators"]:
                 type = "Moderator"
-                if message.author.id not in Server_Settings[str(message.guild.id)]["moderators"]:
-                    Server_Settings[str(message.guild.id)]["moderators"].append(message.author.id)
             else:
                 type = "Member"
-            prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}, id:{message.author.id}}}\nGenerate response in 20 words with 0-4 emojiy. keep chat interesting and fun by interacting with user and must asking enagaging questions at last"""
+            prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}, id:{message.author.id}}}\nGenerate response in 20 words with 0-4 emojiy. Keep chat interesting and fun by interacting with user and asking enagaging questions."""
 
             #first Giyu the bodyguard handles the message before getting to kelly
             if await self.giyu.giyuQuery(message, self.mood.mood):#if giyu already sent msg so here will not send so here we'll simply return
