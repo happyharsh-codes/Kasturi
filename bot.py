@@ -740,7 +740,7 @@ class Bot:
     async def on_presence_update(self, before, after):
         try:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
-                if str(before.id) in Relation and Relation[str(before.id)] > 10:
+                if Relation[str(before.id)] and Relation[str(before.id)] > 10:
                     if randint(1,5) == 1:
                         for guilds in self.client.guilds:
                             member = guilds.get_member(before.id)
