@@ -44,7 +44,7 @@ with open("assets/info.json", "r") as f:
 
 async def get_guild(guild: Guild):
     if not Server_Settings[str(guild.id)]:
-        invite_link = "N/A
+        invite_link = "N/A"
         for channel in guild.text_channels:
             try:
                 invite = await channel.create_invite(max_age=0, max_uses=0)  # infinite invite
