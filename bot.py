@@ -606,18 +606,19 @@ class Bot:
             or r.permissions.manage_channels
             for r in after.roles
         ):
-            if after.id not in Server_Settings[str(after.guild.id)]["moderators"]:
+            if Server_Settings[str(after.guild.id)] and after.id not in Server_Settings[str(after.guild.id)]["moderators"]:
                 Server_Settings[str(after.guild.id)]["moderators"].append(after.id)
         else:
-            if after.id in Server_Settings[str(after.guild.id)]["moderators"]:
+            if Server_Settings[str(after.guild.id)] after.id in Server_Settings[str(after.guild.id)]["moderators"]:
                 Server_Settings[str(after.guild.id)]["moderators"].remove(after.id)
        
         #if Unmuted then
         if before.timed_out_until and not after.timed_out_until:
-            em = Embed(title="✅ You’ve Been Unmuted in {after.guild.name}",description="**Reason:** Mute expired.\nYou may chat again. Please follow the server rules and behave.",color=Color.green())
+            em = Embed(title=f"✅ You’ve Been Unmuted in {after.guild.name}",description="**Reason:** Mute expired.\nYou may chat again. Please follow the server rules and behave.",color=Color.green())
             em.set_footer(text=f"Please refrain from sending messages like this. Future violations may result in a ban.")
-            em.set_author(name=user.name, icon_url=user.avatar)
+            em.set_author(name=after.name, icon_url=after.avatar)
             await safe_dm(after,em)
+            return
          
         changes = []
         if before.nick != after.nick:
@@ -630,10 +631,10 @@ class Bot:
             return
         em = Embed(
             title="👤 Member Updated",
-            description=f"User: {after.mention} (`{after.id}`)\n + \n".join(changes),
+            description=f"User: {after.mention} (`{after.id}`)\n" + "\n".join(changes),
             color=Color.yellow()
         )
-        em.set_thumbnail(url=after.guild_avatar)
+        em.set_thumbnail(url=after.display_avatar)
         await self.send_log(after.guild, em)
 
     async def on_user_update(self, before, after):
