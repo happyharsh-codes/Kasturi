@@ -106,7 +106,7 @@ async def get_guild(guild: Guild):
 # ===== Setting Mongo Db ====
 
 class MongoNestedDict(MutableMapping):
-    def __init__(self, collection, doc_id, data=None, root=None):
+    def __init__(self, collection, doc_id, data=None, root=None, default=None):
         self.collection = collection
         self.doc_id = doc_id
         self.root = root if root else self
@@ -124,8 +124,7 @@ class MongoNestedDict(MutableMapping):
     # ---------- Get ----------
     def __getitem__(self, key):
         if key not in self._data:
-            self._data[key] = {}
-            self._sync()
+            return self.default
         value = self._data[key]
 
         if isinstance(value, dict):
