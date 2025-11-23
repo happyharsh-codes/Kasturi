@@ -68,7 +68,7 @@ async def get_guild(guild: Guild):
                     or r.permissions.manage_channels
                     for r in member.roles
                 ):
-                moderators.append(member.id)
+                    moderators.append(member.id)
         default_sv_setting = {
             "name": guild.name,
             "allowed_channels": [],
