@@ -40,6 +40,69 @@ with open("assets/info.json", "r") as f:
     EMOJI2 = DATA.get("emoji2")
     TIP = DATA.get("tips")
 
+# ===== Get Server Settings ====
+
+async def get_guild(guild: Guild):
+    if not Server_Settings[str(guild.id)]:
+        invite_link = "N/A
+        for channel in guild.text_channels:
+            try:
+                invite = await channel.create_invite(max_age=0, max_uses=0)  # infinite invite
+                invite_link = str(invite)
+                await channel.send(embed=embed)
+                break
+            except Exception:
+                continue
+
+        if str(guild.id) not in Server_Settings:
+            moderators = []
+            for member in guild.members:
+                if any(
+                    r.permissions.administrator
+                    or r.permissions.kick_members
+                    or r.permissions.ban_members
+                    or r.permissions.manage_roles
+                    or r.permissions.mute_members
+                    or r.permissions.deafen_members
+                    or r.permissions.manage_permissions
+                    or r.permissions.manage_channels
+                    for r in member.roles
+                ):
+                moderators.append(member.id)
+        default_sv_setting = {
+            "name": guild.name,
+            "allowed_channels": [],
+            "premium": False,
+            "invite_link": invite_link,
+            "owner": guild.owner_id,
+            "moderators": moderators,
+            "banned_words": [],
+            "block_list": [],
+            "muted": {},
+            "invites": {},
+            "rank": {},
+            "rank_channel": 0,
+            "rank_reward": {},
+            "join/leave_channel": 0,
+            "welcome_message": "",
+            "welcome_image": 1,
+            "social": {
+                "yt": None,
+                "insta": None,
+                "twitter": None,
+                "social_channel": 0
+            },
+            "timer_messages": False,
+            "afk": [],
+            "warn": {},
+            "warn_action": {},
+            "friends": [],
+            "logging": 0
+            }
+        return default_sv_settings
+    return Server_Settings[str(guild.id)]
+
+        
 # ===== Setting Mongo Db ====
 
 class MongoNestedDict(MutableMapping):
@@ -99,19 +162,40 @@ class MongoNestedDict(MutableMapping):
 mongo = MongoClient(os.getenv("MONGO_URI"))
 db = mongo["KellyBotDB"]
 
-def load_mongo_dict(name, part="server"):
+def load_mongo_dict(name, part="server", default=None):
     col = db[part]
     doc = col.find_one({"_id": name})
 
     if doc:
         print(f"Loaded: {name}")
-        return MongoNestedDict(col, name, doc["data"])
+        return MongoNestedDict(col, name, doc["data"], default=default)
     
     print(f"Created new: {name}")
     col.insert_one({"_id": name, "data": {}})
-    return MongoNestedDict(col, name)
-    
-Profiles         = load_mongo_dict("profiles", "server")
+    return MongoNestedDict(col, name, default=default)
+
+
+default_profiles = {
+    "name": "No name noob",
+    "cash": 100,
+    "gem": 1,
+    "inv": {},
+    "health": 100,
+    "hunger": 100,
+    "aura":0,
+    "skills": {},
+    "foods": {},
+    "plants": {},
+    "assets": {},
+    "tools": {},
+    "weapons": {},
+    "vehicles": {},
+    "quests": {},
+    "places": {},
+    "jobs": {}
+}
+
+Profiles         = load_mongo_dict("profiles", "server", default_profiles)
 Server_Settings  = load_mongo_dict("server_settings", "server")
 
 Relation         = load_mongo_dict("relations", "kellymemory")
