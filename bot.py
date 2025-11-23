@@ -289,8 +289,15 @@ class Bot:
                 color=Color.green()
             )
             embed.set_footer(text="Kelly System", icon_url=self.client.user.avatar)
-            embed.timestamp = datetime.utcnow()
+            embed.timestamp = datetime.now(UTC)
+            for channel in guild.text_channels:
+                try:
+                    await channel.send(embed=embed)
+                    break
+                except Exception:
+                    continue
 
+        
         # help / brief
         for cmd in self.client.commands:
             if not cmd.help and cmd.callback.__doc__:
@@ -303,9 +310,12 @@ class Bot:
 
         # tracking invites
         for guild in self.client.guilds:
-            self.invite_cache[guild.id] = {
-                invite.code: invite.uses for invite in await guild.invites()
-            }
+            try:
+                self.invite_cache[guild.id] = {
+                    invite.code: invite.uses for invite in await guild.invites()
+                }
+            except:
+                continue 
 
         self.client.add_view(BugReportView())
 
