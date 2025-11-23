@@ -111,6 +111,7 @@ class MongoNestedDict(MutableMapping):
         self.doc_id = doc_id
         self.root = root if root else self
         self._data = data if data is not None else {}
+        self.default = default
 
     # ---------- Sync database ----------
     def _sync(self):
