@@ -290,60 +290,6 @@ class Bot:
             )
             embed.set_footer(text="Kelly System", icon_url=self.client.user.avatar)
             embed.timestamp = datetime.utcnow()
-            for channel in guild.text_channels:
-                try:
-                    invite = await channel.create_invite(max_age=0, max_uses=0)  # infinite invite
-                    invite_link = str(invite)
-                    await channel.send(embed=embed)
-                    break
-                except Exception:
-                    continue
-
-            if str(guild.id) not in Server_Settings:
-                moderators = []
-                for member in guild.members:
-                    if any(
-                        r.permissions.administrator
-                        or r.permissions.kick_members
-                        or r.permissions.ban_members
-                        or r.permissions.manage_roles
-                        or r.permissions.mute_members
-                        or r.permissions.deafen_members
-                        or r.permissions.manage_permissions
-                        or r.permissions.manage_channels
-                        for r in member.roles
-                    ):
-                        moderators.append(member.id)
-                Server_Settings[str(guild.id)] = {
-                    "name": guild.name,
-                    "allowed_channels": [],
-                    "premium": False,
-                    "invite_link": invite_link,
-                    "owner": guild.owner_id,
-                    "moderators": moderators,
-                    "banned_words": [],
-                    "block_list": [],
-                    "muted": {},
-                    "invites": {},
-                    "rank": {},
-                    "rank_channel": 0,
-                    "rank_reward": {},
-                    "join/leave_channel": 0,
-                    "welcome_message": "",
-                    "welcome_image": 1,
-                    "social": {
-                        "yt": None,
-                        "insta": None,
-                        "twitter": None,
-                        "social_channel": 0
-                    },
-                    "timer_messages": False,
-                    "afk": [],
-                    "warn": {},
-                    "warn_action": {},
-                    "friends": [],
-                    "logging": 0
-                }
 
         # help / brief
         for cmd in self.client.commands:
