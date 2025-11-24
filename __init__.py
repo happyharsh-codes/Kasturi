@@ -39,70 +39,6 @@ with open("assets/info.json", "r") as f:
     EMOJI = DATA.get("emoji")
     EMOJI2 = DATA.get("emoji2")
     TIP = DATA.get("tips")
-
-# ===== Get Server Settings ====
-
-async def get_guild(guild: Guild):
-    if not Server_Settings[str(guild.id)]:
-        invite_link = "N/A"
-        '''if invites_required:
-        for channel in guild.text_channels:
-            try:
-                invite = await channel.create_invite(max_age=0, max_uses=0)  # infinite invite
-                invite_link = str(invite)
-                await channel.send(embed=embed)
-                break
-            except Exception:
-                continue
-
-        if str(guild.id) not in Server_Settings:
-            moderators = []
-            for member in guild.members:
-                if any(
-                    r.permissions.administrator
-                    or r.permissions.kick_members
-                    or r.permissions.ban_members
-                    or r.permissions.manage_roles
-                    or r.permissions.mute_members
-                    or r.permissions.deafen_members
-                    or r.permissions.manage_permissions
-                    or r.permissions.manage_channels
-                    for r in member.roles
-                ):
-                    moderators.append(member.id)'''
-        default_sv_setting = {
-            "name": guild.name,
-            "allowed_channels": [],
-            "premium": False,
-            "invite_link": invite_link,
-            "owner": guild.owner_id,
-            "moderators": [],
-            "banned_words": [],
-            "block_list": [],
-            "muted": {},
-            "invites": {},
-            "rank": {},
-            "rank_channel": 0,
-            "rank_reward": {},
-            "join/leave_channel": 0,
-            "welcome_message": "",
-            "welcome_image": 1,
-            "social": {
-                "yt": None,
-                "insta": None,
-                "twitter": None,
-                "social_channel": 0
-            },
-            "timer_messages": False,
-            "afk": [],
-            "warn": {},
-            "warn_action": {},
-            "friends": [],
-            "logging": 0
-            }
-        return default_sv_settings
-    return Server_Settings[str(guild.id)]
-
         
 # ===== Setting Mongo Db ====
 
@@ -195,9 +131,39 @@ default_profiles = {
     "places": {},
     "jobs": {}
 }
+default_sv_settings = {
+    "name": "N/A",
+    "allowed_channels": [],
+    "premium": False,
+    "invite_link": "N/A,
+    "owner": "N/A,
+    "moderators": [],
+    "banned_words": [],
+    "block_list": [],
+    "muted": {},
+    "invites": {},
+    "rank": {},
+    "rank_channel": 0,
+    "rank_reward": {},
+    "join/leave_channel": 0,
+    "welcome_message": "",
+    "welcome_image": 1,
+    "social": {
+        "yt": None,
+        "insta": None,
+        "twitter": None,
+        "social_channel": 0
+    },
+    "timer_messages": False,
+    "afk": [],
+    "warn": {},
+    "warn_action": {},
+    "friends": [],
+    "logging": 0
+}
 
 Profiles         = load_mongo_dict("profiles", "server", default_profiles)
-Server_Settings  = load_mongo_dict("server_settings", "server")
+Server_Settings  = load_mongo_dict("server_settings", "server", default_sv_settings)
 
 Relation         = load_mongo_dict("relations", "kellymemory")
 Chats            = load_mongo_dict("chats", "kellymemory")
