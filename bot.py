@@ -758,31 +758,9 @@ class Bot:
     async def on_message(self, message: discord.Message):
         start = time.time()
         id = message.author.id
-        if not messsge.content or message.content == "":
+        if not message.content or message.content == "":
             return
-        if isinstance(message.channel, discord.DMChannel):
-            message.content = re.sub(r"<a?:\w+:\d+>", "", message.content).strip().lower() # removing emojis
-            if not message.content.startswith(("kasturi", "kelly", "k")):
-                if "kasturi" in message.content.lower() or "kelly" in message.content.lower():
-                    await self.kelly.kellyQuery(message)
-                return
-            message.content = message.content.replace("kelly","").replace("kasturi","").strip()
-                
-            if message.content[0] == "k":
-                message.content = message.content[1:].strip()
-                for command in self.client.commands:
-                    if message.content.split()[0] in command.name or message.content.split()[0] in command.aliases:
-                        break
-                else: return
-                
-            if message.content[0] == " ":
-                message.content = "???" + message.content[1:]
-            else:
-                message.content = "???" + message.content
-            print("Processing command on message: "+ message.content)
-            await self.client.process_commands(message) #Kelly Process the message ;)
-            print("Latency: ", (time.time() - start))
-            return
+        
         guild = message.guild.id
         channel = message.channel.id
         metadata = Server_Settings[str(guild)]
@@ -793,6 +771,13 @@ class Bot:
             #ignoring non text messages
             if message.content == "":
                 return
+            #replying in dms
+            if isinstance(message.channel, discord.DMChannel):
+                message.content = re.sub(r"<a?:\w+:\d+>", "", message.content).strip().lower() # removing emojis
+                if "kasturi" in message.content or "kelly" in message.content:
+                    await self.kelly.kellyQuery(message)
+                    return
+                
             #Deleting banned words
             for word in metadata["banned_words"]:
                 if word in message.content:
