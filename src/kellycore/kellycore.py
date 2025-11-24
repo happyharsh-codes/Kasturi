@@ -5,7 +5,8 @@ from src.kellycore.kellypersonality import KellyPersona
 from src.kellycore.giyu import Giyu
 
 class Kelly:
-
+    """The Main Kelly Class That Governs all activities"""
+    
     def __init__(self, name, bot):
         self.name = name
         self.client = bot #discord bot
