@@ -21,7 +21,7 @@ class KellyRealtion:
     import random
 
     async def modifyUserRespect(self, val, user_id):
-       uid = str(user_id)
+        uid = str(user_id)
 
         if uid not in Relation:
             Relation[uid] = val
