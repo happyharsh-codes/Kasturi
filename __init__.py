@@ -45,6 +45,7 @@ with open("assets/info.json", "r") as f:
 async def get_guild(guild: Guild):
     if not Server_Settings[str(guild.id)]:
         invite_link = "N/A"
+        '''if invites_required:
         for channel in guild.text_channels:
             try:
                 invite = await channel.create_invite(max_age=0, max_uses=0)  # infinite invite
@@ -68,14 +69,14 @@ async def get_guild(guild: Guild):
                     or r.permissions.manage_channels
                     for r in member.roles
                 ):
-                    moderators.append(member.id)
+                    moderators.append(member.id)'''
         default_sv_setting = {
             "name": guild.name,
             "allowed_channels": [],
             "premium": False,
             "invite_link": invite_link,
             "owner": guild.owner_id,
-            "moderators": moderators,
+            "moderators": [],
             "banned_words": [],
             "block_list": [],
             "muted": {},
