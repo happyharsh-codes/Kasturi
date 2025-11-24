@@ -1,6 +1,7 @@
 from __init__ import*
 
 class Giyu:
+    """Giyu the Kelly's Offical Guard And Assistant. You have to pass through him compulsorily."""
 
     def __init__(self, client):
         self.client = client
