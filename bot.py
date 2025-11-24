@@ -609,7 +609,7 @@ class Bot:
             if Server_Settings[str(after.guild.id)] and after.id not in Server_Settings[str(after.guild.id)]["moderators"]:
                 Server_Settings[str(after.guild.id)]["moderators"].append(after.id)
         else:
-            if Server_Settings[str(after.guild.id)] after.id in Server_Settings[str(after.guild.id)]["moderators"]:
+            if Server_Settings[str(after.guild.id)] and after.id in Server_Settings[str(after.guild.id)]["moderators"]:
                 Server_Settings[str(after.guild.id)]["moderators"].remove(after.id)
        
         #if Unmuted then
