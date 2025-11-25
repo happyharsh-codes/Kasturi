@@ -12,7 +12,7 @@ class Giyu:
         async with message.channel.typing():
             if type == "Dm channel":
                 return False
-            if not Relation[str(message.author.id)]
+            if not Relation[str(message.author.id)]:
                 prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
                 response = getResponse(message.content, prompt)
                 await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
