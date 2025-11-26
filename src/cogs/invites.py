@@ -4,7 +4,7 @@ class Invites_Tracker(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.hybrid_command(name="Invites", description="Shows your invite profile")
+    @commands.hybrid_command(name="invites", description="Shows your invite profile")
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.bot_has_permissions(manage_guild = True)
     async def invites(self, ctx: commands.Context):
