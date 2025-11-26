@@ -42,13 +42,18 @@ class Giyu:
                     booster_text= f"Boosting since <t:{int(message.author.premium_since.timestamp())}:D>"
                 else:
                     booster_text = 'Not Boosting'
-                invite_text = "unknown"
-                inviter_guild = INVITER.get(str(message.guild.id), None)
-                if inviter_guild:    
-                    inviter_id = inviter_guild.get(str(message.author.id),None)
-                    if inviter_id:
-                        inviter = self.client.get_user(inviter_id)
-                        invite_text = f"{inviter.mention} - {inviter.name}"
+                invite_text = "@unknown"
+                invites = Server_Setting[str(message.guild.id)]["invites"]
+                for code, ids in invites.items():  
+                    if message.author.id in ids:
+                        try:
+                            invite = await self.client.fetch_invite(code)
+                            inviter = invite.inviter
+                            invite_text = f"{inviter.mention}"
+                        except:
+                            invite_text = "@unknown"
+                        break
+                        
                 em = Embed(title = "⚙️ New Member Initialisation 🛠️", description= f"**📛 Username**:{message.author.name}\n**👤 Name:** {message.author.display_name}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(message.author)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
                 em.set_thumbnail(url= message.author.avatar)
                 em.set_author(name = f"{message.author.name}")
