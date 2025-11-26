@@ -1,18 +1,16 @@
 from __init__ import *
 
-def hierarchy_check():
-    async def predicate(ctx, member):
-        if member.id == ctx.guild.owner_id:
-            await ctx.reply(embed = Embed(title="❌ Cannot take action on server owner.", color = Color.red()))
-            return False
-        if member.top_role >= ctx.author.top_role:
-            await ctx.reply(embed = Embed(title="❌ That user has higher or equal role than you.", color = Color.red()))
-            return False
-        if member.top_role >= ctx.guild.me.top_role:
-            await ctx.reply(embed = Embed(title="❌ I cannot act on that user due to role hierarchy.", color = Color.red()))
-            return False
-        return True
-    return commands.check(predicate)
+async def hierarchy_check(ctx, member):
+    if member.id == ctx.guild.owner_id:
+        await ctx.reply(embed = Embed(title="❌ Cannot take action on server owner.", color = Color.red()))
+        return False
+    if member.top_role >= ctx.author.top_role:
+        await ctx.reply(embed = Embed(title="❌ That user has higher or equal role than you.", color = Color.red()))
+        return False
+    if member.top_role >= ctx.guild.me.top_role:
+        await ctx.reply(embed = Embed(title="❌ I cannot act on that user due to role hierarchy.", color = Color.red()))
+        return False
+    return True
 
 class Moderation(commands.Cog):
     def __init__(self, client: commands.Bot):
@@ -114,9 +112,11 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
-    @hierarchy_check()
     async def kick(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Kick a member from the server."""
+        if not await hierarchy_check(ctx, member):
+            return
+            
         embed_dm = action_embed(ctx, f"You were kicked from {ctx.guild.name}", f"**Reason:** {reason}\nPlease Follow the guild rules and regulations.", member, Color.red(), text = f"Kicked by {ctx.author.name}")
         await self.safe_dm(member, embed_dm)
 
@@ -135,9 +135,11 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(moderate_members=True)
     @commands.bot_has_permissions(moderate_members=True)
-    @hierarchy_check()
     async def warn(self, ctx, member: discord.Member, *, reason: str):
         """Send official warning to a member."""
+        if not await hierarchy_check(ctx, member):
+            return
+            
         embed_dm = action_embed(ctx, f"You were warned in {ctx.guild.name}",f"**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}"
         )
         await self.safe_dm(member, embed_dm)
@@ -156,15 +158,15 @@ class Moderation(commands.Cog):
                 return
             action = warn_action[str(warn_no)]
             if "Mute" in action:
-                await ctx.invoke(ctx.bot.get_command("mute"), int(action.split()[2]), "Warn Limit Exceeded")
+                await ctx.invoke(ctx.bot.get_command("mute"), member = member, minutes = int(action.split()[2]), reason = "Warn Limit Exceeded")
             elif "Kick" in action:
-                await ctx.invoke(ctx.bot.get_command("kick"), member, "Warn Limit Exceeded")
+                await ctx.invoke(ctx.bot.get_command("kick"), member = member, reason = "Warn Limit Exceeded")
             elif "Ban" in action:
-                await ctx.invoke(ctx.bot.get_command("ban"), member, "Warn Limit Exceeded")
+                await ctx.invoke(ctx.bot.get_command("ban"), member = member, reason = "Warn Limit Exceeded")
             elif "Assign Role" in action:
                 try:
                     role = await member.guild.fetch_role(int(action.split()[2]))
-                    await ctx.invoke(ctx.bot.get_command("assignrole"), member, role)
+                    await ctx.invoke(ctx.bot.get_command("assignrole"), member = member, role = role)
                 except:
                     await ctx.send("Cannot assign role ```{action.split()[2]}``` on warn limit exceed. Please report this issue or Reset warn action using `k warn_action`")
         
@@ -173,9 +175,11 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles = True, moderate_members=True)
     @commands.bot_has_permissions(manage_roles = True, moderate_members=True)
-    @hierarchy_check()
-    async def warn_action(self, ctx, member: discord.Member, *, reason: str):
+    async def warn_action(self, ctx):
         """Adds Warn Infringement action when warn limit hits. Warn Automated actions can be : Mute, Kick, Ban, Assign Role"""
+        if not await hierarchy_check(ctx, member):
+            return
+            
         warn_no_select = Select(custom_id="warn_no", placeholder="Select Warn Limit", options=[SelectOption(label=str(i),value=str(i)) for i in range(1,11)], max_values=1, min_values=1)
         actions = ["Mute", "Kick", "Ban", "Assign Role"]
         action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
@@ -195,7 +199,7 @@ class Moderation(commands.Cog):
             em.color = Color.light_grey()
             await msg.edit(embed=em, view=view)
         
-        warn_action = Server_Settings[str(ctx.guild.id)].get("warn_action", [])
+        warn_action = Server_Settings[str(ctx.guild.id)].get("warn_action", {})
         warn_action_text = ""
         if warn_action:
             for no, action in warn_action.items():
@@ -341,12 +345,16 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    @hierarchy_check()
     async def ban(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Bans a member permanently 🚫  
         Stops them from rejoining until unbanned.
         Moderators Only - Please consider case properly before using this command."""
+        if not await hierarchy_check(ctx, member):
+            return
+            
         em = action_embed(ctx, "Member Banned", f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.",member, color=Color.pink(), text=f"Banned by {ctx.author.name}")
+        embed.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        
         await ctx.send(embed=em)
         
         await ctx.guild.ban(user=member, reason=reason, delete_message_days=0)
@@ -355,10 +363,12 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    @hierarchy_check()
     async def ban_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
         """Just Bans a member from ever Chatting to Kelly Not from Server 🚫  
         Now user can never chat with Kelly, unless unbanned."""
+        if not await hierarchy_check(ctx, member):
+            return
+            
         embed = Embed(title = f"You have been Banned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
         embed.set_footer(text=f"Kelly Ban by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
@@ -384,6 +394,7 @@ class Moderation(commands.Cog):
                 em = Embed(title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
                 em.set_footer(text=f"Unbanned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
+                return
                 
         await ctx.send("User not found in ban list.")
 
@@ -416,10 +427,12 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    @hierarchy_check() 
     async def assignrole(self, ctx: commands.Context, member: discord.Member, role: discord.Role):
         """Assigns given role to the user.
         Given role hierarchy should be equivalent to or less than your role."""
+        if not await hierarchy_check(ctx, member):
+            return
+            
         embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: {role.mention}\n**", color = Color.blue())
         embed.set_footer(text=f"Assigned Role by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
@@ -434,10 +447,12 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    @hierarchy_check() 
     async def removerole(self, ctx: commands.Context, member: discord.Member, role: discord.Role):
         """Assigns given role to the user.
         Given role hierarchy should be equivalent to or less than your role."""
+        if not await hierarchy_check(ctx, member):
+            return
+            
         embed = Embed(title = f"You have been detained from your Role in {ctx.guild.name}", description = f"**Role**: {role.mention}\n**", color = Color.blue())
         embed.set_footer(text=f"Role Removed by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
@@ -454,11 +469,12 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(deafen_members=True)
     @commands.bot_has_permissions(deafen_members=True)
-    @hierarchy_check()
     async def deafen(self, ctx: commands.Context, member: discord.Member, minutes: int = 0, channel: discord.VoiceChannel = None):
         """Deafens a member from all voice chat 🔇  
         If channel is provided, member will be moved there (Discord does not support channel-specific deaf)."""
-    
+        if not await hierarchy_check(ctx, member):
+            return
+            
         # Apply deaf
         await member.edit(deafen=True)
 
@@ -619,7 +635,7 @@ class Moderation(commands.Cog):
         """Sets the rank update channel 📊  
         Displays level-up and XP progress here."""
         Server_Settings[str(ctx.guild.id)]["rank_channel"] = channel.id
-        em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor more details and customization visit [Kasturi_Methi.com](https://www.kasturi_methi.com/kelly)", color= Color.red())
+        em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor Automatic Rank rewards use `k rank_reward`", color= Color.red())
         await ctx.send(embed=em)
 
     @commands.hybrid_command()
@@ -665,14 +681,14 @@ class Moderation(commands.Cog):
                 
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
-        proceed_button = Button(style=ButtonStyle.success ,lable="Select Theme", custom_id="proceed", row=0)
+        proceed_button = Button(style=ButtonStyle.success ,label="Select Theme", custom_id="proceed", row=0)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
         channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values= 5 if len(ctx.guild.text_channels) > 5 else len(ctx.guild.text_channels), min_values=1)
         
         view = View(timeout = 45)
-        view.add(go_left)
-        view.add(proceed_button)
-        view.add(go_right)
+        view.add_item(go_left)
+        view.add_item(proceed_button)
+        view.add_item(go_right)
         
         async def process_buttons(interaction: discord.Interaction):
             if interaction.user.id != ctx.author.id:
@@ -816,7 +832,7 @@ class Moderation(commands.Cog):
         em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
          
-        proceed_button = Button(style= ButtonStyle.green, lable = "Set Social Media", custom_id= "social", disabled = True)
+        proceed_button = Button(style= ButtonStyle.green, label = "Set Social Media", custom_id= "social", disabled = True)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
         view = View(timeout = 40)
         view.add_item(channel_select)
@@ -1034,7 +1050,7 @@ class Moderation(commands.Cog):
                 return await inter.response.send_message(
                     "This is not your interaction.", ephemeral=True
                 )
-
+            
             level = level_select.values[0]
             reward_type = reward_select.values[0]
 

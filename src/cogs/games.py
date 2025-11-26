@@ -62,7 +62,7 @@ def has_in_inventory(item, value = 0):
     
 def at_the_location(loc):
     async def predicate(ctx):
-        if loc == Profiles[str(ctx.author.id)].get("loc", ""):
+        if loc == Profiles[str(ctx.author.id)].get("location", ""):
             return True
         await ctx.reply(embed=Embed(description=f"Ayoo You must be in `{loc.title()}` to perform this action."), color= Color.gold())
         return False
@@ -107,9 +107,9 @@ class Games(commands.Cog):
             if level not in self.master[category]:
                 continue
     
-            available = DATA["location_items"][location][category][level]
+            availabel = DATA["location_items"][location][category][level]
 
-            item = choice(available)
+            item = choice(availabel)
             qty = randint(1, 3)
             if aura > 999:
                 qty = randint(3,5)
@@ -295,8 +295,8 @@ class Games(commands.Cog):
             await ctx.send("Ayoo you don't have that much amount in your inventory")
             return
         em = Embed(title="💳 Transfer 💱", description= f"Are you Sure want to give {user.mention} {item} X {amount} ?", color = Color.gold())
-        confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", lable = "✅")
-        discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", lable = "❌")
+        confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", label = "✅")
+        discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", label = "❌")
         
         view = View(timeout=45)
         async def timeout():
@@ -362,7 +362,7 @@ class Games(commands.Cog):
         """To Kill spawned mob"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         
         drops = {
             "foods": 1,
@@ -388,7 +388,7 @@ class Games(commands.Cog):
         """To adventure or find new places, results in exciting rewards"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         #aura to new location find chance
         
         drops = {
@@ -420,8 +420,8 @@ class Games(commands.Cog):
             await ctx.reply(embed = Embed(description= f"{kemoji()} You have to place to go 🤣! Discover new locations using `k adventure` & `k explore` first.", color = Color.blue()))
             return
             
-        go_btn = Button(style=ButtonStyle.green, custom_id="go", lable = "🏃 Go", disabled = True)
-        return_btn = Button(style=ButtonStyle.secondary, custom_id="return", lable = "↩️ Return", disabled=True)
+        go_btn = Button(style=ButtonStyle.green, custom_id="go", label = "🏃 Go", disabled = True)
+        return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label = "↩️ Return", disabled=True)
        
         place_select = Select(custom_id="places", placeholder="Select Location to go", options=[SelectOption(label=i.replace("_"," ").title(),value=i) for i in places], max_values=1, min_values=1)
         if place:
@@ -429,7 +429,7 @@ class Games(commands.Cog):
                 await ctx.reply(embed=Embed(description="Invalid Location Provided", color= Color.red()))
                 return
             for option in place_select.options:
-                if place in option.lable.lower():
+                if place in option.label.lower():
                     option.default = True
                     go_btn.disabled = False
                     break
@@ -560,7 +560,7 @@ class Games(commands.Cog):
         """Catch Fish directly from the river."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         
         drops = {
             "foods": 3,
@@ -608,7 +608,7 @@ class Games(commands.Cog):
         """Goes hunting in the woods"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         
         drops = {
             "animals": 3,
@@ -631,7 +631,7 @@ class Games(commands.Cog):
         """Goes chopping in the woods"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         
         drops = {
             "foods": 1,
@@ -697,7 +697,7 @@ class Games(commands.Cog):
         """Work in your Job or Get a new Job"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         
         drops = {
             "foods": 1,
@@ -725,7 +725,7 @@ class Games(commands.Cog):
         """Go for Moninin the caves"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         
         drops = {
             "assets": 3,
@@ -748,7 +748,7 @@ class Games(commands.Cog):
         """Goes for Cropping your farmland"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         
         drops = {
             "plants": 3,
@@ -779,7 +779,7 @@ class Games(commands.Cog):
         """Steal item from a user very risky unless you have aura and skill ;>"""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         
         drops = {
             "foods": 1,
@@ -807,7 +807,7 @@ class Games(commands.Cog):
         """Explores a new place each time a bit dangerous. Consumes more energy and food."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
-        loc = profile["loc"]
+        loc = profile["location"]
         #New location find must
         
         drops = {
@@ -855,8 +855,8 @@ class Games(commands.Cog):
         em = Embed(title= f"🤵{ctx.authot.display_name} Weds {spouse.display_name} 👰", description= f"{ctx.author.display_name} you want to marry {spouse.mention} is that correct ? Please confirm your descision", color=Color.purple())
         em.set_footer(text=f"Marriage attended by {randint(1,8192)} discordians | {timestamp(ctx)} | Aura++", icon_url = ctx.author.avatar)
         
-        confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", lable = "✅")
-        discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", lable = "❌")
+        confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", label = "✅")
+        discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", label = "❌")
        
         view = View(timeout = 45)
         async def timeout():

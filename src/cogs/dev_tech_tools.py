@@ -6,10 +6,8 @@ class Dev_Tech_Tools(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(name="github", description="Seach GitHub Profile/Repo")
     @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
     async def github(self, ctx, username, repo=None):
         """Searches GitHub for repositories 💾  
         Returns repo info, owner, stars, and forks."""
@@ -47,10 +45,8 @@ class Dev_Tech_Tools(commands.Cog):
         em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.hybrid_command(aliases=["youtube"])
+    @commands.hybrid_command(name="yt", description="Search Videos on YouTube", aliases=["youtube"])
     @commands.cooldown(1, 30, type=commands.BucketType.user)
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
     async def yt(self, ctx, *, search: str):
         """Searches YouTube for videos 🎬  
         Interactive embed with thumbnails and navigation."""
@@ -135,10 +131,8 @@ class Dev_Tech_Tools(commands.Cog):
         right.callback = on_leftright
         msg = await ctx.reply(embed=em, view=view)
 
-    @commands.hybrid_command(aliases=["codesnippet"])
+    @commands.hybrid_command(name="code", description="Enter Code to compile", aliases=["codesnippet"])
     @commands.cooldown(1, 60, type=commands.BucketType.user)
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
     async def code(self, ctx, language: str = "python", *, snippet: str = None):
         """Runs your code in any language"""
         if not snippet:
@@ -153,10 +147,8 @@ class Dev_Tech_Tools(commands.Cog):
         em.set_footer(text=f"Shared by {ctx.author}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
-    @commands.hybrid_command(aliases=["instagram"])
+    @commands.hybrid_command(name="insta", description="Search Instagram Profile via Id", aliases=["instagram"])
     @commands.cooldown(1, 30, type=commands.BucketType.user)
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
     async def insta(self, ctx, username: str):
         """Search for any Instagram Profile"""
         run_input = { "usernames": [username] }
@@ -198,7 +190,7 @@ class Dev_Tech_Tools(commands.Cog):
             nonlocal em, posts, page, view, left, right
             mypost = posts[page-1]
             em.clear_fields()
-            em.add_field(name=f"{mypost['caption']}", value=f"❤️ {mypost['likes']} 💬 {mypost['comments']}")
+            em.add_field(name=f"{mypost['caption'][:64]}", value=f"❤️ {mypost['likes']} 💬 {mypost['comments']}")
             em.set_image(url=mypost["img"])
             watch = Button(style=ButtonStyle.link, url=mypost["url"], label=username, row=0)
             view.clear_items()

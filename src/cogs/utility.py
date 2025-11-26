@@ -161,13 +161,17 @@ class Utility(commands.Cog):
                 booster_text= f"Boosting since <t:{int(member.premium_since.timestamp())}:D>"
             else:
                 booster_text = 'Not Boosting'
-            invite_text = "unknown"
-            inviter_guild = INVITER.get(str(member.guild.id), None)
-            if inviter_guild:    
-                inviter_id = inviter_guild.get(str(member.id),None)
-                if inviter_id:
-                    inviter = self.client.get_user(inviter_id)
-                    invite_text = f"{inviter.mention}"
+            invite_text = "@unknown"
+            invites = Server_Setting[str(message.guild.id)]["invites"]
+            for code, ids in invites.items():  
+                if message.author.id in ids:
+                    try:
+                        invite = await self.client.fetch_invite(code)
+                        inviter = invite.inviter
+                        invite_text = f"{inviter.mention}"
+                    except:
+                        invite_text = "@unknown"
+                    break
             em = Embed(title = "⚙️ Member Initialisation 🛠️", description= f"**📛 Username**:{member.name}\n**👤 Name:** {member.display_name}\n**🪪 ID**: {member.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {device_text}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
             em.set_thumbnail(url = member.avatar)
             em.set_author(name = f"{member.name}")
@@ -319,7 +323,7 @@ class Utility(commands.Cog):
     async def util(self, ctx):
         await ctx.invoke(ctx.bot.get_command("help"), "utility")
         
-    @commands.hybrid_command(aliases=[], with_app_command = True)
+    @commands.hybrid_command(name="help", description= "You Kelly Help Guide", aliases=[], with_app_command = True)
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def help(self, ctx, cmd = None):
@@ -403,6 +407,7 @@ class Utility(commands.Cog):
                     view.add_item(right)
                     found = True
                     break
+                
             else:
                 await ctx.send(f"No help for {cmd} found")
                 return
@@ -432,15 +437,14 @@ class Utility(commands.Cog):
                 em.add_field(name="Description", value=command.help)
                 perms = []
                 for check in command.checks:
-                    check_str = str(check)
-                    if "has_permissions" in check_str:
-                        try:
-                            raw = check_str.split("(")[1].split(")")[0].replace("'", "").replace(" ", "").replace("_", " ")
-                            perms.extend([p.split("=")[0].capitalize() for p in raw.split(",")])
-                            if perms:
-                                em.add_field(name="Required Permissions:", value = " ".join(perms))
-                        except:
-                            pass
+                    func = getattr(check, "predicate", check)
+                    if func.__closure__:
+                        for cell in func.__closure__:
+                            content = cell.cell_contents
+                            if isinstance(content, dict):
+                                for perm, value in content.items():
+                                    if value:
+                                        perms.append(perm.replace("_", " ").title())
                 if perms:
                     em.add_field(name="Required Permissions:",value=", ".join(required),inline=False)
             else:
