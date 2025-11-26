@@ -335,6 +335,8 @@ class Utility(commands.Cog):
             cmdz = cog.get_commands()
             info = ""
             for c in cmdz:
+                if c.hidden:
+                    continue
                 if c.brief:
                     info += f"`{c.name}` - {c.brief}\n"
                 else:
@@ -386,6 +388,8 @@ class Utility(commands.Cog):
                     cmd = None
                     break
             for i, c in enumerate(menu_cmds):
+                if found:
+                    break
                 for index, cm in enumerate(c):
                   if cmd.lower() == cm or cmd.lower() in ctx.bot.get_command(cm).aliases:
                     category = i
@@ -398,8 +402,6 @@ class Utility(commands.Cog):
                     view.add_item(get_started)
                     view.add_item(right)
                     found = True
-                    break
-                if found:
                     break
             else:
                 await ctx.send(f"No help for {cmd} found")
@@ -439,6 +441,8 @@ class Utility(commands.Cog):
                                 em.add_field(name="Required Permissions:", value = " ".join(perms))
                         except:
                             pass
+                if perms:
+                    em.add_field(name="Required Permissions:",value=", ".join(required),inline=False)
             else:
                 em.title = f"Help {menu[category]}"
                 em.description = menu_descrip[category]
