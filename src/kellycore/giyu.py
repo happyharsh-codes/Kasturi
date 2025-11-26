@@ -43,7 +43,7 @@ class Giyu:
                 else:
                     booster_text = 'Not Boosting'
                 invite_text = "@unknown"
-                invites = Server_Setting[str(message.guild.id)]["invites"]
+                invites = Server_Settings[str(message.guild.id)]["invites"]
                 for code, ids in invites.items():  
                     if message.author.id in ids:
                         try:
