@@ -167,6 +167,8 @@ default_sv_settings = {
 Profiles         = load_mongo_dict("profiles", "server", default_profiles)
 Server_Settings  = load_mongo_dict("server_settings", "server", default_sv_settings)
 Invite_Cache     = load_mongo_dict("invite_cache", "server")
+Guild_Invites    = load_mongo_dict("guild_invites", "server")
+
 Relation         = load_mongo_dict("relations", "kellymemory")
 Chats            = load_mongo_dict("chats", "kellymemory")
 Database         = load_mongo_dict("database", "kellymemory")
