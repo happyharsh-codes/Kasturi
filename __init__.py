@@ -83,6 +83,8 @@ class MongoNestedDict(MutableMapping):
 
     # ---------- Delete ----------
     def __delitem__(self, key):
+        if key not in self._data:
+            return
         del self._data[key]
         self._sync()
 
@@ -134,7 +136,7 @@ default_profiles = {
 default_sv_settings = {
     "name": "N/A",
     "allowed_channels": [],
-    "premium": False,
+    "premium": 100,
     "invite_link": "N/A",
     "owner": "N/A",
     "moderators": [],
@@ -164,7 +166,7 @@ default_sv_settings = {
 
 Profiles         = load_mongo_dict("profiles", "server", default_profiles)
 Server_Settings  = load_mongo_dict("server_settings", "server", default_sv_settings)
-
+Invite_Cache     = load_mongo_dict("invite_cache", "server")
 Relation         = load_mongo_dict("relations", "kellymemory")
 Chats            = load_mongo_dict("chats", "kellymemory")
 Database         = load_mongo_dict("database", "kellymemory")
@@ -264,7 +266,7 @@ def timestamp(ctx):
     
 # ===== Utility Functions =====
 
-async def safe_dm(self, member: discord.Member, embed: discord.Embed = None, message = None, view = None):
+async def safe_dm(member: discord.Member, embed: discord.Embed = None, message = None, view = None):
     """Safely tries to DM a user, fallback to channel if DMs are closed."""
     try:
         if not member.dm_channel:
@@ -275,7 +277,7 @@ async def safe_dm(self, member: discord.Member, embed: discord.Embed = None, mes
         return False
     return msg
 
-def action_embed(self, ctx: commands.Context, title: str = "", desc: str = "",  member=None, color=Color.pink(), text = None, thumbnail = None, url = None):
+def action_embed(ctx: commands.Context, title: str = "", desc: str = "",  member=None, color=Color.pink(), text = None, thumbnail = None, url = None):
     """Creates a consistent embed style for actions."""
     embed = Embed(title=title, description=desc, color=color)
     if text:

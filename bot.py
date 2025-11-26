@@ -311,7 +311,7 @@ class Bot:
         # tracking invites
         for guild in self.client.guilds:
             try:
-                self.invite_cache[guild.id] = {
+                Invite_Cache[guild.id] = {
                     invite.code: invite.uses for invite in await guild.invites()
                 }
             except:
@@ -376,7 +376,7 @@ class Bot:
         for member in guild.members:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
                 moderators.append(member.id)
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": False,"invite_link": invite,"owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"join/leave_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {},"friends": [],"logging": 0}
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite,"owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"join/leave_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {},"friends": [],"logging": 0}
 
     async def on_guild_remove(self, guild: discord.Guild):
         try:
@@ -409,7 +409,7 @@ class Bot:
             
         me = self.client.get_user(894072003533877279)
         await me.send(f"Left a server: {Server_Settings[str(guild.id)]['name']}\n{Server_Settings[str(guild.id)]['invite_link']}")
-        Server_Settings.pop(str(guild.id), None)
+        del Server_Settings[str(guild.id)]
         
     async def on_guild_update(self, before, after):
         """When guild updates: Name, AFK channels, afk timeout, etc"""
@@ -531,23 +531,6 @@ class Bot:
         await self.send_log(guild, em)
 
     async def on_member_join(self, member: discord.Member):
-        #setting invites
-        invites_before = self.invite_cache[member.guild.id]
-        used_invite = None
-        for inv in await member.guild.invites():
-            before = invites_before.get(inv.code, 0)
-            after = inv.uses
-            if after > before:
-                used_invite = inv
-                break
-        self.invite_cache[member.guild.id] = {invite.code: invite.uses for invite in await member.guild.invites()}
-        if used_invite:
-            inviter = used_invite.inviter
-            if str(used_invite.code) in Server_Settings[str(member.guild.id)]["invites"]:
-                Server_Settings[str(member.guild.id)]["invites"][str(used_invite.code)].append(member.id)
-            else:
-                Server_Settings[str(member.guild.id)]["invites"][str(used_invite.code)] = [member.id]
-            
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             welcome_message = Server_Settings[str(member.guild.id)]["welcome_message"]
             part1 = welcome_message.split('\n')[0]
@@ -571,6 +554,28 @@ class Bot:
         if used_invite:
             description += f"\nInvite: {used_invite.code}\nInvitor : {used_invite.inviter.mention}"
         await self.send_log(member.guild, em)
+        
+        #setting invites
+        invites_before = Invite_Cache[member.guild.id]
+        if not invites_before:
+            return
+        used_invite = None
+        try:
+            for inv in await member.guild.invites():
+                before = invites_before.get(inv.code, 0)
+                after = inv.uses
+                if after > before:
+                    used_invite = inv
+                    break
+            Invite_Cache[member.guild.id] = {invite.code: invite.uses for invite in await member.guild.invites()}
+            if used_invite:
+                inviter = used_invite.inviter
+                if str(used_invite.code) in Server_Settings[str(member.guild.id)]["invites"]:
+                    Server_Settings[str(member.guild.id)]["invites"][str(used_invite.code)].append(member.id)
+                else:
+                    Server_Settings[str(member.guild.id)]["invites"][str(used_invite.code)] = [member.id]
+        except:
+            pass
 
     async def on_member_remove(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
@@ -625,7 +630,7 @@ class Bot:
             changes.append(f"Nickname: **{before.nick}** → **{after.nick}**")
         if set(before.roles) != set(after.roles):
             changes.append(
-                f"Roles changed. Now: {', '.join(r.mention for r in after.roles if r.name != '@everyone')}"
+                f"Roles changed. Now: {', '.join([r.mention for r in after.roles if r.name != '@everyone'])}"
             )
         if not changes:
             return
@@ -756,138 +761,148 @@ class Bot:
             await self.client.get_user(894072003533877279).send(f"Exception on presence change: {e}")
 
     async def on_message(self, message: discord.Message):
+        
+        if not message or not message.content:
+            return
+        if not message.author:
+            return
+        
+        author = message.author   
+        guild = message.guild
+        channel = message.channel
+        
+        content_raw = message.content
+        content = re.sub(r"<a?:\w+:\d+>", "", content_raw).strip().lower()
+        
         start = time.time()
-        id = message.author.id
-        if not message.content or message.content == "":
+        
+        #Ignoring Self/Bot message
+        if self.client.user == message.author or message.author.bot:
+            return
+        #Ignoring non text messages
+        if message.content == "":
             return
         
-        guild = message.guild.id
-        channel = message.channel.id
-        metadata = Server_Settings[str(guild)]
-        try:
-            #Ignoring Self message
-            if self.client.user == message.author or message.author.bot:
-                return
-            #ignoring non text messages
-            if message.content == "":
-                return
-            #replying in dms
-            if isinstance(message.channel, discord.DMChannel):
-                message.content = re.sub(r"<a?:\w+:\d+>", "", message.content).strip().lower() # removing emojis
-                if "kasturi" in message.content or "kelly" in message.content:
+        # ===== REPLIES ====
+        if message.reference and message.reference.message_id:
+            try:
+                original = await message.channel.fetch_message(message.reference.message_id)
+                if original.author.id == self.client.user.id:
+                    print(f"Reply to Kelly detected: {message.content}")
+                    #checking for embeds
+                    if original.embeds:
+                        return #Only reply to chats not to system messages
                     await self.kelly.kellyQuery(message)
                     return
-                
-            #Deleting banned words
-            for word in metadata["banned_words"]:
-                if word in message.content:
-                    try:
-                        await message.delete()
-                    except:
-                        print("No delete message perms")
-                    break
-            #Handelling Bot mentions
-            if self.client.user.mention in message.content:
-                if "deactivate" in message.content.lower():
-                    if channel not in metadata["allowed_channels"]:
-                        await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
-                        return
-                    Server_Settings[str(guild)]["allowed_channels"].remove(channel)
-                    await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{channel}> was succesfully deactivated !!", color= discord.Colour.green()))
-                    return
-                if message.content == self.client.user.mention:
-                    em = discord.Embed(title= f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
-                    em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
-                    em.add_field(name= "Help", value="Get Help using `k help` command")
-                    em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
-                    await message.channel.send(embed=em)
-                    return
-                else:
-                    message.content = message.content.replace(self.client.user.mention, "kelly")
-            
-            #Giving xp
-            if metadata["rank_channel"] != 0:
-                if str(id) in metadata["rank"]:
-                    total_xp = metadata["rank"][str(id)]
-                    level = (math.sqrt(1+8*(total_xp//15)) -1)//2
-                    max_xp = ((level+1)*(level+2)*15)//2
-                    total_xp += 2
-                    if total_xp > max_xp:
-                        channel = await message.guild.fetch_channel(metadata["rank_channel"])
-                        await channel.send(f"{message.author.mention} has reached **Level {level+1}!** 🎉") 
-                    Server_Settings[str(guild)]["rank"][str(id)] += 2
-                else: 
-                    Server_Settings[str(guild)]["rank"][str(id)] = 2
-
-            #checking for afk user
-            for afk in metadata['afk']:
-                if id == afk:
-                    Server_Settings[str(guild)]['afk'].remove(afk)
-                elif self.client.get_user(afk).mentioned_in(message):
-                    await message.channel.send(embed= Embed(description=f"Please don’t mention **@{self.client.get_user(afk).name}** — they are currently AFK.",color=Color.red()))
-        
-            #checking for allowed channel
-            if metadata["allowed_channels"] != [] and channel not in metadata["allowed_channels"] and message.content.lower().startswith(("kasturi", "kelly")):
-                channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
-                await message.channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} I only chat in the activated channels: {channels_str}", delete_after = 8)
+            except discord.NotFound:
+                return # original message not found (maybe deleted)
+                 
+        # ===== DM MESSAGES ==== 
+        if isinstance(message.channel, discord.DMChannel):
+            if any(x in content for x in ("kasturi", "kelly")):
+                await self.kelly.kellyQuery(message)
                 return
-            elif metadata["allowed_channels"] == [] and message.content.lower().startswith(("k ", "kelly", "kasturi")) and not "activate" in message.content:
-                if randint(1,3) == 3:
-                    await message.channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate` now")
-            #replying to replies i.e messages without prefixes
-            if message.reference and message.reference.message_id:
+                
+        metadata = Server_Settings[str(guild.id)]
+        
+        #Deleting banned words
+        for word in metadata["banned_words"]:
+            if word in content:
                 try:
-                    original = await message.channel.fetch_message(message.reference.message_id)
-                    if original.author.id == self.client.user.id:
-                        print(f"Reply to Kelly detected: {message.content}")
-                        #checking for embeds
-                        if original.embeds:
-                            return #Only reply to chats not to system messages
-                        await self.kelly.kellyQuery(message)
-                        return
-                except discord.NotFound:
-                    return # original message not found (maybe deleted)
-
-            # Otherwise, only handle messages with valid prefixes
-            message.content = re.sub(r"<a?:\w+:\d+>", "", message.content).strip().lower() # removing emojis
-            if not message.content.startswith(("kasturi", "kelly", "k")):
-                if "kasturi" in message.content.lower() or "kelly" in message.content.lower():
-                    #cheking for Administrator Permission given or not
-                    '''bot_member = message.guild.me
-                    if not bot_member.guild_permissions.administrator:
-                        em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
-                        await message.channel.send(embed=em)
-                        return'''
-                    await self.kelly.kellyQuery(message)
+                    await message.delete()
+                except:
+                        print("No delete message perms")
+                break
+        
+        #Handelling Bot mentions
+        if self.client.user.mention in content:
+            if "deactivate" in content:
+                if channel.id not in metadata["allowed_channels"]:
+                    await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
+                    return
+                Server_Settings[str(guild.id)]["allowed_channels"].remove(channel.id)
+                await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{channel}> was succesfully deactivated !!", color= discord.Colour.green()))
                 return
-            message.content = message.content.replace("kelly","").replace("kasturi","").strip()
-            #cheking for Administrator Permission given or not
-            '''bot_member = message.guild.me
-            if not bot_member.guild_permissions.administrator:
-                em = Embed(title= "Administrator Permission is Compulsory", description = "I need administrator permission to operate properly. This is beacause our bot is multipurpose and requries almost all kinds of permissions. Please grant me administrator permission. This is safe we do not intend to do anything malicious. If you are still not satisfied why we need this [Click Here](https://discord.gg/y56na8kN9e)", color = Color.red())
+            if message.content == self.client.user.mention:
+                em = discord.Embed(title= f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
+                em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
+                em.add_field(name= "Help", value="Get Help using `k help` command")
+                em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
                 await message.channel.send(embed=em)
-                return'''
-                
-            if message.content[0] == "k":
-                message.content = message.content[1:].strip()
-                for command in self.client.commands:
-                    if message.content.split()[0] in command.name or message.content.split()[0] in command.aliases:
-                        break
-                else: return
-                
-            if message.content[0] == " ":
-                message.content = "???" + message.content[1:]
+                return
             else:
-                message.content = "???" + message.content
-            print("Processing command on message: "+ message.content)
-            await self.client.process_commands(message) #Kelly Process the message ;)
-            print("Latency: ", (time.time() - start))
+                content = content.replace(self.client.user.mention, "kelly")
+        
+        #Giving xp
+        if metadata["rank_channel"] != 0:
+            if str(author.id) in metadata["rank"]:
+                total_xp = metadata["rank"][str(author.id)]
+                level = (math.sqrt(1+8*(total_xp//15)) -1)//2
+                max_xp = ((level+1)*(level+2)*15)//2
+                total_xp += 2
+                if total_xp > max_xp:
+                    try:
+                        rank_channel = await message.guild.fetch_channel(metadata["rank_channel"])
+                        await rank_channel.send(f"{author.mention} has reached **Level {level+1}!** 🎉") 
+                    except:
+                        await channel.send(embed=Embed(title="Rank Channel Missing", description="Server Rank Channel is missing either because channel is deleted or I don't have access to that channel. Please set your rank channel again using `k set_rank_channel`", color=Color.red()))
+                Server_Settings[str(guild.id)]["rank"][str(author.id)] += 2
+            else: 
+                Server_Settings[str(guild.id)]["rank"][str(author.id)] = 2
+                        
+        #checking for afk user
+        for afk in metadata['afk']:
+            if id == afk:
+                Server_Settings[str(guild.id)]['afk'].remove(afk)
+                break
+            elif self.client.get_user(afk) and self.client.get_user(afk).mentioned_in(message):
+                await channel.send(embed= Embed(description=f"Please don’t mention **@{self.client.get_user(afk).display_name}** — they are currently AFK.",color=Color.red()))
+        
+        #checking for allowed channel
+        if metadata["allowed_channels"] != [] and channel.id not in metadata["allowed_channels"] and content.startswith(("kasturi", "kelly")):
+            channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
+            await channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} I only chat in the activated channels: {channels_str}", delete_after = 8)
             return
-        except Exception as e:
-            print("error in on_message: ", e)
-            import traceback
-            traceback.print_exc()
-
+        elif metadata["allowed_channels"] == [] and content.startswith(("k ", "kelly", "kasturi")) and not "activate" in content:
+            if randint(1,3) == 3:
+                await channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho', 'Hello', 'Yoo'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate`.", delete_after = 10)
+        
+        # Otherwise, only handle messages with valid prefixes
+        if not content.startswith(("kasturi", "kelly", "k")):
+            if any(x in content for x in ("kasturi", "kelly")):
+                #cheking for Administrator Permission given or not
+                '''bot_member = message.guild.me
+                if not bot_member.guild_permissions.administrator:
+                    em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
+                    await message.channel.send(embed=em)
+                    return'''
+                await self.kelly.kellyQuery(message)
+            return
+        message.content = message.content.replace("kelly","").replace("kasturi","").strip()
+        #cheking for Administrator Permission given or not
+        '''bot_member = message.guild.me
+        if not bot_member.guild_permissions.administrator:
+            em = Embed(title= "Administrator Permission is Compulsory", description = "I need administrator permission to operate properly. This is beacause our bot is multipurpose and requries almost all kinds of permissions. Please grant me administrator permission. This is safe we do not intend to do anything malicious. If you are still not satisfied why we need this [Click Here](https://discord.gg/y56na8kN9e)", color = Color.red())
+            await message.channel.send(embed=em)
+            return'''
+                
+        if message.content[0] == "k":
+            message.content = message.content[1:].strip()
+            for command in self.client.commands:
+                if message.content.split()[0] in command.name or message.content.split()[0] in command.aliases:
+                    break
+            else:
+                return
+                
+        if message.content and message.content[0] == " ":
+            message.content = "???" + message.content[1:]
+        else:
+            message.content = "???" + message.content
+        print("Processing command on message: "+ message.content)
+        await self.client.process_commands(message) #Kelly Process the message ;)
+        print("Latency: ", (time.time() - start))
+        return
+        
     async def on_message_edit(self, before, after):
         if before.author.bot:
             return
