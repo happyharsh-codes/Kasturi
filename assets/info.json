@@ -1,6 +1,11 @@
 {
-    "tips": ["Join [**Kelly's Homeland**](https://discord.gg/y56na8kN9e) for exciting rewards", "Say Hi to kelly", "Just ask kelly for anything", "Kelly at your service"],
-    "emoji":{
+    "tips": [
+        "Join [**Kelly's Homeland**](https://discord.gg/y56na8kN9e) for exciting rewards",
+        "Say Hi to kelly",
+        "Just ask kelly for anything",
+        "Kelly at your service"
+    ],
+    "emoji": {
         "kellytired": "<:KellyTired:1372191177939615865>",
         "kellyacting": "<:kellyacting:1372190850536177764>",
         "kellyannoyed": "<:kellyannoyed:1372190854130827404>",
@@ -54,1010 +59,2164 @@
         "giyuveryangry": "<:Jdjddn:1395596285712666644>"
     },
     "brief": {
-    "joke": "Get a random funny joke.",
-    "picture": "Fetch a random fun or cute image.",
-    "mock": "Mock a user’s message in a sarcastic tone.",
-    "ask": "Ask Kelly anything — she’ll reply instantly!",
-    "heck": "Playfully roast someone in a fun way.",
-    "mene": "Random meme generator",
-
-    "github": "Search for GitHub users or repositories.",
-    "yt": "Search for YouTube videos and channels.",
-    "code": "Run or preview code snippets directly.",
-    "insta": "Search for Instagram profiles and posts.",
-
-    "mute_from_kelly": "Mute a member from talking to Kelly.",
-    "mute": "Mute a member from voice or text chat.",
-    "unmute_from_kelly": "Unmute someone muted from Kelly chatting.",
-    "unmute": "Unmute a previously muted from server.",
-    "kick": "Kick a member out of the server.",
-    "warn": "Send a formal warning to a user.",
-    "warn_action": "Set Warning infringement auto action",
-    "ban": "Ban a user from the server.",
-    "ban_from_kelly": "Ban someone from talking to Kelly",
-    "unban": "Unban a previously banned member.",
-    "unban_from_kelly": "Unban someone from Kelly chatting.",
-    "assignrole": "Assign a specific role to a member.",
-    "deafen": "Deafen a user in voice chat.",
-    "undeafen": "Remove deafen status from a user.",
-    "clean": "Delete given number of messages.",
-    "slowmode": "Enable slowmode in the current channel.",
-    "purge": "Bulk delete messages from a channel.",
-    "lock": "Lock a channel to stop chatting.",
-    "unlock": "Unlock a locked channel.",
-    "set_rank_channel": "Set the channel for rank updates.",
-    "set_welcome_channel": "Set the channel for welcome messages.",
-    "set_social_channel": "Set the channel for social media updates.",
-    "automod": "Set automod rule for server",
-    "rank_reward": "Set rewards to recive on reaching a level",
-        
-    "play": "Play any song or audio from YouTube or Spotify.",
-    "queue": "View the current music queue.",
-    "skip": "Skip the currently playing track.",
-    "stop": "Stop the music and clear the queue.",
-    "now_playing": "Shows the current playing track and Media player",
-    "lyrics": "Shows lyrics for currently playing track",
-    "rewind": "Rewinds the current song",
-        
-    "rank": "Check your level, XP, and rank in the server.",
-    "top": "View the top-ranked members on the leaderboard.",
-    "leaderboard": "Shows leaderboard across the globe",
-    "invite": "Get Kelly’s invite link or server invite.",
-    "vote": "Vote for Kelly and earn rewards.",
-    "afk": "Set an AFK (away from keyboard) status.",
-    "avatar": "Show your or someone else’s profile picture.",
-    "premium": "Learn about Kelly’s premium features.",
-    "info": "Shows info for any user,guild,channel,role,web,etc",
-    "bug": "Report bugs, queries, suggestions using this",
-    "help": "Show a list of available commands.",
-    "activate": "Activate Kelly’s advanced features for your server.",
-
-    "cash": "Check your wallet balance.",
-    "gems": "Check your gem or rare currency count.",
-    "inv": "View your current inventory items.",
-    "give": "Transfer cash or items to another player.",
-    "use": "Use an item from your inventory.",
-    "kill": "Challenge and attack another player (for fun).",
-    "adventure": "Go on an adventure and earn rewards.",
-    "craft": "Craft new items from your materials.",
-    "bankrob": "Attempt to rob the bank — risky but rewarding!",
-    "beg": "Beg for a small random amount of cash.",
-    "hunt": "Go hunting to earn loot or XP.",
-    "battle": "Battle another player for rewards.",
-    "buy": "Purchase an item from the shop.",
-    "sell": "Sell an item from your inventory.",
-    "black_market": "Black Market the place to sell anything",
-    "quest": "Complete quest for exciting rewards",
-    "marry": "Marry your wifey 😜",
-    "daily": "Daily Mission",
-    "explore": "Eplore new area and fields",
-    "farm": "Harvest your crops",
-    "steal": "Steal from someone's inventory",
-    "work": "Work at your job for salary",
-    "fish": "Catch some fish today",
-    "mine": "Start mining minerals",
-    "build": "Build your architecture",
-    "trade": "Trade your items for something more valueable",
-        
-    "invites": "Shows your invites profile"
+        "joke": "Get a random funny joke.",
+        "picture": "Fetch a random fun or cute image.",
+        "mock": "Mock a user\u2019s message in a sarcastic tone.",
+        "ask": "Ask Kelly anything \u2014 she\u2019ll reply instantly!",
+        "heck": "Playfully roast someone in a fun way.",
+        "mene": "Random meme generator",
+        "github": "Search for GitHub users or repositories.",
+        "yt": "Search for YouTube videos and channels.",
+        "code": "Run or preview code snippets directly.",
+        "insta": "Search for Instagram profiles and posts.",
+        "mute_from_kelly": "Mute a member from talking to Kelly.",
+        "mute": "Mute a member from voice or text chat.",
+        "unmute_from_kelly": "Unmute someone muted from Kelly chatting.",
+        "unmute": "Unmute a previously muted from server.",
+        "kick": "Kick a member out of the server.",
+        "warn": "Send a formal warning to a user.",
+        "warn_action": "Set Warning infringement auto action",
+        "ban": "Ban a user from the server.",
+        "ban_from_kelly": "Ban someone from talking to Kelly",
+        "unban": "Unban a previously banned member.",
+        "unban_from_kelly": "Unban someone from Kelly chatting.",
+        "assignrole": "Assign a specific role to a member.",
+        "deafen": "Deafen a user in voice chat.",
+        "undeafen": "Remove deafen status from a user.",
+        "clean": "Delete given number of messages.",
+        "slowmode": "Enable slowmode in the current channel.",
+        "purge": "Bulk delete messages from a channel.",
+        "lock": "Lock a channel to stop chatting.",
+        "unlock": "Unlock a locked channel.",
+        "set_rank_channel": "Set the channel for rank updates.",
+        "set_welcome_channel": "Set the channel for welcome messages.",
+        "set_social_channel": "Set the channel for social media updates.",
+        "automod": "Set automod rule for server",
+        "rank_reward": "Set rewards to recive on reaching a level",
+        "play": "Play any song or audio from YouTube or Spotify.",
+        "queue": "View the current music queue.",
+        "skip": "Skip the currently playing track.",
+        "stop": "Stop the music and clear the queue.",
+        "now_playing": "Shows the current playing track and Media player",
+        "lyrics": "Shows lyrics for currently playing track",
+        "rewind": "Rewinds the current song",
+        "rank": "Check your level, XP, and rank in the server.",
+        "top": "View the top-ranked members on the leaderboard.",
+        "leaderboard": "Shows leaderboard across the globe",
+        "invite": "Get Kelly\u2019s invite link or server invite.",
+        "vote": "Vote for Kelly and earn rewards.",
+        "afk": "Set an AFK (away from keyboard) status.",
+        "avatar": "Show your or someone else\u2019s profile picture.",
+        "premium": "Learn about Kelly\u2019s premium features.",
+        "info": "Shows info for any user,guild,channel,role,web,etc",
+        "bug": "Report bugs, queries, suggestions using this",
+        "help": "Show a list of available commands.",
+        "activate": "Activate Kelly\u2019s advanced features for your server.",
+        "cash": "Check your wallet balance.",
+        "gems": "Check your gem or rare currency count.",
+        "inv": "View your current inventory items.",
+        "give": "Transfer cash or items to another player.",
+        "use": "Use an item from your inventory.",
+        "kill": "Challenge and attack another player (for fun).",
+        "adventure": "Go on an adventure and earn rewards.",
+        "craft": "Craft new items from your materials.",
+        "bankrob": "Attempt to rob the bank \u2014 risky but rewarding!",
+        "beg": "Beg for a small random amount of cash.",
+        "hunt": "Go hunting to earn loot or XP.",
+        "battle": "Battle another player for rewards.",
+        "buy": "Purchase an item from the shop.",
+        "sell": "Sell an item from your inventory.",
+        "black_market": "Black Market the place to sell anything",
+        "quest": "Complete quest for exciting rewards",
+        "marry": "Marry your wifey \ud83d\ude1c",
+        "daily": "Daily Mission",
+        "explore": "Eplore new area and fields",
+        "farm": "Harvest your crops",
+        "steal": "Steal from someone's inventory",
+        "work": "Work at your job for salary",
+        "fish": "Catch some fish today",
+        "mine": "Start mining minerals",
+        "build": "Build your architecture",
+        "trade": "Trade your items for something more valueable",
+        "invites": "Shows your invites profile"
     },
-    
-  "Foods": {
-    "Level1": ["bread", "milk", "cookie", "jam", "butter", "apple", "banana", "carrot"],
-    "Level2": ["rice_ball", "noodles", "pancake", "dumpling", "tea", "cheese", "yogurt", "porridge"],
-    "Level3": ["sushi", "stew", "roasted_chicken", "pumpkin_pie", "fruit_salad", "soup", "grilled_fish", "honey"],
-    "Level4": ["pizza", "burger", "ramen_bowl", "taco", "paella", "seafood_platter", "sushi_deluxe", "gourmet_steak"],
-    "Level5": ["feast_platter", "golden_cake", "ambrosia", "royal_brew", "dragonfruit_dish", "divine_soup", "celestial_sweet", "aged_wine"]
-  },
-
-  "Plants": {
-    "Level1": ["seed_wheat", "herb_basil", "leaf_spinach", "sprout", "mushroom_common", "flower_daisy", "berry_blue", "fern"],
-    "Level2": ["corn", "tomato", "onion", "garlic", "potato", "mint", "chili", "sage"],
-    "Level3": ["olive", "grape", "strawberry", "blueberry", "cocoa", "coffee_bean", "ginger", "almond_tree_sapling"],
-    "Level4": ["citrus_tree_seedling", "avocado_tree_sapling", "coffee_bush", "tea_bush", "vanilla_orchid", "olive_tree_seedling", "bamboo_clump", "orchid"],
-    "Level5": ["ancient_oak_seed", "sacred_herb", "mythic_orchid", "golden_apple_sapling", "dragon_vine", "stardust_lily", "elder_root", "moonblossom"]
-  },
-
-  "Animals": {
-    "Level1": ["chicken", "rabbit", "fish", "duck", "cat", "dog", "mouse", "goat_kid"],
-    "Level2": ["sheep", "cow", "pig", "turkey", "pheasant", "beaver", "alpaca", "goose"],
-    "Level3": ["deer", "boar", "fox", "otter", "badger", "hawk", "seal", "elk"],
-    "Level4": ["bear", "wolf", "lynx", "bison", "yak", "cougar", "gator", "orc_boar"],
-    "Level5": ["griffin_egg", "dragon_whelp", "seraph_stag", "leviathan_scale", "phoenix_chick", "ancient_turtle", "dire_wolf", "celestial_hawk"]
-  },
-
-  "Tools": {
-    "Level1": ["fishing_rod", "knife", "hand_hoe", "bucket", "rope", "stone_hammer", "flint_and_steel", "wooden_shovel"],
-    "Level2": ["iron_pickaxe", "iron_axe", "saw", "bronze_sickle", "fishing_net", "whetstone", "compass", "lantern"],
-    "Level3": ["steel_hammer", "drill", "ropes_plus", "advanced_fishing_rod", "tongs", "forge_poker", "iron_shovel", "lockpick_set"],
-    "Level4": ["mechanic_toolkit", "motor_repair_kit", "alchemist_kit", "precision_drill", "hydraulic_jack", "sensor_pack", "welding_torch", "repair_drones"],
-    "Level5": ["quantum_toolset", "plasma_cutter", "nano_repair_kit", "orbital_welder", "etheric_calibrator", "arc_generator", "time_spanner", "dragonforge_hammer"]
-  },
-
-  "Emotes": {
-    "Level1": ["smile", "wave", "thumbs_up", "clap", "cheer", "wink", "grin", "nod"],
-    "Level2": ["facepalm", "shrug", "laugh", "cry", "sweat_smile", "smirk", "peace", "fist_bump"],
-    "Level3": ["hype", "rage", "facepalm_hard", "tears_of_joy", "mind_blown", "celebrate", "salute", "sneer"],
-    "Level4": ["victory", "king", "queen", "legend", "mastery", "omg", "epic", "mythic"],
-    "Level5": ["immortal", "divine", "cosmic", "timekeeper", "void", "eternal", "omniscient", "transcend"]
-  },
-
-  "Weapons": {
-    "Level1": ["wooden_sword", "stone_dagger", "short_bow", "slingshot", "club", "throwing_stone", "wooden_spear", "sling"],
-    "Level2": ["iron_sword", "long_bow", "steel_dagger", "composite_bow", "javelin", "battle_axe", "mace", "pike"],
-    "Level3": ["steel_sword", "recurve_bow", "crossbow", "warhammer", "rapier", "halberd", "throwing_axe", "blunderbuss"],
-    "Level4": ["enchanted_blade", "rifle", "energy_staff", "polearm", "explosive_launcher", "guardian_shield", "soul_saber", "storm_bow"],
-    "Level5": ["mythril_greatsword", "dragon_lance", "arc_cannon", "void_reaver", "celestial_staff", "apocalypse_axe", "phoenix_glaive", "divine_shield"]
-  },
-
-  "Assets": {
-    "Level1": ["copper_coin", "small_chest", "paper_map", "basic_document", "rope_bundle", "cloth_roll", "wood_plank", "stone_chunk"],
-    "Level2": ["silver_coin", "toolbox_small", "leather_pack", "crystal_shard", "iron_ingot", "glass_bottle", "tinderbox", "canvas"],
-    "Level3": ["gold_coin", "safe_box", "gemstone", "refined_iron", "mechanism_part", "brick_bundle", "timber_beam", "oil_barrel"],
-    "Level4": ["platinum_coin", "vault_key", "engine_core", "rare_gem", "refined_steel", "advanced_circuit", "golden_frame", "luxury_crate"],
-    "Level5": ["diamond_contract", "ancient_relic", "artifact_core", "cloud_server", "quantum_chip", "master_blueprint", "royal_seal", "legendary_treasure"]
-  },
-
-  "Vehicles": {
-    "Level1": ["rowboat", "bicycle", "scooter", "cart", "pony", "canoe", "hand_glider", "sled"],
-    "Level2": ["motorbike", "car_small", "jeep", "pickup", "sailboat", "speedboat", "tram", "rickshaw"],
-    "Level3": ["truck", "bus", "ferry", "helicopter", "train", "submarine", "seaplane", "hovercraft"],
-    "Level4": ["jet", "yacht", "armored_car", "battle_tank", "spaceplane", "maglev", "cruise_ship", "freighter"],
-    "Level5": ["starship", "teleporter_vessel", "leviathan_sub", "orbital_freighter", "quantum_shuttle", "flagship", "dragon_mount", "ether_sail"]
-  },
-
-  "places": {
-    "river": {
-      "Foods": {
-        "Level1": ["bread", "apple", "milk"],
-        "Level2": ["sushi", "noodles", "tea"],
-        "Level3": ["grilled_fish", "stew", "honey"],
-        "Level4": ["seafood_platter", "ramen_bowl", "sushi_deluxe"],
-        "Level5": ["divine_soup", "aged_wine", "feast_platter"]
-      },
-      "Plants": {
-        "Level1": ["sprout", "fern", "mushroom_common"],
-        "Level2": ["bamboo_clump", "mint", "sage"],
-        "Level3": ["olive", "coffee_bean", "ginger"],
-        "Level4": ["tea_bush", "vanilla_orchid", "bamboo_clump"],
-        "Level5": ["mythic_orchid", "elder_root", "moonblossom"]
-      },
-      "Animals": {
-        "Level1": ["fish", "duck", "rabbit"],
-        "Level2": ["otter", "seal", "goose"],
-        "Level3": ["deer", "elk", "boar"],
-        "Level4": ["bear", "gator", "wolf"],
-        "Level5": ["leviathan_scale", "dragon_whelp", "phoenix_chick"]
-      },
-      "Tools": {
-        "Level1": ["fishing_rod", "bucket", "rope"],
-        "Level2": ["fishing_net", "lantern", "whetstone"],
-        "Level3": ["advanced_fishing_rod", "rope_plus", "lockpick_set"],
-        "Level4": ["mechanic_toolkit", "hydraulic_jack", "sensor_pack"],
-        "Level5": ["nano_repair_kit", "orbital_welder", "dragonforge_hammer"]
-      },
-      "Emotes": {
-        "Level1": ["wave", "smile", "clap"],
-        "Level2": ["laugh", "cheer", "thumbs_up"],
-        "Level3": ["hype", "celebrate", "salute"],
-        "Level4": ["legend", "mastery", "epic"],
-        "Level5": ["divine", "transcend", "eternal"]
-      },
-      "Weapons": {
-        "Level1": ["slingshot", "throwing_stone", "wooden_spear"],
-        "Level2": ["short_bow", "iron_sword", "battle_axe"],
-        "Level3": ["crossbow", "warhammer", "rapier"],
-        "Level4": ["rifle", "energy_staff", "guardian_shield"],
-        "Level5": ["dragon_lance", "arc_cannon", "divine_shield"]
-      },
-      "Assets": {
-        "Level1": ["rope_bundle", "wood_plank", "stone_chunk"],
-        "Level2": ["glass_bottle", "iron_ingot", "tinderbox"],
-        "Level3": ["refined_iron", "mechanism_part", "brick_bundle"],
-        "Level4": ["engine_core", "advanced_circuit", "luxury_crate"],
-        "Level5": ["artifact_core", "quantum_chip", "legendary_treasure"]
-      },
-      "Vehicles": {
-        "Level1": ["rowboat", "canoe", "hand_glider"],
-        "Level2": ["speedboat", "sailboat", "motorbike"],
-        "Level3": ["ferry", "seaplane", "submarine"],
-        "Level4": ["yacht", "spaceplane", "armored_car"],
-        "Level5": ["leviathan_sub", "orbital_freighter", "starship"]
-      }
+    "Foods": {
+        "Level1": [
+            "bread",
+            "milk",
+            "cookie",
+            "jam",
+            "butter",
+            "apple",
+            "banana",
+            "carrot"
+        ],
+        "Level2": [
+            "rice_ball",
+            "noodles",
+            "pancake",
+            "dumpling",
+            "tea",
+            "cheese",
+            "yogurt",
+            "porridge"
+        ],
+        "Level3": [
+            "sushi",
+            "stew",
+            "roasted_chicken",
+            "pumpkin_pie",
+            "fruit_salad",
+            "soup",
+            "grilled_fish",
+            "honey"
+        ],
+        "Level4": [
+            "pizza",
+            "burger",
+            "ramen_bowl",
+            "taco",
+            "paella",
+            "seafood_platter",
+            "sushi_deluxe",
+            "gourmet_steak"
+        ],
+        "Level5": [
+            "feast_platter",
+            "golden_cake",
+            "ambrosia",
+            "royal_brew",
+            "dragonfruit_dish",
+            "divine_soup",
+            "celestial_sweet",
+            "aged_wine"
+        ]
     },
-
-    "forest": {
-      "Foods": {
-        "Level1": ["berry_blue", "jam", "bread"],
-        "Level2": ["fruit_salad", "pancake", "porridge"],
-        "Level3": ["roasted_chicken", "stew", "honey"],
-        "Level4": ["gourmet_steak", "pizza", "paella"],
-        "Level5": ["feast_platter", "ambrosia", "golden_cake"]
-      },
-      "Plants": {
-        "Level1": ["flower_daisy", "fern", "sprout"],
-        "Level2": ["mushroom_common", "berry_blue", "mint"],
-        "Level3": ["strawberry", "olive", "almond_tree_sapling"],
-        "Level4": ["avocado_tree_sapling", "bamboo_clump", "orchid"],
-        "Level5": ["ancient_oak_seed", "dragon_vine", "moonblossom"]
-      },
-      "Animals": {
-        "Level1": ["rabbit", "squirrel", "bird"],
-        "Level2": ["deer", "fox", "pheasant"],
-        "Level3": ["boar", "hawk", "otter"],
-        "Level4": ["lynx", "bear", "wolf"],
-        "Level5": ["griffin_egg", "phoenix_chick", "seraph_stag"]
-      },
-      "Tools": {
-        "Level1": ["hand_hoe", "knife", "wooden_shovel"],
-        "Level2": ["saw", "bronze_sickle", "lantern"],
-        "Level3": ["steel_hammer", "drill", "whetstone"],
-        "Level4": ["mechanic_toolkit", "precision_drill", "hydraulic_jack"],
-        "Level5": ["quantum_toolset", "plasma_cutter", "dragonforge_hammer"]
-      },
-      "Emotes": {
-        "Level1": ["smile", "wave", "clap"],
-        "Level2": ["wink", "cheer", "grin"],
-        "Level3": ["hype", "salute", "tears_of_joy"],
-        "Level4": ["victory", "king", "legend"],
-        "Level5": ["divine", "cosmic", "immortal"]
-      },
-      "Weapons": {
-        "Level1": ["wooden_sword", "club", "slingshot"],
-        "Level2": ["stone_dagger", "short_bow", "iron_sword"],
-        "Level3": ["steel_sword", "recurve_bow", "blunderbuss"],
-        "Level4": ["enchanted_blade", "storm_bow", "soul_saber"],
-        "Level5": ["mythril_greatsword", "dragon_lance", "phoenix_glaive"]
-      },
-      "Assets": {
-        "Level1": ["wood_plank", "cloth_roll", "small_chest"],
-        "Level2": ["iron_ingot", "leather_pack", "glass_bottle"],
-        "Level3": ["timber_beam", "gemstone", "refined_iron"],
-        "Level4": ["engine_core", "rare_gem", "golden_frame"],
-        "Level5": ["artifact_core", "ancient_relic", "royal_seal"]
-      },
-      "Vehicles": {
-        "Level1": ["pony", "cart", "sleigh"],
-        "Level2": ["jeep", "pickup", "sailboat"],
-        "Level3": ["truck", "horse_carriage", "tram"],
-        "Level4": ["armored_car", "yacht", "maglev"],
-        "Level5": ["flagship", "dragon_mount", "starship"]
-      }
+    "Plants": {
+        "Level1": [
+            "seed_wheat",
+            "herb_basil",
+            "leaf_spinach",
+            "sprout",
+            "mushroom_common",
+            "flower_daisy",
+            "berry_blue",
+            "fern"
+        ],
+        "Level2": [
+            "corn",
+            "tomato",
+            "onion",
+            "garlic",
+            "potato",
+            "mint",
+            "chili",
+            "sage"
+        ],
+        "Level3": [
+            "olive",
+            "grape",
+            "strawberry",
+            "blueberry",
+            "cocoa",
+            "coffee_bean",
+            "ginger",
+            "almond_tree_sapling"
+        ],
+        "Level4": [
+            "citrus_tree_seedling",
+            "avocado_tree_sapling",
+            "coffee_bush",
+            "tea_bush",
+            "vanilla_orchid",
+            "olive_tree_seedling",
+            "bamboo_clump",
+            "orchid"
+        ],
+        "Level5": [
+            "ancient_oak_seed",
+            "sacred_herb",
+            "mythic_orchid",
+            "golden_apple_sapling",
+            "dragon_vine",
+            "stardust_lily",
+            "elder_root",
+            "moonblossom"
+        ]
     },
-
-    "mountain": {
-      "Foods": {
-        "Level1": ["cheese", "bread", "milk"],
-        "Level2": ["stew", "pancake", "jam"],
-        "Level3": ["roasted_chicken", "soup", "honey"],
-        "Level4": ["gourmet_steak", "ramen_bowl", "seafood_platter"],
-        "Level5": ["feast_platter", "aged_wine", "ambrosia"]
-      },
-      "Plants": {
-        "Level1": ["herb_basil", "sprout", "fern"],
-        "Level2": ["garlic", "onion", "mint"],
-        "Level3": ["ginger", "olive", "almond_tree_sapling"],
-        "Level4": ["citrus_tree_seedling", "tea_bush", "avocado_tree_sapling"],
-        "Level5": ["sacred_herb", "elder_root", "moonblossom"]
-      },
-      "Animals": {
-        "Level1": ["goat_kid", "rabbit", "hawk"],
-        "Level2": ["sheep", "eagle", "pheasant"],
-        "Level3": ["boar", "deer", "elk"],
-        "Level4": ["yak", "bison", "bear"],
-        "Level5": ["griffin_egg", "dire_wolf", "seraph_stag"]
-      },
-      "Tools": {
-        "Level1": ["stone_hammer", "knife", "rope"],
-        "Level2": ["iron_pickaxe", "saw", "lantern"],
-        "Level3": ["steel_hammer", "drill", "whetstone"],
-        "Level4": ["hydraulic_jack", "precision_drill", "sensor_pack"],
-        "Level5": ["nano_repair_kit", "plasma_cutter", "dragonforge_hammer"]
-      },
-      "Emotes": {
-        "Level1": ["nod", "smile", "cheer"],
-        "Level2": ["thumbs_up", "clap", "grin"],
-        "Level3": ["hype", "salute", "victory"],
-        "Level4": ["legend", "mastery", "epic"],
-        "Level5": ["divine", "omniscient", "transcend"]
-      },
-      "Weapons": {
-        "Level1": ["stone_dagger", "wooden_spear", "club"],
-        "Level2": ["iron_sword", "javelin", "battle_axe"],
-        "Level3": ["rapier", "warhammer", "crossbow"],
-        "Level4": ["enchanted_blade", "apocalypse_axe", "guardian_shield"],
-        "Level5": ["dragon_lance", "void_reaver", "mythril_greatsword"]
-      },
-      "Assets": {
-        "Level1": ["stone_chunk", "rope_bundle", "paper_map"],
-        "Level2": ["iron_ingot", "tinderbox", "leather_pack"],
-        "Level3": ["refined_iron", "brick_bundle", "mechanism_part"],
-        "Level4": ["engine_core", "refined_steel", "rare_gem"],
-        "Level5": ["ancient_relic", "artifact_core", "legendary_treasure"]
-      },
-      "Vehicles": {
-        "Level1": ["sled", "cart", "pony"],
-        "Level2": ["jeep", "truck", "motorbike"],
-        "Level3": ["armored_car", "tram", "hovercraft"],
-        "Level4": ["maglev", "yacht", "spaceplane"],
-        "Level5": ["orbital_freighter", "starship", "flagship"]
-      }
+    "Animals": {
+        "Level1": [
+            "chicken",
+            "rabbit",
+            "fish",
+            "duck",
+            "cat",
+            "dog",
+            "mouse",
+            "goat_kid"
+        ],
+        "Level2": [
+            "sheep",
+            "cow",
+            "pig",
+            "turkey",
+            "pheasant",
+            "beaver",
+            "alpaca",
+            "goose"
+        ],
+        "Level3": [
+            "deer",
+            "boar",
+            "fox",
+            "otter",
+            "badger",
+            "hawk",
+            "seal",
+            "elk"
+        ],
+        "Level4": [
+            "bear",
+            "wolf",
+            "lynx",
+            "bison",
+            "yak",
+            "cougar",
+            "gator",
+            "orc_boar"
+        ],
+        "Level5": [
+            "griffin_egg",
+            "dragon_whelp",
+            "seraph_stag",
+            "leviathan_scale",
+            "phoenix_chick",
+            "ancient_turtle",
+            "dire_wolf",
+            "celestial_hawk"
+        ]
     },
-
-    "desert": {
-      "Foods": {
-        "Level1": ["date_fruit", "bread", "tea"],
-        "Level2": ["noodles", "dried_meat", "porridge"],
-        "Level3": ["stew", "grilled_fish", "fruit_salad"],
-        "Level4": ["gourmet_steak", "paella", "ramen_bowl"],
-        "Level5": ["ambrosia", "feast_platter", "golden_cake"]
-      },
-      "Plants": {
-        "Level1": ["cactus_sprout", "sage", "mint"],
-        "Level2": ["olive", "almond_tree_sapling", "ginger"],
-        "Level3": ["citrus_tree_seedling", "bamboo_clump", "tea_bush"],
-        "Level4": ["vanilla_orchid", "mythic_orchid", "moonblossom"],
-        "Level5": ["ancient_oak_seed", "dragon_vine", "elder_root"]
-      },
-      "Animals": {
-        "Level1": ["camel", "lizard", "scorpion"],
-        "Level2": ["fox", "vulture", "snake"],
-        "Level3": ["boar", "jackal", "hawk"],
-        "Level4": ["wolf", "bear", "cougar"],
-        "Level5": ["griffin_egg", "dragon_whelp", "leviathan_scale"]
-      },
-      "Tools": {
-        "Level1": ["knife", "water_skin", "rope"],
-        "Level2": ["compass", "saw", "lantern"],
-        "Level3": ["steel_hammer", "drill", "whetstone"],
-        "Level4": ["mechanic_toolkit", "hydraulic_jack", "sensor_pack"],
-        "Level5": ["nano_repair_kit", "plasma_cutter", "arc_generator"]
-      },
-      "Emotes": {
-        "Level1": ["wave", "smile", "nod"],
-        "Level2": ["wink", "grin", "thumbs_up"],
-        "Level3": ["hype", "salute", "celebrate"],
-        "Level4": ["legend", "epic", "mastery"],
-        "Level5": ["divine", "omniscient", "transcend"]
-      },
-      "Weapons": {
-        "Level1": ["slingshot", "wooden_sword", "stone_dagger"],
-        "Level2": ["short_bow", "steel_dagger", "javelin"],
-        "Level3": ["rapier", "crossbow", "warhammer"],
-        "Level4": ["rifle", "enchanted_blade", "storm_bow"],
-        "Level5": ["arc_cannon", "dragon_lance", "void_reaver"]
-      },
-      "Assets": {
-        "Level1": ["cloth_roll", "rope_bundle", "small_chest"],
-        "Level2": ["glass_bottle", "iron_ingot", "leather_pack"],
-        "Level3": ["refined_iron", "oil_barrel", "gemstone"],
-        "Level4": ["rare_gem", "engine_core", "golden_frame"],
-        "Level5": ["artifact_core", "ancient_relic", "legendary_treasure"]
-      },
-      "Vehicles": {
-        "Level1": ["cart", "camel", "scooter"],
-        "Level2": ["jeep", "pickup", "motorbike"],
-        "Level3": ["truck", "hovercraft", "tram"],
-        "Level4": ["armored_car", "yacht", "spaceplane"],
-        "Level5": ["starship", "orbital_freighter", "flagship"]
-      }
+    "Tools": {
+        "Level1": [
+            "fishing_rod",
+            "knife",
+            "hand_hoe",
+            "bucket",
+            "rope",
+            "stone_hammer",
+            "flint_and_steel",
+            "wooden_shovel"
+        ],
+        "Level2": [
+            "iron_pickaxe",
+            "iron_axe",
+            "saw",
+            "bronze_sickle",
+            "fishing_net",
+            "whetstone",
+            "compass",
+            "lantern"
+        ],
+        "Level3": [
+            "steel_hammer",
+            "drill",
+            "ropes_plus",
+            "advanced_fishing_rod",
+            "tongs",
+            "forge_poker",
+            "iron_shovel",
+            "lockpick_set"
+        ],
+        "Level4": [
+            "mechanic_toolkit",
+            "motor_repair_kit",
+            "alchemist_kit",
+            "precision_drill",
+            "hydraulic_jack",
+            "sensor_pack",
+            "welding_torch",
+            "repair_drones"
+        ],
+        "Level5": [
+            "quantum_toolset",
+            "plasma_cutter",
+            "nano_repair_kit",
+            "orbital_welder",
+            "etheric_calibrator",
+            "arc_generator",
+            "time_spanner",
+            "dragonforge_hammer"
+        ]
     },
-
-    "ocean": {
-      "Foods": {
-        "Level1": ["fish", "bread", "seaweed_snack"],
-        "Level2": ["sushi", "soup", "grilled_fish"],
-        "Level3": ["seafood_platter", "paella", "ramen_bowl"],
-        "Level4": ["sushi_deluxe", "feast_platter", "aged_wine"],
-        "Level5": ["divine_soup", "ambrosia", "royal_brew"]
-      },
-      "Plants": {
-        "Level1": ["seaweed", "sprout", "fern"],
-        "Level2": ["algae", "sea_grass", "kelp"],
-        "Level3": ["coral_fragment", "pearlescent_seed", "ocean_orchid"],
-        "Level4": ["mythic_seaweed", "stardust_kelp", "ancient_coral"],
-        "Level5": ["leviathan_kelp", "moonblossom", "dragon_vine"]
-      },
-      "Animals": {
-        "Level1": ["fish", "crab", "shrimp"],
-        "Level2": ["seal", "dolphin", "turtle"],
-        "Level3": ["shark", "whale", "orca"],
-        "Level4": ["giant_squid", "leviathan_scale", "sea_serpent"],
-        "Level5": ["leviathan", "kraken_core", "ancient_turtle"]
-      },
-      "Tools": {
-        "Level1": ["fishing_rod", "bucket", "rope"],
-        "Level2": ["fishing_net", "boat_oar", "lantern"],
-        "Level3": ["diving_gear", "advanced_fishing_rod", "submarine_kit"],
-        "Level4": ["sonar_pack", "hydraulic_jack", "repair_drones"],
-        "Level5": ["orbital_welder", "nano_repair_kit", "quantum_toolset"]
-      },
-      "Emotes": {
-        "Level1": ["wave", "smile", "clap"],
-        "Level2": ["cheer", "laugh", "thumbs_up"],
-        "Level3": ["hype", "salute", "celebrate"],
-        "Level4": ["legend", "mastery", "epic"],
-        "Level5": ["divine", "cosmic", "eternal"]
-      },
-      "Weapons": {
-        "Level1": ["throwing_stone", "wooden_spear", "slingshot"],
-        "Level2": ["short_bow", "harpoon", "iron_sword"],
-        "Level3": ["crossbow", "blunderbuss", "warhammer"],
-        "Level4": ["enchanted_blade", "rifle", "guardian_shield"],
-        "Level5": ["arc_cannon", "dragon_lance", "divine_shield"]
-      },
-      "Assets": {
-        "Level1": ["small_chest", "rope_bundle", "wood_plank"],
-        "Level2": ["glass_bottle", "iron_ingot", "tinderbox"],
-        "Level3": ["oil_barrel", "refined_iron", "gemstone"],
-        "Level4": ["engine_core", "advanced_circuit", "golden_frame"],
-        "Level5": ["artifact_core", "ancient_relic", "legendary_treasure"]
-      },
-      "Vehicles": {
-        "Level1": ["rowboat", "canoe", "hand_glider"],
-        "Level2": ["speedboat", "sailboat", "motorbike"],
-        "Level3": ["ferry", "seaplane", "submarine"],
-        "Level4": ["yacht", "freighter", "armored_car"],
-        "Level5": ["leviathan_sub", "orbital_freighter", "starship"]
-      }
-    }
-  },
-
-  "id": {
-    "bread": "🍞",
-    "milk": "🥛",
-    "cookie": "🍪",
-    "jam": "🍯",
-    "butter": "🧈",
-    "apple": "🍎",
-    "banana": "🍌",
-    "carrot": "🥕",
-    "rice_ball": "🍙",
-    "noodles": "🍜",
-    "pancake": "🥞",
-    "dumpling": "🥟",
-    "tea": "🍵",
-    "cheese": "🧀",
-    "yogurt": "🥛",
-    "porridge": "🥣",
-    "sushi": "🍣",
-    "stew": "🍲",
-    "roasted_chicken": "🍗",
-    "pumpkin_pie": "🥧",
-    "fruit_salad": "🥗",
-    "soup": "🥣",
-    "grilled_fish": "🐟",
-    "honey": "🍯",
-    "pizza": "🍕",
-    "burger": "🍔",
-    "ramen_bowl": "🍜",
-    "taco": "🌮",
-    "paella": "🦐",
-    "seafood_platter": "🦞",
-    "sushi_deluxe": "🍣",
-    "feast_platter": "🍽️",
-    "golden_cake": "🍰",
-    "ambrosia": "🍨",
-    "divine_soup": "🍲",
-    "royal_brew": "🍷",
-    "dragonfruit_dish": "🐉",
-    "seed_wheat": "🌾",
-    "herb_basil": "🌿",
-    "leaf_spinach": "🥬",
-    "sprout": "🌱",
-    "mushroom_common": "🍄",
-    "flower_daisy": "🌼",
-    "berry_blue": "🫐",
-    "fern": "🌿",
-    "corn": "🌽",
-    "tomato": "🍅",
-    "onion": "🧅",
-    "garlic": "🧄",
-    "potato": "🥔",
-    "mint": "🌱",
-    "chili": "🌶️",
-    "sage": "🌿",
-    "olive": "🫒",
-    "grape": "🍇",
-    "strawberry": "🍓",
-    "blueberry": "🫐",
-    "cocoa": "🍫",
-    "coffee_bean": "☕",
-    "ginger": "🫚",
-    "almond_tree_sapling": "🌰",
-    "citrus_tree_seedling": "🍋",
-    "avocado_tree_sapling": "🥑",
-    "tea_bush": "🍵",
-    "vanilla_orchid": "🌸",
-    "bamboo_clump": "🎍",
-    "ancient_oak_seed": "🌳",
-    "sacred_herb": "🌿",
-    "mythic_orchid": "🌺",
-    "dragon_vine": "🌿",
-    "stardust_lily": "✨",
-    "elder_root": "🪴",
-    "moonblossom": "🌙",
-    "chicken": "🐔",
-    "rabbit": "🐇",
-    "fish": "🐟",
-    "duck": "🦆",
-    "cat": "🐱",
-    "dog": "🐶",
-    "mouse": "🐁",
-    "goat_kid": "🐐",
-    "sheep": "🐑",
-    "cow": "🐄",
-    "pig": "🐖",
-    "turkey": "🦃",
-    "pheasant": "🦚",
-    "beaver": "🦫",
-    "alpaca": "🦙",
-    "goose": "🪿",
-    "deer": "🦌",
-    "boar": "🐗",
-    "fox": "🦊",
-    "otter": "🦦",
-    "badger": "🦡",
-    "hawk": "🦅",
-    "seal": "🦭",
-    "elk": "🦌",
-    "bear": "🐻",
-    "wolf": "🐺",
-    "lynx": "🐆",
-    "bison": "🦬",
-    "yak": "🐂",
-    "cougar": "🐆",
-    "gator": "🐊",
-    "griffin_egg": "🥚",
-    "dragon_whelp": "🐉",
-    "seraph_stag": "🦌",
-    "leviathan_scale": "🪸",
-    "phoenix_chick": "🐣",
-    "ancient_turtle": "🐢",
-    "fishing_rod": "🎣",
-    "knife": "🔪",
-    "hand_hoe": "🪴",
-    "bucket": "🪣",
-    "rope": "🪢",
-    "stone_hammer": "🔨",
-    "flint_and_steel": "🪓",
-    "wooden_shovel": "⛏️",
-    "iron_pickaxe": "⛏️",
-    "iron_axe": "🪓",
-    "saw": "🪚",
-    "bronze_sickle": "🔪",
-    "fishing_net": "🪝",
-    "whetstone": "🪨",
-    "compass": "🧭",
-    "lantern": "🏮",
-    "steel_hammer": "🔧",
-    "drill": "🛠️",
-    "advanced_fishing_rod": "🎣",
-    "tongs": "🔩",
-    "forge_poker": "🪵",
-    "lockpick_set": "🗝️",
-    "mechanic_toolkit": "🧰",
-    "motor_repair_kit": "🛠️",
-    "alchemist_kit": "⚗️",
-    "precision_drill": "🛠️",
-    "hydraulic_jack": "🧲",
-    "sensor_pack": "📡",
-    "repair_drones": "🤖",
-    "quantum_toolset": "💠",
-    "plasma_cutter": "🔌",
-    "nano_repair_kit": "🧪",
-    "orbital_welder": "🛰️",
-    "dragonforge_hammer": "🔨",
-    "smile": "😀",
-    "wave": "👋",
-    "thumbs_up": "👍",
-    "clap": "👏",
-    "cheer": "🙌",
-    "wink": "😉",
-    "grin": "😁",
-    "nod": "🤝",
-    "hype": "🔥",
-    "rage": "😡",
-    "facepalm_hard": "🤦‍♂️",
-    "tears_of_joy": "😂",
-    "mind_blown": "🤯",
-    "victory": "🏆",
-    "king": "👑",
-    "legend": "🌟",
-    "immortal": "♾️",
-    "wooden_sword": "🪓",
-    "stone_dagger": "🗡️",
-    "short_bow": "🏹",
-    "slingshot": "🔫",
-    "club": "🔨",
-    "throwing_stone": "🪨",
-    "wooden_spear": "🪃",
-    "iron_sword": "⚔️",
-    "long_bow": "🏹",
-    "steel_dagger": "🗡️",
-    "composite_bow": "🏹",
-    "javelin": "🪃",
-    "battle_axe": "🪓",
-    "mace": "🔨",
-    "pike": "🗡️",
-    "steel_sword": "⚔️",
-    "recurve_bow": "🏹",
-    "crossbow": "🏹",
-    "warhammer": "🔨",
-    "rapier": "🗡️",
-    "halberd": "⚔️",
-    "blunderbuss": "🔫",
-    "enchanted_blade": "🗡️",
-    "rifle": "🔫",
-    "energy_staff": "🔮",
-    "polearm": "⚔️",
-    "explosive_launcher": "💣",
-    "guardian_shield": "🛡️",
-    "soul_saber": "🔱",
-    "mythril_greatsword": "⚔️",
-    "dragon_lance": "🏹",
-    "arc_cannon": "🔫",
-    "void_reaver": "⚔️",
-    "celestial_staff": "🔮",
-    "apocalypse_axe": "🪓",
-    "phoenix_glaive": "🔥",
-    "copper_coin": "🪙",
-    "small_chest": "🧰",
-    "paper_map": "🗺️",
-    "basic_document": "📄",
-    "rope_bundle": "🪢",
-    "cloth_roll": "🧵",
-    "wood_plank": "🪵",
-    "stone_chunk": "🪨",
-    "silver_coin": "🥈",
-    "toolbox_small": "🧰",
-    "leather_pack": "👜",
-    "crystal_shard": "🔹",
-    "iron_ingot": "🔩",
-    "glass_bottle": "🍾",
-    "tinderbox": "🔥",
-    "canvas": "🎨",
-    "gold_coin": "🥇",
-    "safe_box": "🗃️",
-    "gemstone": "💎",
-    "refined_iron": "🔧",
-    "mechanism_part": "⚙️",
-    "brick_bundle": "🧱",
-    "timber_beam": "🪵",
-    "oil_barrel": "🛢️",
-    "platinum_coin": "🏆",
-    "vault_key": "🗝️",
-    "engine_core": "⚙️",
-    "rare_gem": "🔮",
-    "refined_steel": "🔩",
-    "advanced_circuit": "💻",
-    "golden_frame": "🖼️",
-    "diamond_contract": "📜",
-    "ancient_relic": "🗿",
-    "artifact_core": "🔱",
-    "cloud_server": "☁️",
-    "quantum_chip": "💠",
-    "master_blueprint": "📐",
-    "royal_seal": "📯",
-    "legendary_treasure": "🏆",
-    "rowboat": "🛶",
-    "bicycle": "🚲",
-    "scooter": "🛴",
-    "cart": "🛒",
-    "pony": "🐴",
-    "canoe": "🛶",
-    "hand_glider": "🪂",
-    "sled": "🛷",
-    "motorbike": "🏍️",
-    "car_small": "🚗",
-    "jeep": "🚙",
-    "pickup": "🚚",
-    "sailboat": "⛵",
-    "speedboat": "🚤",
-    "tram": "🚋",
-    "rickshaw": "🛺",
-    "truck": "🚚",
-    "bus": "🚌",
-    "ferry": "⛴️",
-    "helicopter": "🚁",
-    "train": "🚆",
-    "submarine": "🚢",
-    "seaplane": "🛩️",
-    "jet": "✈️",
-    "yacht": "🛥️",
-    "armored_car": "🚓",
-    "battle_tank": "� tank",
-    "spaceplane": "🛩️",
-    "maglev": "🚄",
-    "cruise_ship": "🛳️",
-    "starship": "🛸",
-    "teleporter_vessel": "🌀",
-    "leviathan_sub": "🛸",
-    "orbital_freighter": "🚀",
-    "quantum_shuttle": "🚀",
-    "flagship": "🚢",
-    "dragon_mount": "🐲",
-    "ether_sail": "⛵"
-  },
-
-  "skills": [
-    "fishing",
-    "running",
-    "hunting",
-    "farming",
-    "programming",
-    "medical",
-    "teaching",
-    "math",
-    "science",
-    "geography",
-    "history",
-    "alchemy",
-    "engineering",
-    "mechanics",
-    "cooking"
-  ],
-
-  "jobs": {
-    "fisherman": ["fishing"],
-    "farmer": ["farming"],
-    "hunter": ["hunting"],
-    "engineer": ["engineering", "mechanics"],
-    "doctor": ["medical"],
-    "teacher": ["teaching"],
-    "chef": ["cooking"],
-    "blacksmith": ["mechanics", "engineering"],
-    "programmer": ["programming", "math"]
-  },
-
-  "buy": {
-    "bread": 10,
-    "milk": 8,
-    "cookie": 12,
-    "apple": 6,
-    "banana": 6,
-    "carrot": 5,
-    "rice_ball": 20,
-    "noodles": 25,
-    "pancake": 18,
-    "sushi": 120,
-    "grilled_fish": 90,
-    "feast_platter": 1200,
-    "ancient_relic": 50000,
-    "golden_cake": 2000,
-    "fishing_rod": 50,
-    "iron_pickaxe": 200,
-    "motorbike": 1500,
-    "car_small": 5000,
-    "starship": 500000,
-    "copper_coin": 1,
-    "silver_coin": 5,
-    "gold_coin": 20,
-    "diamond_contract": 100000,
-    "rope": 12,
-    "wood_plank": 15,
-    "iron_ingot": 180,
-    "refined_iron": 350,
-    "gemstone": 800,
-    "quantum_chip": 20000,
-    "plasma_cutter": 25000,
-    "dragon_lance": 45000
-  },
-
-  "sell": {
-    "bread": 5,
-    "milk": 4,
-    "cookie": 6,
-    "apple": 3,
-    "banana": 3,
-    "carrot": 2,
-    "rice_ball": 10,
-    "noodles": 12,
-    "pancake": 9,
-    "sushi": 60,
-    "grilled_fish": 45,
-    "feast_platter": 600,
-    "ancient_relic": 25000,
-    "golden_cake": 1000,
-    "fishing_rod": 25,
-    "iron_pickaxe": 100,
-    "motorbike": 750,
-    "car_small": 2500,
-    "starship": 250000,
-    "copper_coin": 0,
-    "silver_coin": 2,
-    "gold_coin": 10,
-    "diamond_contract": 50000,
-    "rope": 6,
-    "wood_plank": 7,
-    "iron_ingot": 90,
-    "refined_iron": 175,
-    "gemstone": 400,
-    "quantum_chip": 10000,
-    "plasma_cutter": 12500,
-    "dragon_lance": 22500
-  },
-
-  "black_market": {
-    "dragon_egg": {
-      "emoji": "🥚",
-      "buy": 250000,
-      "sell": 125000,
-      "rarity": "legendary",
-      "notes": "Extremely rare. Stored in black market only."
+    "Emotes": {
+        "Level1": [
+            "smile",
+            "wave",
+            "thumbs_up",
+            "clap",
+            "cheer",
+            "wink",
+            "grin",
+            "nod"
+        ],
+        "Level2": [
+            "facepalm",
+            "shrug",
+            "laugh",
+            "cry",
+            "sweat_smile",
+            "smirk",
+            "peace",
+            "fist_bump"
+        ],
+        "Level3": [
+            "hype",
+            "rage",
+            "facepalm_hard",
+            "tears_of_joy",
+            "mind_blown",
+            "celebrate",
+            "salute",
+            "sneer"
+        ],
+        "Level4": [
+            "victory",
+            "king",
+            "queen",
+            "legend",
+            "mastery",
+            "omg",
+            "epic",
+            "mythic"
+        ],
+        "Level5": [
+            "immortal",
+            "divine",
+            "cosmic",
+            "timekeeper",
+            "void",
+            "eternal",
+            "omniscient",
+            "transcend"
+        ]
     },
-    "ancient_relic": {
-      "emoji": "🗿",
-      "buy": 50000,
-      "sell": 25000,
-      "rarity": "mythic",
-      "notes": "Antiquity with lore value."
+    "Weapons": {
+        "Level1": [
+            "wooden_sword",
+            "stone_dagger",
+            "short_bow",
+            "slingshot",
+            "club",
+            "throwing_stone",
+            "wooden_spear",
+            "sling"
+        ],
+        "Level2": [
+            "iron_sword",
+            "long_bow",
+            "steel_dagger",
+            "composite_bow",
+            "javelin",
+            "battle_axe",
+            "mace",
+            "pike"
+        ],
+        "Level3": [
+            "steel_sword",
+            "recurve_bow",
+            "crossbow",
+            "warhammer",
+            "rapier",
+            "halberd",
+            "throwing_axe",
+            "blunderbuss"
+        ],
+        "Level4": [
+            "enchanted_blade",
+            "rifle",
+            "energy_staff",
+            "polearm",
+            "explosive_launcher",
+            "guardian_shield",
+            "soul_saber",
+            "storm_bow"
+        ],
+        "Level5": [
+            "mythril_greatsword",
+            "dragon_lance",
+            "arc_cannon",
+            "void_reaver",
+            "celestial_staff",
+            "apocalypse_axe",
+            "phoenix_glaive",
+            "divine_shield"
+        ]
     },
-    "void_core": {
-      "emoji": "🔮",
-      "buy": 120000,
-      "sell": 60000,
-      "rarity": "legendary",
-      "notes": "Used in advanced craft."
+    "Assets": {
+        "Level1": [
+            "copper_coin",
+            "small_chest",
+            "paper_map",
+            "basic_document",
+            "rope_bundle",
+            "cloth_roll",
+            "wood_plank",
+            "stone_chunk"
+        ],
+        "Level2": [
+            "silver_coin",
+            "toolbox_small",
+            "leather_pack",
+            "crystal_shard",
+            "iron_ingot",
+            "glass_bottle",
+            "tinderbox",
+            "canvas"
+        ],
+        "Level3": [
+            "gold_coin",
+            "safe_box",
+            "gemstone",
+            "refined_iron",
+            "mechanism_part",
+            "brick_bundle",
+            "timber_beam",
+            "oil_barrel"
+        ],
+        "Level4": [
+            "platinum_coin",
+            "vault_key",
+            "engine_core",
+            "rare_gem",
+            "refined_steel",
+            "advanced_circuit",
+            "golden_frame",
+            "luxury_crate"
+        ],
+        "Level5": [
+            "diamond_contract",
+            "ancient_relic",
+            "artifact_core",
+            "cloud_server",
+            "quantum_chip",
+            "master_blueprint",
+            "royal_seal",
+            "legendary_treasure"
+        ]
     },
-    "phoenix_feather": {
-      "emoji": "🪶",
-      "buy": 80000,
-      "sell": 40000,
-      "rarity": "epic",
-      "notes": "Revival ingredient."
-    }
-  },
-
-  "build": {
-    "campfire": {
-      "requires": {
-        "wood_plank": 5,
-        "stone_chunk": 3,
-        "rope": 1
-      },
-      "time_seconds": 30,
-      "produces": "campfire",
-      "notes": "Basic cooking and warmth."
+    "Vehicles": {
+        "Level1": [
+            "rowboat",
+            "bicycle",
+            "scooter",
+            "cart",
+            "pony",
+            "canoe",
+            "hand_glider",
+            "sled"
+        ],
+        "Level2": [
+            "motorbike",
+            "car_small",
+            "jeep",
+            "pickup",
+            "sailboat",
+            "speedboat",
+            "tram",
+            "rickshaw"
+        ],
+        "Level3": [
+            "truck",
+            "bus",
+            "ferry",
+            "helicopter",
+            "train",
+            "submarine",
+            "seaplane",
+            "hovercraft"
+        ],
+        "Level4": [
+            "jet",
+            "yacht",
+            "armored_car",
+            "battle_tank",
+            "spaceplane",
+            "maglev",
+            "cruise_ship",
+            "freighter"
+        ],
+        "Level5": [
+            "starship",
+            "teleporter_vessel",
+            "leviathan_sub",
+            "orbital_freighter",
+            "quantum_shuttle",
+            "flagship",
+            "dragon_mount",
+            "ether_sail"
+        ]
     },
-    "small_boat": {
-      "requires": {
-        "wood_plank": 30,
-        "rope": 5,
-        "iron_ingot": 10
-      },
-      "time_seconds": 600,
-      "produces": "rowboat",
-      "notes": "Enables travel on rivers and ocean."
+    "places": {
+        "river": {
+            "Foods": {
+                "Level1": [
+                    "bread",
+                    "apple",
+                    "milk"
+                ],
+                "Level2": [
+                    "sushi",
+                    "noodles",
+                    "tea"
+                ],
+                "Level3": [
+                    "grilled_fish",
+                    "stew",
+                    "honey"
+                ],
+                "Level4": [
+                    "seafood_platter",
+                    "ramen_bowl",
+                    "sushi_deluxe"
+                ],
+                "Level5": [
+                    "divine_soup",
+                    "aged_wine",
+                    "feast_platter"
+                ]
+            },
+            "Plants": {
+                "Level1": [
+                    "sprout",
+                    "fern",
+                    "mushroom_common"
+                ],
+                "Level2": [
+                    "bamboo_clump",
+                    "mint",
+                    "sage"
+                ],
+                "Level3": [
+                    "olive",
+                    "coffee_bean",
+                    "ginger"
+                ],
+                "Level4": [
+                    "tea_bush",
+                    "vanilla_orchid",
+                    "bamboo_clump"
+                ],
+                "Level5": [
+                    "mythic_orchid",
+                    "elder_root",
+                    "moonblossom"
+                ]
+            },
+            "Animals": {
+                "Level1": [
+                    "fish",
+                    "duck",
+                    "rabbit"
+                ],
+                "Level2": [
+                    "otter",
+                    "seal",
+                    "goose"
+                ],
+                "Level3": [
+                    "deer",
+                    "elk",
+                    "boar"
+                ],
+                "Level4": [
+                    "bear",
+                    "gator",
+                    "wolf"
+                ],
+                "Level5": [
+                    "leviathan_scale",
+                    "dragon_whelp",
+                    "phoenix_chick"
+                ]
+            },
+            "Tools": {
+                "Level1": [
+                    "fishing_rod",
+                    "bucket",
+                    "rope"
+                ],
+                "Level2": [
+                    "fishing_net",
+                    "lantern",
+                    "whetstone"
+                ],
+                "Level3": [
+                    "advanced_fishing_rod",
+                    "rope_plus",
+                    "lockpick_set"
+                ],
+                "Level4": [
+                    "mechanic_toolkit",
+                    "hydraulic_jack",
+                    "sensor_pack"
+                ],
+                "Level5": [
+                    "nano_repair_kit",
+                    "orbital_welder",
+                    "dragonforge_hammer"
+                ]
+            },
+            "Emotes": {
+                "Level1": [
+                    "wave",
+                    "smile",
+                    "clap"
+                ],
+                "Level2": [
+                    "laugh",
+                    "cheer",
+                    "thumbs_up"
+                ],
+                "Level3": [
+                    "hype",
+                    "celebrate",
+                    "salute"
+                ],
+                "Level4": [
+                    "legend",
+                    "mastery",
+                    "epic"
+                ],
+                "Level5": [
+                    "divine",
+                    "transcend",
+                    "eternal"
+                ]
+            },
+            "Weapons": {
+                "Level1": [
+                    "slingshot",
+                    "throwing_stone",
+                    "wooden_spear"
+                ],
+                "Level2": [
+                    "short_bow",
+                    "iron_sword",
+                    "battle_axe"
+                ],
+                "Level3": [
+                    "crossbow",
+                    "warhammer",
+                    "rapier"
+                ],
+                "Level4": [
+                    "rifle",
+                    "energy_staff",
+                    "guardian_shield"
+                ],
+                "Level5": [
+                    "dragon_lance",
+                    "arc_cannon",
+                    "divine_shield"
+                ]
+            },
+            "Assets": {
+                "Level1": [
+                    "rope_bundle",
+                    "wood_plank",
+                    "stone_chunk"
+                ],
+                "Level2": [
+                    "glass_bottle",
+                    "iron_ingot",
+                    "tinderbox"
+                ],
+                "Level3": [
+                    "refined_iron",
+                    "mechanism_part",
+                    "brick_bundle"
+                ],
+                "Level4": [
+                    "engine_core",
+                    "advanced_circuit",
+                    "luxury_crate"
+                ],
+                "Level5": [
+                    "artifact_core",
+                    "quantum_chip",
+                    "legendary_treasure"
+                ]
+            },
+            "Vehicles": {
+                "Level1": [
+                    "rowboat",
+                    "canoe",
+                    "hand_glider"
+                ],
+                "Level2": [
+                    "speedboat",
+                    "sailboat",
+                    "motorbike"
+                ],
+                "Level3": [
+                    "ferry",
+                    "seaplane",
+                    "submarine"
+                ],
+                "Level4": [
+                    "yacht",
+                    "spaceplane",
+                    "armored_car"
+                ],
+                "Level5": [
+                    "leviathan_sub",
+                    "orbital_freighter",
+                    "starship"
+                ]
+            }
+        },
+        "forest": {
+            "Foods": {
+                "Level1": [
+                    "berry_blue",
+                    "jam",
+                    "bread"
+                ],
+                "Level2": [
+                    "fruit_salad",
+                    "pancake",
+                    "porridge"
+                ],
+                "Level3": [
+                    "roasted_chicken",
+                    "stew",
+                    "honey"
+                ],
+                "Level4": [
+                    "gourmet_steak",
+                    "pizza",
+                    "paella"
+                ],
+                "Level5": [
+                    "feast_platter",
+                    "ambrosia",
+                    "golden_cake"
+                ]
+            },
+            "Plants": {
+                "Level1": [
+                    "flower_daisy",
+                    "fern",
+                    "sprout"
+                ],
+                "Level2": [
+                    "mushroom_common",
+                    "berry_blue",
+                    "mint"
+                ],
+                "Level3": [
+                    "strawberry",
+                    "olive",
+                    "almond_tree_sapling"
+                ],
+                "Level4": [
+                    "avocado_tree_sapling",
+                    "bamboo_clump",
+                    "orchid"
+                ],
+                "Level5": [
+                    "ancient_oak_seed",
+                    "dragon_vine",
+                    "moonblossom"
+                ]
+            },
+            "Animals": {
+                "Level1": [
+                    "rabbit",
+                    "squirrel",
+                    "bird"
+                ],
+                "Level2": [
+                    "deer",
+                    "fox",
+                    "pheasant"
+                ],
+                "Level3": [
+                    "boar",
+                    "hawk",
+                    "otter"
+                ],
+                "Level4": [
+                    "lynx",
+                    "bear",
+                    "wolf"
+                ],
+                "Level5": [
+                    "griffin_egg",
+                    "phoenix_chick",
+                    "seraph_stag"
+                ]
+            },
+            "Tools": {
+                "Level1": [
+                    "hand_hoe",
+                    "knife",
+                    "wooden_shovel"
+                ],
+                "Level2": [
+                    "saw",
+                    "bronze_sickle",
+                    "lantern"
+                ],
+                "Level3": [
+                    "steel_hammer",
+                    "drill",
+                    "whetstone"
+                ],
+                "Level4": [
+                    "mechanic_toolkit",
+                    "precision_drill",
+                    "hydraulic_jack"
+                ],
+                "Level5": [
+                    "quantum_toolset",
+                    "plasma_cutter",
+                    "dragonforge_hammer"
+                ]
+            },
+            "Emotes": {
+                "Level1": [
+                    "smile",
+                    "wave",
+                    "clap"
+                ],
+                "Level2": [
+                    "wink",
+                    "cheer",
+                    "grin"
+                ],
+                "Level3": [
+                    "hype",
+                    "salute",
+                    "tears_of_joy"
+                ],
+                "Level4": [
+                    "victory",
+                    "king",
+                    "legend"
+                ],
+                "Level5": [
+                    "divine",
+                    "cosmic",
+                    "immortal"
+                ]
+            },
+            "Weapons": {
+                "Level1": [
+                    "wooden_sword",
+                    "club",
+                    "slingshot"
+                ],
+                "Level2": [
+                    "stone_dagger",
+                    "short_bow",
+                    "iron_sword"
+                ],
+                "Level3": [
+                    "steel_sword",
+                    "recurve_bow",
+                    "blunderbuss"
+                ],
+                "Level4": [
+                    "enchanted_blade",
+                    "storm_bow",
+                    "soul_saber"
+                ],
+                "Level5": [
+                    "mythril_greatsword",
+                    "dragon_lance",
+                    "phoenix_glaive"
+                ]
+            },
+            "Assets": {
+                "Level1": [
+                    "wood_plank",
+                    "cloth_roll",
+                    "small_chest"
+                ],
+                "Level2": [
+                    "iron_ingot",
+                    "leather_pack",
+                    "glass_bottle"
+                ],
+                "Level3": [
+                    "timber_beam",
+                    "gemstone",
+                    "refined_iron"
+                ],
+                "Level4": [
+                    "engine_core",
+                    "rare_gem",
+                    "golden_frame"
+                ],
+                "Level5": [
+                    "artifact_core",
+                    "ancient_relic",
+                    "royal_seal"
+                ]
+            },
+            "Vehicles": {
+                "Level1": [
+                    "pony",
+                    "cart",
+                    "sleigh"
+                ],
+                "Level2": [
+                    "jeep",
+                    "pickup",
+                    "sailboat"
+                ],
+                "Level3": [
+                    "truck",
+                    "horse_carriage",
+                    "tram"
+                ],
+                "Level4": [
+                    "armored_car",
+                    "yacht",
+                    "maglev"
+                ],
+                "Level5": [
+                    "flagship",
+                    "dragon_mount",
+                    "starship"
+                ]
+            }
+        },
+        "mountain": {
+            "Foods": {
+                "Level1": [
+                    "cheese",
+                    "bread",
+                    "milk"
+                ],
+                "Level2": [
+                    "stew",
+                    "pancake",
+                    "jam"
+                ],
+                "Level3": [
+                    "roasted_chicken",
+                    "soup",
+                    "honey"
+                ],
+                "Level4": [
+                    "gourmet_steak",
+                    "ramen_bowl",
+                    "seafood_platter"
+                ],
+                "Level5": [
+                    "feast_platter",
+                    "aged_wine",
+                    "ambrosia"
+                ]
+            },
+            "Plants": {
+                "Level1": [
+                    "herb_basil",
+                    "sprout",
+                    "fern"
+                ],
+                "Level2": [
+                    "garlic",
+                    "onion",
+                    "mint"
+                ],
+                "Level3": [
+                    "ginger",
+                    "olive",
+                    "almond_tree_sapling"
+                ],
+                "Level4": [
+                    "citrus_tree_seedling",
+                    "tea_bush",
+                    "avocado_tree_sapling"
+                ],
+                "Level5": [
+                    "sacred_herb",
+                    "elder_root",
+                    "moonblossom"
+                ]
+            },
+            "Animals": {
+                "Level1": [
+                    "goat_kid",
+                    "rabbit",
+                    "hawk"
+                ],
+                "Level2": [
+                    "sheep",
+                    "eagle",
+                    "pheasant"
+                ],
+                "Level3": [
+                    "boar",
+                    "deer",
+                    "elk"
+                ],
+                "Level4": [
+                    "yak",
+                    "bison",
+                    "bear"
+                ],
+                "Level5": [
+                    "griffin_egg",
+                    "dire_wolf",
+                    "seraph_stag"
+                ]
+            },
+            "Tools": {
+                "Level1": [
+                    "stone_hammer",
+                    "knife",
+                    "rope"
+                ],
+                "Level2": [
+                    "iron_pickaxe",
+                    "saw",
+                    "lantern"
+                ],
+                "Level3": [
+                    "steel_hammer",
+                    "drill",
+                    "whetstone"
+                ],
+                "Level4": [
+                    "hydraulic_jack",
+                    "precision_drill",
+                    "sensor_pack"
+                ],
+                "Level5": [
+                    "nano_repair_kit",
+                    "plasma_cutter",
+                    "dragonforge_hammer"
+                ]
+            },
+            "Emotes": {
+                "Level1": [
+                    "nod",
+                    "smile",
+                    "cheer"
+                ],
+                "Level2": [
+                    "thumbs_up",
+                    "clap",
+                    "grin"
+                ],
+                "Level3": [
+                    "hype",
+                    "salute",
+                    "victory"
+                ],
+                "Level4": [
+                    "legend",
+                    "mastery",
+                    "epic"
+                ],
+                "Level5": [
+                    "divine",
+                    "omniscient",
+                    "transcend"
+                ]
+            },
+            "Weapons": {
+                "Level1": [
+                    "stone_dagger",
+                    "wooden_spear",
+                    "club"
+                ],
+                "Level2": [
+                    "iron_sword",
+                    "javelin",
+                    "battle_axe"
+                ],
+                "Level3": [
+                    "rapier",
+                    "warhammer",
+                    "crossbow"
+                ],
+                "Level4": [
+                    "enchanted_blade",
+                    "apocalypse_axe",
+                    "guardian_shield"
+                ],
+                "Level5": [
+                    "dragon_lance",
+                    "void_reaver",
+                    "mythril_greatsword"
+                ]
+            },
+            "Assets": {
+                "Level1": [
+                    "stone_chunk",
+                    "rope_bundle",
+                    "paper_map"
+                ],
+                "Level2": [
+                    "iron_ingot",
+                    "tinderbox",
+                    "leather_pack"
+                ],
+                "Level3": [
+                    "refined_iron",
+                    "brick_bundle",
+                    "mechanism_part"
+                ],
+                "Level4": [
+                    "engine_core",
+                    "refined_steel",
+                    "rare_gem"
+                ],
+                "Level5": [
+                    "ancient_relic",
+                    "artifact_core",
+                    "legendary_treasure"
+                ]
+            },
+            "Vehicles": {
+                "Level1": [
+                    "sled",
+                    "cart",
+                    "pony"
+                ],
+                "Level2": [
+                    "jeep",
+                    "truck",
+                    "motorbike"
+                ],
+                "Level3": [
+                    "armored_car",
+                    "tram",
+                    "hovercraft"
+                ],
+                "Level4": [
+                    "maglev",
+                    "yacht",
+                    "spaceplane"
+                ],
+                "Level5": [
+                    "orbital_freighter",
+                    "starship",
+                    "flagship"
+                ]
+            }
+        },
+        "desert": {
+            "Foods": {
+                "Level1": [
+                    "date_fruit",
+                    "bread",
+                    "tea"
+                ],
+                "Level2": [
+                    "noodles",
+                    "dried_meat",
+                    "porridge"
+                ],
+                "Level3": [
+                    "stew",
+                    "grilled_fish",
+                    "fruit_salad"
+                ],
+                "Level4": [
+                    "gourmet_steak",
+                    "paella",
+                    "ramen_bowl"
+                ],
+                "Level5": [
+                    "ambrosia",
+                    "feast_platter",
+                    "golden_cake"
+                ]
+            },
+            "Plants": {
+                "Level1": [
+                    "cactus_sprout",
+                    "sage",
+                    "mint"
+                ],
+                "Level2": [
+                    "olive",
+                    "almond_tree_sapling",
+                    "ginger"
+                ],
+                "Level3": [
+                    "citrus_tree_seedling",
+                    "bamboo_clump",
+                    "tea_bush"
+                ],
+                "Level4": [
+                    "vanilla_orchid",
+                    "mythic_orchid",
+                    "moonblossom"
+                ],
+                "Level5": [
+                    "ancient_oak_seed",
+                    "dragon_vine",
+                    "elder_root"
+                ]
+            },
+            "Animals": {
+                "Level1": [
+                    "camel",
+                    "lizard",
+                    "scorpion"
+                ],
+                "Level2": [
+                    "fox",
+                    "vulture",
+                    "snake"
+                ],
+                "Level3": [
+                    "boar",
+                    "jackal",
+                    "hawk"
+                ],
+                "Level4": [
+                    "wolf",
+                    "bear",
+                    "cougar"
+                ],
+                "Level5": [
+                    "griffin_egg",
+                    "dragon_whelp",
+                    "leviathan_scale"
+                ]
+            },
+            "Tools": {
+                "Level1": [
+                    "knife",
+                    "water_skin",
+                    "rope"
+                ],
+                "Level2": [
+                    "compass",
+                    "saw",
+                    "lantern"
+                ],
+                "Level3": [
+                    "steel_hammer",
+                    "drill",
+                    "whetstone"
+                ],
+                "Level4": [
+                    "mechanic_toolkit",
+                    "hydraulic_jack",
+                    "sensor_pack"
+                ],
+                "Level5": [
+                    "nano_repair_kit",
+                    "plasma_cutter",
+                    "arc_generator"
+                ]
+            },
+            "Emotes": {
+                "Level1": [
+                    "wave",
+                    "smile",
+                    "nod"
+                ],
+                "Level2": [
+                    "wink",
+                    "grin",
+                    "thumbs_up"
+                ],
+                "Level3": [
+                    "hype",
+                    "salute",
+                    "celebrate"
+                ],
+                "Level4": [
+                    "legend",
+                    "epic",
+                    "mastery"
+                ],
+                "Level5": [
+                    "divine",
+                    "omniscient",
+                    "transcend"
+                ]
+            },
+            "Weapons": {
+                "Level1": [
+                    "slingshot",
+                    "wooden_sword",
+                    "stone_dagger"
+                ],
+                "Level2": [
+                    "short_bow",
+                    "steel_dagger",
+                    "javelin"
+                ],
+                "Level3": [
+                    "rapier",
+                    "crossbow",
+                    "warhammer"
+                ],
+                "Level4": [
+                    "rifle",
+                    "enchanted_blade",
+                    "storm_bow"
+                ],
+                "Level5": [
+                    "arc_cannon",
+                    "dragon_lance",
+                    "void_reaver"
+                ]
+            },
+            "Assets": {
+                "Level1": [
+                    "cloth_roll",
+                    "rope_bundle",
+                    "small_chest"
+                ],
+                "Level2": [
+                    "glass_bottle",
+                    "iron_ingot",
+                    "leather_pack"
+                ],
+                "Level3": [
+                    "refined_iron",
+                    "oil_barrel",
+                    "gemstone"
+                ],
+                "Level4": [
+                    "rare_gem",
+                    "engine_core",
+                    "golden_frame"
+                ],
+                "Level5": [
+                    "artifact_core",
+                    "ancient_relic",
+                    "legendary_treasure"
+                ]
+            },
+            "Vehicles": {
+                "Level1": [
+                    "cart",
+                    "camel",
+                    "scooter"
+                ],
+                "Level2": [
+                    "jeep",
+                    "pickup",
+                    "motorbike"
+                ],
+                "Level3": [
+                    "truck",
+                    "hovercraft",
+                    "tram"
+                ],
+                "Level4": [
+                    "armored_car",
+                    "yacht",
+                    "spaceplane"
+                ],
+                "Level5": [
+                    "starship",
+                    "orbital_freighter",
+                    "flagship"
+                ]
+            }
+        },
+        "ocean": {
+            "Foods": {
+                "Level1": [
+                    "fish",
+                    "bread",
+                    "seaweed_snack"
+                ],
+                "Level2": [
+                    "sushi",
+                    "soup",
+                    "grilled_fish"
+                ],
+                "Level3": [
+                    "seafood_platter",
+                    "paella",
+                    "ramen_bowl"
+                ],
+                "Level4": [
+                    "sushi_deluxe",
+                    "feast_platter",
+                    "aged_wine"
+                ],
+                "Level5": [
+                    "divine_soup",
+                    "ambrosia",
+                    "royal_brew"
+                ]
+            },
+            "Plants": {
+                "Level1": [
+                    "seaweed",
+                    "sprout",
+                    "fern"
+                ],
+                "Level2": [
+                    "algae",
+                    "sea_grass",
+                    "kelp"
+                ],
+                "Level3": [
+                    "coral_fragment",
+                    "pearlescent_seed",
+                    "ocean_orchid"
+                ],
+                "Level4": [
+                    "mythic_seaweed",
+                    "stardust_kelp",
+                    "ancient_coral"
+                ],
+                "Level5": [
+                    "leviathan_kelp",
+                    "moonblossom",
+                    "dragon_vine"
+                ]
+            },
+            "Animals": {
+                "Level1": [
+                    "fish",
+                    "crab",
+                    "shrimp"
+                ],
+                "Level2": [
+                    "seal",
+                    "dolphin",
+                    "turtle"
+                ],
+                "Level3": [
+                    "shark",
+                    "whale",
+                    "orca"
+                ],
+                "Level4": [
+                    "giant_squid",
+                    "leviathan_scale",
+                    "sea_serpent"
+                ],
+                "Level5": [
+                    "leviathan",
+                    "kraken_core",
+                    "ancient_turtle"
+                ]
+            },
+            "Tools": {
+                "Level1": [
+                    "fishing_rod",
+                    "bucket",
+                    "rope"
+                ],
+                "Level2": [
+                    "fishing_net",
+                    "boat_oar",
+                    "lantern"
+                ],
+                "Level3": [
+                    "diving_gear",
+                    "advanced_fishing_rod",
+                    "submarine_kit"
+                ],
+                "Level4": [
+                    "sonar_pack",
+                    "hydraulic_jack",
+                    "repair_drones"
+                ],
+                "Level5": [
+                    "orbital_welder",
+                    "nano_repair_kit",
+                    "quantum_toolset"
+                ]
+            },
+            "Emotes": {
+                "Level1": [
+                    "wave",
+                    "smile",
+                    "clap"
+                ],
+                "Level2": [
+                    "cheer",
+                    "laugh",
+                    "thumbs_up"
+                ],
+                "Level3": [
+                    "hype",
+                    "salute",
+                    "celebrate"
+                ],
+                "Level4": [
+                    "legend",
+                    "mastery",
+                    "epic"
+                ],
+                "Level5": [
+                    "divine",
+                    "cosmic",
+                    "eternal"
+                ]
+            },
+            "Weapons": {
+                "Level1": [
+                    "throwing_stone",
+                    "wooden_spear",
+                    "slingshot"
+                ],
+                "Level2": [
+                    "short_bow",
+                    "harpoon",
+                    "iron_sword"
+                ],
+                "Level3": [
+                    "crossbow",
+                    "blunderbuss",
+                    "warhammer"
+                ],
+                "Level4": [
+                    "enchanted_blade",
+                    "rifle",
+                    "guardian_shield"
+                ],
+                "Level5": [
+                    "arc_cannon",
+                    "dragon_lance",
+                    "divine_shield"
+                ]
+            },
+            "Assets": {
+                "Level1": [
+                    "small_chest",
+                    "rope_bundle",
+                    "wood_plank"
+                ],
+                "Level2": [
+                    "glass_bottle",
+                    "iron_ingot",
+                    "tinderbox"
+                ],
+                "Level3": [
+                    "oil_barrel",
+                    "refined_iron",
+                    "gemstone"
+                ],
+                "Level4": [
+                    "engine_core",
+                    "advanced_circuit",
+                    "golden_frame"
+                ],
+                "Level5": [
+                    "artifact_core",
+                    "ancient_relic",
+                    "legendary_treasure"
+                ]
+            },
+            "Vehicles": {
+                "Level1": [
+                    "rowboat",
+                    "canoe",
+                    "hand_glider"
+                ],
+                "Level2": [
+                    "speedboat",
+                    "sailboat",
+                    "motorbike"
+                ],
+                "Level3": [
+                    "ferry",
+                    "seaplane",
+                    "submarine"
+                ],
+                "Level4": [
+                    "yacht",
+                    "freighter",
+                    "armored_car"
+                ],
+                "Level5": [
+                    "leviathan_sub",
+                    "orbital_freighter",
+                    "starship"
+                ]
+            }
+        }
     },
-    "furnace": {
-      "requires": {
-        "stone_chunk": 20,
-        "iron_ingot": 5
-      },
-      "time_seconds": 300,
-      "produces": "furnace",
-      "notes": "Smelts ore and refines materials."
+    "id": {
+        "bread": "\ud83c\udf5e",
+        "milk": "\ud83e\udd5b",
+        "cookie": "\ud83c\udf6a",
+        "jam": "\ud83c\udf6f",
+        "butter": "\ud83e\uddc8",
+        "apple": "\ud83c\udf4e",
+        "banana": "\ud83c\udf4c",
+        "carrot": "\ud83e\udd55",
+        "rice_ball": "\ud83c\udf59",
+        "noodles": "\ud83c\udf5c",
+        "pancake": "\ud83e\udd5e",
+        "dumpling": "\ud83e\udd5f",
+        "tea": "\ud83c\udf75",
+        "cheese": "\ud83e\uddc0",
+        "yogurt": "\ud83e\udd5b",
+        "porridge": "\ud83e\udd63",
+        "sushi": "\ud83c\udf63",
+        "stew": "\ud83c\udf72",
+        "roasted_chicken": "\ud83c\udf57",
+        "pumpkin_pie": "\ud83e\udd67",
+        "fruit_salad": "\ud83e\udd57",
+        "soup": "\ud83e\udd63",
+        "grilled_fish": "\ud83d\udc1f",
+        "honey": "\ud83c\udf6f",
+        "pizza": "\ud83c\udf55",
+        "burger": "\ud83c\udf54",
+        "ramen_bowl": "\ud83c\udf5c",
+        "taco": "\ud83c\udf2e",
+        "paella": "\ud83e\udd90",
+        "seafood_platter": "\ud83e\udd9e",
+        "sushi_deluxe": "\ud83c\udf63",
+        "feast_platter": "\ud83c\udf7d\ufe0f",
+        "golden_cake": "\ud83c\udf70",
+        "ambrosia": "\ud83c\udf68",
+        "divine_soup": "\ud83c\udf72",
+        "royal_brew": "\ud83c\udf77",
+        "dragonfruit_dish": "\ud83d\udc09",
+        "seed_wheat": "\ud83c\udf3e",
+        "herb_basil": "\ud83c\udf3f",
+        "leaf_spinach": "\ud83e\udd6c",
+        "sprout": "\ud83c\udf31",
+        "mushroom_common": "\ud83c\udf44",
+        "flower_daisy": "\ud83c\udf3c",
+        "berry_blue": "\ud83e\uded0",
+        "fern": "\ud83c\udf3f",
+        "corn": "\ud83c\udf3d",
+        "tomato": "\ud83c\udf45",
+        "onion": "\ud83e\uddc5",
+        "garlic": "\ud83e\uddc4",
+        "potato": "\ud83e\udd54",
+        "mint": "\ud83c\udf31",
+        "chili": "\ud83c\udf36\ufe0f",
+        "sage": "\ud83c\udf3f",
+        "olive": "\ud83e\uded2",
+        "grape": "\ud83c\udf47",
+        "strawberry": "\ud83c\udf53",
+        "blueberry": "\ud83e\uded0",
+        "cocoa": "\ud83c\udf6b",
+        "coffee_bean": "\u2615",
+        "ginger": "\ud83e\udeda",
+        "almond_tree_sapling": "\ud83c\udf30",
+        "citrus_tree_seedling": "\ud83c\udf4b",
+        "avocado_tree_sapling": "\ud83e\udd51",
+        "tea_bush": "\ud83c\udf75",
+        "vanilla_orchid": "\ud83c\udf38",
+        "bamboo_clump": "\ud83c\udf8d",
+        "ancient_oak_seed": "\ud83c\udf33",
+        "sacred_herb": "\ud83c\udf3f",
+        "mythic_orchid": "\ud83c\udf3a",
+        "dragon_vine": "\ud83c\udf3f",
+        "stardust_lily": "\u2728",
+        "elder_root": "\ud83e\udeb4",
+        "moonblossom": "\ud83c\udf19",
+        "chicken": "\ud83d\udc14",
+        "rabbit": "\ud83d\udc07",
+        "fish": "\ud83d\udc1f",
+        "duck": "\ud83e\udd86",
+        "cat": "\ud83d\udc31",
+        "dog": "\ud83d\udc36",
+        "mouse": "\ud83d\udc01",
+        "goat_kid": "\ud83d\udc10",
+        "sheep": "\ud83d\udc11",
+        "cow": "\ud83d\udc04",
+        "pig": "\ud83d\udc16",
+        "turkey": "\ud83e\udd83",
+        "pheasant": "\ud83e\udd9a",
+        "beaver": "\ud83e\uddab",
+        "alpaca": "\ud83e\udd99",
+        "goose": "\ud83e\udebf",
+        "deer": "\ud83e\udd8c",
+        "boar": "\ud83d\udc17",
+        "fox": "\ud83e\udd8a",
+        "otter": "\ud83e\udda6",
+        "badger": "\ud83e\udda1",
+        "hawk": "\ud83e\udd85",
+        "seal": "\ud83e\uddad",
+        "elk": "\ud83e\udd8c",
+        "bear": "\ud83d\udc3b",
+        "wolf": "\ud83d\udc3a",
+        "lynx": "\ud83d\udc06",
+        "bison": "\ud83e\uddac",
+        "yak": "\ud83d\udc02",
+        "cougar": "\ud83d\udc06",
+        "gator": "\ud83d\udc0a",
+        "griffin_egg": "\ud83e\udd5a",
+        "dragon_whelp": "\ud83d\udc09",
+        "seraph_stag": "\ud83e\udd8c",
+        "leviathan_scale": "\ud83e\udeb8",
+        "phoenix_chick": "\ud83d\udc23",
+        "ancient_turtle": "\ud83d\udc22",
+        "fishing_rod": "\ud83c\udfa3",
+        "knife": "\ud83d\udd2a",
+        "hand_hoe": "\ud83e\udeb4",
+        "bucket": "\ud83e\udea3",
+        "rope": "\ud83e\udea2",
+        "stone_hammer": "\ud83d\udd28",
+        "flint_and_steel": "\ud83e\ude93",
+        "wooden_shovel": "\u26cf\ufe0f",
+        "iron_pickaxe": "\u26cf\ufe0f",
+        "iron_axe": "\ud83e\ude93",
+        "saw": "\ud83e\ude9a",
+        "bronze_sickle": "\ud83d\udd2a",
+        "fishing_net": "\ud83e\ude9d",
+        "whetstone": "\ud83e\udea8",
+        "compass": "\ud83e\udded",
+        "lantern": "\ud83c\udfee",
+        "steel_hammer": "\ud83d\udd27",
+        "drill": "\ud83d\udee0\ufe0f",
+        "advanced_fishing_rod": "\ud83c\udfa3",
+        "tongs": "\ud83d\udd29",
+        "forge_poker": "\ud83e\udeb5",
+        "lockpick_set": "\ud83d\udddd\ufe0f",
+        "mechanic_toolkit": "\ud83e\uddf0",
+        "motor_repair_kit": "\ud83d\udee0\ufe0f",
+        "alchemist_kit": "\u2697\ufe0f",
+        "precision_drill": "\ud83d\udee0\ufe0f",
+        "hydraulic_jack": "\ud83e\uddf2",
+        "sensor_pack": "\ud83d\udce1",
+        "repair_drones": "\ud83e\udd16",
+        "quantum_toolset": "\ud83d\udca0",
+        "plasma_cutter": "\ud83d\udd0c",
+        "nano_repair_kit": "\ud83e\uddea",
+        "orbital_welder": "\ud83d\udef0\ufe0f",
+        "dragonforge_hammer": "\ud83d\udd28",
+        "smile": "\ud83d\ude00",
+        "wave": "\ud83d\udc4b",
+        "thumbs_up": "\ud83d\udc4d",
+        "clap": "\ud83d\udc4f",
+        "cheer": "\ud83d\ude4c",
+        "wink": "\ud83d\ude09",
+        "grin": "\ud83d\ude01",
+        "nod": "\ud83e\udd1d",
+        "hype": "\ud83d\udd25",
+        "rage": "\ud83d\ude21",
+        "facepalm_hard": "\ud83e\udd26\u200d\u2642\ufe0f",
+        "tears_of_joy": "\ud83d\ude02",
+        "mind_blown": "\ud83e\udd2f",
+        "victory": "\ud83c\udfc6",
+        "king": "\ud83d\udc51",
+        "legend": "\ud83c\udf1f",
+        "immortal": "\u267e\ufe0f",
+        "wooden_sword": "\ud83e\ude93",
+        "stone_dagger": "\ud83d\udde1\ufe0f",
+        "short_bow": "\ud83c\udff9",
+        "slingshot": "\ud83d\udd2b",
+        "club": "\ud83d\udd28",
+        "throwing_stone": "\ud83e\udea8",
+        "wooden_spear": "\ud83e\ude83",
+        "iron_sword": "\u2694\ufe0f",
+        "long_bow": "\ud83c\udff9",
+        "steel_dagger": "\ud83d\udde1\ufe0f",
+        "composite_bow": "\ud83c\udff9",
+        "javelin": "\ud83e\ude83",
+        "battle_axe": "\ud83e\ude93",
+        "mace": "\ud83d\udd28",
+        "pike": "\ud83d\udde1\ufe0f",
+        "steel_sword": "\u2694\ufe0f",
+        "recurve_bow": "\ud83c\udff9",
+        "crossbow": "\ud83c\udff9",
+        "warhammer": "\ud83d\udd28",
+        "rapier": "\ud83d\udde1\ufe0f",
+        "halberd": "\u2694\ufe0f",
+        "blunderbuss": "\ud83d\udd2b",
+        "enchanted_blade": "\ud83d\udde1\ufe0f",
+        "rifle": "\ud83d\udd2b",
+        "energy_staff": "\ud83d\udd2e",
+        "polearm": "\u2694\ufe0f",
+        "explosive_launcher": "\ud83d\udca3",
+        "guardian_shield": "\ud83d\udee1\ufe0f",
+        "soul_saber": "\ud83d\udd31",
+        "mythril_greatsword": "\u2694\ufe0f",
+        "dragon_lance": "\ud83c\udff9",
+        "arc_cannon": "\ud83d\udd2b",
+        "void_reaver": "\u2694\ufe0f",
+        "celestial_staff": "\ud83d\udd2e",
+        "apocalypse_axe": "\ud83e\ude93",
+        "phoenix_glaive": "\ud83d\udd25",
+        "copper_coin": "\ud83e\ude99",
+        "small_chest": "\ud83e\uddf0",
+        "paper_map": "\ud83d\uddfa\ufe0f",
+        "basic_document": "\ud83d\udcc4",
+        "rope_bundle": "\ud83e\udea2",
+        "cloth_roll": "\ud83e\uddf5",
+        "wood_plank": "\ud83e\udeb5",
+        "stone_chunk": "\ud83e\udea8",
+        "silver_coin": "\ud83e\udd48",
+        "toolbox_small": "\ud83e\uddf0",
+        "leather_pack": "\ud83d\udc5c",
+        "crystal_shard": "\ud83d\udd39",
+        "iron_ingot": "\ud83d\udd29",
+        "glass_bottle": "\ud83c\udf7e",
+        "tinderbox": "\ud83d\udd25",
+        "canvas": "\ud83c\udfa8",
+        "gold_coin": "\ud83e\udd47",
+        "safe_box": "\ud83d\uddc3\ufe0f",
+        "gemstone": "\ud83d\udc8e",
+        "refined_iron": "\ud83d\udd27",
+        "mechanism_part": "\u2699\ufe0f",
+        "brick_bundle": "\ud83e\uddf1",
+        "timber_beam": "\ud83e\udeb5",
+        "oil_barrel": "\ud83d\udee2\ufe0f",
+        "platinum_coin": "\ud83c\udfc6",
+        "vault_key": "\ud83d\udddd\ufe0f",
+        "engine_core": "\u2699\ufe0f",
+        "rare_gem": "\ud83d\udd2e",
+        "refined_steel": "\ud83d\udd29",
+        "advanced_circuit": "\ud83d\udcbb",
+        "golden_frame": "\ud83d\uddbc\ufe0f",
+        "diamond_contract": "\ud83d\udcdc",
+        "ancient_relic": "\ud83d\uddff",
+        "artifact_core": "\ud83d\udd31",
+        "cloud_server": "\u2601\ufe0f",
+        "quantum_chip": "\ud83d\udca0",
+        "master_blueprint": "\ud83d\udcd0",
+        "royal_seal": "\ud83d\udcef",
+        "legendary_treasure": "\ud83c\udfc6",
+        "rowboat": "\ud83d\udef6",
+        "bicycle": "\ud83d\udeb2",
+        "scooter": "\ud83d\udef4",
+        "cart": "\ud83d\uded2",
+        "pony": "\ud83d\udc34",
+        "canoe": "\ud83d\udef6",
+        "hand_glider": "\ud83e\ude82",
+        "sled": "\ud83d\udef7",
+        "motorbike": "\ud83c\udfcd\ufe0f",
+        "car_small": "\ud83d\ude97",
+        "jeep": "\ud83d\ude99",
+        "pickup": "\ud83d\ude9a",
+        "sailboat": "\u26f5",
+        "speedboat": "\ud83d\udea4",
+        "tram": "\ud83d\ude8b",
+        "rickshaw": "\ud83d\udefa",
+        "truck": "\ud83d\ude9a",
+        "bus": "\ud83d\ude8c",
+        "ferry": "\u26f4\ufe0f",
+        "helicopter": "\ud83d\ude81",
+        "train": "\ud83d\ude86",
+        "submarine": "\ud83d\udea2",
+        "seaplane": "\ud83d\udee9\ufe0f",
+        "jet": "\u2708\ufe0f",
+        "yacht": "\ud83d\udee5\ufe0f",
+        "armored_car": "\ud83d\ude93",
+        "battle_tank": "\ufffd tank",
+        "spaceplane": "\ud83d\udee9\ufe0f",
+        "maglev": "\ud83d\ude84",
+        "cruise_ship": "\ud83d\udef3\ufe0f",
+        "starship": "\ud83d\udef8",
+        "teleporter_vessel": "\ud83c\udf00",
+        "leviathan_sub": "\ud83d\udef8",
+        "orbital_freighter": "\ud83d\ude80",
+        "quantum_shuttle": "\ud83d\ude80",
+        "flagship": "\ud83d\udea2",
+        "dragon_mount": "\ud83d\udc32",
+        "ether_sail": "\u26f5"
     },
-    "workbench": {
-      "requires": {
+    "skills": [
+        "fishing",
+        "running",
+        "hunting",
+        "farming",
+        "programming",
+        "medical",
+        "teaching",
+        "math",
+        "science",
+        "geography",
+        "history",
+        "alchemy",
+        "engineering",
+        "mechanics",
+        "cooking"
+    ],
+    "jobs": {
+        "fisherman": [
+            "fishing"
+        ],
+        "farmer": [
+            "farming"
+        ],
+        "hunter": [
+            "hunting"
+        ],
+        "engineer": [
+            "engineering",
+            "mechanics"
+        ],
+        "doctor": [
+            "medical"
+        ],
+        "teacher": [
+            "teaching"
+        ],
+        "chef": [
+            "cooking"
+        ],
+        "blacksmith": [
+            "mechanics",
+            "engineering"
+        ],
+        "programmer": [
+            "programming",
+            "math"
+        ]
+    },
+    "buy": {
+        "bread": 10,
+        "milk": 8,
+        "cookie": 12,
+        "apple": 6,
+        "banana": 6,
+        "carrot": 5,
+        "rice_ball": 20,
+        "noodles": 25,
+        "pancake": 18,
+        "sushi": 120,
+        "grilled_fish": 90,
+        "feast_platter": 1200,
+        "ancient_relic": 50000,
+        "golden_cake": 2000,
+        "fishing_rod": 50,
+        "iron_pickaxe": 200,
+        "motorbike": 1500,
+        "car_small": 5000,
+        "starship": 500000,
+        "copper_coin": 1,
+        "silver_coin": 5,
+        "gold_coin": 20,
+        "diamond_contract": 100000,
+        "rope": 12,
         "wood_plank": 15,
-        "iron_ingot": 3,
-        "cloth_roll": 2
-      },
-      "time_seconds": 180,
-      "produces": "workbench",
-      "notes": "Unlocks crafting recipes."
+        "iron_ingot": 180,
+        "refined_iron": 350,
+        "gemstone": 800,
+        "quantum_chip": 20000,
+        "plasma_cutter": 25000,
+        "dragon_lance": 45000
     },
-    "basic_ship": {
-      "requires": {
-        "timber_beam": 200,
-        "engine_core": 1,
-        "rope_bundle": 20
-      },
-      "time_seconds": 7200,
-      "produces": "speedboat",
-      "notes": "Small motorized vessel."
+    "sell": {
+        "bread": 5,
+        "milk": 4,
+        "cookie": 6,
+        "apple": 3,
+        "banana": 3,
+        "carrot": 2,
+        "rice_ball": 10,
+        "noodles": 12,
+        "pancake": 9,
+        "sushi": 60,
+        "grilled_fish": 45,
+        "feast_platter": 600,
+        "ancient_relic": 25000,
+        "golden_cake": 1000,
+        "fishing_rod": 25,
+        "iron_pickaxe": 100,
+        "motorbike": 750,
+        "car_small": 2500,
+        "starship": 250000,
+        "copper_coin": 0,
+        "silver_coin": 2,
+        "gold_coin": 10,
+        "diamond_contract": 50000,
+        "rope": 6,
+        "wood_plank": 7,
+        "iron_ingot": 90,
+        "refined_iron": 175,
+        "gemstone": 400,
+        "quantum_chip": 10000,
+        "plasma_cutter": 12500,
+        "dragon_lance": 22500
     },
-    "house_small": {
-      "requires": {
-        "wood_plank": 100,
-        "brick_bundle": 50,
-        "cloth_roll": 20
-      },
-      "time_seconds": 3600,
-      "produces": "small_house",
-      "notes": "Provides storage and minor buffs."
+    "black_market": {
+        "dragon_egg": {
+            "emoji": "\ud83e\udd5a",
+            "buy": 250000,
+            "sell": 125000,
+            "rarity": "legendary",
+            "notes": "Extremely rare. Stored in black market only."
+        },
+        "ancient_relic": {
+            "emoji": "\ud83d\uddff",
+            "buy": 50000,
+            "sell": 25000,
+            "rarity": "mythic",
+            "notes": "Antiquity with lore value."
+        },
+        "void_core": {
+            "emoji": "\ud83d\udd2e",
+            "buy": 120000,
+            "sell": 60000,
+            "rarity": "legendary",
+            "notes": "Used in advanced craft."
+        },
+        "phoenix_feather": {
+            "emoji": "\ud83e\udeb6",
+            "buy": 80000,
+            "sell": 40000,
+            "rarity": "epic",
+            "notes": "Revival ingredient."
+        }
+    },
+    "build": {
+        "campfire": {
+            "requires": {
+                "wood_plank": 5,
+                "stone_chunk": 3,
+                "rope": 1
+            },
+            "time_seconds": 30,
+            "produces": "campfire",
+            "notes": "Basic cooking and warmth."
+        },
+        "small_boat": {
+            "requires": {
+                "wood_plank": 30,
+                "rope": 5,
+                "iron_ingot": 10
+            },
+            "time_seconds": 600,
+            "produces": "rowboat",
+            "notes": "Enables travel on rivers and ocean."
+        },
+        "furnace": {
+            "requires": {
+                "stone_chunk": 20,
+                "iron_ingot": 5
+            },
+            "time_seconds": 300,
+            "produces": "furnace",
+            "notes": "Smelts ore and refines materials."
+        },
+        "workbench": {
+            "requires": {
+                "wood_plank": 15,
+                "iron_ingot": 3,
+                "cloth_roll": 2
+            },
+            "time_seconds": 180,
+            "produces": "workbench",
+            "notes": "Unlocks crafting recipes."
+        },
+        "basic_ship": {
+            "requires": {
+                "timber_beam": 200,
+                "engine_core": 1,
+                "rope_bundle": 20
+            },
+            "time_seconds": 7200,
+            "produces": "speedboat",
+            "notes": "Small motorized vessel."
+        },
+        "house_small": {
+            "requires": {
+                "wood_plank": 100,
+                "brick_bundle": 50,
+                "cloth_roll": 20
+            },
+            "time_seconds": 3600,
+            "produces": "small_house",
+            "notes": "Provides storage and minor buffs."
+        }
+    },
+    "craft": {
+        "fish_patty": {
+            "requires": {
+                "fish": 2,
+                "flour": 1,
+                "salt": 1
+            },
+            "time_seconds": 20,
+            "produces": "fish_patty",
+            "notes": "Simple cooked food."
+        },
+        "iron_ingot": {
+            "requires": {
+                "refined_iron": 1
+            },
+            "time_seconds": 120,
+            "produces": "iron_ingot",
+            "notes": "Smelt refined iron into ingot."
+        },
+        "wood_plank": {
+            "requires": {
+                "timber_beam": 1
+            },
+            "time_seconds": 10,
+            "produces": "wood_plank",
+            "notes": "Basic building material."
+        },
+        "sushi_set": {
+            "requires": {
+                "sushi": 3,
+                "seaweed": 2,
+                "rice_ball": 2
+            },
+            "time_seconds": 45,
+            "produces": "sushi_deluxe",
+            "notes": "High tier food."
+        },
+        "healing_potion": {
+            "requires": {
+                "herb_basil": 3,
+                "honey": 1,
+                "glass_bottle": 1
+            },
+            "time_seconds": 60,
+            "produces": "healing_potion",
+            "notes": "Restores HP when used."
+        },
+        "repair_kit": {
+            "requires": {
+                "iron_ingot": 2,
+                "cloth_roll": 1,
+                "mechanism_part": 1
+            },
+            "time_seconds": 90,
+            "produces": "nano_repair_kit",
+            "notes": "Used to repair vehicles and tools."
+        },
+        "energy_cell": {
+            "requires": {
+                "crystal_shard": 2,
+                "advanced_circuit": 1,
+                "oil_barrel": 1
+            },
+            "time_seconds": 120,
+            "produces": "energy_cell",
+            "notes": "Power source for higher tier equipment."
+        },
+        "plasma_cutter": {
+            "requires": {
+                "refined_steel": 5,
+                "advanced_circuit": 2,
+                "energy_cell": 1
+            },
+            "time_seconds": 600,
+            "produces": "plasma_cutter",
+            "notes": "High tier tool and weapon component."
+        },
+        "dragon_lance": {
+            "requires": {
+                "mythic_orchid": 2,
+                "leviathan_scale": 3,
+                "ancient_relic": 1,
+                "plasma_cutter": 1
+            },
+            "time_seconds": 3600,
+            "produces": "dragon_lance",
+            "notes": "Legendary weapon; craftable with rare materials."
+        }
     }
-  },
-
-  "craft": {
-    "fish_patty": {
-      "requires": {
-        "fish": 2,
-        "flour": 1,
-        "salt": 1
-      },
-      "time_seconds": 20,
-      "produces": "fish_patty",
-      "notes": "Simple cooked food."
-    },
-    "iron_ingot": {
-      "requires": {
-        "refined_iron": 1
-      },
-      "time_seconds": 120,
-      "produces": "iron_ingot",
-      "notes": "Smelt refined iron into ingot."
-    },
-    "wood_plank": {
-      "requires": {
-        "timber_beam": 1
-      },
-      "time_seconds": 10,
-      "produces": "wood_plank",
-      "notes": "Basic building material."
-    },
-    "sushi_set": {
-      "requires": {
-        "sushi": 3,
-        "seaweed": 2,
-        "rice_ball": 2
-      },
-      "time_seconds": 45,
-      "produces": "sushi_deluxe",
-      "notes": "High tier food."
-    },
-    "healing_potion": {
-      "requires": {
-        "herb_basil": 3,
-        "honey": 1,
-        "glass_bottle": 1
-      },
-      "time_seconds": 60,
-      "produces": "healing_potion",
-      "notes": "Restores HP when used."
-    },
-    "repair_kit": {
-      "requires": {
-        "iron_ingot": 2,
-        "cloth_roll": 1,
-        "mechanism_part": 1
-      },
-      "time_seconds": 90,
-      "produces": "nano_repair_kit",
-      "notes": "Used to repair vehicles and tools."
-    },
-    "energy_cell": {
-      "requires": {
-        "crystal_shard": 2,
-        "advanced_circuit": 1,
-        "oil_barrel": 1
-      },
-      "time_seconds": 120,
-      "produces": "energy_cell",
-      "notes": "Power source for higher tier equipment."
-    },
-    "plasma_cutter": {
-      "requires": {
-        "refined_steel": 5,
-        "advanced_circuit": 2,
-        "energy_cell": 1
-      },
-      "time_seconds": 600,
-      "produces": "plasma_cutter",
-      "notes": "High tier tool and weapon component."
-    },
-    "dragon_lance": {
-      "requires": {
-        "mythic_orchid": 2,
-        "leviathan_scale": 3,
-        "ancient_relic": 1,
-        "plasma_cutter": 1
-      },
-      "time_seconds": 3600,
-      "produces": "dragon_lance",
-      "notes": "Legendary weapon; craftable with rare materials."
-    }
-  }
 }
