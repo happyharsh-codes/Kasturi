@@ -277,7 +277,6 @@ class Bot:
         print(f"Bot is ready. Logged in as {self.client.user}")
         print("We are ready to go!")
         self.mood_swings.start()
-        self.save_files.start()
         self.unmute.start()
 
         # saving guilds
@@ -347,13 +346,14 @@ class Bot:
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
         em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
-                        
+
+        invite = None
         for channel in channels:
             if isinstance(channel, discord.TextChannel):
                 if "general" in channel.name.lower() or "chat" in channel.name.lower():
-                    try:         
-                        invite = await channel.create_invite(max_age=0, max_uses=0)
+                    try:
                         await channel.send("@everyone", embed= em, view=view)
+                        invite = await channel.create_invite(max_age=0, max_uses=0)
                         break
                     except:
                         continue
@@ -361,8 +361,8 @@ class Bot:
             for channel in channels:
                 if isinstance(channel, discord.TextChannel):
                     try:
-                        invite = await channel.create_invite(max_age=0,max_uses=0)
                         await channel.send("@everyone", embed= em, view=view)
+                        invite = await channel.create_invite(max_age=0,max_uses=0)
                         break
                     except:
                         continue
@@ -377,14 +377,16 @@ class Bot:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
                 moderators.append(member.id)
         Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite,"owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"join/leave_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {},"friends": [],"logging": 0}
-
+        if invite:
+            Guild_Invite[str(guild.id)] = invite 
+    
     async def on_guild_remove(self, guild: discord.Guild):
         try:
             entry = await guild.audit_logs(limit=1,action=discord.AuditLogAction.bot_ban).flatten()
             if entry:
                 moderator = entry[0].user
                 em = Embed(title="I got banned",description=f"I got banned from {guild.name}\nAction taken by: {moderator.name} {moderator.id} {moderator.display_name}", color = Color.red())
-                em.url = Server_Settings[str(ctx.guild.id)]["invite_link"]
+                em.url = Server_Settings[str(guild.id)]["invite_link"]
                 em.set_thumbnail(url = moderator.avatar)
                 em.set_footer(text = "Banned by {moderator.name}", icon_url = moderator.avatar)
                 await me.send(embed = em)
@@ -398,7 +400,7 @@ class Bot:
            async for ban in guild.bans():
                if ban.user.id == client.user.id:
                    em = Embed(title="I got banned",description=f"I got banned from {guild.name}\nAction taken by: {moderator.name} {moderator.id} {moderator.display_name}", color = Color.red())
-                   em.url = Server_Settings[str(ctx.guild.id)]["invite_link"]
+                   em.url = Server_Settings[str(guild.id)]["invite_link"]
                    em.set_thumbnail(url = moderator.avatar)
                    em.set_image(url=guild.icon)
                    em.set_footer(text = "Banned by {moderator.name}", icon_url = moderator.avatar)
@@ -406,8 +408,12 @@ class Bot:
                    await me.send(embed = em)
           except:
             pass
-            
+     ,       
         me = self.client.get_user(894072003533877279)
+        invite = Server_Settings[str(guild.id)]["invite_link"]
+        if invite == "N/A" and Guild_Invite[str(guild.id)]:
+            invite = Guild_Invite[str(guild.id)]
+            del Guild_Invite[str(guild.id)]
         await me.send(f"Left a server: {Server_Settings[str(guild.id)]['name']}\n{Server_Settings[str(guild.id)]['invite_link']}")
         del Server_Settings[str(guild.id)]
         
