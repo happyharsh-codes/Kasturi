@@ -2,51 +2,50 @@ from __init__ import*
 from src.kellycore.kellymood import KellyMood
 from src.kellycore.kellyrelation import KellyRealtion
 from src.kellycore.kellypersonality import KellyPersona
+from src.kellycore.kellybusy import KellyBusy
+from src.kellycore.kellymemory import KellyMemory
 from src.kellycore.giyu import Giyu
+from src.kellycore.akira import Akira 
 
 class Kelly:
-    """The Main Kelly Class That Governs all activities"""
-    
+    """Main Kelly Core(Brain) - kellycore.py  
+    Governs all activities:
+        - Receives messages: -> if command run command else talk
+        -   * Relation system - kellyrelation.py
+            * Mood system - kellymood.py
+            * Personality - kellypersonality.py
+            * Memory - kellymemory.py
+            * Busy - kellybusy.py
+            * Giyu - giyu.py
+            * Akira - akira.py
+        - Handles callbacks from KellyRelation (friend / ban)
+        - Manages busy-tasks via KellyBusy
+        - Stores server & user data in memory systems
+    """
     def __init__(self, name, bot):
         self.name = name
         self.client = bot #discord bot
         self.mood = KellyMood(bot)
         self.personality = KellyPersona(Persona)
         self.relations = KellyRealtion()
-        self.chats = Chats
-        self.mood.generateRandomMood()
+        self.busy = KellyBusy()
+        self.memory = KellyMemory()
         self.giyu = Giyu(bot)
+        self.akira = Akira(bot)
+        self.mood.generateRandomMood()
         self.commands = {cmd.name : list(cmd.clean_perms.keys()) for cmd in bot.commands}
                 
     async def reportError(self, error):
         try:
             me = self.client.get_user(894072003533877279)
-            await me.send(f"Erron on KellyCore:{error}")
+            etype, value, tb = sys.exc_info()
+            full_error = ''.join(traceback.format_exception(etype, value, tb))
+            em = Embed(title="🚫 Error on KellyCore", description=f"```{full_error[:1900]}```", color = Color.red())
+            await me.send(embed=em)
         except:
-            print("Could not dm error")
-        print("error in kelly core: ", error)
-
-    def addUser(self,guildid, id):
-        if id not in Server_Settings[str(guildid)]['block_list']:
-            self.realtion[str(id)] = 1
-
-    def getUserChatData(self, userid):
-        if str(userid) in Chats:
-            all_user_chats = Chats[str(userid)]
-            res = "\n".join(all_user_chats)
-            return res
-        return ""
-
-    def addUserChatData(self, user_message, kelly_message, id):
-        user_message = user_message.replace("\n","").replace(":","")
-        kelly_message = kelly_message.replace("\n","").replace(":","")
-        if str(id) not in Chats:
-            Chats[str(id)] = [f"User:{user_message}\nKelly:{kelly_message}"]
-        else:
-            Chats[str(id)].append(f"User:{user_message}\nKelly:{kelly_message}")
-            if len(Chats[str(id)]) > 4:
-                Chats[str(id)].pop(0)
-
+            pass
+        print("".join(traceback.format_exception(etype, value, tb)))
+    
     async def runCommand(self, message: discord.Message, ai_result: dict):
         try:
             cmd_name = list(ai_result.get("command").keys())[0]
@@ -102,13 +101,32 @@ class Kelly:
             await self.reportError(e)
     
     async def kellyQuery(self, message: discord.Message):
+        """
+        Main handler for incoming user messages.
+        Steps:
+            1. Giyu Check
+                - Check if user is Blocked
+                - Check is user is Muted
+                - Check is user is new
+                - Check if Kelly is busy:
+                    - If busy, talk but queue the request.
+                - Check if Kelly is sleeping 
+            2. Kelly Reply
+            3. Generate Message Result
+                - Update relation (respect) based on message style.
+                    - relation hits > 80: Kelly thinks of making friend
+                    - relation hits < -20: Kelly thiks of warn, mute, ban
+                - Adjust mood / persona based on outcome.
+                - Stores user chat
+                - Store memory / info about user
+                - Process the user request - Runs valid command if required and if mood supports
+        """
         try: 
             #------Initializing------#
             mood = self.mood.getMood()
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.relations.getUserInfo(message.author.id)
-            type = ""
             
             if message.author.id == 894072003533877279:
                 type = "God aka your creator"
@@ -122,29 +140,26 @@ class Kelly:
                 type = "Member"
             prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}, id:{message.author.id}}}\nGenerate response in 20 words with 0-4 emojiy. Keep chat interesting and fun by interacting with user and asking enagaging questions."""
 
-            #first Giyu the bodyguard handles the message before getting to kelly
+            #------- 1. Giyu the bodyguard handles the message before getting to kelly -------#
             if await self.giyu.giyuQuery(message, self.mood.mood):#if giyu already sent msg so here will not send so here we'll simply return
                 return
             
-            #------Generating message session id------#
-            #self.generateSessionId(message)            
-
-            #kelly Mood
+            # Setting Kelly Mood - only alters the response
             if self.mood.mood["mischievous"] > 80:
                 prompt += " Kelly is feeling extra mischevious today"
             elif self.mood.mood["sad"] > 80 or self.mood.mood["depressed"] > 80:
                 prompt += " Kelly is extremely sad and depressed"
 
-            #------Sending message------#
+            #------ 2. Sending message------#
             async with message.channel.typing():
                 msg = await message.channel.send(f"-# {choice(['thinking','busy','playing games','sleeping','yawning','drooling','watching','understanding','remembring','wondering','imagining','dreaming','creating','chatting','looking','helping'])}... {EMOJI[choice(list(EMOJI.keys()))]}")
-                assist = self.getUserChatData(message.author.id) #getting previous chats
+                assist = self.memory.getUserChatData(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist, client=0)
-                self.addUserChatData(message.content, kelly_reply, message.author.id) #Saving chat
+                self.memory.storeChatData(message.content, kelly_reply, message.author.id) #Saving chat
                 await msg.delete()
                 await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
 
-            #------Getting Convo summary------#
+            #------ 3. Getting Convo summary------#
             current_status = {"respect": relation,"mood": mood, "persona": persona}
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
                 Current status: {current_status}
@@ -152,6 +167,7 @@ class Kelly:
                 - respect: (-10 : +10) (int)
                 - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
                 - personality_change: {{(personality_name): +/- 10 (int)}}
+                - info: (str) (small info about user behaviour and type)
                 - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
             raw_result = getResponse(f"User(id = {message.author.id}): {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=0).lower()
             try:
@@ -171,7 +187,12 @@ class Kelly:
             if "personality_change" in result and isinstance(result["personality_change"], int):
                 self.personality.modifyPersonality(result['personality_change'])
             if "relation" in result:
-                self.relations.modifyUserRespect(result["respect"], message.author.id)
+                rel = self.relations.modifyUserRespect(result["respect"], message.author.id)
+                if rel == "friend":
+                    await self.thinkFriendAction(message, prompt)
+                elif rel == "ban":
+                    await self.thinkBanAction(message, prompt)
+            
             #------Performing Task/Command Now------#
             if "command" in result and result["command"] and result["command"] != "none":
                 if isinstance(list(result["command"].values())[0], list):
@@ -376,3 +397,72 @@ class Kelly:
             
         return message
 
+    async def thinkFriendAction(self, message):
+        """Bot thinks of making user a friend when respect is high."""
+        # Think message
+        if message.author.id in Database["friends"]:
+            if ranint(1,6) == 5:
+                #------ Sending message------#
+                prompt = "You are Kelly sassy lively Discord Mod Bot, You already replied to user. Send one more message continuing the chat because you are good friends now."
+                async with message.channel.typing():
+                    assist = self.memory.getUserChatData(message.author.id) #getting previous chats
+                    kelly_reply = getResponse(message.content, prompt, assistant= assist)
+                    await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
+                    last_msg = Behaviours[str(message.author.id)][-1]
+                    last_msg += kelly_reply
+                    Behaviours[str(message.author.id)][-1] = last_msg
+            return
+        # Action chance
+        roll = random.randint(1, 100)
+        # 60% think only
+        if roll <= 60:
+            prompt = "You are Kelly sassy lively Discord Mod Bot, You already replied to user. You think of making user friend but havent made him friend yet. Generate reply in 20 words with emojis."
+            async with message.channel.typing():
+                assist = self.memory.getUserChatData(message.author.id)
+                kelly_reply = getResponse(message.content, prompt, assistant= assist)
+                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel     
+            
+        # 25% make friend
+        elif roll <= 85:
+            prompt = "You are Kelly sassy lively Discord Mod Bot, You already replied to user. You have finally made user as your friend. Also inform user that dms are open now. Generate reply in 20 words with emojis."
+            async with message.channel.typing():
+                assist = self.memory.getUserChatData(message.author.id)
+                kelly_reply = getResponse(message.content, prompt, assistant= assist)
+                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel     
+            self.memory.addFriend(message.author.id)
+        # 15% small reward
+        else:
+            await message.channel.send("✨ You're special! Here's a small gift for being nice. Join official Server to recieve your reward")
+            # Give reward logic here
+
+    async def thinkBanAction(self, message):
+        """Bot thinks of punishing the user when respect is low."""
+        roll = random.randint(1, 100)
+        if message.author.id in Database["friends"]:
+            self.memory.removeFriend(message.author.id)
+            
+        # 60% think only
+        if roll <= 60:
+            prompt = "You are Kelly sassy lively Discord Mod Bot, You already replied to user. You think user is very rude but tolerate this for once for now. Generate reply in 20 words with emojis."
+            async with message.channel.typing():
+                assist = self.memory.getUserChatData(message.author.id)
+                kelly_reply = getResponse(message.content, prompt, assistant= assist)
+                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
+            
+        # 25% mute instead of ban
+        elif roll <= 85:
+            prompt = "You are Kelly sassy lively Discord Mod Bot, You already replied to user. You think user is very rude and you are angry and mute him. Generate reply in 20 words with emojis."
+            async with message.channel.typing():
+                assist = self.memory.getUserChatData(message.author.id)
+                kelly_reply = getResponse(message.content, prompt, assistant= assist)
+                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel     
+                await self.runCommand(message, {"mute_from_kelly": {"member": message.author, "minutes":ranint(1,15), "reason": self.getEmoji(kelly_reply)}})
+        # 15% actual ban
+        else:
+            prompt = "You are Kelly sassy lively Discord Mod Bot, You already replied to user. You think user is very rude and you are angry and you ban him finally no mercy. Generate reply in 20 words with emojis."
+            async with message.channel.typing():
+                assist = self.memory.getUserChatData(message.author.id)
+                kelly_reply = getResponse(message.content, prompt, assistant= assist)
+                await message.reply(self.getEmoji(kelly_reply))      
+                await self.runCommand(message, {"ban_from_kelly": {"member": message.author, "reason": self.getEmoji(kelly_reply)}})
+        
