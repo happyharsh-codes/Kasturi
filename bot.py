@@ -291,7 +291,7 @@ class Bot:
                     await channel.send(embed= embed)
                     break
             else:
-                for channel in any(x.permissions_for(guild.me).send_messages for x in guild.text_channels):
+                for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
                     await channel.send(embed=em)
                     break
             for channel in guild.text_channels:
@@ -301,7 +301,7 @@ class Bot:
                 except:
                     continue
             if invite:
-                Guild_Invite[str(guild.id)] = invite
+                Guild_Invite[str(guild.id)] = str(invite.code)
             
             #tracking invites
             try:
@@ -351,18 +351,19 @@ class Bot:
         em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
 
-        invite = None
+        invite = "N/A"
         for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
             if any(x in channel.name.lower() for x in ("general","chat","chill")):
                 await channel.send("@everyone", embed= em, view=view)
                 break
         else:
-            for channel in any(x.permissions_for(guild.me).send_messages for x in guild.text_channels):
+            for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
                 await channel.send("@everyone", embed= em, view=view)
                 break
         for channel in guild.text_channels:
             try:
                 invite = await channel.create_invite(max_age=0, max_uses=0)
+                invite = str(invite.code)
                 break
             except:
                 continue
@@ -404,7 +405,7 @@ class Bot:
             em.add_field(name="Reason", value="Bot was kicked or server deleted")
         em.add_field(name="Invite Link", value=invite)
         em.set_thumbnail(url=guild.icon.url)
-        if invite:
+        if invite != "N/A":
             await me.send(str(invite), embed=em)
         else:
             await me.send(embed=em)
@@ -1268,7 +1269,7 @@ class Bot:
         if isinstance(error, commands.CommandNotFound):
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
-            if ranint(1,10) == 8:
+            if randint(1,10) == 8:
                 await ctx.send(choice(list(TIP.values())))
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
             em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
@@ -1282,7 +1283,7 @@ class Bot:
             em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have `Attach Files`,`Ban Members`, `Connect`, `Create Instant Invite`, `Deafen Members`, `Embed Links`, `Kick Members`, `Manage Channels`, `Manage Messages`, `Manage Roles`, `Manage Server`, `Mention Everyone`, `Moderate Members`, `Mute Members`, `Read Message History`, `Send Messages`, `Speak`, `Use Embedded Activities`, `Use External Emojis`, `Use External Sounds`, `Use Slash Commands` Permissions Enabled.",color=Color.red())
             await ctx.reply(embed=em)
         elif isinstance(error,commands.CommandOnCooldown):
-          await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
+            await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
         elif isinstance(error, commands.MissingRequiredArgument):
             view = View(timeout =60)
             async def on_timeout():
