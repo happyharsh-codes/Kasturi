@@ -314,7 +314,7 @@ class Bot:
                 except:
                     continue
             if invite:
-                Guild_Invite[str(guild.id)] = str(invite.code)
+                Guild_Invites[str(guild.id)] = str(invite.code)
             
             #tracking invites
             try:
@@ -392,8 +392,8 @@ class Bot:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
                 moderators.append(member.id)
         Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite,"owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"join/leave_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {},"friends": [],"logging": 0}
-        if invite:
-            Guild_Invite[str(guild.id)] = invite 
+        if invite != "N/A":
+            Guild_Invites[str(guild.id)] = invite 
     
     async def on_guild_remove(self, guild: discord.Guild):
         banned_by = None
@@ -408,7 +408,7 @@ class Bot:
             pass
         me = self.client.get_user(894072003533877279)
         invite = Server_Settings[str(guild.id)]["invite_link"]
-        if invite == "N/A" and Guild_Invite[str(guild.id)]:
+        if invite == "N/A" and Guild_Invites[str(guild.id)]:
             invite = Guild_Invite[str(guild.id)]
             del Guild_Invite[str(guild.id)]
         em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}")
