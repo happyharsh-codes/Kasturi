@@ -1,73 +1,18 @@
 from __init__ import*
+from functions.game_functions import*
 from typing import Optional
 
 """Inventory Items:-
 Foods: [🍻🍖🌭🍨🌮..]
 Plants: [💐🍂🌵🌴🌳🌲🪵..]
-Tools: [🗜️🪛🪚🔧🔨🛠️⚒️⛏️]
-Assets: [🏛️🕌🕋🛕⛪💒🏩🏯🏰🏗️🏢🏭🏬🏪🏟️🏦🏫🏨🏣🏤🏥🏚️🏠🏡🏘️🛖⛺🏕️🌃]
-Animals: [🐎🐯🦁🐼🐨🐷🫎🐲🦮🐈‍⬛🐈🪽🦇🐤🦂🦀🪱🐾🪰🦋]
-Vehicles: [🛴🦽🦼🚲🛵🏍️🚙🚗🛻🚚🚐🚜🏎️🚒🚑🚓🚕🛺🚌🚈🚝🚅🚄🚂🚃🚋🚎🚊🚉]
-Emotes:  [kellycute, kellyhappy]
-Weapons: [🔫⚔️🏹💣🔪🗡️🛡️🤺]
+Tools: [🗜️🪛🪚🔧🔨🛠️⚒️⛏️..]
+Assets: [🏛️🕌🕋🛕⛪💒🏩🏯🏰🏗️🏢🏭🏬🏪🏟️🏦🏫🏨🏣🏤🏥🏚️🏠🏡🏘️🛖⛺🏕️🌃..]
+Animals: [🐎🐯🦁🐼🐨🐷🫎🐲🦮🐈‍⬛🐈🪽🦇🐤🦂🦀🪱🐾🪰🦋..]
+Vehicles: [🛴🦽🦼🚲🛵🏍️🚙🚗🛻🚚🚐🚜🏎️🚒🚑🚓🚕🛺🚌🚈🚝🚅🚄🚂🚃🚋🚎🚊🚉..]
+Emotes:  [kellycute, kellyhappy..]
+Weapons: [🔫⚔️🏹💣🔪🗡️🛡️🤺..]
 """
-
-def weighted_choice(choices: list): 
-    choices = [(item, weight)] 
-    total = sum(w for _, w in choices) 
-    r = random() * total 
-    upto = 0 
-    for item, w in choices:
-        if upto + w >= r: 
-            return item
-        upto += w
-    return choices[-1][0]
-
-def has_profile():
-    async def predicate(ctx):
-        if str(ctx.author.id) in Profiles:
-            Profiles[str(ctx.author.id)]["aura"] += 2
-            return True
-        code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
-        emoji = EMOJI[f"kelly{choice(['blush', 'thinking', 'laugh', 'gigle', 'waiting', 'idontcare'])}"]
-        await ctx.reply(f"**{emoji} | ** you dont even have a profile\n**{choice(['📃','📜','📄','📑','📰','🗞','📚','📙','📕','📖','📗','📘','✒','✏','🖋','📝','📋'])} | **Type this to create new profile `{code}`")
-        try:
-            msg = await ctx.bot.wait_for("message", check= lambda x: x.author.id == ctx.author.id, timeout= 120)
-        except asyncio.TimeoutError:
-            return False 
-        if msg.content.lower() == code:
-            Profiles[str(ctx.author.id)] = {"name": ctx.author.name, "cash": 100, "gem": 1, "inv": {}, "health": 100, "hunger": 100, "aura":0, "skills": {}, "foods": {}, "plants": {}, "assets": {}, "tools": {}, "weapons": {}, "vehicles": {}, "quests": {}, "places": {}, "jobs": {} }
-            em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile created successfully. Start playing eith game commands now: `hunt`, `chop`, `adv`, `mine`, `work`, `school`, `craft`, `use`, `eat` .., .\n:white_check_mark: You obatained bonous ₹100 cash 💵\n:white_check_mark: You obtained 1 gem 💎\n\nUse `k help games` to get more help and info.",color=Color.green())
-            em.set_footer(text=f"{ctx.author.name} created acc at {timestamp(ctx)}", icon_url= ctx.author.avatar)
-            await ctx.send(embed = em)
-        else:
-            emoji = EMOJI[f"kelly{choice(['annoyed', 'laugh', 'gigle', 'waiting', 'idontcare', 'chips', 'bweh', 'bweh'])}"]
-            await msg.reply(f"**{emoji} | ** you dont even do a single thing properly disgusting!! Dont ever come to me again")
-        
-        return False
-    return commands.check(predicate)
-    
-def has_in_inventory(item, value = 0):
-    async def predicate(ctx):
-        if value == 0 and item in Profiles[str(ctx.author.id)].get("inv", []):
-            return True
-        elif item in Profiles[str(ctx.author.id)].get("inv", []) and Profiles[str(ctx.author.id)][item] >= value:
-            return True
-        if value:
-            await ctx.reply(embed=Embed(description=f"Ayoo You must have `{item.title()} x {value}` in your inventory to do this."), color= Color.gold())
-        else:
-            await ctx.reply(embed=Embed(description=f"Ayoo You must need `{item.title()}` in your inventory to perform this."), color= Color.gold())
-        return False
-    return commands.check(predicate)
-    
-def at_the_location(loc):
-    async def predicate(ctx):
-        if loc == Profiles[str(ctx.author.id)].get("location", ""):
-            return True
-        await ctx.reply(embed=Embed(description=f"Ayoo You must be in `{loc.title()}` to perform this action."), color= Color.gold())
-        return False
-    return commands.check(predicate)
-
+            
 class Games(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
@@ -176,7 +121,7 @@ class Games(commands.Cog):
     @has_profile()
     async def cash(self, ctx):
         """Shows your bank cash balance 🏦"""
-        amt = Profiles.get(str(ctx.author.id)).get("cash")
+        amt = Profiles[str(ctx.author.id)]["assets"]["cash"]
         emoji = EMOJI[f"kelly{choice(['hiding', 'interesting', 'owolove', 'heart', 'simping'])}"]
         await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **₹{amt}** cash <:cash:1433171762668896388>")
 
@@ -187,7 +132,7 @@ class Games(commands.Cog):
     @has_profile()
     async def gems(self, ctx):
         """Shows your bank gem balance 🏦""" 
-        amt = Profiles.get(str(ctx.author.id)).get("gem")
+        amt = Profiles[str(ctx.author.id)]["assets"]["gem"]
         emoji = EMOJI[f"kelly{choice(['hiding', 'interesting', 'owolove', 'heart', 'simping'])}"]
         await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **{amt}** gems <:gem:1433171777017610260>")
 
@@ -700,14 +645,7 @@ class Games(commands.Cog):
         loc = profile["location"]
         
         drops = {
-            "foods": 1,
-            "plants": 1,
-            "animals": 1,
-            "tools": 1,
-            "weapons": 0.5,
-            "assets": 1,
-            "vehicles": 0.2,
-            "emotes": 1
+            "assets": 1 # cash , gem or , rare orb
         }
 
         rewards = self.reward_player(aura, loc, drops)
