@@ -236,7 +236,7 @@ class Bot:
     async def on_error(self, event_method, *args, **kwargs):
         etype, value, tb = sys.exc_info()
         full_error = ''.join(traceback.format_exception(etype, value, tb))
-        em = Embed(title= f"⚠️ Error {event_method}", description= f"{full_error[:1900]}", color=Color.red())
+        em = Embed(title= f"⚠️ Error {event_method}", description= f"```{full_error[:1900]}```", color=Color.red())
         for arg in args:
             if isinstance(arg, discord.Message):
                 em.add_field(name="Message Content",value=f"`{arg.content[:500]}`",inline=False)
