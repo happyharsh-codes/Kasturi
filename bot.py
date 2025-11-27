@@ -408,7 +408,7 @@ class Bot:
                    await me.send(embed = em)
           except:
             pass
-     ,       
+              
         me = self.client.get_user(894072003533877279)
         invite = Server_Settings[str(guild.id)]["invite_link"]
         if invite == "N/A" and Guild_Invite[str(guild.id)]:
