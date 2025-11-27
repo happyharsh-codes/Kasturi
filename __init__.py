@@ -116,7 +116,6 @@ def load_mongo_dict(name, part="server", default=None):
 
 default_profiles = {
     "name": "No name noob",
-    "inv": {},
     "health": 100,
     "hunger": 100,
     "location": "home",
