@@ -1,133 +1,150 @@
 from __init__ import*
 
 class Giyu:
-    """Giyu the Kelly's Offical Guard And Assistant. You have to pass through him compulsorily."""
+    """
+    Kelly's official guard.
+    You have to pass through him compulsorily.
+    Filters:
+        - Bad words
+        - Spam
+        - Attitude detection
+    Checks Before Kellyquery:
+        - Check if user is Blocked
+        - Check is user is Muted
+        - Check is user is new
+        - Checks availability from Assistant
+            - Check if Kelly is busy:
+                - If busy, talk but queue the request.
+            - Checks if Kelly is Lazy:
+                - If lazy only special person can talk to kelly.
+            - Check if Kelly is sleeping:
+                - If sleeping does not let anyone 
+            - (A small percentage of chance server owner and moderator can bypass this )
+        - Chek if someone touches kelly or does kelly pat:
+            - if not good relation: not allowed 
+            
+    """
 
     def __init__(self, client):
         self.client = client
 
+    async def giyuFilter(self, message):
+        """Filters:
+        - Bad words
+        - Spam
+        - Attitude detection"""
+        bad = ["kill", "fuck", "abuse"]
+        for w in bad:
+            if w in message.content.lower():
+                return True
+        return False
+
     async def giyuQuery(self, message, mood, type="member"):
-        '''Gives giyu (kelly's guard) response'''
+        """
+        Checks Before Kellyquery:
+        - Checks Filters
+        - Check if user is New
+        - Check if user is Blocked
+        - Check if user is Muted
+        - Check if Kelly is busy:
+            - If busy, talk but queue the request.
+        - Check if Kelly is sleeping:
+            - If sleeping does not let anyone 
+                - A small percentage of chance server settings owner and moderator can bypass this 
+        - Chek if someone touches kelly or does kelly pat:
+            - if not good relation: not allowed 
+        """    
+        #Check Filters
+        if not await self.giyuFilter(message):
+            return 
 
-        async with message.channel.typing():
-            if type == "Dm channel":
-                return False
-            if not Relation[str(message.author.id)]:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
-                response = getResponse(message.content, prompt)
-                await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-                badges = []
-                flags = message.author.public_flags
-                if flags.hypesquad_bravery: badges.append("🦁 Bravery")
-                if flags.hypesquad_brilliance: badges.append("🧠 Brilliance")
-                if flags.hypesquad_balance: badges.append("⚖️ Balance")
-                if flags.verified_bot: badges.append("✅ Verified Bot")
-                if flags.staff: badges.append("🛡️ Discord Staff")
-                badge_text = ", ".join(badges) if badges else "No Public Badges"
-                created = int(message.author.created_at.timestamp())
-                joined = int(message.author.joined_at.timestamp())
-                
-                def get_device(member):
-                    devices = []
-                    if str(member.mobile_status) != "offline":
-                        devices.append("📱 Mobile")
-                    if str(member.desktop_status) != "offline":
-                        devices.append("🖥️ Desktop")
-                    if str(member.web_status) != "offline":
-                        devices.append("🌐 Web")
-
-                    return ", ".join(devices) if devices else "❌ Offline / Invisible"
-
-                if message.author.premium_since:
-                    booster_text= f"Boosting since <t:{int(message.author.premium_since.timestamp())}:D>"
-                else:
-                    booster_text = 'Not Boosting'
-                invite_text = "@unknown"
-                invites = Server_Settings[str(message.guild.id)]["invites"]
-                for code, ids in invites.items():  
-                    if message.author.id in ids:
-                        try:
-                            invite = await self.client.fetch_invite(code)
-                            inviter = invite.inviter
-                            invite_text = f"{inviter.mention}"
-                        except:
-                            invite_text = "@unknown"
-                        break
-                        
-                em = Embed(title = "⚙️ New Member Initialisation 🛠️", description= f"**📛 Username**:{message.author.name}\n**👤 Name:** {message.author.display_name}\n**🪪 ID**: {message.author.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {get_device(message.author)}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
-                em.set_thumbnail(url= message.author.avatar)
-                em.set_author(name = f"{message.author.name}")
-                await message.channel.send(f"{message.author.mention}", embed= em)
-                Relation[str(message.author.id)] = 1
-                em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with [Discord TOS](https://discord.com/terms) And our [Kelly TOC](https://support.top.gg/support/solutions/articles/73000502502-bot-guidelines).Hope you like my bot, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
-                emoji = choice(list(EMOJI.values()))
-                if "a:" in emoji:
-                    ext = ".gif"
-                else:
-                    ext = ".png"
-                emoji = emoji.split(":")[2]
-                em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{emoji}{ext}")
-                try:
-                    await safe_dm(await self.client.get_context(message),em, message="https://discord.gg/y56na8kN9e")
-                except 
-                    return False
-                return False
-            elif message.author.id in Server_Settings[str(message.guild.id)]["block_list"]:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is already BANNED by kelly shoo him away.\nGenerate: Your Response in 20 words with emojis"
-                response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-                await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-                if "Server owner" in type and randint(1,6) == 1:
-                    return False
-                if "Moderator" in type and randint (1,10) == 1:
-                    return False
-                return True
-            elif str(message.author.id) in Server_Settings[str(message.guild.id)]["muted"]:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is muted by kelly for sometime, shoo him away.\nGenerate: Your Response in 20 words with emojis"
-                response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-                await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-                
-                return True
-                
-            elif "pats" in message.content.lower() or "pat" in message.content.lower(): #only friends can pat kelly
-                prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is highly dignified cute mod girl, don't let anyone touch or pat her. Generate: Your Response in 20 words with emojis"
-                response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-                await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-                if "Server owner" in type or message.author.id in Server_Settings[str(message.guild.id)]["friends"]:
-                    return False
-                if "Moderator" in type and randint (1,5) == 1:
-                    return False
-                return True
-
-            if mood["busy"] > 90:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently busy\nGenerate: Your Response in 20 words with emojis"
-                response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-                await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-                if "Server owner" in type:
-                    return False
-                if "Moderator" in type and randint (1,5) == 1:
-                    return False
-                return True
-            elif mood["lazy"] > 90:
-                if Relation[str(message.author.id)] > 80: #exceptional members
-                    return False
-                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
-                response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-                await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-                if "Server owner" in type:
-                    return False
-                if "Moderator" in type and randint (1,5) == 1:
-                    return False
-                return True
-            elif mood["sleepy"] > 90:
-                prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
-                response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-                await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-                if "Server owner" in type:
-                    return False
-                if "Moderator" in type and randint (1,5) == 1:
-                    return False
-                return True
+        #Dm messages Rules:
+        #Kelly handles all by herself 
+        #Only friends and allowed members can dm her
+        #Hidden treasures and rewards 
+        if type == "Dm channel":
             return False
+
+        #New User Initialisation 
+        if not Relation[str(message.author.id)]:
+            prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
+            response = getResponse(message.content, prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            Relation[str(message.author.id)] = 2
+            em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with [Discord TOS](https://discord.com/terms) And our [Kelly TOC](https://support.top.gg/support/solutions/articles/73000502502-bot-guidelines).Hope you like my bot, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
+            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
+            try:
+               await safe_dm(await self.client.get_context(message),em, message="https://discord.gg/y56na8kN9e")
+            except:
+                return False
+            return False
+
+        #Blocked User
+        elif message.author.id in Server_Settings[str(message.guild.id)]["block_list"]:
+            prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is already BANNED by kelly shoo him away.\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            if "Server owner" in type and randint(1,6) == 1:
+                return False
+            if "Moderator" in type and randint (1,10) == 1:
+                return False
+            return True
+
+        #Muted User
+        elif str(message.author.id) in Server_Settings[str(message.guild.id)]["muted"]:
+            prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is muted by kelly for sometime, shoo him away.\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            return True
+
+        #Kelly touch / pat
+        elif "pats" in message.content.lower() or "pat" in message.content.lower(): #only friends can pat kelly
+            prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is highly dignified cute mod girl, don't let anyone touch or pat her. Generate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            if "Server owner" in type or message.author.id in Server_Settings[str(message.guild.id)]["friends"]:
+                return False
+            if "Moderator" in type and randint (1,5) == 1:
+                return False
+            return True
+
+        #Busy
+        if mood["busy"] > 90:
+            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently busy\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            if "Server owner" in type:
+                return False
+            if "Moderator" in type and randint (1,5) == 1:
+                return False
+            return True
+            
+        #Lazy
+        elif mood["lazy"] > 90:
+            if Relation[str(message.author.id)] > 80: #exceptional members
+                return False
+            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            if "Server owner" in type:
+                return False
+            if "Moderator" in type and randint (1,5) == 1:
+                return False
+            return True
+
+        #Slespy
+        elif mood["sleepy"] > 90:
+            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            if "Server owner" in type:
+                return False
+            if "Moderator" in type and randint (1,5) == 1:
+                return False
+            return True
+
+        #Finally Let talk with Kelly 🤣 
+        return False
 
     def giyuEmojify(self, message):
         emoji_exchanger = {
