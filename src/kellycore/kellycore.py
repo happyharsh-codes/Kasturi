@@ -27,8 +27,8 @@ class Kelly:
         self.client = bot #discord bot
         self.mood = KellyMood(bot)
         self.personality = KellyPersona(Persona)
-        self.relations = KellyRealtion()
-        self.busy = KellyBusy()
+        self.relations = KellyRealtion(self)
+        self.busy = KellyBusy(self)
         self.memory = KellyMemory()
         self.giyu = Giyu(bot)
         self.akira = Akira(bot)
