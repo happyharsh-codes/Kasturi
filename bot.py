@@ -130,7 +130,7 @@ class Bot:
         except Exception as e:
             await self.client.get_user(894072003533877279).send(f"Exception on Mood change: {e}")
 
-    @task.loop(minutes=3)
+    @tasks.loop(minutes=3)
     async def kellyReminders(self):
         pass
         
