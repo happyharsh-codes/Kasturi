@@ -176,6 +176,7 @@ Guild_Invites    = load_mongo_dict("guild_invites", "server")
 
 Relation         = load_mongo_dict("relations", "kellymemory")
 Chats            = load_mongo_dict("chats", "kellymemory")
+Memory           = load_mongo_dict("memory", "kellymemory")
 Database         = load_mongo_dict("database", "kellymemory")
 Persona          = load_mongo_dict("personality", "kellymemory")
 Behaviours       = load_mongo_dict("behaviors", "kellymemory")
