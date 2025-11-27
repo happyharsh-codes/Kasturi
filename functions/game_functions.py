@@ -95,7 +95,7 @@ def at_the_location(loc):
             asyncio.sleep(5)
             Profiles[str(ctx.author.id)]["location"] = loc
             return True
-        await ctx.reply(embed=Embed(description=f"Ayoo You must be in `{loc.title()}` to perform this action.", color= Color.gold())
+        await ctx.reply(embed=Embed(description=f"Ayoo You must be in `{loc.title()}` to perform this action.", color= Color.gold()))
         return False
     return commands.check(predicate)
 
