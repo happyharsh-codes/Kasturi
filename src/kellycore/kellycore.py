@@ -27,11 +27,11 @@ class Kelly:
         self.client = bot #discord bot
         self.mood = KellyMood(bot)
         self.personality = KellyPersona(Persona)
-        self.relations = KellyRealtion(self)
+        self.relations = KellyRealtion()
         self.busy = KellyBusy(self)
         self.memory = KellyMemory()
         self.giyu = Giyu(bot)
-        self.akira = Akira(bot)
+        self.akira = Akira(self)
         self.mood.generateRandomMood()
         self.commands = {cmd.name : list(cmd.clean_perms.keys()) for cmd in bot.commands}
                 
