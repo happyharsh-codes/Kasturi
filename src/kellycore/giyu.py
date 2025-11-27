@@ -67,7 +67,10 @@ class Giyu:
                     ext = ".png"
                 emoji = emoji.split(":")[2]
                 em.set_thumbnail(url= f"https://cdn.discordapp.com/emojis/{emoji}{ext}")
-                await safe_dm(message.author, "https://discord.gg/y56na8kN9e",embed=em)
+                try:
+                    await safe_dm(await self.client.get_context(message),em, message="https://discord.gg/y56na8kN9e")
+                except 
+                    return False
                 return False
             elif message.author.id in Server_Settings[str(message.guild.id)]["block_list"]:
                 prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is already BANNED by kelly shoo him away.\nGenerate: Your Response in 20 words with emojis"
