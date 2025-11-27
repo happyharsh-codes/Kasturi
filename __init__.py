@@ -116,16 +116,19 @@ def load_mongo_dict(name, part="server", default=None):
 
 default_profiles = {
     "name": "No name noob",
-    "cash": 100,
-    "gem": 1,
     "inv": {},
     "health": 100,
     "hunger": 100,
+    "location": "home",
     "aura":0,
     "skills": {},
     "foods": {},
     "plants": {},
-    "assets": {},
+    "assets": {
+        "cash": 100,
+        "gem": 50,
+        "orbs": 1
+    },
     "tools": {},
     "weapons": {},
     "vehicles": {},
