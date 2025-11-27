@@ -38,5 +38,5 @@ class KellyRealtion:
         # --- BAN LOGIC ---
         if respect < -20:
             return "ban"
-        return "neutral
+        return "neutral"
     
