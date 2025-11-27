@@ -234,17 +234,25 @@ class Bot:
         print("Disconnected")
 
     async def on_error(self, event_method, *args, **kwargs):
-        print(f"Error in event: {event_method}")
-        try:
-            await self.client.get_user(894072003533877279).send(
-                embed=Embed(
-                    title="Error in event",
-                    description=f"```{event_method}```",
-                    color=Color.red()
-                )
-            )
-        except Exception:
-            pass
+        etype, value, tb = sys.exc_info()
+        full_error = ''.join(traceback.format_exception(etype, value, tb))
+        em = Embed(title= f"⚠️ Error {event_method}", description= f"{full_error[:1900]}", color=Color.red())
+        for arg in args:
+            if isinstance(arg, discord.Message):
+                em.add_field(name="Message Content",value=f"`{arg.content[:500]}`",inline=False)
+                em.add_field(name="Author",value=f"{arg.author} ({arg.author.id})",inline=False)
+            if isinstance(arg, discord.Member):
+                em.add_field(name="Member",value=f"{arg} ({arg.id})",inline=False)
+            if isinstance(arg, discord.Context):
+                em.add_field(name="Message Content",value=f"`{arg.message.content[:500]}`",inline=False)
+                em.add_field(name="Author",value=f"{arg.author} ({arg.author.id})",inline=False)
+            
+        if self.me:
+            try:
+                await self.me.send(embed=em)
+            except:
+                pass
+        print("".join(traceback.format_exception(etype, value, tb)))
 
     async def on_entitlement_create(self, entitlement):
         guild = entitlement.guild
@@ -278,7 +286,12 @@ class Bot:
         print("We are ready to go!")
         self.mood_swings.start()
         self.unmute.start()
-
+        self.me = client.get_user(894072003533877279)
+        if not self.me:
+            try:
+                self.me = await client.fetch_user(894072003533877279)
+            except:
+                self.me = None
         # saving guilds
         embed = Embed(title="✅ Kelly Updated",description="Kelly has been updated successfully and is running on the latest version 💫",color=Color.green())
         embed.set_footer(text="Kelly System", icon_url=self.client.user.avatar)
@@ -321,7 +334,7 @@ class Bot:
             if cmd:
                 cmd.brief = brief_text
 
-        self.client.add_view(BugReportView())
+        #self.client.add_view(BugReportView())
 
     async def on_guild_available(self, guild):
         em = Embed(
