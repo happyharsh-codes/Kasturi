@@ -280,22 +280,36 @@ class Bot:
         self.unmute.start()
 
         # saving guilds
+        embed = Embed(title="✅ Kelly Updated",description="Kelly has been updated successfully and is running on the latest version 💫",color=Color.green())
+        embed.set_footer(text="Kelly System", icon_url=self.client.user.avatar)
+        embed.timestamp = datetime.now(UTC)
+            
         for guild in self.client.guilds:
-            invite_link = None
-            embed = Embed(
-                title="✅ Kelly Updated",
-                description="Kelly has been updated successfully and is running on the latest version 💫",
-                color=Color.green()
-            )
-            embed.set_footer(text="Kelly System", icon_url=self.client.user.avatar)
-            embed.timestamp = datetime.now(UTC)
+            invite = None
+            for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
+                if any(x in channel.name.lower() for x in ("general","chat","chill")):
+                    await channel.send(embed= embed)
+                    break
+            else:
+                for channel in any(x.permissions_for(guild.me).send_messages for x in guild.text_channels):
+                    await channel.send(embed=em)
+                    break
             for channel in guild.text_channels:
                 try:
-                    await channel.send(embed=embed)
+                    invite = await channel.create_invite(max_age=0, max_uses=0)
                     break
-                except Exception:
+                except:
                     continue
-
+            if invite:
+                Guild_Invite[str(guild.id)] = invite
+            
+            #tracking invites
+            try:
+                Invite_Cache[guild.id] = {
+                    invite.code: invite.uses for invite in await guild.invites()
+                }
+            except:
+                pass
         
         # help / brief
         for cmd in self.client.commands:
@@ -306,15 +320,6 @@ class Bot:
             cmd = self.client.get_command(cmd_name)
             if cmd:
                 cmd.brief = brief_text
-
-        # tracking invites
-        for guild in self.client.guilds:
-            try:
-                Invite_Cache[guild.id] = {
-                    invite.code: invite.uses for invite in await guild.invites()
-                }
-            except:
-                continue 
 
         self.client.add_view(BugReportView())
 
@@ -335,7 +340,6 @@ class Bot:
         await self.send_log(guild, em)
 
     async def on_guild_join(self, guild: discord.Guild):
-        channels = guild.channels 
         invite = None
         kelly = Button(style = ButtonStyle.link, url = "https://discord.gg/y56na8kN9e", label = "Kelly's Homeland")
         developer = Button(style= ButtonStyle.link, url = "https://github.com/happyharsh-codes", label = "Developer")
@@ -348,24 +352,21 @@ class Bot:
         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
 
         invite = None
-        for channel in channels:
-            if isinstance(channel, discord.TextChannel):
-                if "general" in channel.name.lower() or "chat" in channel.name.lower():
-                    try:
-                        await channel.send("@everyone", embed= em, view=view)
-                        invite = await channel.create_invite(max_age=0, max_uses=0)
-                        break
-                    except:
-                        continue
+        for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
+            if any(x in channel.name.lower() for x in ("general","chat","chill")):
+                await channel.send("@everyone", embed= em, view=view)
+                break
         else:
-            for channel in channels:
-                if isinstance(channel, discord.TextChannel):
-                    try:
-                        await channel.send("@everyone", embed= em, view=view)
-                        invite = await channel.create_invite(max_age=0,max_uses=0)
-                        break
-                    except:
-                        continue
+            for channel in any(x.permissions_for(guild.me).send_messages for x in guild.text_channels):
+                await channel.send("@everyone", embed= em, view=view)
+                break
+        for channel in guild.text_channels:
+            try:
+                invite = await channel.create_invite(max_age=0, max_uses=0)
+                break
+            except:
+                continue
+                
         msg = discord.Embed(title=f"Kelly Joined {guild.name}",description=guild.description if guild.description else "No description", color=discord.Color.green(),url=invite)
         if guild.icon:
             msg.set_thumbnail(url=guild.icon.url)
@@ -381,40 +382,32 @@ class Bot:
             Guild_Invite[str(guild.id)] = invite 
     
     async def on_guild_remove(self, guild: discord.Guild):
+        banned_by = None
         try:
-            entry = await guild.audit_logs(limit=1,action=discord.AuditLogAction.bot_ban).flatten()
-            if entry:
-                moderator = entry[0].user
-                em = Embed(title="I got banned",description=f"I got banned from {guild.name}\nAction taken by: {moderator.name} {moderator.id} {moderator.display_name}", color = Color.red())
-                em.url = Server_Settings[str(guild.id)]["invite_link"]
-                em.set_thumbnail(url = moderator.avatar)
-                em.set_footer(text = "Banned by {moderator.name}", icon_url = moderator.avatar)
-                await me.send(embed = em)
-                for channel in guild.text_channels:
-                    try:
-                         await channel.send(f"👋 It seems I've been **banned** from this server.\nAction taken by: **{moderator}**\nFarewell everyone! 💖")
-                    except:
-                         continue
+            async for entry in guild.audit_logs(limit=5):
+                if entry.action == discord.AuditLogAction.bot_add: 
+                    continue
+                if entry.target.id == self.client.user.id:
+                    banned_by = entry.user
+                    break
         except:
-          try:
-           async for ban in guild.bans():
-               if ban.user.id == client.user.id:
-                   em = Embed(title="I got banned",description=f"I got banned from {guild.name}\nAction taken by: {moderator.name} {moderator.id} {moderator.display_name}", color = Color.red())
-                   em.url = Server_Settings[str(guild.id)]["invite_link"]
-                   em.set_thumbnail(url = moderator.avatar)
-                   em.set_image(url=guild.icon)
-                   em.set_footer(text = "Banned by {moderator.name}", icon_url = moderator.avatar)
-                   me = self.client.get_user(894072003533877279)
-                   await me.send(embed = em)
-          except:
             pass
-              
         me = self.client.get_user(894072003533877279)
         invite = Server_Settings[str(guild.id)]["invite_link"]
         if invite == "N/A" and Guild_Invite[str(guild.id)]:
             invite = Guild_Invite[str(guild.id)]
             del Guild_Invite[str(guild.id)]
-        await me.send(f"Left a server: {Server_Settings[str(guild.id)]['name']}\n{Server_Settings[str(guild.id)]['invite_link']}")
+        em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}")
+        if banned_by:
+            em.add_field(name="Banned By", value=f"{banned_by} ({banned_by.id})")
+        else:
+            em.add_field(name="Reason", value="Bot was kicked or server deleted")
+        em.add_field(name="Invite Link", value=invite)
+        em.set_thumbnail(url=guild.icon.url)
+        if invite:
+            await me.send(str(invite), embed=em)
+        else:
+            await me.send(embed=em)
         del Server_Settings[str(guild.id)]
         
     async def on_guild_update(self, before, after):
@@ -884,7 +877,7 @@ class Bot:
                     return'''
                 await self.kelly.kellyQuery(message)
             return
-        message.content = message.content.replace("kelly","").replace("kasturi","").strip()
+        message.content = message.content.lower().replace("kelly","").replace("kasturi","").strip()
         #cheking for Administrator Permission given or not
         '''bot_member = message.guild.me
         if not bot_member.guild_permissions.administrator:
@@ -892,7 +885,7 @@ class Bot:
             await message.channel.send(embed=em)
             return'''
                 
-        if message.content[0] == "k":
+        if message.content and message.content[0] == "k":
             message.content = message.content[1:].strip()
             for command in self.client.commands:
                 if message.content.split()[0] in command.name or message.content.split()[0] in command.aliases:
