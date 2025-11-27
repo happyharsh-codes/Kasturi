@@ -42,7 +42,7 @@ def inv_searcher(id, item, amt):
     for categ in category:
         inv = Profiles[id][categ]
         if item in inv and inv[item] >= amt:
-        return True
+            return True
     return False 
     
 def inv_manager(id, item, amt):
@@ -80,20 +80,20 @@ def has_profile():
     
 def has_in_inventory(item, value = 0):
     async def predicate(ctx):
-        if value == 0 and item in Profiles[str(ctx.author.id)].get("inv", []):
-            return True
-        elif item in Profiles[str(ctx.author.id)].get("inv", []) and Profiles[str(ctx.author.id)][item] >= value:
-            return True
-        if value:
-            await ctx.reply(embed=Embed(description=f"Ayoo You must have `{item.title()} x {value}` in your inventory to do this."), color= Color.gold())
-        else:
-            await ctx.reply(embed=Embed(description=f"Ayoo You must need `{item.title()}` in your inventory to perform this."), color= Color.gold())
+        if inv_searcher(str(ctx.author.id), item, value):
+            return True 
+        await ctx.send(embed=Embed(description=f"Ayoo You must need `{item.title()}` in your inventory to perform this."), color= Color.gold())
         return False
     return commands.check(predicate)
     
 def at_the_location(loc):
     async def predicate(ctx):
-        if loc == Profiles[str(ctx.author.id)].get("location", ""):
+        if loc == Profiles[str(ctx.author.id)]["location"]:
+            return True
+        if loc in Profiles[str(ctx.author.id)]["places"]:
+            await ctx.send(f"Moving to location: {loc.replace("_"," ").title()}. Please wait for some time.")
+            asyncio.sleep(5)
+            Profiles[str(ctx.author.id)]["location"] = loc
             return True
         await ctx.reply(embed=Embed(description=f"Ayoo You must be in `{loc.title()}` to perform this action.", color= Color.gold())
         return False
