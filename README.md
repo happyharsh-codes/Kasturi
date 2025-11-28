@@ -1,10 +1,15 @@
 # Meet Kelly — The Discord Queen Mod 👑 
-[![](https://discord.com/api/guilds/336642139381301249/embed.png)](https://discord.gg/SVmpbpf9H7)
-[![Join Kelly's Homeland](https://img.shields.io/badge/Join-Kelly's_Homeland-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/SVmpbpf9H7)
+[![Join Kelly's Homeland](https://img.shields.io/badge/Join-Kelly's_Homeland-5865F2?style=plastic&logo=discord&logoColor=white&fontSize=32)](https://discord.gg/SVmpbpf9H7)
 
 <p align="center">
   <img width="150" src="assets/kellyintro.gif" alt="Kelly Mood"/>
 </p>
+
+<div align="center">
+  <a href="https://discord.com/oauth2/authorize?client_id=1368884334076891136">
+  <img src="https://img.shields.io/badge/Add_to__Server-5865F2?style=for-the-badge&logo=discord&logoColor=white" width="180">
+</a>
+</div>
 
 <div align="center">
   
@@ -13,8 +18,13 @@ She is the boss of the Discord kingdom 👑
 A multipurpose AI bot who works just by chatting — no commands needed.
 
 **✨ Features**
-🛡️ Moderation • 😂 Fun • 🎵 Music • 🎮 Games & Economy  
-📈 Invites Tracking • ⚙️ Utility • 🤖 AI Chat  
+🛡️ Moderation
+😂 Fun
+🎵 Music
+🎮 Games & Economy  
+📈 Invites Tracking
+⚙️ Utility
+🤖 AI Chat  
 …and many more building 🚧🏗️!
 
 <img src="assets/kellybanner.png" width="100%" alt="Kelly Banner"/>
