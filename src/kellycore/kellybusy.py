@@ -18,7 +18,7 @@ class KellyBusy:
         #Never busy for friends
         if uid in Database["friends"]:
             return False 
-        if mood["busy"] > 90 or elif mood["lazy"] > 90 or elif mood["sleepy"] > 90:
+        if mood["busy"] > 90 or mood["lazy"] > 90 or mood["sleepy"] > 90:
             #Server Owners 40% chance listen on even busy
             if "Server owner" in type and randint(1,10) <= 4:
                 return False
@@ -51,13 +51,7 @@ class KellyBusy:
         """
         schedules = Memory["schedules"][str(guild_id)]:
         if schedules:
-            if not self.isKellyFree(guild_id)
-                return None
-            last_time = entry[0]["time"]
-            for entry in schedule:
-                if entry["time"] > last_time:
-                    last_time = entry["time"]
+            last_time = max(entry["time"] for entry in schedules)
             return last_time
-
         return None
             
