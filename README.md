@@ -7,7 +7,7 @@
 
 <div align="center">
   <a href="https://discord.com/oauth2/authorize?client_id=1368884334076891136">
-  <img src="https://img.shields.io/badge/Add_to__Server-5865F2?style=for-the-badge&logo=discord&logoColor=white" width="180">
+  <img src="https://img.shields.io/badge/Add_to_Server-5865F2?style=for-the-badge&logo=discord&logoColor=white" width="180">
 </a>
 </div>
 
