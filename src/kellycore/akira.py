@@ -26,22 +26,23 @@ class Akira:
     #   KELLY'S SCHEDULE MANAGER
     # ----------------------------------------------------------------------
 
-    def addTask(self, guild_id, message_id, ai_result):
+    def addTask(self, guild_id, message_id, channel_id, ai_result):
         """Adds taks to Kelly's schedule. And automatically sets it schedule."""
-        if not str(guild_id) in Memory["Schedules"]:
-            Memory["schedules"][str(guild_id)] = [ {"message": message_id, "task": ai_result, "time": datetime.now() + timedelta(seconds=randint(1,2))]
+        if not str(guild_id) in Memory["schedules"]:
+            Memory["schedules"][str(guild_id)] = [ {"message": message_id, "channel": channel_id, "task": ai_result, "time": datetime.now() + timedelta(seconds=randint(1,2)) } ]
         else:
             time = self.busy.getNextAvailableTime(guild_id) + timedelta(seconds=randint(1,2))
-            Memory["schedules"][str(guild_id)].append({"message": message_id, "task": ai_result, "time": time)
+            Memory["schedules"][str(guild_id)].append({"message": message_id, "channel": channel_id, "task": ai_result, "time": time})
         
-    def performTask(self, guild_id):
+    async def performTask(self, guild_id):
         """Automatically performs the first task on her schedule"""
-        schedules = Memory["schedules"].get(str(guild.id), None)
+        schedules = Memory["schedules"].get(str(guild_id), None)
         if not schedules:
             return
         do_now = schedules.pop(0)
         try:
-            msg = await self.kelly.client.fetch_message(do_now["message"])
+            channel = await self.kelly.client.fetch_channel(do_now["channel"])
+            msg = await channel.fetch_message(do_now["message"])
         except:
             return
         await self.kelly.runCommand(msg, do_now["task"])
@@ -113,7 +114,7 @@ class Akira:
                 - info: (str) (small info about user behaviour and type)
                 - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
             
-            self.addTask(message.guild.id, message.id, result)
+            self.addTask(message.guild.id, message.id, message.channel.id, result)
             return True 
             
         return False  # Kelly may proceed
