@@ -17,7 +17,7 @@ class KellyMemory:
         pass
 
     def getUserChatData(self, user_id):
-        if str(userid) in Chats:
+        if str(user_id) in Chats:
             all_user_chats = Chats[str(user_id)]
             res = "\n".join(all_user_chats)
             return res
@@ -30,14 +30,9 @@ class KellyMemory:
         if str(uid) not in Chats:
             Chats[str(uid)] = [f"User:{message}\nKelly:{response}"]
         else:
-            Chats[str(id)].append(f"User:{message}\nKelly:{response}")
-            if len(Chats[str(id)]) > 4:
-                Chats[str(id)].pop(0)
-
-        self.data["users"][uid]["messages"].append({
-            "said": message,
-            "kelly_reply": response
-        })
+            Chats[str(uid)].append(f"User:{message}\nKelly:{response}")
+            if len(Chats[str(uid)]) > 4:
+                Chats[str(uid)].pop(0)
 
     def addFriend(self, uid):
         """Add user to friend list."""
