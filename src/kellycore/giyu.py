@@ -63,7 +63,12 @@ class Giyu:
         #Only friends and allowed members can dm her
         #Hidden treasures and rewards 
         if type == "Dm channel":
-            return False
+            if message.author.id in Database["friends"]:
+                return True 
+            prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is not even on Kelly's friend list and still Dms Kelly.\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            return False 
 
         #New User Initialisation 
         if not Relation[str(message.author.id)]:
@@ -76,8 +81,8 @@ class Giyu:
             try:
                await safe_dm(await self.client.get_context(message),em, message="https://discord.gg/y56na8kN9e")
             except:
-                return False
-            return False
+                return True
+            return True
 
         #Blocked User
         elif message.author.id in Server_Settings[str(message.guild.id)]["block_list"]:
@@ -85,17 +90,17 @@ class Giyu:
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
             if "Server owner" in type and randint(1,6) == 1:
-                return False
+                return True
             if "Moderator" in type and randint (1,10) == 1:
-                return False
-            return True
+                return True
+            return False
 
         #Muted User
         elif str(message.author.id) in Server_Settings[str(message.guild.id)]["muted"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is muted by kelly for sometime, shoo him away.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-            return True
+            return False
 
         #Kelly touch / pat
         elif "pats" in message.content.lower() or "pat" in message.content.lower(): #only friends can pat kelly
@@ -103,34 +108,10 @@ class Giyu:
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
             if "Server owner" in type or message.author.id in Server_Settings[str(message.guild.id)]["friends"]:
-                return False
+                return True 
             if "Moderator" in type and randint (1,5) == 1:
-                return False
-            return True
-
-        #Busy
-        if mood["busy"] > 90:
-            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently busy\nGenerate: Your Response in 20 words with emojis"
-            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-            if "Server owner" in type:
-                return False
-            if "Moderator" in type and randint (1,5) == 1:
-                return False
-            return True
-            
-        #Lazy
-        elif mood["lazy"] > 90:
-            if Relation[str(message.author.id)] > 80: #exceptional members
-                return False
-            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
-            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
-            if "Server owner" in type:
-                return False
-            if "Moderator" in type and randint (1,5) == 1:
-                return False
-            return True
+                return True
+            return False
 
         #Slespy
         elif mood["sleepy"] > 90:
@@ -138,13 +119,13 @@ class Giyu:
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
             if "Server owner" in type:
-                return False
+                return True
             if "Moderator" in type and randint (1,5) == 1:
-                return False
-            return True
+                return True
+            return False
 
         #Finally Let talk with Kelly 🤣 
-        return False
+        return True
 
     def giyuEmojify(self, message):
         emoji_exchanger = {
