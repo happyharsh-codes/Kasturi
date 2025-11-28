@@ -291,7 +291,7 @@ class Bot:
         self.mood_swings.start()
         self.unmute.start()
         self.kellyReminders.start()
-        self.me = client.get_user(894072003533877279)
+        self.me = self.client.get_user(894072003533877279)
         if not self.me:
             try:
                 self.me = await self.client.fetch_user(894072003533877279)
