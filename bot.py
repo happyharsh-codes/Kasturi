@@ -310,7 +310,7 @@ class Bot:
                     break
             else:
                 for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
-                    await channel.send(embed=em)
+                    await channel.send(embed=embed)
                     break
             for channel in guild.text_channels:
                 try:
