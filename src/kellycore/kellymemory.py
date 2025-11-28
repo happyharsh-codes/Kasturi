@@ -46,7 +46,7 @@ class KellyMemory:
         """Returns memory stored on user."""
         memory = Memory["users"].get(str(uid),None)
         if not memory:
-            memory = {"likes": None, "dislikes": None})
+            memory = {"likes": None, "dislikes": None}
         return {"behaviours": Behaviours[str(uid)], "likes": memory["likes"], "dislikes": memory["dislikes"]}
 
     def addUserInfo(self, info, userid):
