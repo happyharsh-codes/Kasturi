@@ -49,7 +49,7 @@ class KellyBusy:
         """
         Returns Kelly's next free time slot today.
         """
-        schedules = Memory["schedules"][str(guild_id)]:
+        schedules = Memory["schedules"][str(guild_id)]
         if schedules:
             last_time = max(entry["time"] for entry in schedules)
             return last_time
