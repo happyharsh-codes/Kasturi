@@ -126,7 +126,7 @@ class Kelly:
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.memory.getUserInfo(message.author.id)["behaviours"]
-            
+            type = ""
             if message.author.id == 894072003533877279:
                 type = "God aka your creator"
             elif isinstance(message.channel, discord.DMChannel):
