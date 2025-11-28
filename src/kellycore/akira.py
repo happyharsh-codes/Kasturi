@@ -8,7 +8,7 @@ class Akira:
         - Manage Kelly's daily schedule
         - Maintain availability calendar
         - Inform users when Kelly is free or busy/sleepy/lazy
-        - Automatically reschedule tasks when Kelly is too tired/sleepy)busy
+        - Automatically reschedule tasks when Kelly is too tired/sleepy/lazy/busy
         - Remind Kelly about pending tasks (from KellyBusy)
         - Defer or decline user requests if overloaded
 
@@ -20,59 +20,36 @@ class Akira:
 
     def __init__(self, kelly):
         self.kelly = kelly
-
-        # Kelly's availability system
-        self.schedule = []  # [{"task": str, "time": datetime}]
-        self.daily_limit = 10   # max tasks per day
-        self.reminders = []     # [{"task": str, "due": datetime}]
+        self.busy = KellyBusy()
 
     # ----------------------------------------------------------------------
-    #   AVAILABILITY CHECK
+    #   KELLY'S SCHEDULE MANAGER
     # ----------------------------------------------------------------------
 
-    def isKellyFree(self):
-        """
-        Returns True if Kelly has free slots today.
-        """
-        today_tasks = [t for t in self.schedule if self._sameDay(t["time"], datetime.now())]
-        return len(today_tasks) < self.daily_limit
-
-    def getNextAvailableTime(self):
-        """
-        Returns Kelly's next free time slot today.
-        """
-        today_tasks = sorted(
-            [t for t in self.schedule if self._sameDay(t["time"], datetime.now())],
-            key=lambda x: x["time"]
-        )
-
-        if not today_tasks:
-            return datetime.now()
-
-        last_task = today_tasks[-1]["time"]
-        return last_task + timedelta(minutes=30)
-
-    # ----------------------------------------------------------------------
-    #   ADD TASK TO KELLY'S SCHEDULE
-    # ----------------------------------------------------------------------
-
-    def bookTask(self, task_name, duration=10):
-        """
-        Books a new task for Kelly.
-
-        If Kelly is too busy:
-            - defer the task
-            - assistant speaks politely to user
-        """
-        next_time = self.getNextAvailableTime()
-
-        self.schedule.append({
-            "task": task_name,
-            "time": next_time
-        })
-
-        return next_time
-
+    def addTask(self, guild_id, message_id, ai_result):
+        """Adds taks to Kelly's schedule. And automatically sets it schedule."""
+        if not str(guild_id) in Memory["Schedules"]:
+            Memory["schedules"][str(guild_id)] = [ {"message": message_id, "task": ai_result, "time": datetime.now() + timedelta(seconds=randint(1,2))]
+        else:
+            time = self.busy.getNextAvailableTime(guild_id) + timedelta(seconds=randint(1,2))
+            Memory["schedules"][str(guild_id)].append({"message": message_id, "task": ai_result, "time": time)
+        
+    def performTask(self, guild_id):
+        """Automatically performs the first task on her schedule"""
+        schedules = Memory["schedules"].get(str(guild.id), None)
+        if not schedules:
+            return
+        do_now = schedules.pop(0)
+        try:
+            msg = await self.kelly.client.fetch_message(do_now["message"])
+        except:
+            return
+        await self.kelly.runCommand(msg, do_now["task"])
+        if schedule:
+            Memory["schedules"][str(guild_id)] = schedule 
+        else:
+            del Memory["schedules"][str(guild_id)]
+            
     # ----------------------------------------------------------------------
     #   REMINDERS
     # ----------------------------------------------------------------------
@@ -97,37 +74,46 @@ class Akira:
     #   USER INTERACTION WRAPPER
     # ----------------------------------------------------------------------
 
-    async def assistUserRequest(self, message):
+    async def akiraQuery(self, message, mood, type):
         """
         Handles user requests BEFORE Kelly receives them.
         
         Flow:
-            1. Check GIYU
-            2. Check KellyBusy
-            3. Check schedule
+            1. Check KellyBusy
+            2. Manage schedule
         """
         uid = message.author.id
 
-        # If Kelly is too sleepy/lazy, assistant manages
-        mood = self.kelly.mood.getMood()
-        if mood in ["sleepy", "lazy"]:
-            await message.reply("Kelly is a bit tired right now. I'll handle this for her.")
-            return False  # Assistant takes over
+        # If Kelly is too busy/sleepy/laz/tiredy, assistant manages
+        state = self.busy.isBusy(mood, message.author.id, type)
+        if state:
+            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            return True 
         
-        # If schedule is overloaded
-        if not self.isKellyFree():
-            next_free = self.getNextAvailableTime()
-            text = f"Kelly is fully booked right now. She'll be free at **{next_free.strftime('%I:%M %p')}**."
-            await message.reply(text)
-            self.kelly.busy.queueTask(message)  # Queue for later
-            return False
+        # If schedule is overloaded -> Clear Decline
+        if not self.busy.isKellyFree(message.guild.id):
+            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            return True
 
-        return True  # Kelly may proceed
-
-    # ----------------------------------------------------------------------
-    #   INTERNAL HELPERS
-    # ----------------------------------------------------------------------
-
-    def _sameDay(self, t1, t2):
-        """Check if two datetimes belong to the same day."""
-        return t1.date() == t2.date()
+        # If schedules but slot available -> Schedule task
+        if str(message.guild.id) in Memory["schedules"]:
+            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
+                Current status: {current_status}
+                Generate Json dict using kelly response and mood
+                - respect: (-10 : +10) (int)
+                - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
+                - personality_change: {{(personality_name): +/- 10 (int)}}
+                - info: (str) (small info about user behaviour and type)
+                - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
+            
+            self.addTask(message.guild.id, message.id, result)
+            return True 
+            
+        return False  # Kelly may proceed
