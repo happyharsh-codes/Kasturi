@@ -6,7 +6,7 @@ class Bot:
         self.client = client
         self.kelly = kelly
         self.last_request = datetime.now()
-
+        self.me = None
     # ------------- INTERNAL HELPERS -------------
 
     async def get_log_channel(self, guild: Guild):
@@ -294,7 +294,7 @@ class Bot:
         self.me = client.get_user(894072003533877279)
         if not self.me:
             try:
-                self.me = await client.fetch_user(894072003533877279)
+                self.me = await self.client.fetch_user(894072003533877279)
             except:
                 self.me = None
         # saving guilds
