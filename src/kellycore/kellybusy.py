@@ -2,41 +2,62 @@ from __init__ import*
 
 class KellyBusy:
     """
-    Handles busy-state task queuing.
-    If Kelly is busy:
-        - Incoming tasks get queued
-        - Kelly still replies but performs later
+    Handles busy-state task queries.
+    Kelly is busy when:
+        - Kelly is either busy, sleeping, lazy or tired
+    Guild owners, moderators and kelly friends and bypass this - smalll chance
     If user insists repeatedly:
         - Kelly eventually performs task immediately
     """
 
-    def __init__(self, kelly):
-        self.kelly = kelly
-        self.busy = False
-        self.queue = []
-        self.initiateBreakCounter = 0
+    def __init__(self):
+        pass
 
-    def isBusy(self):
-        """Return whether Kelly is busy."""
-        return self.busy
+    def isBusy(self, mood, uid, type):
+        """Return whether Kelly is busy. Based on Mood not on Schedule."""
+        #Never busy for friends
+        if uid in Database["friends"]:
+            return False 
+        if mood["busy"] > 90 or elif mood["lazy"] > 90 or elif mood["sleepy"] > 90:
+            #Server Owners 40% chance listen on even busy
+            if "Server owner" in type and randint(1,10) <= 4:
+                return False
+            #Server Moderators 20% chance listens even on busy
+            elif "Moderator" in type and randint (1,5) == 1:
+                return False
+            if mood["busy"] > 90:
+                return "busy"
+            elif mood["lazy"] > 90:
+                return "lazy"
+            elif mood["sleepy"] > 90:
+                return "sleepy"
+        return False
 
-    def setBusy(self, val=True):
-        """Set busy state."""
-        self.busy = val
+    # ----------------------------------------------------------------------
+    #   AVAILABILITY CHECK
+    # ----------------------------------------------------------------------
 
-    def queueTask(self, message):
-        """Add task to queue."""
-        self.queue.append(message)
-        self.initiateBreakCounter += 1
+    def isKellyFree(self, guild_id):
+        """
+        Returns True if Kelly has free slots on her schedule.
+        """
+        if Memory["schedules"][str(guild_id)] and len(Memory["schedules"][str(guild_id)]) > 5:
+            return False
+        return True
+        
+    def getNextAvailableTime(self, guild_id):
+        """
+        Returns Kelly's next free time slot today.
+        """
+        schedules = Memory["schedules"][str(guild_id)]:
+        if schedules:
+            if not self.isKellyFree(guild_id)
+                return None
+            last_time = entry[0]["time"]
+            for entry in schedule:
+                if entry["time"] > last_time:
+                    last_time = entry["time"]
+            return last_time
 
-        # If user pushes too much → perform now
-        if self.initiateBreakCounter >= 3:
-            self.busy = False
-
-    async def processQueue(self):
-        """Execute all queued tasks when free."""
-        while self.queue:
-            task = self.queue.pop(0)
-            await self.kelly.kellyQuery(task)
-
-      
+        return None
+            
