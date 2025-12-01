@@ -31,7 +31,7 @@ class Giyu:
     async def giyusend(self, channel, content, uid):
         try:
             webhook = await channel.create_webhook(name="Giyu")
-            await webhook.send(content= f"<@{uid}>" + content, username="Giyu", avatar_url=)
+            await webhook.send(content= f"<@{uid}>" + content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}")
             await webhook.delete()
         except:
             await channel.send(f"**Giyu**: <@{uid}>" + content)
@@ -124,7 +124,7 @@ class Giyu:
 
         #Slespy
         elif mood["sleepy"] > 90:
-            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
+            prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             if "Server owner" in type:
