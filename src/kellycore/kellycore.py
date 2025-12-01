@@ -146,7 +146,7 @@ class Kelly:
                 return
 
             #If plain command request runs command only
-            if message.content.startswith(("kelly", "k", "kasturi")):
+            if message.content.startswith(("kelly ", "kastuti ", "k ")):
                 try:
                     cmd = message.content.split()[1]      
                 except:
@@ -155,7 +155,7 @@ class Kelly:
                     all_names = [command.name] + command.aliases
                     if cmd in all_names:
                         print("Processing command on message: "+ message.content)        
-                        message.content = "???" + message.content.replace("kelly","",1).replace("k","",1).replace("kasturi","",1)
+                        message.content = "??? " + message.content.replace("kelly ","",1).replace("k ","",1).replace("kasturi ","",1)
                         await self.client.process_commands(message) #Kelly Process the message ;)
                         return
         
