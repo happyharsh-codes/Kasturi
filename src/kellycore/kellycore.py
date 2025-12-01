@@ -145,6 +145,19 @@ class Kelly:
             if not await self.akira.akiraQuery(message, self.mood.mood, type):
                 return
                 
+            #if plain command request runs command only
+            if message.content.startswith(("kelly", "k", "kasturi")):
+                try:
+                    cmd = message.content.split()[1]
+                else:
+                    return
+                for command in self.client.commands:
+                    if cmd in command.name or cmd in command.aliases:
+                        print("Processing command on message: "+ message.content)        
+                        message.content = "???" + message.content.replace("kelly","",1).replace("k","",1).replace("kasturi","",1)
+                        await self.client.process_commands(message) #Kelly Process the message ;)
+                        return
+        
             # Setting Kelly Mood - only alters the response
             if self.mood.mood["mischievous"] > 80:
                 prompt += " Kelly is feeling extra mischevious today"
