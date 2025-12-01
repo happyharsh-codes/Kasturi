@@ -1,9 +1,9 @@
 from __init__ import*
 from src.kellycore.kellybusy import KellyBusy
 
-class Akira:
+class Ayaka:
     """
-    Akira - Kelly's Personal Assistant.
+    Ayaka - Kelly's Personal Assistant.
 
     Responsibilities:
         - Manage Kelly's daily schedule
@@ -22,6 +22,14 @@ class Akira:
     def __init__(self, kelly):
         self.kelly = kelly
         self.busy = KellyBusy()
+    
+    async def ayakaasend(self, channel, content, uid):
+        try:
+            webhook = await channel.create_webhook(name="Ayaka")
+            await webhook.send(content= f"<@{uid}>" + content, username="Ayaka", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayaka_{ranint(1,3)}")
+            await webhook.delete()
+        except:
+            await channel.send(f"**Ayaka**: <@{uid}>" + content)
 
     # ----------------------------------------------------------------------
     #   KELLY'S SCHEDULE MANAGER
@@ -76,7 +84,7 @@ class Akira:
     #   USER INTERACTION WRAPPER
     # ----------------------------------------------------------------------
 
-    async def akiraQuery(self, message, mood, type):
+    async def ayakaQuery(self, message, mood, type):
         """
         Handles user requests BEFORE Kelly receives them.
         
@@ -89,23 +97,24 @@ class Akira:
         # If Kelly is too busy/sleepy/laz/tiredy, assistant manages
         state = self.busy.isBusy(mood, message.author.id, type)
         if state:
-            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
+            prompt = f"You are Ayaka, Kelly's Assistant\nKelly is currently very {state}\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
             return True 
         
         # If schedule is overloaded -> Clear Decline
         if not self.busy.isKellyFree(message.guild.id):
-            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
+            prompt = f"You are Akaya, Kelly's Assistant\nKelly's schedules are overloaded already, clearly decline user request.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
             return True
 
         # If schedules but slot available -> Schedule task
-        if str(message.guild.id) in Memory["schedules"]:
-            prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently very lazy to reply\nGenerate: Your Response in 20 words with emojis"
+        upnext = self.busy.getNextAvailableTime(message.guild.id)
+        if upnext:
+            prompt = f"You are Akaya, Kelly's Assistant\nKelly is currently busy so you schedule user task for later.\nGenerate: Your Response telling the user that their task is scheduled after {upnext}s in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
                 Current status: {current_status}
                 Generate Json dict using kelly response and mood
@@ -119,3 +128,6 @@ class Akira:
             return True 
             
         return False  # Kelly may proceed
+
+    def akayaEmojify(self, message):
+        return message
