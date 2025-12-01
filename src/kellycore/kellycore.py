@@ -195,6 +195,7 @@ class Kelly:
                 result = {"respect": 0, "mood": "happy", "personality_change": {}, "info": [], "command": None}
 
             #-----Updating Kelly Now-----#
+            self.mood.modifyMood({"sleepy": 10})
             if "mood" in result:
                 self.mood.modifyMood({result["mood"]: randint(1,15)})
                 if result["mood"] == "happy":
