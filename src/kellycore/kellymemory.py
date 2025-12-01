@@ -14,6 +14,8 @@ class KellyMemory:
     def __init__(self):
         if not Memory["users"]:
             Memory["users"] = {}
+        if not Database["friends"]:
+            Database["friends"] = []
         pass
 
     def getUserChatData(self, user_id):
