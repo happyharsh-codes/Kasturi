@@ -18,15 +18,13 @@ class KellyBusy:
         #Never busy for friends
         if uid in Database["friends"]:
             return False 
-        if mood["busy"] > 90 or mood["lazy"] > 90 or mood["sleepy"] > 90:
+        if mood["lazy"] > 90 or mood["sleepy"] > 90:
             #Server Owners 40% chance listen on even busy
             if "Server owner" in type and randint(1,10) <= 4:
                 return False
             #Server Moderators 20% chance listens even on busy
             elif "Moderator" in type and randint (1,5) == 1:
                 return False
-            if mood["busy"] > 90:
-                return "busy"
             elif mood["lazy"] > 90:
                 return "lazy"
             elif mood["sleepy"] > 90:
