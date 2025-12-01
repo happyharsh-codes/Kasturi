@@ -71,7 +71,7 @@ class Giyu:
         #Kelly handles all by herself 
         #Only friends and allowed members can dm her
         #Hidden treasures and rewards 
-        if type == "Dm channel":
+        if isinstance(message.channel, discord.DMChannel):
             if message.author.id in Database["friends"]:
                 return True 
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is not even on Kelly's friend list and still Dms Kelly.\nGenerate: Your Response in 20 words with emojis"
