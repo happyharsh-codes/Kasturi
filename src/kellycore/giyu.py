@@ -55,7 +55,7 @@ class Giyu:
             - if not good relation: not allowed 
         """    
         #Check Filters
-        if not await self.giyuFilter(message):
+        if await self.giyuFilter(message):
             return 
 
         #Dm messages Rules:
