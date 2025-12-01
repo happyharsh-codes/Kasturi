@@ -247,7 +247,7 @@ class Bot:
                 em.add_field(name="Author",value=f"{arg.author} ({arg.author.id})",inline=False)
             if isinstance(arg, discord.Member):
                 em.add_field(name="Member",value=f"{arg} ({arg.id})",inline=False)
-            if isinstance(arg, discord.Context):
+            if isinstance(arg, discord.ext.commands.Context):
                 em.add_field(name="Message Content",value=f"`{arg.message.content[:500]}`",inline=False)
                 em.add_field(name="Author",value=f"{arg.author} ({arg.author.id})",inline=False)
             
@@ -1238,8 +1238,11 @@ class Bot:
     async def on_command_completion(self, ctx):
         try:
             Profiles[ctx.author.id]["aura"] += 1
+            Server_Settings[str(ctx.guild.id)]["premium"] -= 1
+            if Server_Settings[str(ctx.guild.id)]["premium"] < 0:
+                Server_Settings[str(ctx.guild.id)]["premium"] = 0
             if randint(1, 10) == 8:
-                await ctx.send(choice(list(TIP.values())))
+                await ctx.send(choice(TIP)))
         except Exception:
             pass
 
