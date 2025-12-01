@@ -817,9 +817,8 @@ class Bot:
                  
         # ===== DM MESSAGES ==== 
         if isinstance(message.channel, discord.DMChannel):
-            if any(x in content for x in ("kasturi", "kelly")):
-                await self.kelly.kellyQuery(message)
-                return
+            await self.kelly.kellyQuery(message)
+            return
                 
         metadata = Server_Settings[str(guild.id)]
         
