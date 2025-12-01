@@ -1243,7 +1243,7 @@ class Bot:
             if Server_Settings[str(ctx.guild.id)]["premium"] < 0:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
             if randint(1, 10) == 8:
-                await ctx.send(choice(TIP)))
+                await ctx.send(choice(TIP))
         except Exception:
             pass
 
