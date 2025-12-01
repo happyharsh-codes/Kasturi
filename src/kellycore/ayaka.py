@@ -112,17 +112,21 @@ class Ayaka:
         # If schedules but slot available -> Schedule task
         upnext = self.busy.getNextAvailableTime(message.guild.id)
         if upnext:
+            prompt2 = f"""You are Kelly discord mod bot(lively with mood attitude and sass). Generate Json dict containing - command: (default none for talking) {self.kelly.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
+            raw_result = getResponse(f"User(id = {message.author.id}): {message.content}", prompt2).lower()
+            try:
+                if not raw_result.startswith("```"):
+                    raw_result = "```json " + raw_result + " ```"
+                result = loads(raw_result.split("```json")[1].split('```')[0])
+                if not result["command"]:
+                    return False
+            except Exception as parse_error:
+                print("Could not parse Ayaka AI response:", parse_error) 
+                return False
+            
             prompt = f"You are Akaya, Kelly's Assistant\nKelly is currently busy so you schedule user task for later.\nGenerate: Your Response telling the user that their task is scheduled after {upnext}s in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
-            prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
-                Current status: {current_status}
-                Generate Json dict using kelly response and mood
-                - respect: (-10 : +10) (int)
-                - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
-                - personality_change: {{(personality_name): +/- 10 (int)}}
-                - info: (str) (small info about user behaviour and type)
-                - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
             
             self.addTask(message.guild.id, message.id, message.channel.id, result)
             return True 
