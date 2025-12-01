@@ -5,7 +5,7 @@ from src.kellycore.kellypersonality import KellyPersona
 from src.kellycore.kellybusy import KellyBusy
 from src.kellycore.kellymemory import KellyMemory
 from src.kellycore.giyu import Giyu
-from src.kellycore.akira import Akira 
+from src.kellycore.akaya import Akaya 
 
 class Kelly:
     """Main Kelly Core(Brain) - kellycore.py  
@@ -17,7 +17,7 @@ class Kelly:
             * Memory - kellymemory.py
             * Busy - kellybusy.py
             * Giyu - giyu.py
-            * Akira - akira.py
+            * Akaya - akaya.py
         - Handles callbacks from KellyRelation (friend / ban)
         - Manages busy-tasks via KellyBusy
         - Stores server & user data in memory systems
@@ -30,7 +30,7 @@ class Kelly:
         self.relations = KellyRealtion()
         self.memory = KellyMemory()
         self.giyu = Giyu(bot)
-        self.akira = Akira(self)
+        self.akaya = Akaya(self)
         self.mood.generateRandomMood()
         self.commands = {cmd.name : list(cmd.clean_perms.keys()) for cmd in bot.commands}
                 
@@ -142,7 +142,7 @@ class Kelly:
             #------- 1. Giyu the bodyguard handles the message before getting to kelly -------#
             if not await self.giyu.giyuQuery(message, self.mood.mood, type):#if giyu already sent msg so here will not send so here we'll simply return
                 return
-            if not await self.akira.akiraQuery(message, self.mood.mood, type):
+            if not await self.akaya.akayaQuery(message, self.mood.mood, type):
                 return
                 
             #if plain command request runs command only
