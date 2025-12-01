@@ -128,14 +128,14 @@ class Kelly:
             behave = self.memory.getUserInfo(message.author.id)["behaviours"]
             type = ""
             if message.author.id == 894072003533877279:
-                type = "God aka your creator"
-            elif isinstance(message.channel, discord.DMChannel):
-                type = "Dm channel"
-            elif message.author.id == message.guild.owner_id:
-                type += " Server owner"
-            elif message.author.id in Server_Settings[str(message.guild.id)]["moderators"]:
-                type = "Moderator"
-            else:
+                type += "God aka your creator "
+            if isinstance(message.channel, discord.DMChannel):
+                type = "Dm channel "
+            if message.author.id == message.guild.owner_id:
+                type += "Server owner "
+            if message.author.id in Server_Settings[str(message.guild.id)]["moderators"]:
+                type = "Moderator "
+            if not type:
                 type = "Member"
             prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}, id:{message.author.id}}}\nGenerate response in 20 words with 0-4 emojiy. Keep chat interesting and fun by interacting with user and asking enagaging questions."""
 
@@ -144,8 +144,8 @@ class Kelly:
                 return
             if not await self.ayaka.ayakaQuery(message, self.mood.mood, type):
                 return
-                
-            #if plain command request runs command only
+
+            #If plain command request runs command only
             if message.content.startswith(("kelly", "k", "kasturi")):
                 try:
                     cmd = message.content.split()[1]      
