@@ -26,7 +26,7 @@ class Ayaka:
     async def ayakaasend(self, channel, content, uid):
         try:
             webhook = await channel.create_webhook(name="Ayaka")
-            await webhook.send(content= f"<@{uid}>" + content, username="Ayaka", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayaka_{ranint(1,3)}")
+            await webhook.send(content= f"<@{uid}>" + content, username="Ayaka", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayaka_{randint(1,3)}")
             await webhook.delete()
         except:
             await channel.send(f"**Ayaka**: <@{uid}>" + content)
