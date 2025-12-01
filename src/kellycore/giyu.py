@@ -28,6 +28,15 @@ class Giyu:
     def __init__(self, client):
         self.client = client
 
+    async def giyusend(self, channel, content, uid):
+        try:
+            webhook = await channel.create_webhook(name="Giyu")
+            await webhook.send(content= f"<@{uid}>" + content, username="Giyu", avatar_url=)
+            await webhook.delete()
+        except:
+            await channel.send(f"**Giyu**: <@{uid}>" + content)
+                                                    
+        
     async def giyuFilter(self, message):
         """Filters:
         - Bad words
@@ -67,14 +76,14 @@ class Giyu:
                 return True 
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is not even on Kelly's friend list and still Dms Kelly.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             return False 
 
         #New User Initialisation 
         if not Relation[str(message.author.id)]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
             response = getResponse(message.content, prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             Relation[str(message.author.id)] = 2
             em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with [Discord TOS](https://discord.com/terms) And our [Kelly TOC](https://support.top.gg/support/solutions/articles/73000502502-bot-guidelines).Hope you like my bot, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
             em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
@@ -99,14 +108,14 @@ class Giyu:
         elif str(message.author.id) in Server_Settings[str(message.guild.id)]["muted"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is muted by kelly for sometime, shoo him away.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             return False
 
         #Kelly touch / pat
         elif "pats" in message.content.lower() or "pat" in message.content.lower(): #only friends can pat kelly
             prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is highly dignified cute mod girl, don't let anyone touch or pat her. Generate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             if "Server owner" in type or message.author.id in Server_Settings[str(message.guild.id)]["friends"]:
                 return True 
             if "Moderator" in type and randint (1,5) == 1:
@@ -117,7 +126,7 @@ class Giyu:
         elif mood["sleepy"] > 90:
             prompt = f"You are Giyu, Kelly's Chief Guard\nkelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
+            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             if "Server owner" in type:
                 return True
             if "Moderator" in type and randint (1,5) == 1:
