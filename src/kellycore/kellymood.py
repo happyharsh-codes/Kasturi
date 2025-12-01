@@ -48,6 +48,8 @@ class KellyMood:
         initial_mood = self.getCurrentMood()
         depreciating_moods = ["sleepy", "lazy", "happy", "annoyed", "mischievous"]
         for mood in depreciating_moods:
+            if not self.mood[mood]:
+                continue 
             self.mood[mood] -= 5
             if self.mood[mood] < 0:
                 self.mood[mood] = 0
