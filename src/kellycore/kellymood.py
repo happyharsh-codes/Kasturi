@@ -69,7 +69,7 @@ class KellyMood:
     def getCurrentMood(self):
         maxz = max(self.mood.values())
         candidates = [m for m, v in self.mood.items() if v == maxz]
-        if len(candidates) = 1:
+        if len(candidates) == 1:
             return candidates[0]
         for mood in self._MOODS:
             if mood in candidates:
