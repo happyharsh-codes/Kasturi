@@ -12,6 +12,8 @@ class KellyMemory:
     """
 
     def __init__(self):
+        if not Memory["schedules"]:
+            Memory["schedules"] = {}
         if not Memory["users"]:
             Memory["users"] = {}
         if not Database["friends"]:
