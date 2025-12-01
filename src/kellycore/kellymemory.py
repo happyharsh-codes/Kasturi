@@ -20,7 +20,7 @@ class KellyMemory:
             Database["friends"] = []
 
     def getUserChatData(self, user_id):
-        if str(user_id) in Chats:
+        if Chats[str(user_id)]:
             all_user_chats = Chats[str(user_id)]
             res = "\n".join(all_user_chats)
             return res
