@@ -790,7 +790,7 @@ class Bot:
         channel = message.channel
         
         content_raw = message.content
-        content = re.sub(r"<a?:\w+:\d+>", "", content_raw).strip().lower()
+        content = re.sub(r"<a?:\w+:\d+>", "", content_raw).strip().lower() #removing emojis
         
         start = time.time()
         
@@ -886,38 +886,14 @@ class Bot:
                 await channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho', 'Hello', 'Yoo'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate`.", delete_after = 10)
         
         # Otherwise, only handle messages with valid prefixes
-        if not content.startswith(("kasturi", "kelly", "k")):
-            if any(x in content for x in ("kasturi", "kelly")):
-                #cheking for Administrator Permission given or not
-                '''bot_member = message.guild.me
-                if not bot_member.guild_permissions.administrator:
-                    em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
-                    await message.channel.send(embed=em)
-                    return'''
-                await self.kelly.kellyQuery(message)
-            return
-        message.content = message.content.lower().replace("kelly","").replace("kasturi","").strip()
-        #cheking for Administrator Permission given or not
-        '''bot_member = message.guild.me
-        if not bot_member.guild_permissions.administrator:
-            em = Embed(title= "Administrator Permission is Compulsory", description = "I need administrator permission to operate properly. This is beacause our bot is multipurpose and requries almost all kinds of permissions. Please grant me administrator permission. This is safe we do not intend to do anything malicious. If you are still not satisfied why we need this [Click Here](https://discord.gg/y56na8kN9e)", color = Color.red())
-            await message.channel.send(embed=em)
-            return'''
-                
-        if message.content and message.content[0] == "k":
-            message.content = message.content[1:].strip()
-            for command in self.client.commands:
-                if message.content.split()[0] in command.name or message.content.split()[0] in command.aliases:
-                    break
-            else:
+        if content.startswith(("kasturi", "kelly", "k")) or any(x in content for x in ("kelly", "kasturi")):
+            #cheking for Administrator Permission given or not
+            bot_member = message.guild.me
+            if not Server_Settings[str(message.guild.id)]["premium"] and not bot_member.guild_permissions.administrator:
+                em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
+                await message.channel.send(embed=em)
                 return
-                
-        if message.content and message.content[0] == " ":
-            message.content = "???" + message.content[1:]
-        else:
-            message.content = "???" + message.content
-        print("Processing command on message: "+ message.content)
-        await self.client.process_commands(message) #Kelly Process the message ;)
+            await self.kelly.kellyQuery(message)
         print("Latency: ", (time.time() - start))
         return
         
