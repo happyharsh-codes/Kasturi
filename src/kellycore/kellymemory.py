@@ -16,7 +16,6 @@ class KellyMemory:
             Memory["users"] = {}
         if not Database["friends"]:
             Database["friends"] = []
-        pass
 
     def getUserChatData(self, user_id):
         if str(user_id) in Chats:
