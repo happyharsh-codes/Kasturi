@@ -122,7 +122,7 @@ class Kelly:
         """
         try: 
             #------Initializing------#
-            mood = self.mood.getMood()
+            mood = self.mood.getCurrentMood()
             persona = self.personality.getRequiredPersona()
             relation = self.relations.getUserRelation(message.author.id)
             behave = self.memory.getUserInfo(message.author.id)["behaviours"]
@@ -131,9 +131,9 @@ class Kelly:
                 type += "God aka your creator "
             if isinstance(message.channel, discord.DMChannel):
                 type = "Dm channel "
-            if message.author.id == message.guild.owner_id:
+            elif message.author.id == message.guild.owner_id:
                 type += "Server owner "
-            if message.author.id in Server_Settings[str(message.guild.id)]["moderators"]:
+            elif message.author.id in Server_Settings[str(message.guild.id)]["moderators"]:
                 type = "Moderator "
             if not type:
                 type = "Member"
@@ -152,7 +152,8 @@ class Kelly:
                 except:
                     return
                 for command in self.client.commands:
-                    if cmd == command.name or cmd in command.aliases:
+                    all_names = [command.name] + command.aliases
+                    if cmd in all_names:
                         print("Processing command on message: "+ message.content)        
                         message.content = "???" + message.content.replace("kelly","",1).replace("k","",1).replace("kasturi","",1)
                         await self.client.process_commands(message) #Kelly Process the message ;)
