@@ -885,7 +885,7 @@ class Bot:
                 await channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho', 'Hello', 'Yoo'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate`.", delete_after = 10)
         
         # Otherwise, only handle messages with valid prefixes
-        if content.startswith(("kasturi", "kelly", "k")) or any(x in content for x in ("kelly", "kasturi")):
+        if content.startswith(("kasturi ", "kelly ", "k ")) or any(x in content for x in ("kelly", "kasturi")):
             #cheking for Administrator Permission given or not
             bot_member = message.guild.me
             if not Server_Settings[str(message.guild.id)]["premium"] and not bot_member.guild_permissions.administrator:
