@@ -893,6 +893,7 @@ class Bot:
                 em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
                 await message.channel.send(embed=em)
                 return
+            message.content = content
             await self.kelly.kellyQuery(message)
         print("Latency: ", (time.time() - start))
         return
