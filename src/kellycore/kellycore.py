@@ -148,8 +148,8 @@ class Kelly:
             #if plain command request runs command only
             if message.content.startswith(("kelly", "k", "kasturi")):
                 try:
-                    cmd = message.content.split()[1]
-                else:
+                    cmd = message.content.split()[1]      
+                except:
                     return
                 for command in self.client.commands:
                     if cmd in command.name or cmd in command.aliases:
