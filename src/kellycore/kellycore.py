@@ -152,7 +152,7 @@ class Kelly:
                 except:
                     return
                 for command in self.client.commands:
-                    if cmd in command.name or cmd in command.aliases:
+                    if cmd == command.name or cmd in command.aliases:
                         print("Processing command on message: "+ message.content)        
                         message.content = "???" + message.content.replace("kelly","",1).replace("k","",1).replace("kasturi","",1)
                         await self.client.process_commands(message) #Kelly Process the message ;)
