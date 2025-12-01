@@ -41,6 +41,8 @@ class KellyBusy:
         """
         Returns True if Kelly has free slots on her schedule.
         """
+        if str(guild_id) not in Memory["schedules"]:
+            return True
         if Memory["schedules"][str(guild_id)] and len(Memory["schedules"][str(guild_id)]) > 5:
             return False
         return True
@@ -48,9 +50,15 @@ class KellyBusy:
     def getNextAvailableTime(self, guild_id):
         """
         Returns Kelly's next free time slot today.
+        Returns only when empty slot is available on Kelly's schedule.
+        Otherwise returns None
         """
+        if not str(guild_id) in Memory["schedules"]:
+            return None
         schedules = Memory["schedules"][str(guild_id)]
         if schedules:
+            if len(schedules) > 5:
+                return None
             last_time = max(entry["time"] for entry in schedules)
             return last_time
         return None
