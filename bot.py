@@ -759,7 +759,7 @@ class Bot:
         try:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
                 if randint(1,100) == 1: #Surprise
-                    await safe_dm(member, Embed(description=f"{member.mention} " + self.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. Surprise the user, send a interactive message in 20 words with emojis.")), color = Color.green()))
+                    await safe_dm(after, Embed(description=f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. Surprise the user, send a interactive message in 20 words with emojis.")), color = Color.green()))
                 if Relation[str(before.id)]:
                     if randint(1,5) == 1:
                         for guilds in self.client.guilds:
@@ -769,9 +769,9 @@ class Bot:
                                 if allowed_channels != []:
                                     channel = await guilds.fetch_channel(allowed_channels[0])
                                     if channel:
-                                        await channel.send(f"{member.mention} " + self.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
+                                        await channel.send(f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
                                 else:
-                                    await safe_dm(member, Embed(description=f"{member.mention} " + self.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")), color = Color.green()))
+                                    await safe_dm(member, Embed(description=f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")), color = Color.green()))
                                 break
         except Exception as e:
             await self.client.get_user(894072003533877279).send(f"Exception on presence change: {e}")
@@ -799,7 +799,7 @@ class Bot:
         if message.content == "":
             return
         #Running Secret commands
-        if messages.content.startswith("??? "):
+        if message.content.startswith("??? "):
             await self.client.process_commands(message)
             return
         
