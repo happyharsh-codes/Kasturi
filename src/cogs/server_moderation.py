@@ -679,8 +679,8 @@ class Moderation(commands.Cog):
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         proceed_button = Button(style=ButtonStyle.success ,label="Select Theme", custom_id="proceed", row=0)
-        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
-        channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values= 5 if len(ctx.guild.text_channels) > 5 else len(ctx.guild.text_channels), min_values=1)
+        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
+        channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values= 5 if len(ctx.guild.text_channels) > 5 else len(ctx.guild.text_channels), min_values=1)
         
         view = View(timeout = 45)
         view.add_item(go_left)
@@ -829,7 +829,7 @@ class Moderation(commands.Cog):
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
          
         proceed_button = Button(style= ButtonStyle.green, label = "Set Social Media", custom_id= "social", disabled = True)
-        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
+        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
         view = View(timeout = 40)
         view.add_item(channel_select)
         view.add_item(proceed_button)
@@ -873,43 +873,133 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(manage_guild=True)
     async def automod(self, ctx: commands.Context):
         """Sets the automod services for the guild."""
-        add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add")
+        feature = {
+            "spam_detector": "Detects spam,deletes messages,auto-mutes member.",
+            "custom_words_block": "Deletes custom words",
+            "chat_rate_limiter": "Limits message to avoid flooding.",
+            "caps_block": "Blocks excessive capital letters.",
+            "emoji_spam": "Blocks mass emoji spam",
+            "link_filter": "Blocks harmful or unauthorized links.",
+            "nsfw_filter": "Blocks NSFW text or images.",
+            "toxicity_filter": "Detects toxic messages (AI powered).",
+            "duplicate_detector": "Stops repeated / similar messages.",
+            "scam_link_block": "Blocks suspicious scam links.",
+            "mass_mention_block": "Blocks mass mention."
+        }
+        raid_nuke = {
+            "User Join Rate Monitor",
+            "Anti-Rapid Role Delete",
+            "Anti-Channel Wipe",
+            "Anti-Webhook Spam",
+            "Auto Lockdown",
+            "Auto Unverified Kick",
+            "Alerts to Moderation Channel"
+        ]
+            
+        add_btn = Button(style=ButtonStyle.green, label="Add Features", custom_id="add", disabled=True)
         skip_btn = Button(style=ButtonStyle.secondary, label="Skip", custom_id="skip")
-        raid_nuke_protect = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in ["User Join rate Monitor", "Anti-Rapid Role Delete", "Anti-Channel Wipe", "Anti-Webhook Spam", "Auto Lockdown", "Auto Unverified Kick", "Alerts to Moderation Channel"]], max_values=7, min_values=1)
-        
-        
+        feature_select = Select(custom_id="feature", placeholder="Select Features to Enable", options=[SelectOption(label=i.title(),value=i) for i in list(feature.keys())], max_values=11, min_values=1)
+        raid_nuke_select = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in raid_nuke], max_values=7, min_values=1)
+        channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
+
         em = Embed(title= "Automod Setup",color = Color.pink())
         em.set_footer(text=f"Initiated by Moderator: {ctx.author.name} | {timestamp(ctx)} | Aura++", icon_url = ctx.author.avatar)
         page = 1
         
-        feature = {
-            "spam_detector": "Automau Detect spam in channels and takes action. Whenever spam is detected auto deletes messages and mutes the member.",
-            "chat_rate_limiter": "",
-            "caps block": "",
-            "link_filtre": "",
-            "nsfw_filtre": "",
-            "toxicity_filtre": "",
-            "duplicate/similar message detector": "",
-            "scam_link_block": "",
-            "mass_mention_block": ""
-        }
-        
-        view = View(timeout=45)
+        em1 = em
+        em1.description = "Select Features to enable:\nFor better functioning enable all our features."
+        for feature_heading, feature_description in feature.items():
+            descrip += f"{feature_heading.title()}: {feature_description}"
+        em1.description += f"\n```{descrip}```"
+        em2 = em
+        for raid_heading, raid_description in raid_features:
+            descrip += f"{raid_heading.title()}: {raid_description}"
+        em2.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```""
+        em3 = em
+        em3.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n•Punishment Triggered\n• Kelly Updates```"
+        em4 = em
+        em4.description = "Select Punishment Method\nPunishment method automatically handles when trigger is hit and punishment gradually increase on more infringement. You can set Punishments via ```k warn_action``` later on."
+        em5 = em
+        em5.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages"
+        embeds = [em1, em2, em3, em4, em5]
         
         def updator():
-            nonlocal em, page
-            em.clear_fields()
-            em.add_field(list(feature.keys())[page-1], list(feature.values())[page-1])
-        
+            nonlocal embeds, page, em
+            em = embeds[page-1]
+            em.title += f" {page}/5}"
+            
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
-            nonlocal em, view, page, updator
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal em, view, page, updator, add_btn, skip_btn, feature_select, raid_nuke_select
             page += 1
             updator()
+            if page == 2:
+                view.clear_items()
+                view.add_item(raid_nuke_select)
+                view.add_item(add_btn)
+                view.add_item(skip_btn)
+                add_btn.label = "Add Protection"
+                add_btn.disabled = True
+            if page == 3:
+                view.clear_items()
+                view.add_item(channel_select)
+                view.add_item(add_btn)
+                view.add_item(skip_btn)
+                add_btn.label = "Set Channel"
+                add_btn.disabled = True
+            if page = 4:
+                add_btn.label = "Continue"
+                view.clear_items()
+                view.add_item(add_btn)
+            if page == 5:
+                add_btn.label = "Finish 🎉"
             await inter.response.edit_message(embed=em, view=view)
+
+        async def on_raid_nuke_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal view, msg, add_btn, raid_nuke_select
+            selected_values = inter.data.get("values",[])
+            for options in raid_nuke_select.options:
+                if option.value in selected_values:
+                    option.default = True
+            add_btn.disabled = False
+            
+        async def on_feature_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal view, msg, add_btn, feature_select
+            selected_values = inter.data.get("values",[])
+            for options in feature_select.options:
+                if option.value in selected_values:
+                    option.default = True
+            add_btn.disabled = False
+            
+        async def on_channel_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal view, msg, add_btn, channel_select
+            selected_values = inter.data.get("values",[])
+            for options in channel_select.options:
+                if option.value in selected_values:
+                    option.default = True
+            add_btn.disabled = False
+            
+        async def timeout():
+            nonlocal em, view, msg
+            em.color = Color.light_grey()
+            for children in view.children:
+                children.disabled = True
+            await msg.edit(embed = em, view= view)
+              
+        view = View(timeout=200)
+        add_btn.callback = next_page
+        skip_btn.callback = next_page
+        raid_nuke_select.callback = on_raid_nuke_select
+        feature_select.callback = on_feature_select
+        channel_select.callback = on_channel_select
+        view.on_timeout = on_timeout
         
         msg = await ctx.send(embed=em, view=view)
         
@@ -956,7 +1046,7 @@ class Moderation(commands.Cog):
                 nonlocal em, view, add_button, done_btn, msg, reward_select, update_embed
                 invalid = False
                 level = self.input_box.value
-                if level.isdigit and int(level) < 101 and int(level) > 0:
+                if level.isdigit() and int(level) < 101 and int(level) > 0:
                     level = int(level)
                 else:
                     invalid = True
@@ -964,19 +1054,19 @@ class Moderation(commands.Cog):
                     value = int(self.select.values[0])
                 elif self.reward == "Cash":
                     value = self.select.value
-                    if value.isdigit() and int(value) =< 10000 and int(value) > 0:
+                    if value.isdigit() and int(value) <= 10000 and int(value) > 0:
                         value = int(value)
                     else:
                         invalid = True
                 elif self.reward == "Aura":
                     value = self.select.value
-                    if value.isdigit() and int(value) =< 999 and int(value) > 0:
+                    if value.isdigit() and int(value) <= 999 and int(value) > 0:
                         value = int(value)
                     else:
                         invalid = True
                 elif self.reward == "Gems":
                     value = self.select.value
-                    if value.isdigit() and int(value) =< 100 and int(value) > 0:
+                    if value.isdigit() and int(value) <= 100 and int(value) > 0:
                         value = int(value)
                     else:
                         invalid = True
@@ -986,7 +1076,7 @@ class Moderation(commands.Cog):
                     for children in view.children:
                         children.disabled = True
                     await msg.edit(view=view)
-                    return await inter.response.send_message(f"{ctx.author.mention", embed=Embed(description="**Invalid Values Given**", color=Color.red()))
+                    return await inter.response.send_message(f"{ctx.author.mention}", embed=Embed(description="**Invalid Values Given**", color=Color.red()))
                 
                 Server_Settings[str(ctx.guild.id)]["rank_reward"][level] = [self.reward, value]
                 update_embed()
@@ -1046,17 +1136,6 @@ class Moderation(commands.Cog):
             add_btn.disabled = False
             await inter.response.edit_message(view=view)
 
-        async def on_role_select(inter: Interaction):
-            if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
-
-            for o in role_select.options:
-                o.default = (o.value == inter.data["values"][0])
-
-            await inter.response.edit_message(view=view)
-
         async def on_add(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -1064,16 +1143,12 @@ class Moderation(commands.Cog):
             for option in reward_select.options:
                 if option.default:
                     option.default = False
-                    reward = option.val
+                    reward = option.value
+                    break
             add_btn.disabled = True
             modal = RankModal(reward)
-            await interaction.response.send_modal(modal)
+            await inter.response.send_modal(modal)
     
-            selected_reward = inter.data["values"][0]
-            nonlocal RankModal
-            modal = RankModal(selected_reward)
-            await interaction.response.send_modal(modal)
-            
         async def on_done(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -1083,7 +1158,6 @@ class Moderation(commands.Cog):
 
         # Attach handlers
         reward_select.callback = on_reward_select
-        role_select.callback = on_role_select
         add_btn.callback = on_add
         done_btn.callback = on_done
 
