@@ -976,7 +976,7 @@ class Moderation(commands.Cog):
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal embeds, msg, view, page, updator, add_btn, skip_btn, feature_select, raid_nuke_select, channel_select, raid_nuke, feature
+            nonlocal embeds, msg, view, page, add_btn, skip_btn, feature_select, raid_nuke_select, channel_select, raid_nuke, feature
             page += 1
             em = embeds[page-1]
             em.title += f" {page}/5"
