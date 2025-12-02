@@ -18,7 +18,7 @@ class KellyRealtion:
             return None
         return Relation[str(id)]
 
-    async def modifyUserRespect(self, val, user_id):
+    def modifyUserRespect(self, val, user_id):
         uid = str(user_id)
 
         if uid not in Relation:
