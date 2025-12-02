@@ -31,10 +31,15 @@ class Giyu:
     async def giyusend(self, channel, content, uid):
         try:
             webhook = await channel.create_webhook(name="Giyu")
-            await webhook.send(content= f"<@{uid}>" + content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}")
+            if isinstance(content, Embed):
+                await webhook.send(content= f"<@{uid}> ", embed=content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
+            await webhook.send(content= f"<@{uid}> " + content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
             await webhook.delete()
         except:
-            await channel.send(f"**Giyu**: <@{uid}>" + content)
+            if isinstance(content, Embed):
+                await channel.send(f"**Giyu**: <@{uid}> ", embed=content)
+            else:
+                await channel.send(f"**Giyu**: <@{uid}> " + content)
                                                     
         
     async def giyuFilter(self, message):
@@ -83,14 +88,16 @@ class Giyu:
         if not Relation[str(message.author.id)]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
             response = getResponse(message.content, prompt)
-            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
-            Relation[str(message.author.id)] = 2
-            em = Embed(title= "Welcome to Kelly", description="Thanks for beginning your chat with Kelly.\nThis chat is only for light entertainment purpose and Moderation and running commands.\nPlease Make sure your chat complies with [Discord TOS](https://discord.com/terms) And our [Kelly TOC](https://support.top.gg/support/solutions/articles/73000502502-bot-guidelines).Hope you like my bot, have fun\nIn case you want to contact me, Meet me [here](https://discord.gg/y56na8kN9e)", color = Color.green())
-            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
+            em = Embed(title= f"Hi I'm Giyu {EMOJI2["giyuhi"]}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
+            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
+            dm_channel = message.author.dm_channel
+            if not dm_channel:
+                dm_channel = await message.author.create_dm()
             try:
-               await safe_dm(await self.client.get_context(message),em, message="https://discord.gg/y56na8kN9e")
+                await dm_channel.send(embed = em)
             except:
-                return True
+                await self.giyusend(message.channel, em, message.author.id)
+            Relation[str(message.author.id)] = 2
             return True
 
         #Blocked User
