@@ -73,12 +73,12 @@ class Ayaka:
     #   REMINDERS
     # ----------------------------------------------------------------------
 
-    def addReminder(self, task, message, delay_minutes=20):
+    def addReminder(self, task, message_id=None, user_id=None, channel_id=None, delay_minutes=20):
         """
         Add reminder to check on a task later.
         """
         due = datetime.now() + timedelta(minutes=delay_minutes)
-        Memory["reminders"][due.isoformat()] = {"message": message.id, "channel": message.channel.id, "task": task}
+        Memory["reminders"][due.isoformat()] = {"message": message_id, "channel": channel_id, "user": user_id, "task": task}
 
     def getDueReminders(self):
         """
