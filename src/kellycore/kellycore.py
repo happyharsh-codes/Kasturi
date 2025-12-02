@@ -145,20 +145,6 @@ class Kelly:
             if not await self.ayaka.ayakaQuery(message, self.mood.mood, type):
                 return
 
-            #If plain command request runs command only
-            if message.content.startswith(("kelly ", "kastuti ", "k ")):
-                try:
-                    cmd = message.content.split()[1]      
-                except:
-                    return
-                for command in self.client.commands:
-                    all_names = [command.name] + command.aliases
-                    if cmd in all_names:
-                        print("Processing command on message: "+ message.content)        
-                        message.content = "??? " + message.content.replace("kelly ","",1).replace("k ","",1).replace("kasturi ","",1)
-                        await self.client.process_commands(message) #Kelly Process the message ;)
-                        return
-        
             # Setting Kelly Mood - only alters the response
             if self.mood.mood["mischievous"] > 80:
                 prompt += " Kelly is feeling extra mischevious today"
