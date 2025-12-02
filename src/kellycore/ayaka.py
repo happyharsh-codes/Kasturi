@@ -23,7 +23,7 @@ class Ayaka:
         self.kelly = kelly
         self.busy = KellyBusy()
     
-    async def ayakaasend(self, channel, content, uid):
+    async def ayakasend(self, channel, content, uid):
         try:
             webhook = await channel.create_webhook(name="Ayaka")
             if isinstance(content, Embed):
