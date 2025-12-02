@@ -395,18 +395,19 @@ class Utility(commands.Cog):
                 if found:
                     break
                 for index, cm in enumerate(c):
-                  if cmd.lower() == cm or cmd.lower() in ctx.bot.get_command(cm).aliases:
-                    category = i
-                    cmd = cm
-                    get_started.label = "Show Examples"
-                    view.clear_items()
-                    left.disabled = (index==0) and (category==0)
-                    right.disabled = (index==len(menu_cmds[-1])-1) and (category==len(menu_cmds)-1)
-                    view.add_item(left)
-                    view.add_item(get_started)
-                    view.add_item(right)
-                    found = True
-                    break
+                    if cmd.lower() == cm or cmd.lower() in ctx.bot.get_command(cm).aliases:
+                        category = i
+                        cmd = cm
+                        get_started.label = "Show Examples"
+                        view.clear_items()
+                        left.disabled = (index==0) and (category==0)
+                        right.disabled = (index==len(menu_cmds[-1])-1) and (category==len(menu_cmds)-1)
+                        view.add_item(left)
+                        view.add_item(get_started)
+                        view.add_item(right)
+                        found = True
+                        break
+                    
                 
             else:
                 await ctx.send(f"No help for {cmd} found")
@@ -446,7 +447,7 @@ class Utility(commands.Cog):
                                     if value:
                                         perms.append(perm.replace("_", " ").title())
                 if perms:
-                    em.add_field(name="Required Permissions:",value=", ".join(required),inline=False)
+                    em.add_field(name="Required Permissions:",value=", ".join(perms),inline=False)
             else:
                 em.title = f"Help {menu[category]}"
                 em.description = menu_descrip[category]
