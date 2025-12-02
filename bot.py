@@ -1274,7 +1274,7 @@ class Bot:
         try:
             await ctx._typing.__aexit__(None, None, None)
             if randint(1,100) == 1:
-                await self.kelly.ayaka.addReminder("surprise", ctx.message, 10)
+                self.kelly.ayaka.addReminder("surprise", ctx.message, 10)
         except Exception:
             pass
 
