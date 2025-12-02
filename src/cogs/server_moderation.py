@@ -926,7 +926,7 @@ class Moderation(commands.Cog):
         def updator():
             nonlocal embeds, page, em
             em = embeds[page-1]
-            em.title += f" {page}/5}"
+            em.title += f" {page}/5"
             
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
