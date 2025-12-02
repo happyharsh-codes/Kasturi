@@ -771,7 +771,7 @@ class Bot:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
                 if randint(1,100) == 1: #Surprise
                     self.kelly.ayaka.addReminder("surprise", user_id= after.id, delay_minutes=10)
-                if not Relation[str(before.id)] or if not Relation[str(before.id)] > 10:
+                if not Relation[str(before.id)] or not Relation[str(before.id)] > 10:
                     return
                 if randint(1,10) != 1: #10% chance
                     return
