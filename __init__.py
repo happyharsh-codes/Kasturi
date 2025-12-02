@@ -252,7 +252,10 @@ def getResponse(usermessage, prompt, assistant="", client=0):
         
 def timestamp(ctx):
     tz = None
-    if ctx.author and ctx.author.locale:
+    if not ctx.author:
+        return "Aura++"
+    locale = getattr(ctx.author, "locale", None)
+    if locale:
         locale = ctx.author.locale.lower()
         tz_map = {
             "en-us": "America/New_York",
