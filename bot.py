@@ -569,15 +569,6 @@ class Bot:
             except:
                 print("No perms allowed")
 
-        em = Embed(
-            title="👤 Member Joined",
-            description=f"{member.mention} (`{member.id}`) joined.",
-            color=Color.green()
-        )
-        em.set_thumbnail(url=member.avatar)
-        if used_invite:
-            description += f"\nInvite: {used_invite.code}\nInvitor : {used_invite.inviter.mention}"
-        await self.send_log(member.guild, em)
         
         #setting invites
         invites_before = Invite_Cache[member.guild.id]
@@ -600,7 +591,15 @@ class Bot:
                     Server_Settings[str(member.guild.id)]["invites"][str(used_invite.code)] = [member.id]
         except:
             pass
-
+        em = Embed(
+            title="👤 Member Joined",
+            description=f"{member.mention} (`{member.id}`) joined.",
+            color=Color.green()
+        )
+        em.set_thumbnail(url=member.avatar)
+        description += f"\nInvite: {used_invite.code if used_invite else None}\nInvitor : {used_invite.inviter.mention if used_invite else None}"
+        await self.send_log(member.guild, em)
+        
     async def on_member_remove(self, member: discord.Member):
         if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
             em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\nHope you'd come back soon.", color= Color.dark_gray())
