@@ -420,6 +420,7 @@ class Bot:
         invite = Server_Settings[str(guild.id)]["invite_link"]
         if invite == "N/A" and Guild_Invites[str(guild.id)]:
             invite = Guild_Invites[str(guild.id)]
+            invite = f"https://discord.gg/{invite}"
             del Guild_Invites[str(guild.id)]
         em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}")
         if banned_by:
@@ -429,7 +430,7 @@ class Bot:
         em.add_field(name="Invite Link", value=invite)
         em.set_thumbnail(url=guild.icon.url)
         if invite != "N/A":
-            await me.send(str(invite), embed=em)
+            await me.send(invite, embed=em)
         else:
             await me.send(embed=em)
         del Server_Settings[str(guild.id)]
@@ -782,7 +783,7 @@ class Bot:
                     allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
                     if allowed_channels != []:
                         try:
-                            channel = await guilds.fetch_channel(allowed_channels[0])
+                            channel = await guild.fetch_channel(allowed_channels[0])
                             await channel.send(f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
                         except:
                             await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
