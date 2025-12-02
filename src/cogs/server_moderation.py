@@ -22,9 +22,8 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(moderate_members=True)
     @commands.bot_has_permissions(moderate_members=True)
-    async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str):
+    async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, minutes, *, reason: str):
         """Temporarily prevents a user from chatting with Kelly, not server-wide."""
-        minutes = randint(5, 15)
         until = (datetime.now(UTC) + timedelta(minutes=minutes)).isoformat()
         Server_Settings[str(ctx.guild.id)]["muted"][str(member.id)] = until
 
@@ -72,7 +71,7 @@ class Moderation(commands.Cog):
         if str(member.id) not in muted:
             return await ctx.send("⚠️ That user is not muted from Kelly.")
 
-        muted.pop(str(member.id))
+        del Server_Settings[str(ctx.guild.id)]["muted"][str(member.id)]
 
         embed = action_embed(ctx,
             "🔊 Kelly Chat Unmuted",
@@ -118,7 +117,7 @@ class Moderation(commands.Cog):
             return
             
         embed_dm = action_embed(ctx, f"You were kicked from {ctx.guild.name}", f"**Reason:** {reason}\nPlease Follow the guild rules and regulations.", member, Color.red(), text = f"Kicked by {ctx.author.name}")
-        await self.safe_dm(member, embed_dm)
+        await safe_dm(member, embed_dm)
 
         await ctx.guild.kick(member, reason=reason)
 
@@ -142,7 +141,7 @@ class Moderation(commands.Cog):
             
         embed_dm = action_embed(ctx, f"You were warned in {ctx.guild.name}",f"**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}"
         )
-        await self.safe_dm(member, embed_dm)
+        await safe_dm(member, embed_dm)
 
         embed = action_embed(ctx, "⚠️ Member Warned", f"{member.mention}\n**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}")
         await ctx.send(embed=embed)
@@ -177,9 +176,6 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(manage_roles = True, moderate_members=True)
     async def warn_action(self, ctx):
         """Adds Warn Infringement action when warn limit hits. Warn Automated actions can be : Mute, Kick, Ban, Assign Role"""
-        if not await hierarchy_check(ctx, member):
-            return
-            
         warn_no_select = Select(custom_id="warn_no", placeholder="Select Warn Limit", options=[SelectOption(label=str(i),value=str(i)) for i in range(1,11)], max_values=1, min_values=1)
         actions = ["Mute", "Kick", "Ban", "Assign Role"]
         action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
@@ -353,7 +349,7 @@ class Moderation(commands.Cog):
             return
             
         em = action_embed(ctx, "Member Banned", f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.",member, color=Color.pink(), text=f"Banned by {ctx.author.name}")
-        embed.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
         await ctx.send(embed=em)
         
@@ -432,8 +428,12 @@ class Moderation(commands.Cog):
         Given role hierarchy should be equivalent to or less than your role."""
         if not await hierarchy_check(ctx, member):
             return
+        if role >= ctx.author.top_role:
+            return await ctx.reply(embed = Embed(title="❌ That user has higher or equal role than you.", color = Color.red()))
+        if role >= ctx.guild.me.top_role:
+            return await ctx.reply(embed = Embed(title="❌ I cannot act on that user due to role hierarchy.", color = Color.red()))
             
-        embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: {role.mention}\n**", color = Color.blue())
+        embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: **{role.name}**", color = role.color)
         embed.set_footer(text=f"Assigned Role by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
         await safe_dm(member, embed)
@@ -452,8 +452,12 @@ class Moderation(commands.Cog):
         Given role hierarchy should be equivalent to or less than your role."""
         if not await hierarchy_check(ctx, member):
             return
+        if role >= ctx.author.top_role:
+            return await ctx.reply(embed = Embed(title="❌ That user has higher or equal role than you.", color = Color.red()))
+        if role >= ctx.guild.me.top_role:
+            return await ctx.reply(embed = Embed(title="❌ I cannot act on that user due to role hierarchy.", color = Color.red()))
             
-        embed = Embed(title = f"You have been detained from your Role in {ctx.guild.name}", description = f"**Role**: {role.mention}\n**", color = Color.blue())
+        embed = Embed(title = f"You have been detained from your Role in {ctx.guild.name}", description = f"**Role**: **{role.name}**", color = role.color)
         embed.set_footer(text=f"Role Removed by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
         await safe_dm(member, embed)
@@ -469,21 +473,14 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(deafen_members=True)
     @commands.bot_has_permissions(deafen_members=True)
-    async def deafen(self, ctx: commands.Context, member: discord.Member, minutes: int = 0, channel: discord.VoiceChannel = None):
+    async def deafen(self, ctx: commands.Context, member: discord.Member, minutes: int = 0):
         """Deafens a member from all voice chat 🔇  
-        If channel is provided, member will be moved there (Discord does not support channel-specific deaf)."""
+        If minutes is provided auto undeafens after expiry else manually undeafen required."""
         if not await hierarchy_check(ctx, member):
             return
             
         # Apply deaf
         await member.edit(deafen=True)
-
-        # If channel specified, move them there
-        if channel:
-            try:
-                await member.move_to(channel)
-            except:
-                pass
 
         # Auto-undeafen timeout
         if minutes > 0:
@@ -781,7 +778,6 @@ class Moderation(commands.Cog):
         go_left.callback = go_callback
         go_right.callback = go_callback
         proceed_button.callback = process_buttons
-        skip_button.callback = process_buttons
         channel_select.callback = select_channels
         channel_select2.callback = select_channels2
         view.on_timeout = timeout
@@ -837,8 +833,7 @@ class Moderation(commands.Cog):
         view = View(timeout = 40)
         view.add_item(channel_select)
         view.add_item(proceed_button)
-        msg = await ctx.reply(embed=em, view=view)
-         
+        
         async def timeout():
              nonlocal em, view, msg
              em.color = Color.light_grey()
@@ -850,8 +845,6 @@ class Moderation(commands.Cog):
             modal = SocialModal()
             await interaction.response.send_modal(modal)
             
-        view.on_timeout = timeout
-        proceed_button.callback = on_click
         
         async def select_channels(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
@@ -866,7 +859,13 @@ class Moderation(commands.Cog):
                     option.default = True
                     social_channel = int(val)
             await interaction.response.edit_message(view=view)
-             
+
+        view.on_timeout = timeout
+        proceed_button.callback = on_click
+        channel_select.callback = select_channel
+
+        msg = await ctx.reply(embed=em, view=view)
+         
     # ===== AUTOMOD SETUP ====
     @commands.hybrid_command()
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -925,49 +924,85 @@ class Moderation(commands.Cog):
 
         guild_id = str(ctx.guild.id)
 
-        # Safety check
         if not Server_Settings[guild_id].get("rank_channel", 0):
-            return await ctx.send(
-                embed=Embed(
-                    description=":x: You must set a Rank Channel first.\nUse `k set_rank_channel`.",
-                    color=Color.red()
-                )
-            )
+            return await ctx.send(embed=Embed(description=":x: You must set a Rank Channel first.\nUse `k set_rank_channel`.",color=Color.red()))
 
-        # Load existing rewards (dict like { "5": {"Role": 12345}, ... })
-        rank_reward: dict = Server_Settings[guild_id].get("rank_reward", {})
-
-        # --- Components ---
-        reward_select = Select(
-            custom_id="reward_type",
-            placeholder="Select Reward Type",
-            options=[SelectOption(label=i, value=i) for i in ["Role", "Cash", "Aura", "Gems", "Nitro"]],
-            max_values=1,
-            min_values=1,
-            disabled=True
-        )
-
-        level_select = Select(
-            custom_id="level_select",
-            placeholder="Select Level",
-            options=[SelectOption(label=str(i), value=str(i)) for i in range(1, 101)],
-            max_values=1,
-            min_values=1
-        )
-
-        role_select = Select(
-            custom_id="role_add",
-            placeholder="Select Role",
-            options=[SelectOption(label=role.name, value=str(role.id)) for role in ctx.guild.roles],
-            max_values=1,
-            min_values=1
-        )
-
+        reward_select = Select(custom_id="reward_type",placeholder="Select Reward Type",options=[SelectOption(label=i, value=i) for i in ["Role", "Cash", "Aura", "Gems", "Nitro"]],max_values=1,min_values=1,disabled=False)
+        role_select = Select(custom_id="role_add",placeholder="Select Role",options=[SelectOption(label=role.name, value=str(role.id)) for role in ctx.guild.roles],max_values=1,min_values=1)
         add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add", disabled=True)
         done_btn = Button(style=ButtonStyle.secondary, label="Done", custom_id="done")
 
+        class RankModal(discord.ui.Modal):
+            def __init__(self, reward_type):
+                super().__init__(title="Set Social Media/ Leave blank for none")
+                self.input_box = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                self.reward = reward_type
+                nonlocal role_select
+                if reward_type == "Role":
+                    self.select = role_select
+                elif reward_type == "Cash":
+                    self.select = TextInput(label="Cash Amount", custom_id="cash", placeholder="Enter Cash amount: (1-10000)", required= True, min_length=1, max_length=5, style=TextStyle.short)
+                elif reward_type == "Aura":
+                    self.select = TextInput(label="Aura Points", custom_id="aura", placeholder="Enter Aura Points: (1-999)", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                elif reward_type == "Gems":
+                    self.select = TextInput(label="Gems Amount", custom_id="gems", placeholder="Enter Gems amount: (1-100)", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                elif reward_type == "Nitro":
+                    self.select = TextInput(label="Nitro Code", custom_id="nitro", placeholder="Enter Valid Nitro Gift Code", required= True, min_length=1, max_length=50, style=TextStyle.short)
+                self.add_item(self.input_box)
+                self.add_item(self.select)
+                
+            async def on_submit(self, interaction: Interaction):
+              try:
+                nonlocal em, view, add_button, done_btn, msg, reward_select, update_embed
+                invalid = False
+                level = self.input_box.value
+                if level.isdigit and int(level) < 101 and int(level) > 0:
+                    level = int(level)
+                else:
+                    invalid = True
+                if self.reward == "Role":
+                    value = int(self.select.values[0])
+                elif self.reward == "Cash":
+                    value = self.select.value
+                    if value.isdigit() and int(value) =< 10000 and int(value) > 0:
+                        value = int(value)
+                    else:
+                        invalid = True
+                elif self.reward == "Aura":
+                    value = self.select.value
+                    if value.isdigit() and int(value) =< 999 and int(value) > 0:
+                        value = int(value)
+                    else:
+                        invalid = True
+                elif self.reward == "Gems":
+                    value = self.select.value
+                    if value.isdigit() and int(value) =< 100 and int(value) > 0:
+                        value = int(value)
+                    else:
+                        invalid = True
+                elif self.reward == "Nitro":
+                    value = self.select.value
+                if invalid:
+                    for children in view.children:
+                        children.disabled = True
+                    await msg.edit(view=view)
+                    return await inter.response.send_message(f"{ctx.author.mention", embed=Embed(description="**Invalid Values Given**", color=Color.red()))
+                
+                Server_Settings[str(ctx.guild.id)]["rank_reward"][level] = [self.reward, value]
+                update_embed()
+            
+                if add_btn.label == "Add":
+                    add_btn.label = "Add More"
+                    view.clear_items()
+                    view.add_item(reward_select)
+                    view.add_item(add_btn)
+                    view.add_item(done_btn)
+                await msg.edit(embed=em, view=view)
+                await interaction.response.defer()
+              except Exception as e:
+                await interaction.client.get_user(894072003533877279).send(e)
+ 
         view = View(timeout=45)
-        view.add_item(level_select)
         view.add_item(reward_select)
         view.add_item(add_btn)
         async def timeout():
@@ -980,18 +1015,17 @@ class Moderation(commands.Cog):
             await msg.edit(embed=em, view=view)
         view.on_timeout = timeout
 
-        em = Embed(
-            title="Set Rank Level-Up Rewards",
-            description="Select a Reward that will be automatically given when users reach a level.",
-            color=Color.pink()
-        )
+        em = Embed(title="Set Rank Level-Up Rewards",description="Select a Reward that will be automatically given when users reaches a level.",color=Color.pink())
 
         def update_embed():
+            nonlocal em, view, guild_id
             em.clear_fields()
+            rank_reward = Server_Settings[guild_id].get("rank_reward", {})
+        
             if rank_reward:
                 txt = ""
                 for level, reward in rank_reward.items():
-                    txt += f"**Level {level} →** `{reward}`\n"
+                    txt += f"**Level {level} →** `{reward[0]}`: `{reward[1]}`\n"
             else:
                 txt = "No rewards set yet."
 
@@ -999,39 +1033,17 @@ class Moderation(commands.Cog):
 
         update_embed()
 
-        async def on_level_select(inter: Interaction):
-            if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
-
-            reward_select.disabled = False
-            for o in level_select.options:
-                o.default = (o.value == inter.data["values"][0])
-
-            await inter.response.edit_message(view=view)
-
         async def on_reward_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True )
 
             selected_reward = inter.data["values"][0]
-
-            # Enable correct UI
-            if selected_reward == "Role":
-                view.clear_items()
-                view.add_item(level_select)
-                view.add_item(reward_select)
-                view.add_item(role_select)
-                view.add_item(add_btn)
-            else:
-                add_btn.disabled = False
-
-            for o in reward_select.options:
-                o.default = (o.value == selected_reward)
-
+            nonlocal reward_select, add_btn
+            for option in reward_select.options:
+                if option.val in selected_reward:
+                    option.default = True
+                    break
+            add_btn.disabled = False
             await inter.response.edit_message(view=view)
 
         async def on_role_select(inter: Interaction):
@@ -1047,37 +1059,29 @@ class Moderation(commands.Cog):
 
         async def on_add(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal RankModal, reward_select, add_btn
+            for option in reward_select.options:
+                if option.default:
+                    option.default = False
+                    reward = option.val
+            add_btn.disabled = True
+            modal = RankModal(reward)
+            await interaction.response.send_modal(modal)
+    
+            selected_reward = inter.data["values"][0]
+            nonlocal RankModal
+            modal = RankModal(selected_reward)
+            await interaction.response.send_modal(modal)
             
-            level = level_select.values[0]
-            reward_type = reward_select.values[0]
-
-            reward_value = None
-            if reward_type == "Role":
-                reward_value = int(role_select.values[0])
-            else:
-                reward_value = reward_type  # simple string reward
-
-            rank_reward[level] = reward_value
-            Server_Settings[guild_id]["rank_reward"] = rank_reward
-
-            update_embed()
-            await inter.response.edit_message(embed=em, view=view)
-
         async def on_done(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
-                
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal em, update_embed
             update_embed()
-            await inter.response.edit_message(embed=em, view= None)
+            await inter.response.edit_message(embed=em, view=None)
 
         # Attach handlers
-        level_select.callback = on_level_select
         reward_select.callback = on_reward_select
         role_select.callback = on_role_select
         add_btn.callback = on_add
