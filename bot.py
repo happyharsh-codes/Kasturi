@@ -246,7 +246,7 @@ class Bot:
                 em.add_field(name="Author",value=f"{arg.author} ({arg.author.id})",inline=False)
             if isinstance(arg, discord.Member):
                 em.add_field(name="Member",value=f"{arg} ({arg.id})",inline=False)
-            if isinstance(arg, discord.ext.commands.Context):
+            if isinstance(arg, discord.ext.commandsContext):
                 em.add_field(name="Message Content",value=f"`{arg.message.content[:500]}`",inline=False)
                 em.add_field(name="Author",value=f"{arg.author} ({arg.author.id})",inline=False)
             
@@ -1281,7 +1281,7 @@ class Bot:
             if Server_Settings[str(ctx.guild.id)]["premium"] < 0:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
             if randint(1, 10) == 8:
-                await ctx.send(choice(TIP))
+                self.kelly.ayaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=ranint(1,25))
         except Exception as e:
             await self.me.send(f"Exception on command completion: {e}")
 
@@ -1307,13 +1307,13 @@ class Bot:
         if ctx.guild is None:
             if isinstance(error, (AttributeError, commands.NoPrivateMessage)):
                 return await ctx.send(embed=Embed(title="🚫 No Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
-            if "NoneType" in str(error) and "guild" in str(error):
+            if "NoneType" in str(error) and "id" in str(error):
                 return await ctx.send(embed=Embed(title="🚫 Not a Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
         if isinstance(error, commands.CommandNotFound):
             ctx.message.content = ctx.message.content.replace("???", "Kelly ")
             await self.kelly.kellyQuery(ctx.message)
             if randint(1,10) == 8:
-                await ctx.send(choice(TIP))
+                self.kelly.ayaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=ranint(1,25))
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
             em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
             await ctx.send(embed= em)
@@ -1359,7 +1359,5 @@ class Bot:
             pass
         else:
             await ctx.send(embed=Embed(description="Unknown error happened :/"))
-            user = self.client.get_user(894072003533877279)
-            if user != None:
-                await user.send(embed=Embed(title= f"Crash report on command error", description = f"```{error}```"))
+            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{error}```"))
                 
