@@ -912,7 +912,7 @@ class Bot:
                 elif content.startswith("kastuti "):
                     message.content = content.replce("kasturi", "???", 1)          
                 await self.client.process_commands(message)
-        elif any(x in content for x in ("kelly", "kasturi"):
+        elif any(x in content for x in ("kelly", "kasturi")):
             await self.kelly.kellyQuery(message)
         print("Latency: ", (time.time() - start))
         return
