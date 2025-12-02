@@ -100,14 +100,14 @@ class Ayaka:
             prompt = f"You are Ayaka, Kelly's Assistant\nKelly is currently very {state}\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
-            return True 
+            return False
         
         # If schedule is overloaded -> Clear Decline
         if not self.busy.isKellyFree(message.guild.id):
             prompt = f"You are Akaya, Kelly's Assistant\nKelly's schedules are overloaded already, clearly decline user request.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
-            return True
+            return False
 
         # If schedules but slot available -> Schedule task
         upnext = self.busy.getNextAvailableTime(message.guild.id)
@@ -119,19 +119,19 @@ class Ayaka:
                     raw_result = "```json " + raw_result + " ```"
                 result = loads(raw_result.split("```json")[1].split('```')[0])
                 if not result["command"]:
-                    return False
+                    return True
             except Exception as parse_error:
                 print("Could not parse Ayaka AI response:", parse_error) 
-                return False
+                return True
             
             prompt = f"You are Akaya, Kelly's Assistant\nKelly is currently busy so you schedule user task for later.\nGenerate: Your Response telling the user that their task is scheduled after {upnext}s in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
             
             self.addTask(message.guild.id, message.id, message.channel.id, result)
-            return True 
+            return False
             
-        return False  # Kelly may proceed
+        return True # Kelly may proceed
 
     def akayaEmojify(self, message):
         return message
