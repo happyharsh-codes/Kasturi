@@ -874,7 +874,6 @@ class Moderation(commands.Cog):
     async def automod(self, ctx: commands.Context):
         """Sets the automod services for the guild."""
         feature = {
-            "spam_detector": "Detects spam,deletes messages,auto-mutes member.",
             "custom_words_block": "Deletes custom words",
             "chat_rate_limiter": "Limits message to avoid flooding.",
             "caps_block": "Blocks excessive capital letters.",
@@ -882,17 +881,15 @@ class Moderation(commands.Cog):
             "link_filter": "Blocks harmful or unauthorized links.",
             "nsfw_filter": "Blocks NSFW text or images.",
             "toxicity_filter": "Detects toxic messages (AI powered).",
-            "duplicate_detector": "Stops repeated / similar messages.",
-            "scam_link_block": "Blocks suspicious scam links.",
+            "duplicate_detector": "Stops repeated / similar messages.",,
             "mass_mention_block": "Blocks mass mention."
         }
         raid_nuke = [
-            "User Join Rate Monitor",
-            "Anti-Rapid Role Delete",
-            "Anti-Channel Wipe",
-            "Anti-Webhook Spam",
+            "Anti-Message Spam"
+            "Anti Rapid Join",
+            "Anti-Server Nukes",
             "Auto Lockdown",
-            "Auto Unverified Kick",
+            "Auto Unverified Mass Kick/Ban",
             "Alerts to Moderation Channel"
         ]
             
@@ -902,10 +899,63 @@ class Moderation(commands.Cog):
         raid_nuke_select = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in raid_nuke], max_values=7, min_values=1)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
 
-        em = Embed(title= "Automod Setup",color = Color.pink())
+        em = Embed(title= "Automod Setup 1/5",color = Color.pink())
         em.set_footer(text=f"Initiated by Moderator: {ctx.author.name} | {timestamp(ctx)} | Aura++", icon_url = ctx.author.avatar)
-        page = 1
-        
+        page = 0
+
+        class AutomodModal(discord.ui.Modal):
+            def __init__(self, features):
+                super().__init__(title="Set Automod Features")
+                for feature in features:
+                    if feature == "custom_words_block":
+                        self.custom_words_block = TextInput(label="Custom Block Words", custom_id="block_list", placeholder="Enter Custom words separated by comma.", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
+                        self.add_item(self.custom_words_block)
+                    elif feature == "chat_rate_limiter":
+                        self.chat_rate_limiter = Select(custom_id="chat_rate_limit", placeholder="Select Chat Rate every 5 seconds", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(1,11)])
+                        self.add_item(self.chat_rate_limiter)
+                    elif feature == "emoji_spam":
+                        self.emoji_spam = Select(custom_id="emoji_spam", placeholder="Select Emoji Limit per message", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,11)])
+                        self.add_item(self.emoji_spam)
+                    elif feature == "link_filter":
+                        self.link_filter = Select(custom_id="link_filter", placeholder="Select Link filter type", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in ["All Links", "Suspicious Links"])
+                        self.add_item(self.link_filter)
+                    elif feature == "mass_mention_block":
+                        self.mass_mention_block = Select(custom_id="mass_mention", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
+                        self.add_item(self.mass_mention_block)
+                self.features = features
+                
+            async def on_submit(self, interaction: Interaction):
+              try:
+                nonlocal feature, em1, view, add_btn, msg
+                Server_Settings[str(ctx.guild.id)]["automod"] = {}
+                selected_features = self.features
+                non_features = [x for x in list(features.keys()) if x not in selected_protections]
+                for feature in selected_features:
+                    if feature == "custom_words_block":
+                        Server_Settings[str(ctx.guild.id)]["banned_words"] = map(lambda x: x.strip(), self.custom_words_block.value.split(","))
+                    elif feature == "chat_rate_limiter":
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = self.chat_rate_limiter.values[0]
+                    elif feature == "emoji_spam":
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = self.emoji_spam.values[0]
+                    elif feature == "link_filter":
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = self.link_filter.values[0]
+                    elif feature == "mass_mention_block":
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = self.mass_mention_block.values[0]
+                    else:
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = True
+                for not_feature in non_features:
+                    Server_Settings[str(ctx.guild.id)]["automod"][not_feature] = False
+                em1.description = "Features succesfully Set"
+                for i in list(feature.keys()):
+                    if i in selected_features:
+                        em1.description += f"\n✅ {i.replace("_","").title()}"
+                    else:
+                        em1.description += f"\n❌ {i.replace("_","").title()}"
+                add_btn.label = "Continue"
+                await msg.edit(embed = em1, view = view)
+              except Exception as e:
+                await interaction.client.get_user(894072003533877279).send(e)
+ 
         em1 = em
         em1.description = "Select Features to enable:\nFor better functioning enable all our features."
         for feature_heading, feature_description in feature.items():
@@ -922,18 +972,26 @@ class Moderation(commands.Cog):
         em5 = em
         em5.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages"
         embeds = [em1, em2, em3, em4, em5]
-        
-        def updator():
-            nonlocal embeds, page, em
-            em = embeds[page-1]
-            em.title += f" {page}/5"
             
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal em, view, page, updator, add_btn, skip_btn, feature_select, raid_nuke_select
+            nonlocal embed, msg, view, page, updator, add_btn, skip_btn, feature_select, raid_nuke_select, channel_select, raid_nuke, feature
             page += 1
-            updator()
+            em = embeds[page-1]
+            em.title += f" {page}/5"
+            btn = inter.data.get("custom_id")
+            if page == 1:
+                if btn == "skip":
+                    page += 1
+                else:
+                    nonlocal AutomodModal
+                    selected_features = []
+                    for option in feature_select.options:
+                        if option.default:
+                            selected_features.append(option.value)
+                    modal = AutomodModal(selected_features)
+                    return await inter.response.send_modal(modal)
             if page == 2:
                 view.clear_items()
                 view.add_item(raid_nuke_select)
@@ -948,12 +1006,31 @@ class Moderation(commands.Cog):
                 view.add_item(skip_btn)
                 add_btn.label = "Set Channel"
                 add_btn.disabled = True
-            if page = 4:
+                if btn == "skip":
+                    return await inter.response.edit_message(embed=em, view=view)
+                selected_protections = []
+                for option in raid_nuke_select.options:
+                    if option.default:
+                        selected_protections.append(option.value)
+                Server_Settings[str(ctx.guild.id)]["protections"] = {}
+                for p in raid_nuke:
+                    Server_Settings[str(ctx.guild.id)]["protections"][p] = (p in selected_protections)
+                
+            if page == 4:
                 add_btn.label = "Continue"
                 view.clear_items()
                 view.add_item(add_btn)
+                if btn == "skip":
+                    return await inter.response.edit_message(embed=em, view=view)
+                selected_features = []
+                for option in feature_select.options:
+                    if option.default:
+                        Server_Settings[str(ctx.guild.id)]["logging"] = int(option.value)
+                        break
             if page == 5:
                 add_btn.label = "Finish 🎉"
+            if page == 6:
+                pass
             await inter.response.edit_message(embed=em, view=view)
 
         async def on_raid_nuke_select(inter: Interaction):
@@ -961,7 +1038,7 @@ class Moderation(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal view, msg, add_btn, raid_nuke_select
             selected_values = inter.data.get("values",[])
-            for options in raid_nuke_select.options:
+            for option in raid_nuke_select.options:
                 if option.value in selected_values:
                     option.default = True
             add_btn.disabled = False
@@ -971,7 +1048,7 @@ class Moderation(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal view, msg, add_btn, feature_select
             selected_values = inter.data.get("values",[])
-            for options in feature_select.options:
+            for option in feature_select.options:
                 if option.value in selected_values:
                     option.default = True
             add_btn.disabled = False
@@ -981,7 +1058,7 @@ class Moderation(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal view, msg, add_btn, channel_select
             selected_values = inter.data.get("values",[])
-            for options in channel_select.options:
+            for option in channel_select.options:
                 if option.value in selected_values:
                     option.default = True
             add_btn.disabled = False
@@ -1001,7 +1078,7 @@ class Moderation(commands.Cog):
         channel_select.callback = on_channel_select
         view.on_timeout = on_timeout
         
-        msg = await ctx.send(embed=em, view=view)
+        msg = await ctx.send(embed=em1, view=view)
         
     # ===== RANK REWARD ====
 
@@ -1024,7 +1101,7 @@ class Moderation(commands.Cog):
 
         class RankModal(discord.ui.Modal):
             def __init__(self, reward_type):
-                super().__init__(title="Set Social Media/ Leave blank for none")
+                super().__init__(title="Add Rank Reward")
                 self.input_box = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
                 self.reward = reward_type
                 nonlocal role_select
