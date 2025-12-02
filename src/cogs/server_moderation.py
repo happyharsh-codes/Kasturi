@@ -1120,7 +1120,7 @@ class Moderation(commands.Cog):
                 
             async def on_submit(self, interaction: Interaction):
               try:
-                nonlocal em, view, add_button, done_btn, msg, reward_select, update_embed
+                nonlocal em, view, add_btn, done_btn, msg, reward_select, update_embed
                 invalid = False
                 level = self.input_box.value
                 if level.isdigit() and int(level) < 101 and int(level) > 0:
