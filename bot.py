@@ -841,7 +841,7 @@ class Bot:
                         message.content = content.replace("k ", "???", 1)
                     elif content.startswith("kelly "):
                         message.content = content.replace("kelly ", "???", 1)
-                    elif content.startswith("kastuti "):
+                    elif content.startswith("kasturi "):
                         message.content = content.replace("kasturi ", "???", 1)          
                     await self.client.process_commands(message)
                 else:
@@ -923,11 +923,11 @@ class Bot:
                 return
             if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
                 if content.startswith("k "):
-                    message.content = content.replace("k", "???", 1)
+                    message.content = content.replace("k ", "???", 1)
                 elif content.startswith("kelly "):
-                    message.content = content.replace("kelly", "???", 1)
-                elif content.startswith("kastuti "):
-                    message.content = content.replace("kasturi", "???", 1)          
+                    message.content = content.replace("kelly ", "???", 1)
+                elif content.startswith("kasturi "):
+                    message.content = content.replace("kasturi ", "???", 1)          
                 await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
             await self.kelly.kellyQuery(message)
@@ -1273,6 +1273,8 @@ class Bot:
         await self.send_log(guild, em)
 
     async def on_command_completion(self, ctx):
+        if not ctx.guild:
+            return
         try:
             Profiles[ctx.author.id]["aura"] += 1
             Server_Settings[str(ctx.guild.id)]["premium"] -= 1
@@ -1308,7 +1310,7 @@ class Bot:
             if "NoneType" in str(error) and "guild" in str(error):
                 return await ctx.send(embed=Embed(title="🚫 Not a Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
         if isinstance(error, commands.CommandNotFound):
-            ctx.message.content = ctx.message.replace("???", "Kelly ")
+            ctx.message.content = ctx.message.content.replace("???", "Kelly ")
             await self.kelly.kellyQuery(ctx.message)
             if randint(1,10) == 8:
                 await ctx.send(choice(TIP))
