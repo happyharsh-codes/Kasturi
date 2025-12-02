@@ -30,7 +30,7 @@ class KellyMemory:
         """Store last conversation detail."""
         message = message.replace("\n","").replace(":","")
         response = response.replace("\n","").replace(":","")
-        if str(uid) not in Chats:
+        if not Chats[str(uid)]:
             Chats[str(uid)] = [f"User:{message}\nKelly:{response}"]
         else:
             Chats[str(uid)].append(f"User:{message}\nKelly:{response}")
