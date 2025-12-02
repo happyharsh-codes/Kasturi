@@ -886,7 +886,7 @@ class Moderation(commands.Cog):
             "scam_link_block": "Blocks suspicious scam links.",
             "mass_mention_block": "Blocks mass mention."
         }
-        raid_nuke = {
+        raid_nuke = [
             "User Join Rate Monitor",
             "Anti-Rapid Role Delete",
             "Anti-Channel Wipe",
