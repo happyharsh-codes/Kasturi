@@ -38,46 +38,53 @@ class Ayaka:
     def addTask(self, guild_id, message_id, channel_id, ai_result):
         """Adds taks to Kelly's schedule. And automatically sets it schedule."""
         if not str(guild_id) in Memory["schedules"]:
-            Memory["schedules"][str(guild_id)] = [ {"message": message_id, "channel": channel_id, "task": ai_result, "time": datetime.now() + timedelta(seconds=randint(1,2)) } ]
+            due = datetime.now() + timedelta(seconds=randint(1,2))
+            Memory["schedules"][due.isoformat()] = {"message": message_id, "channel": channel_id, "task": ai_result } 
         else:
-            time = self.busy.getNextAvailableTime(guild_id) + timedelta(seconds=randint(1,2))
-            Memory["schedules"][str(guild_id)].append({"message": message_id, "channel": channel_id, "task": ai_result, "time": time})
+            due = self.busy.getNextAvailableTime(guild_id) + timedelta(seconds=randint(1,2))
+            Memory["schedules"][due.isoformat()] = {"message": message_id, "channel": channel_id, "task": ai_result}
         
-    async def performTask(self, guild_id):
-        """Automatically performs the first task on her schedule"""
-        schedules = Memory["schedules"].get(str(guild_id), None)
+    async def performTask(self):
+        """Automatically performs the task on her schedule"""
+        schedules = []
+        now = datetime.now()
+        for due_str in list(Memory["schedules"].keys()):
+            due = datetime.fromisoformat(due_str)
+            if now >= due:
+                schedules.append(Memory["schedules"][due_str])
+                del Memory["schedules"][due_str]
         if not schedules:
             return
-        do_now = schedules.pop(0)
-        try:
-            channel = await self.kelly.client.fetch_channel(do_now["channel"])
-            msg = await channel.fetch_message(do_now["message"])
-        except:
-            return
-        await self.kelly.runCommand(msg, do_now["task"])
-        if schedule:
-            Memory["schedules"][str(guild_id)] = schedule 
-        else:
-            del Memory["schedules"][str(guild_id)]
+        for do_now in schedules:
+            try:
+                channel = await self.kelly.client.fetch_channel(do_now["channel"])
+                msg = await channel.fetch_message(do_now["message"])
+                await self.kelly.runCommand(msg, do_now["task"])
+            except:
+                continue 
             
     # ----------------------------------------------------------------------
     #   REMINDERS
     # ----------------------------------------------------------------------
 
-    def addReminder(self, task, delay_minutes=20):
+    def addReminder(self, task, message, delay_minutes=20):
         """
         Add reminder to check on a task later.
         """
         due = datetime.now() + timedelta(minutes=delay_minutes)
-        self.reminders.append({"task": task, "due": due})
+        Memory["reminders"][due.isoformat()] = {"message": message.id, "channel": message.channel.id, "task": task}
 
     def getDueReminders(self):
         """
         Get reminders whose time has come.
         """
         now = datetime.now()
-        due_list = [r for r in self.reminders if r["due"] <= now]
-        self.reminders = [r for r in self.reminders if r["due"] > now]
+        due_list = []
+        for due_str in list(Memory["reminders"].keys()):
+            due = datetime.fromisoformat(due_str)
+            if now >= due:
+                due_list.append(Memory["reminders"][due_str])
+                del Memory["reminders"][due_str]
         return due_list
 
     # ----------------------------------------------------------------------
