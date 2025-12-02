@@ -881,7 +881,7 @@ class Moderation(commands.Cog):
             "link_filter": "Blocks harmful or unauthorized links.",
             "nsfw_filter": "Blocks NSFW text or images.",
             "toxicity_filter": "Detects toxic messages (AI powered).",
-            "duplicate_detector": "Stops repeated / similar messages.",,
+            "duplicate_detector": "Stops repeated / similar messages.",
             "mass_mention_block": "Blocks mass mention."
         }
         raid_nuke = [
