@@ -780,7 +780,7 @@ class Bot:
                     member = guild.get_member(before.id)
                     if not member:
                         continue
-                    allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
+                    allowed_channels = Server_Settings[str(guild.id)]["allowed_channels"]
                     if allowed_channels != []:
                         try:
                             channel = await guild.fetch_channel(allowed_channels[0])
@@ -882,7 +882,7 @@ class Bot:
         #Giving xp
         if metadata["rank_channel"] != 0:
             if str(author.id) in metadata["rank"]:
-                total_xp = metadata["rank"][str(author.id)]
+                total_xp = metadata["rank"].get(str(author.id), 0)
                 level = (math.sqrt(1+8*(total_xp//15)) -1)//2
                 max_xp = ((level+1)*(level+2)*15)//2
                 total_xp += 2
