@@ -914,7 +914,7 @@ class Moderation(commands.Cog):
         em2 = em
         for raid_heading, raid_description in raid_features:
             descrip += f"{raid_heading.title()}: {raid_description}"
-        em2.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```""
+        em2.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```"
         em3 = em
         em3.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n•Punishment Triggered\n• Kelly Updates```"
         em4 = em
