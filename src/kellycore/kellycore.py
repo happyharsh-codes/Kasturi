@@ -469,14 +469,20 @@ class Kelly:
         
     async def remind(self, task):
         prompt = f"Roleplay Kelly, a Discord Mod (human like with mood and sass). You have to {task['task']} user. Keep chat alive fun and interesting.\nGenerate response in 20 words with 0-4 emojiy."
-        if "uid" in task:
+        if "user" in task:
             try:
-                user = await self.client.fetch_user(task["uid"])
+                user = await self.client.fetch_user(task["user"])
             except:
                 return
-            em = Embed(color=Color.green())
-            em.description = self.kellyEmojify(getResponse(f"Hey I'm {user.display_name}, {task['task']} me!", prompt))
-            await safe_dm(user, em)
+            msg = self.kellyEmojify(getResponse(f"Hey I'm {user.display_name}, {task['task']} me!", prompt))
+            if task["channel"]:
+                try:
+                    channel = await self.client.fetch_channel(task["channel"])
+                    await channel.send(f"{user.mention} {msg}")
+                except:
+                    await safe_dm(user, message = msg)
+            else:
+                await safe_dm(user, message = msg)
         try:
             channel = await self.client.fetch_channel(task["channel"])
             message = await channel.fetch_message(task["message"])
