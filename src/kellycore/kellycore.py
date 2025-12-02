@@ -166,7 +166,7 @@ class Kelly:
                 Current status: {current_status}
                 Generate Json dict using kelly response and mood
                 - respect: (-10 : +10) (int)
-                - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/busy/mischevious) (from these only)
+                - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/mischevious) (from these only)
                 - personality_change: {{(personality_name): +/- 10 (int)}}
                 - info: (str) (small info about user behaviour and type)
                 - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
@@ -385,7 +385,6 @@ class Kelly:
             "annoyed": {"kellyannoyed", "kellyidontcare", "kellybored", "kellywatching", "kellycheekspull"},
             "depressed": {"kellydead", "kellycry"},
             "mischievous": {"kellydaydreaming", "kellybweh", "kellyacting", "kellydumbfounded", "kellysimping",},
-            "busy": {"kellysleeping"},
             "sleepy": {"kellytired", "kellyyawn", "kellysleeping", "kellydrooling" },
             "lazy": {"kellytired", "kellysleeping", "kellyyawn", "kellychips"}
         }
