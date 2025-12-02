@@ -158,7 +158,7 @@ class Kelly:
                 kelly_reply = getResponse(message.content, prompt, assistant= assist, client=0)
                 self.memory.storeChatData(message.content, kelly_reply, message.author.id) #Saving chat
                 await msg.delete()
-                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
+                await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
 
             #------ 3. Getting Convo summary------#
             current_status = {"respect": relation,"mood": mood, "persona": persona}
@@ -210,7 +210,7 @@ class Kelly:
         print(f">==MOOD<\n{self.mood.mood}\n>==<")
         print(f">==PERSONALITY<\n{self.personality.persona}\n>==<")
 
-    def getEmoji(self, message):
+    def kellyEmojify(self, message):
         message = str(message)
         emoji_exchanger = {
             # kellytired / kellyyawn / kellysleeping
@@ -408,7 +408,7 @@ class Kelly:
                 async with message.channel.typing():
                     assist = self.memory.getUserChatData(message.author.id) #getting previous chats
                     kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                    await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
+                    await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
                     last_msg = Behaviours[str(message.author.id)][-1]
                     last_msg += kelly_reply
                     Behaviours[str(message.author.id)][-1] = last_msg
@@ -421,7 +421,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChatData(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel     
+                await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
             
         # 25% make friend
         elif roll <= 85:
@@ -429,7 +429,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChatData(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel     
+                await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
             self.memory.addFriend(message.author.id)
         # 15% small reward
         else:
@@ -448,7 +448,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChatData(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel
+                await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
             
         # 25% mute instead of ban
         elif roll <= 85:
@@ -456,7 +456,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChatData(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                await message.reply(self.getEmoji(kelly_reply))  #Replying in channel     
+                await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
                 await self.runCommand(message, {"mute_from_kelly": {"member": message.author, "minutes":ranint(1,15), "reason": self.getEmoji(kelly_reply)}})
         # 15% actual ban
         else:
@@ -464,6 +464,23 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChatData(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                await message.reply(self.getEmoji(kelly_reply))      
+                await message.reply(self.kellyEmojify(kelly_reply))      
                 await self.runCommand(message, {"ban_from_kelly": {"member": message.author, "reason": self.getEmoji(kelly_reply)}})
+        
+    async def remind(self, task):
+        prompt = f"Roleplay Kelly, a Discord Mod (human like with mood and sass). You have to {task['task']} user. Keep chat alive fun and interesting.\nGenerate response in 20 words with 0-4 emojiy."
+        if "uid" in task:
+            try:
+                user = await self.client.fetch_user(task["uid"])
+            except:
+                return
+            em = Embed(color=Color.green())
+            em.description = self.kellyEmojify(getResponse(f"Hey I'm {user.display_name}, {task['task']} me!", prompt))
+            await safe_dm(user, em)
+        try:
+            channel = await self.client.fetch_channel(task["channel"])
+            message = await channel.fetch_message(task["message"])
+        except:
+            return
+        await message.reply(self.kellyEmojify(getResponse(f"{task['task']} user", prompt)))
         
