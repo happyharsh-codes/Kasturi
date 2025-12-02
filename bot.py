@@ -246,7 +246,7 @@ class Bot:
                 em.add_field(name="Author",value=f"{arg.author} ({arg.author.id})",inline=False)
             if isinstance(arg, discord.Member):
                 em.add_field(name="Member",value=f"{arg} ({arg.id})",inline=False)
-            if isinstance(arg, discord.ext.commandsContext):
+            if isinstance(arg, discord.ext.commands.Context):
                 em.add_field(name="Message Content",value=f"`{arg.message.content[:500]}`",inline=False)
                 em.add_field(name="Author",value=f"{arg.author} ({arg.author.id})",inline=False)
             
