@@ -948,9 +948,9 @@ class Moderation(commands.Cog):
                 em1.description = "Features succesfully Set"
                 for i in list(feature.keys()):
                     if i in selected_features:
-                        em1.description += f"\n✅ {i.replace("_","").title()}"
+                        em1.description += f"\n✅ {i.replace('_','').title()}"
                     else:
-                        em1.description += f"\n❌ {i.replace("_","").title()}"
+                        em1.description += f"\n❌ {i.replace('_','').title()}"
                 add_btn.label = "Continue"
                 await msg.edit(embed = em1, view = view)
               except Exception as e:
