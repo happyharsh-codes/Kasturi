@@ -33,7 +33,8 @@ class Giyu:
             webhook = await channel.create_webhook(name="Giyu")
             if isinstance(content, Embed):
                 await webhook.send(content= f"<@{uid}> ", embed=content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
-            await webhook.send(content= f"<@{uid}> " + content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
+            else:
+                await webhook.send(content= f"<@{uid}> " + content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
             await webhook.delete()
         except:
             if isinstance(content, Embed):
