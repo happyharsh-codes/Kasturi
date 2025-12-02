@@ -917,7 +917,7 @@ class Moderation(commands.Cog):
                         self.emoji_spam = Select(custom_id="emoji_spam", placeholder="Select Emoji Limit per message", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,11)])
                         self.add_item(self.emoji_spam)
                     elif feature == "link_filter":
-                        self.link_filter = Select(custom_id="link_filter", placeholder="Select Link filter type", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in ["All Links", "Suspicious Links"])
+                        self.link_filter = Select(custom_id="link_filter", placeholder="Select Link filter type", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in ["All Links", "Suspicious Links"]])
                         self.add_item(self.link_filter)
                     elif feature == "mass_mention_block":
                         self.mass_mention_block = Select(custom_id="mass_mention", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
