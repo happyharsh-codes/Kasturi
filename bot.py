@@ -86,7 +86,7 @@ class Bot:
                     "annoyed": "-# Kelly is so annoyed now 😒"
                 }
                 text = special_lines.get(new_mood, f"Kelly just got a mood change to **{new_mood}**")
-                action_text = self.kelly.getEmoji(action.get(new_mood, f"-# Kelly just got {new_mood}"))
+                action_text = self.kelly.kellyEmojify(action.get(new_mood, f"-# Kelly just got {new_mood}"))
                 if prev_mood == "sleepy":
                     text = "Kelly just woke up from her deep slumber (mood change = woke up)"
                 prompt = (
@@ -219,6 +219,10 @@ class Bot:
         pass
 
     async def on_typing(self, channel, user, when):
+        if not Relation[str(user.id)]:
+            return
+        if randint(1,200) == 101: #Special reward
+            self.kelly.ayaka.addReminder("surprise", channel_id=channel.id, user_id= user.id, delay_minutes=20)     
         if randint(1, 50) == 25:
             try:
                 prompt = (
@@ -306,12 +310,20 @@ class Bot:
                 for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
                     await channel.send(embed=embed)
                     break
-            for channel in guild.text_channels:
-                try:
-                    invite = await channel.create_invite(max_age=0, max_uses=0)
-                    break
-                except:
-                    continue
+            try:
+                for open_invites in await guild.invites():
+                    if open_invites.max_age == 0 and open_invites.max_uses == 0:
+                        invite = open_invite
+                        break
+            except:
+                pass
+            if not invite:
+                for channel in guild.text_channels:
+                    try:
+                        invite = await channel.create_invite(max_age=0, max_uses=0)
+                        break
+                    except:
+                        continue
             if invite:
                 Guild_Invites[str(guild.id)] = str(invite.code)
             
@@ -352,7 +364,6 @@ class Bot:
         await self.send_log(guild, em)
 
     async def on_guild_join(self, guild: discord.Guild):
-        invite = None
         kelly = Button(style = ButtonStyle.link, url = "https://discord.gg/y56na8kN9e", label = "Kelly's Homeland")
         developer = Button(style= ButtonStyle.link, url = "https://github.com/happyharsh-codes", label = "Developer")
         view = View()
@@ -375,7 +386,7 @@ class Bot:
         for channel in guild.text_channels:
             try:
                 invite = await channel.create_invite(max_age=0, max_uses=0)
-                invite = str(invite.code)
+                invite = f"https://discord.gg/{str(invite.code)}"
                 break
             except:
                 continue
@@ -408,8 +419,8 @@ class Bot:
         me = self.client.get_user(894072003533877279)
         invite = Server_Settings[str(guild.id)]["invite_link"]
         if invite == "N/A" and Guild_Invites[str(guild.id)]:
-            invite = Guild_Invite[str(guild.id)]
-            del Guild_Invite[str(guild.id)]
+            invite = Guild_Invites[str(guild.id)]
+            del Guild_Invites[str(guild.id)]
         em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}")
         if banned_by:
             em.add_field(name="Banned By", value=f"{banned_by} ({banned_by.id})")
@@ -759,20 +770,25 @@ class Bot:
         try:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
                 if randint(1,100) == 1: #Surprise
-                    await safe_dm(after, Embed(description=f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. Surprise the user, send a interactive message in 20 words with emojis.")), color = Color.green()))
-                if Relation[str(before.id)]:
-                    if randint(1,5) == 1:
-                        for guilds in self.client.guilds:
-                            member = guilds.get_member(before.id)
-                            if member:
-                                allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
-                                if allowed_channels != []:
-                                    channel = await guilds.fetch_channel(allowed_channels[0])
-                                    if channel:
-                                        await channel.send(f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
-                                else:
-                                    await safe_dm(member, Embed(description=f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")), color = Color.green()))
-                                break
+                    self.kelly.ayaka.addReminder("surprise", user_id= after.id, delay_minutes=10)
+                if not Relation[str(before.id)] or if not Relation[str(before.id)] > 10:
+                    return
+                if randint(1,10) != 1: #10% chance
+                    return
+                for guild in self.client.guilds:
+                    member = guild.get_member(before.id)
+                    if not member:
+                        continue
+                    allowed_channels = Server_Settings[str(guilds.id)]["allowed_channels"]
+                    if allowed_channels != []:
+                        try:
+                            channel = await guilds.fetch_channel(allowed_channels[0])
+                            await channel.send(f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
+                        except:
+                            await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
+                    else:
+                        await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
+                    return
         except Exception as e:
             await self.client.get_user(894072003533877279).send(f"Exception on presence change: {e}")
 
@@ -822,11 +838,11 @@ class Bot:
             if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
                 if content.startswith(("kasturi ", "kelly ", "k ")):
                     if content.startswith("k "):
-                        message.content = content.replce("k", "???", 1)
+                        message.content = content.repalce("k", "???", 1)
                     elif content.startswith("kelly "):
-                        message.content = content.replce("kelly", "???", 1)
+                        message.content = content.repalce("kelly", "???", 1)
                     elif content.startswith("kastuti "):
-                        message.content = content.replce("kasturi", "???", 1)          
+                        message.content = content.repalce("kasturi", "???", 1)          
                     await self.client.process_commands(message)
                 else:
                     await self.kelly.kellyQuery(message)
@@ -906,11 +922,11 @@ class Bot:
                 return
             if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
                 if content.startswith("k "):
-                    message.content = content.replce("k", "???", 1)
+                    message.content = content.repalce("k", "???", 1)
                 elif content.startswith("kelly "):
-                    message.content = content.replce("kelly", "???", 1)
+                    message.content = content.repalce("kelly", "???", 1)
                 elif content.startswith("kastuti "):
-                    message.content = content.replce("kasturi", "???", 1)          
+                    message.content = content.repalce("kasturi", "???", 1)          
                 await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
             await self.kelly.kellyQuery(message)
@@ -1274,7 +1290,7 @@ class Bot:
         try:
             await ctx._typing.__aexit__(None, None, None)
             if randint(1,100) == 1:
-                self.kelly.ayaka.addReminder("surprise", ctx.message, 10)
+                self.kelly.ayaka.addReminder("surprise", message_id=ctx.message.id, channel_id=ctx.message.channel.id, user_id= ctx.author.id, delay_minutes=10)
         except Exception:
             pass
 
