@@ -16,7 +16,7 @@ from json import load, dump, loads
 from random import choice, randint, choices
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, Context
 from discord.ui import View, Button, Select, TextInput
 from discord import Guild, Interaction, ButtonStyle, Embed, Color, SelectOption, TextStyle
 
