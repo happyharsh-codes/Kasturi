@@ -132,13 +132,13 @@ class Giyu:
 
         #Slespy
         elif mood["sleepy"] > 90:
-            prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
-            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
-            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             if "Server owner" in type:
                 return True
             if "Moderator" in type and randint (1,5) == 1:
                 return True
+            prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             return False
 
         #Finally Let talk with Kelly 🤣 
