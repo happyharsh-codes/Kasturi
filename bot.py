@@ -95,7 +95,7 @@ class Bot:
                 )
                 loop = asyncio.get_event_loop()
                 response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
-                message = self.kelly.getEmoji(response)
+                message = self.kelly.kellyEmojify(response)
 
             for gid, settings in Server_Settings.items():
                 try:
@@ -118,7 +118,7 @@ class Bot:
                                 )
                                 loop = asyncio.get_event_loop()
                                 response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
-                                await channel.send(self.kelly.getEmoji(response))
+                                await channel.send(self.kelly.kellyEmojify(response))
                         except Exception as e:
                             await self.client.get_user(894072003533877279).send(f"Exception on Mood change: {e}")
                 else:
