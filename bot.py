@@ -838,11 +838,11 @@ class Bot:
             if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
                 if content.startswith(("kasturi ", "kelly ", "k ")):
                     if content.startswith("k "):
-                        message.content = content.repalce("k", "???", 1)
+                        message.content = content.replace("k", "???", 1)
                     elif content.startswith("kelly "):
-                        message.content = content.repalce("kelly", "???", 1)
+                        message.content = content.replace("kelly", "???", 1)
                     elif content.startswith("kastuti "):
-                        message.content = content.repalce("kasturi", "???", 1)          
+                        message.content = content.replace("kasturi", "???", 1)          
                     await self.client.process_commands(message)
                 else:
                     await self.kelly.kellyQuery(message)
@@ -922,11 +922,11 @@ class Bot:
                 return
             if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
                 if content.startswith("k "):
-                    message.content = content.repalce("k", "???", 1)
+                    message.content = content.replace("k", "???", 1)
                 elif content.startswith("kelly "):
-                    message.content = content.repalce("kelly", "???", 1)
+                    message.content = content.replace("kelly", "???", 1)
                 elif content.startswith("kastuti "):
-                    message.content = content.repalce("kasturi", "???", 1)          
+                    message.content = content.replace("kasturi", "???", 1)          
                 await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
             await self.kelly.kellyQuery(message)
