@@ -38,25 +38,26 @@ class Bot:
     # ------------- TASK LOOPS -------------
 
     @tasks.loop(minutes=1)
-    async def unmute(self):
-        for guild_id, settings in Server_Settings.items():
-            for muted_id, duration in list(settings["muted"].items()):
-                if datetime.fromisoformat(duration) < datetime.now(UTC):
+    async def universal_loop(self):
+        #Unmuting users
+        for guild_id in list(Server_Settings.values()):
+            settings = Server_Settings[guild_id]
+            for muted_id in list(settings["muted"].keys()):
+                if datetime.fromisoformat(settings["muted"][muted_id]) < datetime.now():
                     # Remove expired mute
-                    settings["muted"].pop(muted_id)
+                    del settings["muted"][muted_id]
+                    user = await self.client.fetch_user(int(muted_id))
+                    em = Embed(title="✅ You’ve Been Unmuted",description="**Reason:** Mute expired.\nYou may chat again. Please follow the server rules and behave.",color=Color.green())
+                    em.set_footer(text="Please refrain from sending messages like this. Future violations may result in a ban.")
+                    em.set_author(name=user.name, icon_url=user.avatar)
+                    await safe_dm(user,em)
+                    Server_Settings[guild_id] = settings
 
-                    try:
-                        user = await self.client.fetch_user(int(muted_id))
-                        em = Embed(
-                            title="✅ You’ve Been Unmuted",
-                            description="**Reason:** Mute expired.\nYou may chat again. Please follow the server rules and behave.",
-                            color=Color.green()
-                        )
-                        em.set_footer(text="Please refrain from sending messages like this. Future violations may result in a ban.")
-                        em.set_author(name=user.name, icon_url=user.avatar)
-                        await safe_dm(user,em)
-                    except Exception as dm_error:
-                        print(f"Could not DM {muted_id}: {dm_error}")
+        #Tasks and Reminders
+        await self.kelly.ayaka.performTasks()
+        reminders = self.kelly.getReminders()
+        for task in reminders:
+            await self.kelly.remind(task)   
 
     @tasks.loop(minutes=2)
     async def mood_swings(self):
@@ -126,11 +127,7 @@ class Bot:
                             await channel.send(action_text)
                             await channel.send(message, delete_after=120)
         except Exception as e:
-            await self.client.get_user(894072003533877279).send(f"Exception on Mood change: {e}")
-
-    @tasks.loop(minutes=3)
-    async def kellyReminders(self):
-        pass
+            await self.me.send(f"Exception on Mood change: {e}")
         
     # ------------- EVENTS -------------
 
@@ -287,8 +284,7 @@ class Bot:
         print(f"Bot is ready. Logged in as {self.client.user}")
         print("We are ready to go!")
         self.mood_swings.start()
-        self.unmute.start()
-        self.kellyReminders.start()
+        self.universal_loop.start()
         self.me = self.client.get_user(894072003533877279)
         if not self.me:
             try:
@@ -762,7 +758,9 @@ class Bot:
     async def on_presence_update(self, before, after):
         try:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
-                if Relation[str(before.id)] and Relation[str(before.id)] > 10:
+                if randint(1,100) == 1: #Surprise
+                    await safe_dm(member, Embed(description=f"{member.mention} " + self.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. Surprise the user, send a interactive message in 20 words with emojis.")), color = Color.green()))
+                if Relation[str(before.id)]:
                     if randint(1,5) == 1:
                         for guilds in self.client.guilds:
                             member = guilds.get_member(before.id)
@@ -771,7 +769,9 @@ class Bot:
                                 if allowed_channels != []:
                                     channel = await guilds.fetch_channel(allowed_channels[0])
                                     if channel:
-                                        await channel.send(f"{member.mention} " + getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a welcome message in 20 words or less.", client=0))
+                                        await channel.send(f"{member.mention} " + self.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
+                                else:
+                                    await safe_dm(member, Embed(description=f"{member.mention} " + self.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")), color = Color.green()))
                                 break
         except Exception as e:
             await self.client.get_user(894072003533877279).send(f"Exception on presence change: {e}")
@@ -798,6 +798,10 @@ class Bot:
         #Ignoring non text messages
         if message.content == "":
             return
+        #Running Secret commands
+        if messages.content.startswith("??? "):
+            await self.client.process_commands(message)
+            return
         
         # ===== REPLIES ====
         if message.reference and message.reference.message_id:
@@ -815,9 +819,18 @@ class Bot:
                  
         # ===== DM MESSAGES ==== 
         if isinstance(message.channel, discord.DMChannel):
-            await self.kelly.kellyQuery(message)
-            return
-                
+            if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
+                if content.startswith(("kasturi ", "kelly ", "k ")):
+                    if content.startswith("k "):
+                        message.content = content.replce("k", "???", 1)
+                    elif content.startswith("kelly "):
+                        message.content = content.replce("kelly", "???", 1)
+                    elif content.startswith("kastuti "):
+                        message.content = content.replce("kasturi", "???", 1)          
+                    await self.client.process_commands(message)
+                else:
+                    await self.kelly.kellyQuery(message)
+            
         metadata = Server_Settings[str(guild.id)]
         
         #Deleting banned words
@@ -896,9 +909,9 @@ class Bot:
                     message.content = content.replce("k", "???", 1)
                 elif content.startswith("kelly "):
                     message.content = content.replce("kelly", "???", 1)
-                 if content.startswith("kastuti "):
+                elif content.startswith("kastuti "):
                     message.content = content.replce("kasturi", "???", 1)          
-                await self.self.client.process_commands(message)
+                await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi"):
             await self.kelly.kellyQuery(message)
         print("Latency: ", (time.time() - start))
@@ -1260,6 +1273,8 @@ class Bot:
     async def after_any_command(self, ctx):
         try:
             await ctx._typing.__aexit__(None, None, None)
+            if randint(1,100) == 1:
+                await self.kelly.ayaka.addReminder("surprise", ctx.message, 10)
         except Exception:
             pass
 
@@ -1270,6 +1285,11 @@ class Bot:
                 await ctx._typing.__aexit__(None, None, None)
             except:
                 pass
+        if ctx.guild is None:
+            if isinstance(error, (AttributeError, commands.NoPrivateMessage)):
+                return await ctx.send(embed=Embed(title="🚫 No Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
+            if "NoneType" in str(error) and "guild" in str(error):
+                return await ctx.send(embed=Embed(title="🚫 Not a Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
         if isinstance(error, commands.CommandNotFound):
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
@@ -1288,6 +1308,10 @@ class Bot:
             await ctx.reply(embed=em)
         elif isinstance(error,commands.CommandOnCooldown):
             await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
+        elif isinstance(error,commands.MaxConcurrencyReached):
+            return await ctx.send("Too many command usage", delete_after = 4)
+        elif isinstance(error,commands.NotOwner):
+            return await ctx.send("You are not the owner")
         elif isinstance(error, commands.MissingRequiredArgument):
             view = View(timeout =60)
             async def on_timeout():
@@ -1310,7 +1334,7 @@ class Bot:
                 return
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
             em = Embed(title="❌ Permission Denied", description=f"You don’t have permission to use this command. {choice(list(EMOJI.values()))}\n**Required:**\n```{perms}```",color=Color.red())
-            await ctx.send(embed=em)
+            return await ctx.send(embed=em)
 
         elif isinstance(error, commands.CheckFailure):
             pass
