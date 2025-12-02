@@ -72,7 +72,6 @@ class Bot:
                     "angry": "Kelly is fuming right now 🔥 with anger (mood change = angry)",
                     "sad": "Kelly feels a bit emotional 💔 so sad (mood change = sad)",
                     "mischievous": "Kelly is up to something suspicious 😼 (mood change = mischievous)",
-                    "busy": "Kelly is too busy for your nonsense ⏳ (mood change = busy)",
                     "lazy": "Kelly is too lazy to even get her ass up right now (mood change = lazy)",
                     "depressed": "Kelly is so depressed needs someone to comfort her (mood change = depressed)"
                 }
@@ -80,7 +79,6 @@ class Bot:
                     "sleepy": "-# Kelly is sleeping 😴",
                     "depressed": "-# Kelly is depressed 😔",
                     "angry": "-# Kelly is angry 😡",
-                    "busy": "-# Kelly has gone busy",
                     "lazy": "-# Kelly is too lazy to respond now 😪",
                     "sad": "-# Kelly is so sad right now 😭",
                     "mischievous": "-# Kelly is feeling a little mischievous 😉",
@@ -88,7 +86,7 @@ class Bot:
                 }
                 text = special_lines.get(new_mood, f"Kelly just got a mood change to **{new_mood}**")
                 action_text = self.kelly.getEmoji(action.get(new_mood, f"-# Kelly just got {new_mood}"))
-                if new_mood == "happy" and prev_mood == "sleepy":
+                if prev_mood == "sleepy":
                     text = "Kelly just woke up from her deep slumber (mood change = woke up)"
                 prompt = (
                     "Roleplay Kelly, a cute Discord Mod (human like with mood and sass)."
