@@ -883,14 +883,23 @@ class Bot:
                 await channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho', 'Hello', 'Yoo'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate`.", delete_after = 10)
         
         # Otherwise, only handle messages with valid prefixes
-        if content.startswith(("kasturi ", "kelly ", "k ")) or any(x in content for x in ("kelly", "kasturi")):
+        if content.startswith(("kasturi ", "kelly ", "k ")):
+            
             #cheking for Administrator Permission given or not
             bot_member = message.guild.me
             if not Server_Settings[str(message.guild.id)]["premium"] and not bot_member.guild_permissions.administrator:
                 em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
                 await message.channel.send(embed=em)
                 return
-            message.content = content
+            if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
+                if content.startswith("k "):
+                    message.content = content.replce("k", "???", 1)
+                elif content.startswith("kelly "):
+                    message.content = content.replce("kelly", "???", 1)
+                 if content.startswith("kastuti "):
+                    message.content = content.replce("kasturi", "???", 1)          
+                await self.self.client.process_commands(message)
+        elif any(x in content for x in ("kelly", "kasturi"):
             await self.kelly.kellyQuery(message)
         print("Latency: ", (time.time() - start))
         return
@@ -1241,8 +1250,8 @@ class Bot:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
             if randint(1, 10) == 8:
                 await ctx.send(choice(TIP))
-        except Exception:
-            pass
+        except Exception as e:
+            await self.me.send(f"Exception on command completion: {e}")
 
     async def before_any_command(self, ctx):
         ctx._typing = ctx.channel.typing()
@@ -1265,7 +1274,7 @@ class Bot:
             ctx.message.content = ctx.message.content[3:]
             await self.kelly.kellyQuery(ctx.message)
             if randint(1,10) == 8:
-                await ctx.send(choice(list(TIP.values())))
+                await ctx.send(choice(TIP))
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
             em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
             await ctx.send(embed= em)
