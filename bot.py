@@ -815,7 +815,7 @@ class Bot:
         if message.content == "":
             return
         #Running Secret commands
-        if message.content.startswith("??? "):
+        if message.content.startswith("???"):
             await self.client.process_commands(message)
             return
         
@@ -838,14 +838,15 @@ class Bot:
             if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
                 if content.startswith(("kasturi ", "kelly ", "k ")):
                     if content.startswith("k "):
-                        message.content = content.replace("k", "???", 1)
+                        message.content = content.replace("k ", "???", 1)
                     elif content.startswith("kelly "):
-                        message.content = content.replace("kelly", "???", 1)
+                        message.content = content.replace("kelly ", "???", 1)
                     elif content.startswith("kastuti "):
-                        message.content = content.replace("kasturi", "???", 1)          
+                        message.content = content.replace("kasturi ", "???", 1)          
                     await self.client.process_commands(message)
                 else:
                     await self.kelly.kellyQuery(message)
+            return
             
         metadata = Server_Settings[str(guild.id)]
         
@@ -1307,7 +1308,7 @@ class Bot:
             if "NoneType" in str(error) and "guild" in str(error):
                 return await ctx.send(embed=Embed(title="🚫 Not a Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
         if isinstance(error, commands.CommandNotFound):
-            ctx.message.content = ctx.message.content[3:]
+            ctx.message.content = ctx.message.replace("???", "Kelly ")
             await self.kelly.kellyQuery(ctx.message)
             if randint(1,10) == 8:
                 await ctx.send(choice(TIP))
