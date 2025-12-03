@@ -177,7 +177,10 @@ class Moderation(commands.Cog):
         action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
         mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(5,61, 5)], max_values=1, min_values=1)
         roles = [SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role and not "everyone" in role.name]
-        role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
+        if not roles:
+            role_add_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", val="no val")], max_values=1, min_values=1)
+        else:
+            role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
         add = Button(style = ButtonStyle.green, label= "Add", custom_id="add", disabled = True)
         done = Button(style = ButtonStyle.secondary, label= "Done", custom_id="done")
        
@@ -731,6 +734,7 @@ class Moderation(commands.Cog):
             Server_Settings[str(ctx.guild.id)]["welcome_channel"] = welcome_channel
             Server_Settings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
             Server_Settings[str(ctx.guild.id)]["welcome_message"] = welcome_message
+            view.timeout = None
             await interaction.response.edit_message(embeds=[em,em2], view = None)
            
         async def timeout():
@@ -901,7 +905,7 @@ class Moderation(commands.Cog):
             
         add_btn = Button(style=ButtonStyle.green, label="Add Features", custom_id="add", disabled=True)
         skip_btn = Button(style=ButtonStyle.secondary, label="Skip", custom_id="skip")
-        feature_select = Select(custom_id="feature", placeholder="Select Features to Enable", options=[SelectOption(label=i.title(),value=i) for i in list(feature.keys())], max_values=9, min_values=1)
+        feature_select = Select(custom_id="feature", placeholder="Select Features to Enable", options=[SelectOption(label=i.replace("_","").title(),value=i) for i in list(feature.keys())], max_values=9, min_values=1)
         raid_nuke_select = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in raid_nuke], max_values=6, min_values=1)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
 
@@ -1056,6 +1060,8 @@ class Moderation(commands.Cog):
                 if option.value in selected_values:
                     option.default = True
             add_btn.disabled = False
+            await inter.response.edit_message(embed=em, view=view)
+            
             
         async def on_feature_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -1066,7 +1072,8 @@ class Moderation(commands.Cog):
                 if option.value in selected_values:
                     option.default = True
             add_btn.disabled = False
-            
+            await inter.response.edit_message(embed=em, view=view)
+
         async def on_channel_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -1076,7 +1083,8 @@ class Moderation(commands.Cog):
                 if option.value in selected_values:
                     option.default = True
             add_btn.disabled = False
-            
+            await inter.response.edit_message(embed=em, view=view)
+
         async def timeout():
             nonlocal view, msg
             em = msg.embeds[0]
@@ -1113,7 +1121,11 @@ class Moderation(commands.Cog):
             return await ctx.send(embed=Embed(description=":x: You must set a Rank Channel first.\nUse `k set_rank_channel`.",color=Color.red()))
 
         reward_select = Select(custom_id="reward_type",placeholder="Select Reward Type",options=[SelectOption(label=i, value=i) for i in ["Role", "Cash", "Aura", "Gems", "Nitro"]],max_values=1,min_values=1,disabled=False)
-        role_select = Select(custom_id="role_add",placeholder="Select Role",options=[SelectOption(label=role.name, value=str(role.id)) for role in ctx.guild.roles],max_values=1,min_values=1)
+        roles = [SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role and not "everyone" in role.name]
+        if not roles:
+            role_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", val="no val")], max_values=1, min_values=1)
+        else:
+            role_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
         add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add", disabled=True)
         done_btn = Button(style=ButtonStyle.secondary, label="Done", custom_id="done")
 
@@ -1213,6 +1225,12 @@ class Moderation(commands.Cog):
             if rank_reward:
                 txt = ""
                 for level, reward in rank_reward.items():
+                    if reward[0] == "Role":
+                        try:
+                            role = await ctx.guild.fetch_role(int(reward[1]))
+                            reward[1] = role.name
+                        except:
+                            pass
                     txt += f"• Level {level} → {reward[0]}: {reward[1]}\n"
             else:
                 txt = "No rewards set yet."
