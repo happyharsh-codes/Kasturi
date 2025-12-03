@@ -896,13 +896,13 @@ class Bot:
         automod = metadata["automod"]
         
         # ===== MODERATION ====
-        if Server_Settings[str(guild.id)]["automod"]["chat_rate_limiter"] and not await self.chat_rate_limiter(message): return 
-        if Server_Settings[str(guild.id)]["automod"]["emoji_spam"] and not await self.emoji_spam(message): return
-        if Server_Settings[str(guild.id)]["automod"]["mass_mention_block"] and not await self.mass_mention_block(message): return
-        if Server_Settings[str(guild.id)]["automod"]["caps_block"] and not await self.caps_block(message): return
-        if Server_Settings[str(guild.id)]["automod"]["link_filter"] and not await self.link_filter(message): return
-        if Server_Settings[str(guild.id)]["automod"]["nsfw_filter"] and not await self.nsfw_filter(message): return
-        if Server_Settings[str(guild.id)]["automod"]["duplicate_detector"] and not await self.duplicate_detector(message): return
+        if automod.get("chat_rate_limiter") and not await self.chat_rate_limiter(message): return 
+        if automod.get("emoji_spam") and not await self.emoji_spam(message): return
+        if automod.get("mass_mention_block") and not await self.mass_mention_block(message): return
+        if automod.get("caps_block") and not await self.caps_block(message): return
+        if automod.get("link_filter") and not await self.link_filter(message): return
+        if automod.get("nsfw_filter") and not await self.nsfw_filter(message): return
+        if automod.get("duplicate_detector") and not await self.duplicate_detector(message): return
         
         # ===== Deleting banned words ====
         for word in metadata["banned_words"]:
