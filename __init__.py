@@ -153,7 +153,9 @@ default_sv_settings = {
     "rank": {},
     "rank_channel": 0,
     "rank_reward": {},
-    "join/leave_channel": 0,
+    "automod": {},
+    "protections": {},
+    "welcome_channel": 0,
     "welcome_message": "",
     "welcome_image": 1,
     "social": {
@@ -166,7 +168,6 @@ default_sv_settings = {
     "afk": [],
     "warn": {},
     "warn_action": {},
-    "friends": [],
     "logging": 0
 }
 
