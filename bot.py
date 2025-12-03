@@ -934,7 +934,7 @@ class Bot:
         
         # ===== Giving xp ====
         if metadata["rank_channel"] != 0:
-            if metadata["rank"][str(author.id)]:
+            if str(author.id) in metadata["rank"]:
                 total_xp = metadata["rank"][str(author.id)]
                 level = (math.sqrt(1+8*(total_xp//15)) -1)//2
                 max_xp = ((level+1)*(level+2)*15)//2
