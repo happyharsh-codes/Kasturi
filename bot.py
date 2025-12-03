@@ -60,37 +60,37 @@ class Bot:
             Last[session_id] = [datetime.now().isoformat()]
         return True
         
-    async def emoji_spam(message):
+    async def emoji_spam(self, message):
         emoji_limit = Server_Settings[str(guild.id)]["automod"]["emoji_spam"]
         if not emoji_limit:
             return True
         return False
 
-    async def mass_mention_block(message):
+    async def mass_mention_block(self, message):
         mass_mention_block = Server_Settings[str(guild.id)]["automod"]["mass_mention_block"]
         if not mass_mention_block:
             return True
         return False
 
-    async def caps_block(message):
+    async def caps_block(self, message):
         caps_block = Server_Settings[str(guild.id)]["automod"]["caps_block"]
         if not caps_block:
             return True
         return False
         
-    async def link_filter(message):
+    async def link_filter(self, message):
         link_filter = Server_Settings[str(guild.id)]["automod"]["link_filter"]
         if not link_filter:
             return True
         return False
         
-    async def nsfw_filter(message):
+    async def nsfw_filter(self, message):
         link_filter = Server_Settings[str(guild.id)]["automod"]["link_filter"]
         if not link_filter:
             return True
         return False
 
-    async def duplicate_detector(message):
+    async def duplicate_detector(self, message):
         duplicate_detector = Server_Settings[str(guild.id)]["automod"]["duplicate_detector"]
         if not duplicate_detector:
             return True
