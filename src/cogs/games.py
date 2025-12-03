@@ -62,7 +62,7 @@ legendary: 50%
 """
 
 
-def quick_embed(title, description, color, footer=None, avatar=None):
+def action_embed(title, description, color, footer=None, avatar=None):
     em = Embed(title=title, description=description, color=color)
     if footer:
         em.set_footer(text=footer, icon_url=avatar)
