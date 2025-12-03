@@ -142,7 +142,7 @@ class Moderation(commands.Cog):
         embed = action_embed(ctx, "⚠️ Member Warned", f"{member.mention}\n**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}")
         await ctx.send(embed=embed)
         
-        if Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)]:
+        if Server_Settings[str(ctx.guild.id)]["warn"].get(str(member.id)):
             Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)] += 1
         else:
             Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)] = 1
@@ -221,6 +221,7 @@ class Moderation(commands.Cog):
             await interaction.response.edit_message(view=view)
         
         async def on_action_select(interaction: Interaction):
+          try:
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return
@@ -228,21 +229,20 @@ class Moderation(commands.Cog):
             values = interaction.data.get("values", [])
             for option in action_select.options:
                 option.default = option.value in values
-            if "Mute" in values or "Assign Role" in values:
-                if "Mute" in values:
-                    item = mute_duration_select
-                else:
-                    item = role_add_select
-                view.clear_items()
-                view.add_item(warn_no_select)
-                view.add_item(action_select)
-                view.add_item(item)
-                view.add_item(add)
-            else:
-                add.disabled = False
+            view.clear_items()
+            view.add_item(warn_no_select)
+            view.add_item(action_select)
+            if "Mute" in values:
+                view.add_item(mute_duration_select)
+            elif "Assign Role" in values:
+                view.add_item(mute_duration_select)
+            view.add_item(add)
+            add.disabled = False
             
             await interaction.response.edit_message(view=view)
-        
+          except Exception as e:
+            await interaction.client.get_user(894072003533877279).send(e)
+                
         async def on_mute_duration_select(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
@@ -1086,7 +1086,7 @@ class Moderation(commands.Cog):
         raid_nuke_select.callback = on_raid_nuke_select
         feature_select.callback = on_feature_select
         channel_select.callback = on_channel_select
-        view.on_timeout = on_timeout
+        view.on_timeout = timeout
         
         msg = await ctx.send(embed=em1, view=view)
         
