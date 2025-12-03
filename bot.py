@@ -1352,7 +1352,7 @@ class Bot:
             if Server_Settings[str(ctx.guild.id)]["premium"] < 0:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
             if randint(1, 10) == 8:
-                self.kelly.ayaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=ranint(1,25))
+                self.kelly.ayaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
         except Exception as e:
             await self.me.send(f"Exception on command completion: {e}")
 
