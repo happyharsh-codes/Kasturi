@@ -1117,7 +1117,7 @@ class Moderation(commands.Cog):
         done_btn = Button(style=ButtonStyle.secondary, label="Done", custom_id="done")
 
         class RankModal(discord.ui.Modal):
-            def __init__(self, reward_type):
+            async def __init__(self, reward_type):
               try:
                 super().__init__(title="Add Rank Reward")
                 self.input_box = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
