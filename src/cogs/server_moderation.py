@@ -731,7 +731,7 @@ class Moderation(commands.Cog):
             Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
             Server_Settings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
             Server_Settings[str(ctx.guild.id)]["welcome_message"] = welcome_message
-            await interaction.response.edit_message(embeds=[em,em2])
+            await interaction.response.edit_message(embeds=[em,em2], view = None)
            
         async def timeout():
             nonlocal msg, em, view 
@@ -1095,7 +1095,7 @@ class Moderation(commands.Cog):
         feature_select.callback = on_feature_select
         channel_select.callback = on_channel_select
         
-        msg = await ctx.send(embed=em1, view=view)
+        msg = await ctx.send(embed=embeds[0], view=view)
         
     # ===== RANK REWARD ====
 
@@ -1234,6 +1234,7 @@ class Moderation(commands.Cog):
             await inter.response.edit_message(view=view)
 
         async def on_add(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal RankModal, reward_select, add_btn
@@ -1245,7 +1246,9 @@ class Moderation(commands.Cog):
             add_btn.disabled = True
             modal = RankModal(reward)
             await inter.response.send_modal(modal)
-    
+          except Exception as e:
+            await interaction.client.get_user(894072003533877279).send(e)
+ 
         async def on_done(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
