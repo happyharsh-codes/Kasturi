@@ -1227,8 +1227,9 @@ class Moderation(commands.Cog):
                 for level, reward in rank_reward.items():
                     if reward[0] == "Role":
                         try:
-                            role = await ctx.guild.fetch_role(int(reward[1]))
-                            reward[1] = role.name
+                            role = ctx.guild.get_role(int(reward[1]))
+                            if role:
+                                reward[1] = role.name
                         except:
                             pass
                     txt += f"• Level {level} → {reward[0]}: {reward[1]}\n"
