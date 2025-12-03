@@ -881,7 +881,7 @@ class Bot:
             return
 
         # ===== MODERATION ====
-        if not await self.chat_rate_limiter(self, message): return 
+        if not await self.chat_rate_limiter(message): return 
         if not await self.emoji_spam(message): return
         if not await self.mass_mention_block(message): return
         if not await self.caps_block(message): return
