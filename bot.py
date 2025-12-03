@@ -613,7 +613,7 @@ class Bot:
         await self.send_log(guild, em)
 
     async def on_member_join(self, member: discord.Member):
-        if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
+        if Server_Settings[str(member.guild.id)]["welcome_channel"]:
             welcome_message = Server_Settings[str(member.guild.id)]["welcome_message"]
             part1 = welcome_message.split('\n')[0]
             em = Embed(title= f"<:heeriye:1428773558062153768> **{part1}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
@@ -659,7 +659,7 @@ class Bot:
         await self.send_log(member.guild, em)
         
     async def on_member_remove(self, member: discord.Member):
-        if Server_Settings[str(member.guild.id)]["join/leave_channel"]:
+        if Server_Settings[str(member.guild.id)]["welcome_channel"]:
             em = Embed(title=f"**{member.name} left the server**", description=f"We are sorry to see you leave!\nHope you'd come back soon.", color= Color.dark_gray())
             em.set_author(name= member.name, icon_url = member.avatar)
             em.set_thumbnail(url= member.avatar)
