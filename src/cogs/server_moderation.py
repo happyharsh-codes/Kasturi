@@ -178,7 +178,7 @@ class Moderation(commands.Cog):
         mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(5,61, 5)], max_values=1, min_values=1)
         roles = [SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role and not "everyone" in role.name]
         if not roles:
-            role_add_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", val="no val")], max_values=1, min_values=1)
+            role_add_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
             role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
         add = Button(style = ButtonStyle.green, label= "Add", custom_id="add", disabled = True)
@@ -997,7 +997,6 @@ class Moderation(commands.Cog):
             nonlocal embeds, msg, view, page, add_btn, skip_btn, feature_select, raid_nuke_select, channel_select, raid_nuke, feature
             page += 1
             em = embeds[page-1]
-            em.title += f" {page}/5"
             btn = inter.data.get("custom_id")
             if page == 1:
                 if btn == "skip":
@@ -1009,7 +1008,8 @@ class Moderation(commands.Cog):
                         if option.default:
                             selected_features.append(option.value)
                     modal = AutomodModal(selected_features)
-                    return await inter.response.send_modal(modal)
+                    await inter.response.send_modal(modal)
+                    return
             if page == 2:
                 view.clear_items()
                 view.add_item(raid_nuke_select)
@@ -1123,7 +1123,7 @@ class Moderation(commands.Cog):
         reward_select = Select(custom_id="reward_type",placeholder="Select Reward Type",options=[SelectOption(label=i, value=i) for i in ["Role", "Cash", "Aura", "Gems", "Nitro"]],max_values=1,min_values=1,disabled=False)
         roles = [SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role and not "everyone" in role.name]
         if not roles:
-            role_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", val="no val")], max_values=1, min_values=1)
+            role_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
             role_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
         add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add", disabled=True)
