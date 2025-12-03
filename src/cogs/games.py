@@ -156,17 +156,13 @@ class Games(commands.Cog):
 
         description = ""
         if level1 != "<:common:> ":
-            description += f"{level1}
-"
+            description += f"{level1}\n"
         if level2 != "<:unique:> ":
-            description += f"{level2}
-"
+            description += f"{level2}\n"
         if level3 != "<:rare:> ":
-            description += f"{level3}
-"
+            description += f"{level3}\n"
         if level4 != "<:epic:> ":
-            description += f"{level4}
-"
+            description += f"{level4}\n"
         if level5 != "<:legendary:> ":
             description += f"{level5}"
         return description.strip()
@@ -186,12 +182,9 @@ class Games(commands.Cog):
             user = ctx.author
         profile = Profiles[str(user.id)]
         descrip = (
-            f"Wallet:
-"
-            f"**Cash**: {profile['assets'].get('cash', 0)}
-"
-            f"**Gems**: {profile['assets'].get('gems', 0)}
-"
+            f"Wallet:\n"
+            f"**Cash**: {profile['assets'].get('cash', 0)}\n"
+            f"**Gems**: {profile['assets'].get('gems', 0)}\n"
             f"**Orbs**: {profile['assets'].get('orb', 0)}"
         )
         em = action_embed(
@@ -209,12 +202,9 @@ class Games(commands.Cog):
     async def balance(self, ctx):
         profile = Profiles[str(ctx.author.id)]
         descrip = (
-            f"Wallet:
-"
-            f"**Cash**: {profile['assets'].get('cash', 0)}
-"
-            f"**Gems**: {profile['assets'].get('gems', 0)}
-"
+            f"Wallet:\n"
+            f"**Cash**: {profile['assets'].get('cash', 0)}\n"
+            f"**Gems**: {profile['assets'].get('gems', 0)}\n"
             f"**Orbs**: {profile['assets'].get('orb', 0)}"
         )
         em = action_embed(
@@ -256,8 +246,7 @@ class Games(commands.Cog):
                 break_line += 1
                 if break_line == 3:
                     break_line = 0
-                    descrip += "
-"
+                    descrip += "\n"
             if not descrip:
                 descrip = "No items in this category"
             em.description = f"``````"
@@ -373,12 +362,9 @@ class Games(commands.Cog):
                 return
             needed_skills = DATA["jobs"].get(option.value, [])
             descrip = (
-                f"**{option.label}** {option.emoji}
-"
-                f"{option.description}
-"
-                f"**Skills Required**: {', '.join(needed_skills) if needed_skills else 'None'}
-"
+                f"**{option.label}** {option.emoji}\n"
+                f"{option.description}\n"
+                f"**Skills Required**: {', '.join(needed_skills) if needed_skills else 'None'}\n"
                 f"**Salary**: {salary[option.value]}"
             )
             em.description = descrip
@@ -492,12 +478,9 @@ class Games(commands.Cog):
                 return
             jobs = [x for x in DATA["jobs"] if option.value in DATA["jobs"][x]]
             descrip = (
-                f"**{option.label}** {option.emoji}
-"
-                f"{option.description}
-"
-                f"**Jobs Offered**: {', '.join(jobs) if jobs else 'None'}
-"
+                f"**{option.label}** {option.emoji}\n"
+                f"{option.description}\n"
+                f"**Jobs Offered**: {', '.join(jobs) if jobs else 'None'}\n"
                 f"**Time**: {time_req[option.value]} seconds"
             )
             em.description = descrip
@@ -574,8 +557,7 @@ class Games(commands.Cog):
         self.add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Hunt",
-            description=f"You went hunting in the {loc.capitalize()} and got:
-{self.rewards_descrip(rewards)}",
+            description=f"You went hunting in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -608,8 +590,7 @@ class Games(commands.Cog):
         self.add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Chopping",
-            description=f"You went chopping in the {loc.capitalize()} and got:
-{self.rewards_descrip(rewards)}",
+            description=f"You went chopping in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -638,8 +619,7 @@ class Games(commands.Cog):
         self.add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Farm",
-            description=f"You worked on the farm in the {loc.capitalize()} and got:
-{self.rewards_descrip(rewards)}",
+            description=f"You worked on the farm in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -668,8 +648,7 @@ class Games(commands.Cog):
         self.add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Mine",
-            description=f"You went mining in the {loc.capitalize()} and got:
-{self.rewards_descrip(rewards)}",
+            description=f"You went mining in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -699,8 +678,7 @@ class Games(commands.Cog):
         self.add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Fish",
-            description=f"You went fishing in the {loc.capitalize()} and got:
-{self.rewards_descrip(rewards)}",
+            description=f"You went fishing in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -735,8 +713,7 @@ class Games(commands.Cog):
         place_manager(str(ctx.author.id), loc)
         em = Embed(
             title="Adventure",
-            description=f"You went on adventuring in the {loc.capitalize()} and got:
-{self.rewards_descrip(rewards)}",
+            description=f"You went on adventuring in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -770,8 +747,7 @@ class Games(commands.Cog):
         place_manager(str(ctx.author.id), loc)
         em = Embed(
             title="Explore",
-            description=f"You explored around {loc.capitalize()} and got:
-{self.rewards_descrip(rewards)}",
+            description=f"You explored around {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -982,11 +958,9 @@ class Games(commands.Cog):
             total_needed = value * qty
             have = Profiles[profile_id]["inv"].get(need_item, 0)
             if have >= total_needed:
-                descrip += f"`{EMOJI.get(need_item)} x {total_needed}` ✅
-"
+                descrip += f"`{EMOJI.get(need_item)} x {total_needed}` ✅\n"
             else:
-                descrip += f"`{EMOJI.get(need_item)} x {total_needed}` ❌
-"
+                descrip += f"`{EMOJI.get(need_item)} x {total_needed}` ❌\n"
                 craft_btn.disabled = True
                 color = Color.red()
 
@@ -1081,8 +1055,7 @@ class Games(commands.Cog):
             await ctx.send(
                 f"{user.mention} You received a gift",
                 embed=Embed(
-                    description=f"You have received an item from {ctx.author.mention}
-{DATA['id'][item]} {item} x {amount}",
+                    description=f"You have received an item from {ctx.author.mention}\n{DATA['id'][item]} {item} x {amount}",
                     color=Color.green(),
                 ),
             )
@@ -1120,8 +1093,7 @@ class Games(commands.Cog):
         """Show basic shop items."""
         descrip = ""
         for item, price in DATA.get("shop", {}).items():
-            descrip += f"{DATA['id'].get(item, item)} - {price} cash
-"
+            descrip += f"{DATA['id'].get(item, item)} - {price} cash\n"
         if not descrip:
             descrip = "Shop is empty."
         await ctx.send(embed=Embed(title="Shop", description=descrip, color=Color.green()))
@@ -1264,8 +1236,7 @@ class Games(commands.Cog):
         self.add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Kill",
-            description=f"You killed **{mob}** in the {loc.capitalize()} and got:
-{self.rewards_descrip(rewards)}",
+            description=f"You killed **{mob}** in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
