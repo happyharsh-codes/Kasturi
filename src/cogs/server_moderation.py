@@ -905,48 +905,40 @@ class Moderation(commands.Cog):
             
         add_btn = Button(style=ButtonStyle.green, label="Add Features", custom_id="add", disabled=True)
         skip_btn = Button(style=ButtonStyle.secondary, label="Skip", custom_id="skip")
-        feature_select = Select(custom_id="feature", placeholder="Select Features to Enable", options=[SelectOption(label=i.replace("_","").title(),value=i) for i in list(feature.keys())], max_values=9, min_values=1)
+        feature_select = Select(custom_id="feature", placeholder="Select Features to Enable", options=[SelectOption(label=i.replace("_"," ").title(),value=i) for i in list(feature.keys())], max_values=9, min_values=1)
         raid_nuke_select = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in raid_nuke], max_values=6, min_values=1)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
 
+        selected_features = []
+        chat_rate_limiter = Select(custom_id="chat_rate_limit", placeholder="Chat Rate every 5s", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(1,11)])
+        emoji_spam = Select(custom_id="emoji_spam", placeholder="Select Emoji Limit per message", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,11)])
+        link_filter = Select(custom_id="link_filter", placeholder="Select Link filter type", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in ["All Links", "Suspicious Links"]])
+        mass_mention_block = Select(custom_id="mass_mention", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
+                                                                    
         class AutomodModal(discord.ui.Modal):
             def __init__(self, features):
                 super().__init__(title="Set Automod Features")
-                for feature in features:
-                    if feature == "custom_words_block":
-                        self.custom_words_block = TextInput(label="Custom Block Words", custom_id="block_list", placeholder="Enter Custom words separated by comma.", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
-                        self.add_item(self.custom_words_block)
-                    elif feature == "chat_rate_limiter":
-                        self.chat_rate_limiter = Select(custom_id="chat_rate_limit", placeholder="Select Chat Rate every 5 seconds", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(1,11)])
-                        self.add_item(self.chat_rate_limiter)
-                    elif feature == "emoji_spam":
-                        self.emoji_spam = Select(custom_id="emoji_spam", placeholder="Select Emoji Limit per message", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,11)])
-                        self.add_item(self.emoji_spam)
-                    elif feature == "link_filter":
-                        self.link_filter = Select(custom_id="link_filter", placeholder="Select Link filter type", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in ["All Links", "Suspicious Links"]])
-                        self.add_item(self.link_filter)
-                    elif feature == "mass_mention_block":
-                        self.mass_mention_block = Select(custom_id="mass_mention", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
-                        self.add_item(self.mass_mention_block)
-                self.features = features
-                
+                self.custom_words_block = TextInput(label="Custom Block Words", custom_id="block_list", placeholder="Enter Custom words separated by comma.", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
+                self.add_item(self.custom_words_block)
+                    
             async def on_submit(self, interaction: Interaction):
               try:
-                nonlocal feature, view, add_btn, msg
+                nonlocal feature, view, add_btn, msg, feature_select, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
+                add_btn.disabled = False
                 Server_Settings[str(ctx.guild.id)]["automod"] = {}
-                selected_features = self.features
-                non_features = [x for x in list(features.keys()) if x not in selected_protections]
+                selected_features = [x.value for x in feature_select.options if x.default]
+                non_features = [x for x in list(features.keys()) if x not in selected_features]
                 for feature in selected_features:
                     if feature == "custom_words_block":
                         Server_Settings[str(ctx.guild.id)]["banned_words"] = map(lambda x: x.strip(), self.custom_words_block.value.split(","))
                     elif feature == "chat_rate_limiter":
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = self.chat_rate_limiter.values[0]
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = [x.value for x in chat_rate_limiter.options if x.default][0]
                     elif feature == "emoji_spam":
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = self.emoji_spam.values[0]
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = [x.value for x in emoji_spam.options if x.default][0]
                     elif feature == "link_filter":
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = self.link_filter.values[0]
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = [x.value for x in link_filter.options if x.default][0]
                     elif feature == "mass_mention_block":
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = self.mass_mention_block.values[0]
+                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = [x.value for x in mass_mention_block.options if x.default][0]
                     else:
                         Server_Settings[str(ctx.guild.id)]["automod"][feature] = True
                 for not_feature in non_features:
@@ -972,14 +964,13 @@ class Moderation(commands.Cog):
                 descrip = ""
                 em.description = "Select Features to enable:\nFor better functioning enable all our features."
                 for feature_heading, feature_description in feature.items():
-                    descrip += f"\n{feature_heading.replace('_','').title()}: {feature_description}"
+                    descrip += f"\n• {feature_heading.replace('_',' ').title()}"
                 em.description += f"\n```{descrip}```"
             elif i == 1:
-                em.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```"
                 descrip = ""
                 for raid_heading in raid_nuke:
                     descrip += f"\n• {raid_heading.title()}"
-                em.description += f"```{descrip}```"
+                em.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```"
             elif i == 2:
                 em.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n•Punishment Triggered\n• Kelly Updates```"
             elif i == 3:  
@@ -990,7 +981,35 @@ class Moderation(commands.Cog):
                 em.title = "Automod Successfully Set"
                 em.description = "Successfully set automod rules\nYou server is protected now."
             embeds.append(em)
-        
+
+        async def features_adder(inter, select):
+            nonlocal selected_features, view, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
+            if "chat_rate_limit" in selected_features:
+                selected_features.remove("chat_rate_limiter")
+                view.add_item(chat_rate_limiter)
+                await inter.response.edit_message(view=view)
+                return
+            elif "emoji_spam" in selected_features:
+                selected_features.remove("chat_rate_limiter")
+                view.add_item(emoji_spam)
+                await inter.response.edit_message(view=view)
+                return
+            elif "link_filter" in selected_features:
+                selected_features.remove("chat_rate_limiter")
+                view.add_item(link_feature)
+                await inter.response.edit_message(view=view)
+                return
+            elif "mass_mention_block" in selected_features:
+                selected_features.remove("chat_rate_limiter")
+                view.add_item(mass_mention_block)
+                await inter.response.edit_message(view=view)
+                return
+            elif "custom_word_block" in selected_features:
+                nonlocal AutomodModal
+                modal = AutomodModal()
+                await inter.response.send_modal(modal)
+                return
+            
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -1060,19 +1079,19 @@ class Moderation(commands.Cog):
                 if option.value in selected_values:
                     option.default = True
             add_btn.disabled = False
-            await inter.response.edit_message(embed=em, view=view)
+            await inter.response.edit_message(view=view)            
             
-            
-        async def on_feature_select(inter: Interaction):
+        async def on_feature_select(inter: Interaction, select):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal view, msg, add_btn, feature_select
             selected_values = inter.data.get("values",[])
-            for option in feature_select.options:
+            for option in select.options:
                 if option.value in selected_values:
                     option.default = True
-            add_btn.disabled = False
-            await inter.response.edit_message(embed=em, view=view)
+            if select.custom_id == "feature":
+                nonlocal selected_features
+                selected_features = selected_values
+            await features_adder(interaction, select)
 
         async def on_channel_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -1083,7 +1102,7 @@ class Moderation(commands.Cog):
                 if option.value in selected_values:
                     option.default = True
             add_btn.disabled = False
-            await inter.response.edit_message(embed=em, view=view)
+            await inter.response.edit_message(view=view)
 
         async def timeout():
             nonlocal view, msg
@@ -1103,6 +1122,10 @@ class Moderation(commands.Cog):
         raid_nuke_select.callback = on_raid_nuke_select
         feature_select.callback = on_feature_select
         channel_select.callback = on_channel_select
+        chat_rate_limiter.callback = on_feature_select
+        emoji_spam.callback = on_feature_select
+        link_filter.callback = on_feature_select
+        mass_mention_block.callback = on_feature_select
         
         msg = await ctx.send(embed=embeds[0], view=view)
         
@@ -1257,8 +1280,7 @@ class Moderation(commands.Cog):
                 view.add_item(add_btn)
                 if add_btn.label == "Add More":
                     view.add_item(done_btn)
-            else:
-                add_btn.disabled = False
+            add_btn.disabled = False
             await inter.response.edit_message(view=view)
 
         async def on_role_select(inter: Interaction):
