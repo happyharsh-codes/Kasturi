@@ -33,9 +33,6 @@ class Bot:
             pass
 
     async def chat_rate_limiter(self, message):
-        chat_rate_limit = Server_Settings[str(guild.id)]["automod"]["chat_rate_limit"]
-        if not chat_rate_limit:
-            return True
         session_id = f"{author.id}_{channel.id}"
         if session_id in Last:
             if (datetime.now() - datetime.fromisoformat(Last[session_id][0])).seconds < 5:
@@ -61,39 +58,21 @@ class Bot:
         return True
         
     async def emoji_spam(self, message):
-        emoji_limit = Server_Settings[str(guild.id)]["automod"]["emoji_spam"]
-        if not emoji_limit:
-            return True
         return False
 
     async def mass_mention_block(self, message):
-        mass_mention_block = Server_Settings[str(guild.id)]["automod"]["mass_mention_block"]
-        if not mass_mention_block:
-            return True
         return False
 
     async def caps_block(self, message):
-        caps_block = Server_Settings[str(guild.id)]["automod"]["caps_block"]
-        if not caps_block:
-            return True
         return False
         
     async def link_filter(self, message):
-        link_filter = Server_Settings[str(guild.id)]["automod"]["link_filter"]
-        if not link_filter:
-            return True
         return False
         
     async def nsfw_filter(self, message):
-        link_filter = Server_Settings[str(guild.id)]["automod"]["link_filter"]
-        if not link_filter:
-            return True
         return False
 
     async def duplicate_detector(self, message):
-        duplicate_detector = Server_Settings[str(guild.id)]["automod"]["duplicate_detector"]
-        if not duplicate_detector:
-            return True
         return False
         
     # ------------- TASK LOOPS -------------
@@ -879,30 +858,7 @@ class Bot:
         if message.content.startswith("???"):
             await self.client.process_commands(message)
             return
-
-        # ===== MODERATION ====
-        if not await self.chat_rate_limiter(message): return 
-        if not await self.emoji_spam(message): return
-        if not await self.mass_mention_block(message): return
-        if not await self.caps_block(message): return
-        if not await self.link_filter(message): return
-        if not await self.nsfw_filter(message): return
-        if not await self.duplicate_detector(message): return
-        
-        # ===== REPLIES ====
-        if message.reference and message.reference.message_id:
-            try:
-                original = await message.channel.fetch_message(message.reference.message_id)
-                if original.author.id == self.client.user.id:
-                    print(f"Reply to Kelly detected: {message.content}")
-                    #checking for embeds
-                    if original.embeds:
-                        return #Only reply to chats not to system messages
-                    await self.kelly.kellyQuery(message)
-                    return
-            except discord.NotFound:
-                return # original message not found (maybe deleted)
-                 
+            
         # ===== DM MESSAGES ==== 
         if isinstance(message.channel, discord.DMChannel):
             if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
@@ -919,6 +875,16 @@ class Bot:
             return
             
         metadata = Server_Settings[str(guild.id)]
+        automod = metadata["automodx]
+        
+        # ===== MODERATION ====
+        if automod["chat_rate_limiter"] and not await self.chat_rate_limiter(message): return 
+        if automod["emoji_spam"] and not await self.emoji_spam(message): return
+        if automod["mass_mention_block"] and not await self.mass_mention_block(message): return
+        if automod["caps_block"] and not await self.caps_block(message): return
+        if automod["link_filter"] and not await self.link_filter(message): return
+        if automod["nsfw_filter"] and not await self.nsfw_filter(message): return
+        if automod["duplicate_detector"] and not await self.duplicate_detector(message): return
         
         # ===== Deleting banned words ====
         for word in metadata["banned_words"]:
@@ -981,7 +947,21 @@ class Bot:
         elif metadata["allowed_channels"] == [] and content.startswith(("k ", "kelly", "kasturi")) and not "activate" in content:
             if randint(1,3) == 3:
                 await channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho', 'Hello', 'Yoo'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate`.", delete_after = 10)
-        
+
+        # ===== REPLIES ====
+        if message.reference and message.reference.message_id:
+            try:
+                original = await message.channel.fetch_message(message.reference.message_id)
+                if original.author.id == self.client.user.id:
+                    print(f"Reply to Kelly detected: {message.content}")
+                    #checking for embeds
+                    if original.embeds:
+                        return #Only reply to chats not to system messages
+                    await self.kelly.kellyQuery(message)
+                    return
+            except discord.NotFound:
+                return # original message not found (maybe deleted)
+                 
         # Otherwise, only handle messages with valid prefixes
         if content.startswith(("kasturi ", "kelly ", "k ")):
             
