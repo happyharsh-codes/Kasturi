@@ -11,10 +11,7 @@ class Bot:
 
     async def get_log_channel(self, guild: Guild):
         """Return the logging channel for this guild or None if disabled/not set."""
-        data = Server_Settings.get(str(guild.id))
-        if not data:
-            return None
-        logging = data.get("logging")
+        logging = Server_Settings[str(guild.id)]["logging"]
         if not logging:
             return
         try:
@@ -35,6 +32,70 @@ class Bot:
         except Exception:
             pass
 
+    async def chat_rate_limiter(self, message):
+        chat_rate_limit = Server_Settings[str(guild.id)]["automod"]["chat_rate_limit"]
+        if not chat_rate_limit:
+            return True
+        session_id = f"{author.id}_{channel.id}"
+        if session_id in Last:
+            if (datetime.now() - datetime.fromisoformat(Last[session_id][0])).seconds < 5:
+                Last[session_id].append(datetime.now().isoformat())
+                if len(Last[session_id]) > chat_rate_limit:
+                    #trigger punishment
+                    delete_count = 0
+                    try:
+                        async for msg in channel.history(limit=100):
+                            if delete_count >= chat_rate_limit:
+                                break
+                            if msg.author == author:
+                                await msg.delete()
+                                delete_count += 1
+                    except:
+                        pass
+                    await channel.send(f"{author.mention} You are sending messages too quickly")
+                    return False
+            else:
+                Last[session_id] = [datetime.now().isoformat()]
+        else:
+            Last[session_id] = [datetime.now().isoformat()]
+        return True
+        
+    async def emoji_spam(message):
+        emoji_limit = Server_Settings[str(guild.id)]["automod"]["emoji_spam"]
+        if not emoji_limit:
+            return True
+        return False
+
+    async def mass_mention_block(message):
+        mass_mention_block = Server_Settings[str(guild.id)]["automod"]["mass_mention_block"]
+        if not mass_mention_block:
+            return True
+        return False
+
+    async def caps_block(message):
+        caps_block = Server_Settings[str(guild.id)]["automod"]["caps_block"]
+        if not caps_block:
+            return True
+        return False
+        
+    async def link_filter(message):
+        link_filter = Server_Settings[str(guild.id)]["automod"]["link_filter"]
+        if not link_filter:
+            return True
+        return False
+        
+    async def nsfw_filter(message):
+        link_filter = Server_Settings[str(guild.id)]["automod"]["link_filter"]
+        if not link_filter:
+            return True
+        return False
+
+    async def duplicate_detector(message):
+        duplicate_detector = Server_Settings[str(guild.id)]["automod"]["duplicate_detector"]
+        if not duplicate_detector:
+            return True
+        return False
+        
     # ------------- TASK LOOPS -------------
 
     @tasks.loop(minutes=1)
@@ -597,7 +658,7 @@ class Bot:
             color=Color.green()
         )
         em.set_thumbnail(url=member.avatar)
-        description += f"\nInvite: {used_invite.code if used_invite else None}\nInvitor : {used_invite.inviter.mention if used_invite else None}"
+        em.description += f"\nInvite: {used_invite.code if used_invite else None}\nInvitor : {used_invite.inviter.mention if used_invite else None}"
         await self.send_log(member.guild, em)
         
     async def on_member_remove(self, member: discord.Member):
@@ -698,7 +759,7 @@ class Bot:
                 member = self.member
                 msg = self.msg
                 last_words = self.input_box.value
-                owner = self.client.get_user(ctx.guild.owner_id)
+                owner = self.client.get_user(msg.guild.owner_id)
                 em = Embed(title = f"{member.display_name} | {member.name} | {member.id} - \nSays their Last Words After getting Banned.", description= f"```{last_words}```", color = Color.blue())
                 em.set_thumbnail(url=member.avatar)
                 em.set_footer(text= "If you think this was a mistake then please ignore.")
@@ -721,7 +782,7 @@ class Bot:
                 await msg.channel.send("**Your Last Words were recorded and sent to the Guild Owner and Guild Moderators**")
                 await interaction.response.defer()
               except Exception as e:
-                await self.clientget_user(894072003533877279).send(str(e))
+                await self.me.send(str(e))
                 await interaction.response.defer()
         
         async def last_words(interaction: Interaction):
@@ -818,6 +879,15 @@ class Bot:
         if message.content.startswith("???"):
             await self.client.process_commands(message)
             return
+
+        # ===== MODERATION ====
+        if not await self.chat_rate_limiter(self, message): return 
+        if not await self.emoji_spam(message): return
+        if not await self.mass_mention_block(message): return
+        if not await self.caps_block(message): return
+        if not await self.link_filter(message): return
+        if not await self.nsfw_filter(message): return
+        if not await self.duplicate_detector(message): return
         
         # ===== REPLIES ====
         if message.reference and message.reference.message_id:
@@ -850,16 +920,16 @@ class Bot:
             
         metadata = Server_Settings[str(guild.id)]
         
-        #Deleting banned words
+        # ===== Deleting banned words ====
         for word in metadata["banned_words"]:
             if word in content:
                 try:
                     await message.delete()
                 except:
-                        print("No delete message perms")
+                    print("No delete message perms")
                 break
         
-        #Handelling Bot mentions
+        # ===== Handelling Bot mentions ====
         if self.client.user.mention in content:
             if "deactivate" in content:
                 if channel.id not in metadata["allowed_channels"]:
@@ -878,10 +948,10 @@ class Bot:
             else:
                 content = content.replace(self.client.user.mention, "kelly")
         
-        #Giving xp
+        # ===== Giving xp ====
         if metadata["rank_channel"] != 0:
-            if str(author.id) in metadata["rank"]:
-                total_xp = metadata["rank"].get(str(author.id), 0)
+            if metadata["rank"][str(author.id)]:
+                total_xp = metadata["rank"][str(author.id)]
                 level = (math.sqrt(1+8*(total_xp//15)) -1)//2
                 max_xp = ((level+1)*(level+2)*15)//2
                 total_xp += 2
@@ -895,7 +965,7 @@ class Bot:
             else: 
                 Server_Settings[str(guild.id)]["rank"][str(author.id)] = 2
                         
-        #checking for afk user
+        # ===== Checking for afk user ====
         for afk in metadata['afk']:
             if id == afk:
                 Server_Settings[str(guild.id)]['afk'].remove(afk)
@@ -903,7 +973,7 @@ class Bot:
             elif self.client.get_user(afk) and self.client.get_user(afk).mentioned_in(message):
                 await channel.send(embed= Embed(description=f"Please don’t mention **@{self.client.get_user(afk).display_name}** — they are currently AFK.",color=Color.red()))
         
-        #checking for allowed channel
+        # ===== Checking for allowed channel ====
         if metadata["allowed_channels"] != [] and channel.id not in metadata["allowed_channels"] and content.startswith(("kasturi", "kelly")):
             channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
             await channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} I only chat in the activated channels: {channels_str}", delete_after = 8)
@@ -915,7 +985,7 @@ class Bot:
         # Otherwise, only handle messages with valid prefixes
         if content.startswith(("kasturi ", "kelly ", "k ")):
             
-            #cheking for Administrator Permission given or not
+            #Cheking for Administrator Permission given or not
             bot_member = message.guild.me
             if not Server_Settings[str(message.guild.id)]["premium"] and not bot_member.guild_permissions.administrator:
                 em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
