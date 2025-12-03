@@ -728,15 +728,14 @@ class Bot:
         pass
 
     async def on_member_ban(self, guild, member):
-        reason = "No reason provided."
-        em = Embed(
-            title=f"You were Banned from {guild.name}",
-            description=f"**Reason:** {reason}",
-            color=Color.red()
-        )
-        em.set_footer(text="If you believe this was a mistake please forgive us.")
-        
+        try:
+            async for entry in guild.bans():
+                if entry.user.id == member.id:
+                    reason = entry.reason
+        except:
+            reason= "No reason provided"
         em = Embed(title= f"You were Banned from {guild.name}", description= f"**Reason:** {reason}", color = Color.red())
+        em.set_thumbnail(url=guild.icon)
         em.set_footer(text = "If you believe this was a mistake please forgive us.")
         view = View()
         button = Button(style=ButtonStyle.primary, custom_id= "revive", label = "Click to Say your Last Words")
@@ -779,7 +778,7 @@ class Bot:
                 await msg.channel.send("**Your Last Words were recorded and sent to the Guild Owner and Guild Moderators**")
                 await interaction.response.defer()
               except Exception as e:
-                await self.me.send(str(e))
+                await  interaction.client.get_user(894072003533877279).send(str(e))
                 await interaction.response.defer()
         
         async def last_words(interaction: Interaction):
@@ -788,7 +787,7 @@ class Bot:
             modal = LastWordsModal(member, msg)
             await interaction.response.send_modal(modal)     
           except Exception as e:
-            await self.clientget_user(894072003533877279).send(str(e))
+            await  interaction.client.get_user(894072003533877279).send(str(e))
             await interaction.response.defer()
         
         button.callback = last_words
@@ -831,7 +830,7 @@ class Bot:
                     self.kelly.ayaka.addReminder("surprise", user_id= after.id, delay_minutes=10)
                 if not Relation[str(before.id)] or not Relation[str(before.id)] > 10:
                     return
-                if randint(1,10) != 1: #10% chance
+                if randint(1,25) != 1: #10% chance
                     return
                 for guild in self.client.guilds:
                     member = guild.get_member(before.id)
