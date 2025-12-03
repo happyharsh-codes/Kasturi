@@ -45,11 +45,8 @@ class Moderation(commands.Cog):
         duration = timedelta(minutes=minutes)
         await member.timeout(duration, reason=reason)
 
-        embed_dm = Embed(
-            title=f"You have been muted in {ctx.guild.name}",
-            description=f"**Reason:** {reason}\nPlease follow server rules.",
-            color=Color.red()
-        )
+        embed_dm = Embed(title=f"You have been muted in {ctx.guild.name}",description=f"**Reason:** {reason}\nPlease follow server rules.",color=Color.red())
+        embed_dm.set_thumbnail(url=ctx.guild.icon)
         await safe_dm(member, embed_dm)
 
         embed = action_embed(ctx,
@@ -99,7 +96,7 @@ class Moderation(commands.Cog):
         embed_dm = action_embed(ctx,
             f"You have been Unmuted in {ctx.guild.name}",
             f"**Reason:** {reason}",
-            member, Color.green(), text=f"Unmuted by {ctx.author.name}")
+            member, Color.green(), text=f"Unmuted by {ctx.author.name}", thumbnail= ctx.guild.icon)
         await safe_dm(member, embed_dm)
 
         embed = action_embed(ctx, "🔊 Member Unmuted", f"{member.mention} is unmuted.", member, Color.green(), text= f"Unmuted by {ctx.author.name}")
@@ -116,7 +113,7 @@ class Moderation(commands.Cog):
         if not await hierarchy_check(ctx, member):
             return
             
-        embed_dm = action_embed(ctx, f"You were kicked from {ctx.guild.name}", f"**Reason:** {reason}\nPlease Follow the guild rules and regulations.", member, Color.red(), text = f"Kicked by {ctx.author.name}")
+        embed_dm = action_embed(ctx, f"You were kicked from {ctx.guild.name}", f"**Reason:** {reason}\nPlease Follow the guild rules and regulations.", member, Color.red(), text = f"Kicked by {ctx.author.name}", thumbnail= ctx.guild.icon)
         await safe_dm(member, embed_dm)
 
         await ctx.guild.kick(member, reason=reason)
@@ -124,7 +121,7 @@ class Moderation(commands.Cog):
         embed = action_embed(ctx,
             "👢 Member Kicked",
             f"{member.mention} was kicked.\n**Reason:** {reason}",
-            member, Color.pink(), text= f"Kicked by {ctx.author.name}"
+            member, Color.pink(), text= f"Kicked by {ctx.author.name}", thumbnail = ctx.guild.icon
         )
         await ctx.send(embed=embed)
 
@@ -139,14 +136,13 @@ class Moderation(commands.Cog):
         if not await hierarchy_check(ctx, member):
             return
             
-        embed_dm = action_embed(ctx, f"You were warned in {ctx.guild.name}",f"**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}"
-        )
+        embed_dm = action_embed(ctx, f"You were warned in {ctx.guild.name}",f"**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}", thumbnail = ctx.guild.icon)
         await safe_dm(member, embed_dm)
 
         embed = action_embed(ctx, "⚠️ Member Warned", f"{member.mention}\n**Reason:** {reason}", member, Color.orange(), text = f"Warning by {ctx.author.name}")
         await ctx.send(embed=embed)
         
-        if str(member.id) in Server_Settings[str(ctx.guild.id)]["warn"]:
+        if Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)]:
             Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)] += 1
         else:
             Server_Settings[str(ctx.guild.id)]["warn"][str(member.id)] = 1
@@ -180,7 +176,7 @@ class Moderation(commands.Cog):
         actions = ["Mute", "Kick", "Ban", "Assign Role"]
         action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
         mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(5,61, 5)], max_values=1, min_values=1)
-        role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=[SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles], max_values=1, min_values=1)
+        role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=[SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role], max_values=1, min_values=1)
         add = Button(style = ButtonStyle.green, label= "Add", custom_id="add", disabled = True)
         done = Button(style = ButtonStyle.secondary, label= "Done", custom_id="done")
        
@@ -301,7 +297,12 @@ class Moderation(commands.Cog):
             if "Mute" in text:
                 text += f" for {values[2]} minutes"
             elif "Assign Role" in text:
-                text += f" {values[3]}"
+                try:
+                    role = await ctx.guild.fetch_role(int(value[3]))
+                    role = role.mention
+                except:
+                    role = values[3]
+                text += f" {role}"
             warn_action[values[0]] = text
             warn_action_text = ""
             for no, action in warn_action.items():
@@ -1216,7 +1217,7 @@ class Moderation(commands.Cog):
             selected_reward = inter.data["values"][0]
             nonlocal reward_select, add_btn, view
             for option in reward_select.options:
-                if option.val in selected_reward:
+                if option.value in selected_reward:
                     option.default = True
                     break
             add_btn.disabled = False
