@@ -179,7 +179,7 @@ class Moderation(commands.Cog):
         warn_no_select = Select(custom_id="warn_no", placeholder="Select Warn Limit", options=[SelectOption(label=str(i),value=str(i)) for i in range(1,11)], max_values=1, min_values=1)
         actions = ["Mute", "Kick", "Ban", "Assign Role"]
         action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
-        mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(1,61)], max_values=1, min_values=1)
+        mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(5,61, 5)], max_values=1, min_values=1)
         role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=[SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles], max_values=1, min_values=1)
         add = Button(style = ButtonStyle.green, label= "Add", custom_id="add", disabled = True)
         done = Button(style = ButtonStyle.secondary, label= "Done", custom_id="done")
@@ -209,7 +209,7 @@ class Moderation(commands.Cog):
         else:
             warn_action_text = "No action set"
         
-        em = Embed(title="Set Warn Action", description= "Set automated actions that will excey when user exeeds warn limit. You can set more than one action.\n**Warn Actions:**\n```{warn_action_text}```", color = Color.pink())
+        em = Embed(title="Set Warn Action", description= f"Set automated actions that will excey when user exeeds warn limit. You can set more than one action.\n**Warn Actions:**\n```{warn_action_text}```", color = Color.pink())
         em.set_footer(text= f"Warn Action setup by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
         
         async def on_warn_no_select(interaction: Interaction):
@@ -308,7 +308,7 @@ class Moderation(commands.Cog):
                 warn_action_text += f"{no} - {action.title()}\n"
             Server_Settings[str(ctx.guild.id)]["warn_action"] = warn_action
             
-            em = Embed(title="Set Warn Action", description= "Set automated actions that will excey when user exeeds warn limit. You can set more than one action.\n**Warn Actions:**\n```{warn_action_text}```", color = Color.pink())
+            em = Embed(title="Set Warn Action", description= f"Set automated actions that will excey when user exeeds warn limit. You can set more than one action.\n**Warn Actions:**\n```{warn_action_text}```", color = Color.pink())
             em.set_footer(text= f"Warn Action setup by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
         
             add.label = "Add More"
@@ -428,10 +428,10 @@ class Moderation(commands.Cog):
         Given role hierarchy should be equivalent to or less than your role."""
         if not await hierarchy_check(ctx, member):
             return
-        if role >= ctx.author.top_role:
-            return await ctx.reply(embed = Embed(title="❌ That user has higher or equal role than you.", color = Color.red()))
-        if role >= ctx.guild.me.top_role:
-            return await ctx.reply(embed = Embed(title="❌ I cannot act on that user due to role hierarchy.", color = Color.red()))
+        if role > ctx.author.top_role:
+            return await ctx.reply(embed = Embed(title="❌ That role is higher than your own role.", color = Color.red()))
+        if role > ctx.guild.me.top_role:
+            return await ctx.reply(embed = Embed(title="❌ I cannot add this role due to role hierarchy.", color = Color.red()))
             
         embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: **{role.name}**", color = role.color)
         embed.set_footer(text=f"Assigned Role by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
@@ -448,14 +448,14 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
     async def removerole(self, ctx: commands.Context, member: discord.Member, role: discord.Role):
-        """Assigns given role to the user.
-        Given role hierarchy should be equivalent to or less than your role."""
+        """Removes given role from the user.
+        Given role hierarchy should benless than your role."""
         if not await hierarchy_check(ctx, member):
             return
         if role >= ctx.author.top_role:
-            return await ctx.reply(embed = Embed(title="❌ That user has higher or equal role than you.", color = Color.red()))
+            return await ctx.reply(embed = Embed(title="❌ That role is higher or equal than your own role.", color = Color.red()))
         if role >= ctx.guild.me.top_role:
-            return await ctx.reply(embed = Embed(title="❌ I cannot act on that user due to role hierarchy.", color = Color.red()))
+            return await ctx.reply(embed = Embed(title="❌ I cannot add this role due to role hierarchy.", color = Color.red()))
             
         embed = Embed(title = f"You have been detained from your Role in {ctx.guild.name}", description = f"**Role**: **{role.name}**", color = role.color)
         embed.set_footer(text=f"Role Removed by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
@@ -639,13 +639,13 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(manage_guild=True)
     @commands.bot_has_permissions(manage_guild=True)
-    async def set_welcome_channel(self, ctx: commands.Context, channel: discord.TextChannel):
+    async def set_welcome_channel(self, ctx: commands.Context, channel: discord.TextChannel = None):
         """Sets the welcome message channel 🎉  
         Greets new members automatically here.
         Sets up custom Welcome Message and design it."""
         welcome_theme_no = 1
         welcome_message = ""
-        welcome_channel = 0
+        welcome_channel = channel.id if channel else none
         
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
@@ -680,7 +680,12 @@ class Moderation(commands.Cog):
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         proceed_button = Button(style=ButtonStyle.success ,label="Select Theme", custom_id="proceed", row=0)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
-        channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values= 5 if len(ctx.guild.text_channels) > 5 else len(ctx.guild.text_channels), min_values=1)
+        if channel:
+            for option in channel_select.options:
+                if option.value == str(channel.id):
+                    option.default = True
+                    break
+        channel_select2 = Select(custom_id="channel_selector", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values= 5 if len(ctx.guild.text_channels) > 5 else len(ctx.guild.text_channels), min_values=1)
         
         view = View(timeout = 45)
         view.add_item(go_left)
@@ -781,7 +786,6 @@ class Moderation(commands.Cog):
         channel_select.callback = select_channels
         channel_select2.callback = select_channels2
         view.on_timeout = timeout
-        view.add_item(proceed_button)
         
         em = Embed(color = Color.green())
         em.title="Set Welcome message"
@@ -846,7 +850,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_modal(modal)
             
         
-        async def select_channels(interaction: Interaction):
+        async def select_channel(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
@@ -958,19 +962,24 @@ class Moderation(commands.Cog):
  
         em1 = em
         em1.description = "Select Features to enable:\nFor better functioning enable all our features."
+        descrip = ""
         for feature_heading, feature_description in feature.items():
-            descrip += f"{feature_heading.title()}: {feature_description}"
+            descrip += f"\n{feature_heading.replace('_','').title()}: {feature_description}"
         em1.description += f"\n```{descrip}```"
         em2 = em
-        for raid_heading, raid_description in raid_features:
-            descrip += f"{raid_heading.title()}: {raid_description}"
         em2.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```"
+        descrip = ""
+        for raid_heading in raid_nuke:
+            descrip += f"\n• {raid_heading.title()}"
+        em2.description += f"```{descrip}```"
         em3 = em
         em3.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n•Punishment Triggered\n• Kelly Updates```"
         em4 = em
         em4.description = "Select Punishment Method\nPunishment method automatically handles when trigger is hit and punishment gradually increase on more infringement. You can set Punishments via ```k warn_action``` later on."
         em5 = em
         em5.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages"
+        em6 = em
+        em6.description = "Successfully set automod rules\nYou server is protected now."
         embeds = [em1, em2, em3, em4, em5]
             
         async def next_page(inter: Interaction):
@@ -1030,7 +1039,7 @@ class Moderation(commands.Cog):
             if page == 5:
                 add_btn.label = "Finish 🎉"
             if page == 6:
-                pass
+                view = None
             await inter.response.edit_message(embed=em, view=view)
 
         async def on_raid_nuke_select(inter: Interaction):
@@ -1205,7 +1214,7 @@ class Moderation(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
 
             selected_reward = inter.data["values"][0]
-            nonlocal reward_select, add_btn
+            nonlocal reward_select, add_btn, view
             for option in reward_select.options:
                 if option.val in selected_reward:
                     option.default = True
