@@ -1,8 +1,9 @@
-from __init__ import*
-from functions.game_functions import*
+from __init__ import *
+from functions.game_functions import *
 from typing import Optional
 
-"""Inventory Items:-
+"""
+Inventory Items:-
 Foods: [🍻🍖🌭🍨🌮..]
 Plants: [💐🍂🌵🌴🌳🌲🪵..]
 Tools: [🗜️🪛🪚🔧🔨🛠️⚒️⛏️..]
@@ -11,743 +12,748 @@ Animals: [🐎🐯🦁🐼🐨🐷🫎🐲🦮🐈‍⬛🐈🪽🦇🐤🦂🦀
 Vehicles: [🛴🦽🦼🚲🛵🏍️🚙🚗🛻🚚🚐🚜🏎️🚒🚑🚓🚕🛺🚌🚈🚝🚅🚄🚂🚃🚋🚎🚊🚉..]
 Emotes:  [kellycute, kellyhappy..]
 Weapons: [🔫⚔️🏹💣🔪🗡️🛡️🤺..]
+
+has_profile()
+at_the_location(loc)
+has_in_inventory(item, val=0)
+
+inv_searcher()
+inv_manager()
+location_searcher()
+skill_searcher()
+skills_manager()
+place_manager()
+
+# =====Rarity Based Chances: ====
+----Level 1 (Aura 1 - 200)----
+common: 60%
+unique: 25%
+rare: 10%
+epic: 4%
+legendary: 1%
+
+----Level 2 (Aura 200 - 400)----
+common: 40%
+unique: 40%
+rare: 14%
+epic: 4%
+legendary: 2%
+
+----Level 3 (Aura 400 - 600)----
+common: 20%
+unique: 20%
+rare: 40%
+epic: 12%
+legendary: 8%
+
+----Level 4 (Aura 600 - 800)----
+common: 10%
+uniqie: 10%
+rare: 20%
+epic: 40%
+legendary: 20%
+
+----Level 5 (Aura 800 - 999+)----
+common: 5%
+unique: 5%
+rare: 10%
+epic: 30%
+legendary: 50%
 """
-            
+
+
+def quick_embed(title, description, color, footer=None, avatar=None):
+    em = Embed(title=title, description=description, color=color)
+    if footer:
+        em.set_footer(text=footer, icon_url=avatar)
+    return em
+
+
 class Games(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
+        # Optional: master rarity map if you keep it centrally
+        # self.master = DATA["places_master"]
 
-    def reward_player(self, aura: int, location, drops: dict, count_range=(3,7)):
+    # ========= CORE REWARD LOGIC =========
+
+    def reward_player(self, aura: int, location, drops: dict, count_range=(3, 7)):
         rewards = []
+        # weights per aura-band -> level keys
         levels_choice = {
-            200: {"level1": 0.9, "level2": 0.04, "level3": 0.03, "level4": 0.02, "level5": 0.01},
-            400: {"level1": 0.3, "level2": 0.64, "level3": 0.03, "level4": 0.02, "level5": 0.01},
-            600: {"level1": 0.1, "level2": 0.2, "level3": 0.65, "level4": 0.03, "level5": 0.02},
-            800: {"level1": 0.05, "level2": 0.05, "level3": 0.2, "level4": 0.67, "level5": 0.03},
-            1000: {"level1": 0.05, "level2": 0.05, "level3": 0.05, "level4": 0.05, "level5": 0.8}
+            200: {"level1": 0.6, "level2": 0.25, "level3": 0.10, "level4": 0.04, "level5": 0.01},
+            400: {"level1": 0.4, "level2": 0.4, "level3": 0.14, "level4": 0.04, "level5": 0.02},
+            600: {"level1": 0.2, "level2": 0.2, "level3": 0.4, "level4": 0.12, "level5": 0.08},
+            800: {"level1": 0.1, "level2": 0.1, "level3": 0.2, "level4": 0.4, "level5": 0.2},
+            1000: {"level1": 0.05, "level2": 0.05, "level3": 0.1, "level4": 0.3, "level5": 0.5},
         }
+        # count tweak for super-aura
         if aura > 999:
-            count_range = (5,8)
-        
+            count_range = (5, 8)
+
+        # expand category weights into a list used by weighted_choice helper
+        # expected signature: weighted_choice(list_of_(value, weight))
+        cat_weight_list = list(drops.items())
+
+        # decide which aura band to use
+        def aura_band(a):
+            if a <= 200:
+                return 200
+            if a <= 400:
+                return 400
+            if a <= 600:
+                return 600
+            if a <= 800:
+                return 800
+            return 1000
+
+        band = aura_band(aura)
+        level_weight_list = list(levels_choice[band].items())
+
         for _ in range(randint(*count_range)):
-            # pick category by weight
-            category = weighted_choice(list(drops.items()))
-    
-            # pick reward level
-            if aura <= 200:
-                level = weighted_choice(list(levels_choice[200].items()))
-            elif aura <= 400:
-                level = weighted_choice(list(levels_choice[400].items()))
-            elif aura <= 600:
-                level = weighted_choice(list(levels_choice[600].items()))
-            elif aura <= 800:
-                level = weighted_choice(list(levels_choice[800].items()))
-            else:
-                level = weighted_choice(list(levels_choice[1000].items()))
-       
+            category = weighted_choice(cat_weight_list)
+            level = weighted_choice(level_weight_list)
 
-            # if category missing levels, skip
-            if category not in self.master:
+            # DATA["places"][location][category][level] is list of item-keys
+            if location not in DATA["places"]:
                 continue
-            if level not in self.master[category]:
+            if category not in DATA["places"][location]:
                 continue
-    
-            availabel = DATA["location_items"][location][category][level]
+            if level not in DATA["places"][location][category]:
+                continue
 
-            item = choice(availabel)
+            available = DATA["places"][location][category][level]
+            if not available:
+                continue
+
+            item_key = choice(available)
             qty = randint(1, 3)
             if aura > 999:
-                qty = randint(3,5)
+                qty = randint(3, 5)
 
-            rewards.append((category, item, qty, level))
-
+            rewards.append((category, item_key, qty, level))
         return rewards
-
 
     def rewards_descrip(self, rewards):
         level1 = "<:common:> "
-        level2 = "<:special:> "
-        level3 = "<:unique:> "
-        level4 = "<:rare:> "
+        level2 = "<:unique:> "
+        level3 = "<:rare:> "
+        level4 = "<:epic:> "
         level5 = "<:legendary:> "
-    
-        for category, item, qty, level in rewards:
-            if level == "level1":
-                level1 += item * qty
-            if level == "level2":
-                level2 += item * qty
-            if level == "level3":
-                level3 += item * qty
-            if level == "level4":
-                level4 += item * qty
-            if level == "level5":
-                level5 += item * qty
-            
-        description = f"{level1}\n{level2}\n{level3}\n{level4}\n{level5}"
-    
-        return description
 
-    def add_rewards(self, id, rewards):
-        for category, item, qty, level in rewards:
-            if item in Profiles[str(id)][category]:
-                Profiles[str(id)][category][item] += qty
-            else:
-                Profiles[str(id)][category][item] = qty
-                
+        for category, item_key, qty, level in rewards:
+            emoji = DATA["id"].get(item_key, "")
+            if level == "level1":
+                level1 += emoji * qty
+            elif level == "level2":
+                level2 += emoji * qty
+            elif level == "level3":
+                level3 += emoji * qty
+            elif level == "level4":
+                level4 += emoji * qty
+            elif level == "level5":
+                level5 += emoji * qty
+
+        description = ""
+        if level1 != "<:common:> ":
+            description += f"{level1}
+"
+        if level2 != "<:unique:> ":
+            description += f"{level2}
+"
+        if level3 != "<:rare:> ":
+            description += f"{level3}
+"
+        if level4 != "<:epic:> ":
+            description += f"{level4}
+"
+        if level5 != "<:legendary:> ":
+            description += f"{level5}"
+        return description.strip()
+
+    def add_rewards(self, uid, rewards):
+        for category, item_key, qty, level in rewards:
+            inv_cat = Profiles[str(uid)].setdefault(category, {})
+            inv_cat[item_key] = inv_cat.get(item_key, 0) + qty
+
+    # ========= PROFILE & WALLET =========
+
     @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    async def chop(self, ctx):
-        """Shows user profile or mentioned user profile"""
+    async def profile(self, ctx, user: Optional[discord.Member] = None):
         if not user:
             user = ctx.author
-        profile = self.get_profile(ctx.guild.id, ctx.author.id, ctx.author.name)
+        profile = Profiles[str(user.id)]
+        descrip = (
+            f"Wallet:
+"
+            f"**Cash**: {profile['assets'].get('cash', 0)}
+"
+            f"**Gems**: {profile['assets'].get('gems', 0)}
+"
+            f"**Orbs**: {profile['assets'].get('orb', 0)}"
+        )
+        em = action_embed(
+            f"{user.display_name}'s Profile",
+            descrip,
+            Color.green(),
+            f"Profile used by {ctx.author.name}",
+            ctx.author.avatar,
+        )
+        await ctx.send(embed=em)
 
-        em = discord.Embed(title=f"{ctx.author.name}'s Profile", color=discord.Color.purple())
-        em.set_thumbnail(url=ctx.author.display_avatar.url)
-        em.add_field(name="Cash", value=str(profile["cash"]))
-        em.add_field(name="Gems", value=str(profile["gem"]))
-        em.add_field(name="Aura", value=str(profile["aura"]))
-        em.add_field(name="Health", value=str(profile["health"]))
-        em.add_field(name="Hunger", value=str(profile["hunger"]))
-        await ctx.reply(embed=em)
-        
-    @commands.hybrid_command(aliases=['c'])
-    @commands.cooldown(1,10, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.hybrid_command(aliases=["bal", "wallet", "cash"])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    async def cash(self, ctx):
-        """Shows your bank cash balance 🏦"""
-        amt = Profiles[str(ctx.author.id)]["assets"]["cash"]
-        emoji = EMOJI[f"kelly{choice(['hiding', 'interesting', 'owolove', 'heart', 'simping'])}"]
-        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **₹{amt}** cash <:cash:1433171762668896388>")
+    async def balance(self, ctx):
+        profile = Profiles[str(ctx.author.id)]
+        descrip = (
+            f"Wallet:
+"
+            f"**Cash**: {profile['assets'].get('cash', 0)}
+"
+            f"**Gems**: {profile['assets'].get('gems', 0)}
+"
+            f"**Orbs**: {profile['assets'].get('orb', 0)}"
+        )
+        em = action_embed(
+            f"{ctx.author.display_name}'s Wallet",
+            descrip,
+            Color.green(),
+            f"Bal used by {ctx.author.name}",
+            ctx.author.avatar,
+        )
+        await ctx.send(embed=em)
 
-    @commands.hybrid_command(aliases=['g', 'gem'])
-    @commands.cooldown(1,10, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def gems(self, ctx):
-        """Shows your bank gem balance 🏦""" 
-        amt = Profiles[str(ctx.author.id)]["assets"]["gem"]
-        emoji = EMOJI[f"kelly{choice(['hiding', 'interesting', 'owolove', 'heart', 'simping'])}"]
-        await ctx.reply(f"**{emoji} | ** {ctx.author.name} you have **{amt}** gems <:gem:1433171777017610260>")
+    # ========= INVENTORY =========
 
-    @commands.hybrid_command(aliases=["inventory"])
-    @commands.cooldown(1,10, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def inv(self, ctx):
-        '''Shows your full inventory'''
-        foods = Profiles.get(str(ctx.author.id)).get("foods")
-        tools = Profiles.get(str(ctx.author.id)).get("tools")
-        animals = Profiles.get(str(ctx.author.id)).get("animals")
-        vehicles = Profiles.get(str(ctx.author.id)).get("vehicles")
-        plants = Profiles.get(str(ctx.author.id)).get("plants")
-        assets = Profiles.get(str(ctx.author.id)).get("assets")
-        weapons = Profiles.get(str(ctx.author.id)).get("weapons")
-        emotes = Profiles.get(str(ctx.author.id)).get("emotes")
-        
-        inv = [i for i in [foods, plants, animals, weapons, tools, emotes, vehicles, assets] if i ]
-            
-        if not inv:
-            await ctx.reply("You don't have anything in your inventory haha 😆")
-            return
-        em = Embed(title=f"Showing {ctx.author.name}'s Inventory <:chest:1433174074569396416>")
-        em.set_footer(text=f"Requested by {ctx.author.name} at {timestamp(ctx)}", icon_url= ctx.author.avatar)
-        
-        categ = foods
-        menu = Select(custom_id = "value_selector",placeholder = "Select Category", max_values= 1, min_values= 1, options = [SelectOptions(item=i, value=i) for i in ["Foods", "Plants", "Animals", "Assets", "Vehicles", "Emotes", "Tools", "Weapons"]])
+        """View categorized inventory."""
+        categories = ["foods", "animals", "plants", "assets", "tools", "weapons", "vehicles", "emotes"]
+        profile_id = str(ctx.author.id)
+        selected_category = "foods"
+
+        em = action_embed(
+            f"{ctx.author.display_name}'s Inventory",
+            "",
+            Color.green(),
+            f"Inv by {ctx.author.name}",
+            ctx.author.avatar,
+        )
+
         def update():
-            nonlocal categ, em
-            descrip =  ""
-            for item, value in categ:
-                descrip += f"`{EMOJI.get(item)} {value}` "
-            if not categ:
-                descrip = "```Nothing here```"
-            em.description += descrip
-            
-        view = View(timeout =45)
-        async def timeout():
-            nonlocal msg, em, view 
-            for children in view.children:
-                children.disabled = True
-            em.color = Color.light_grey()
-            await msg.edit(embed=em, view=view)
-        view.on_timeout = timeout
-        view.add_item(menu)
-        
-        async def on_select(interacion: Interaction):
-            if interaction.user.id != ctx.author.id:
-                await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
-                return
-            nonlocal em, view, menu, categ, update, foods, tools, weapons, emotes, assets, plants, animals, vehicles
-            categ = interaction.data.get("values",[])[0]
-            if categ == "Foods":
-                categ = foods
-            if categ == "Animals":
-                categ = animals
-            if categ == "Tools":
-                categ = tools
-            if categ == "Weapons":
-                categ = weapons
-            if categ == "Vehicles":
-                categ = vehicles
-            if categ == "Assets":
-                categ = assets
-            if categ == "Plants":
-                categ = plants
-            if categ == "Emotes":
-                categ = emotes
-            update()
-            await interaction.response.edit_message(embed = em, view = view)
-        
+            nonlocal em, selected_category
+            descrip = ""
+            items = Profiles[profile_id].get(selected_category, {})
+            break_line = 0
+            for item_key, val in items.items():
+                emoji = DATA["id"].get(item_key, item_key)
+                descrip += f"{emoji} x {val} "
+                break_line += 1
+                if break_line == 3:
+                    break_line = 0
+                    descrip += "
+"
+            if not descrip:
+                descrip = "No items in this category"
+            em.description = f"``````"
+
+        class InvView(View):
+            def __init__(self, *, timeout=45):
+                super().__init__(timeout=timeout)
+                self.add_item(
+                    Select(
+                        custom_id="category",
+                        placeholder="Select Category",
+                        options=[SelectOption(label=i, value=i) for i in categories],
+                        max_values=1,
+                        min_values=1,
+                    )
+                )
+
+            @discord.ui.select(custom_id="category", placeholder="Select Category",
+                               options=[SelectOption(label=i, value=i) for i in categories],
+                               max_values=1, min_values=1)
+            async def on_select(self, select: Select, inter: Interaction):
+                nonlocal selected_category
+                if inter.user.id != ctx.author.id:
+                    await inter.response.send_message(
+                        embed=Embed(description="This interaction is not for you", color=Color.red()),
+                        ephemeral=True,
+                    )
+                    return
+                selected_category = select.values[0]
+                update()
+                await inter.response.edit_message(embed=em, view=self)
+
+            async def on_timeout(self):
+                em.color = Color.light_grey()
+                for child in self.children:
+                    child.disabled = True
+                await msg.edit(embed=em, view=self)
+
+        view = InvView()
         update()
-        menu.callback = on_select
-        msg = await ctx.reply(embed=em, view=view)
+        msg = await ctx.send(embed=em, view=view)
+
+    # ========= SIMPLE ECONOMY =========
 
     @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.cooldown(1, 1000, type=commands.BucketType.user)
     @has_profile()
-    async def give(self, ctx, user, item, amount: int = 0):
-        """Transfers inventory item to other user"""
-        profile = Profiles.get(str(ctx.author.id))
-        if Profiles.get(str(user)) is None:
-            await ctx.reply("Given User profile not found")
-            return
-        if item.isdigit():
-            amount = item
-            item = "cash"
-        item = item.lower()
-        category = None
-        for categ in ["plants", "foods", "assets", "animals", "tools", "weapons", "emotes", "vehicles"]:
-            if item in profile[categ]:
-                category = categ
-                break
-        if not category:
-            await ctx.send("Ayoo That item is not in your inventory")
-            return
-        if amount <= 0 or amount > 1000:
-            await ctx.send("Invalid Amount")
-            return
-        if anount > profile[category][item]:
-            await ctx.send("Ayoo you don't have that much amount in your inventory")
-            return
-        em = Embed(title="💳 Transfer 💱", description= f"Are you Sure want to give {user.mention} {item} X {amount} ?", color = Color.gold())
-        confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", label = "✅")
-        discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", label = "❌")
-        
+    async def beg(self, ctx):
+        beg_amt = randint(1, 100)
+        await ctx.send(f"{ctx.author.mention} You got {beg_amt} in your bowl!! {kemoji()}")
+        inv_manager(str(ctx.author.id), "cash", beg_amt)
+
+    # ========= WORK / JOBS =========
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 3600, type=commands.BucketType.user)
+    @has_profile()
+    async def work(self, ctx):
+        """Work in your Job or get a new Job, for regular wages."""
+        options = [
+            SelectOption(label="Doctor", description="The Life saver god",
+                         emoji=discord.PartialEmoji.from_str("🩺"), value="doctor"),
+            SelectOption(label="Engineer", description="New Innovations and Constructions",
+                         emoji=discord.PartialEmoji.from_str("🧰"), value="engineer"),
+            SelectOption(label="Teacher", description="Lead the youth",
+                         emoji=discord.PartialEmoji.from_str("📚"), value="teacher"),
+            SelectOption(label="Programmer", description="Epitome of technology",
+                         emoji=discord.PartialEmoji.from_str("💻"), value="programmer"),
+            SelectOption(label="Chef", description="Perfection in Taste",
+                         emoji=discord.PartialEmoji.from_str("🍳"), value="chef"),
+            SelectOption(label="Blacksmith", description="Always Forging with Metals",
+                         emoji=discord.PartialEmoji.from_str("⚒️"), value="blacksmith"),
+            SelectOption(label="Farmer", description="The Food provider",
+                         emoji=discord.PartialEmoji.from_str("🌾"), value="farmer"),
+            SelectOption(label="Fisherman", description="Handy with Fishes",
+                         emoji=discord.PartialEmoji.from_str("🎣"), value="fisherman"),
+            SelectOption(label="Hunter", description="Nomad Hunter",
+                         emoji=discord.PartialEmoji.from_str("🏹"), value="hunter"),
+        ]
+        selected = None
+        salary = {
+            "doctor": 100000,
+            "engineer": 100000,
+            "teacher": 50000,
+            "programmer": 80000,
+            "chef": 34000,
+            "blacksmith": 25600,
+            "farmer": 30000,
+            "fisherman": 19000,
+            "hunter": 10000,
+        }
+        category_select = Select(
+            custom_id="profession",
+            placeholder="Select Profession",
+            options=options,
+            max_values=1,
+            min_values=1,
+        )
+        work_btn = Button(label="Work", custom_id="work", style=ButtonStyle.green, disabled=True)
+
+        em = action_embed(
+            "Professions To Work",
+            "Select your profession to work at. It requires specific `skills` for each job. Make sure you have enough skills or learn them at `k school`",
+            Color.green(),
+            f"Work by {ctx.author.name}",
+            ctx.author.avatar,
+        )
+
+        def update(option: SelectOption):
+            nonlocal em
+            if not option:
+                em.description = "Select a profession from the menu."
+                return
+            needed_skills = DATA["jobs"].get(option.value, [])
+            descrip = (
+                f"**{option.label}** {option.emoji}
+"
+                f"{option.description}
+"
+                f"**Skills Required**: {', '.join(needed_skills) if needed_skills else 'None'}
+"
+                f"**Salary**: {salary[option.value]}"
+            )
+            em.description = descrip
+
         view = View(timeout=45)
-        async def timeout():
-            nonlocal em, view, msg
-            em.color = Color.light_grey()
-            for children in view.children:
-                children.disabled = True
-            await msg.edit(embed=em, view=view)
-        view.on_timeout = timeout
-        view.add_item(discard_btn)
-        view.add_item(confirm_btn)
-        
-        async def on_confirm(inter: Interaction):
+
+        async def on_select(inter: Interaction):
+            nonlocal selected
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
+                await inter.response.send_message(
+                    embed=Embed(description="This interaction is not for you", color=Color.red()),
+                    ephemeral=True,
                 )
-            nonlocal em, view, category
-            Profiles[str(ctx.author.id)][category][item] -= amount 
-            if Profiles[str(ctx.author.id)][category][item] == 0:
-                Profiles[str(ctx.author.id)][category].pop(item)
-            
-            if item in Profiles[str(user.id)][category]:
-                Profiles[str(user.id)][category][item] += amount
+                return
+            selected_val = inter.data["values"][0]
+            for opt in category_select.options:
+                opt.default = (opt.value == selected_val)
+                if opt.value == selected_val:
+                    selected = opt
+
+            profile_skills = Profiles[str(ctx.author.id)].get("skills", {})
+            required = DATA["jobs"].get(selected.value, [])
+            if all(skill in profile_skills and profile_skills[skill] > 0 for skill in required):
+                work_btn.disabled = False
             else:
-                Profiles[str(user.id)][category][item] = amount
-            
-            em.description = f"{kemoji()} Sucessfully sent {item} x {amount} to {user.mention}"
-            
-            await inter.response.edit_message(embed=em, view=None)
-            await ctx.send(f"{user.mention} You recieved a gift", embed = Embed(description=f"You have recieved an item from {ctx.author.mention}\n```{item} x {amount}```", color= Color.green()))
-        
-        async def on_discard(inter: Interaction):
+                work_btn.disabled = True
+
+            view.clear_items()
+            view.add_item(category_select)
+            view.add_item(work_btn)
+            update(selected)
+            await inter.response.edit_message(embed=em, view=view)
+
+        async def on_work(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
+                await inter.response.send_message(
+                    embed=Embed(description="This interaction is not for you", color=Color.red()),
+                    ephemeral=True,
                 )
-            nonlocal em, view, category
-            em.description = "⚠️ You cancelled the transaction"
+                return
+            sal = salary[selected.value]
+            inv_manager(str(ctx.author.id), "cash", sal)
+            em.description = f"You earned {sal} {DATA['id']['cash']} as salary."
             await inter.response.edit_message(embed=em, view=None)
-           
-        confirm_btn.callback = on_confirm
-        discard_btn.callback = on_discard
-        
-        msg = await ctx.reply(embed=em, view=view)
-            
-            
+
+        async def timeout():
+            em.color = Color.light_grey()
+            for child in view.children:
+                child.disabled = True
+            await msg.edit(embed=em, view=view)
+
+        view.on_timeout = timeout
+        category_select.callback = on_select
+        work_btn.callback = on_work
+        view.add_item(category_select)
+        update(None)
+        msg = await ctx.send(embed=em, view=view)
+
+    # ========= SCHOOL / SKILLS =========
+
     @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
-    async def use(self, ctx, item: Optional[str] = None):
-        """Uses the selected item from inventory"""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-        
+    async def school(self, ctx):
+        options = [
+            SelectOption(label="Math", description="Numbers & logic", emoji="➗", value="math"),
+            SelectOption(label="Science", description="Innovate & discover", emoji="🔬", value="science"),
+            SelectOption(label="Geography", description="Explore the world", emoji="🗺️", value="geography"),
+            SelectOption(label="Mechanics", description="Build & design", emoji="🛠️", value="mechanics"),
+            SelectOption(label="Cooking", description="Master of flavors", emoji="🍳", value="cooking"),
+            SelectOption(label="Programming", description="Code the future", emoji="💻", value="programming"),
+            SelectOption(label="Teaching", description="Guide young minds", emoji="📚", value="teaching"),
+            SelectOption(label="Farming", description="Grow & harvest", emoji="🌾", value="farming"),
+            SelectOption(label="Hunting", description="Track & survive", emoji="🏹", value="hunting"),
+            SelectOption(label="Fishing", description="Catch & sustain", emoji="🎣", value="fishing"),
+        ]
+        selected = None
+        time_req = {
+            "math": 7200,
+            "science": 7200,
+            "geography": 1800,
+            "mechanics": 10800,
+            "cooking": 1800,
+            "programming": 3600,
+            "teaching": 3600,
+            "farming": 1800,
+            "hunting": 1800,
+            "fishing": 1800,
+        }
+        category_select = Select(
+            custom_id="skill",
+            placeholder="Select Skill",
+            options=options,
+            max_values=1,
+            min_values=1,
+        )
+        study_btn = Button(label="Study", custom_id="study", style=ButtonStyle.green, disabled=True)
+
+        em = action_embed(
+            "Skills to Learn",
+            "Select your skills to learn. It requires time and patience, but helps in `k work`.",
+            Color.green(),
+            f"School by {ctx.author.name}",
+            ctx.author.avatar,
+        )
+
+        def update(option: Optional[SelectOption]):
+            nonlocal em
+            if not option:
+                em.description = "Select a skill from the menu."
+                return
+            jobs = [x for x in DATA["jobs"] if option.value in DATA["jobs"][x]]
+            descrip = (
+                f"**{option.label}** {option.emoji}
+"
+                f"{option.description}
+"
+                f"**Jobs Offered**: {', '.join(jobs) if jobs else 'None'}
+"
+                f"**Time**: {time_req[option.value]} seconds"
+            )
+            em.description = descrip
+
+        view = View(timeout=45)
+
+        async def on_select(inter: Interaction):
+            nonlocal selected
+            if inter.user.id != ctx.author.id:
+                await inter.response.send_message(
+                    embed=Embed(description="This interaction is not for you", color=Color.red()),
+                    ephemeral=True,
+                )
+                return
+            selected_val = inter.data["values"][0]
+            for opt in category_select.options:
+                opt.default = (opt.value == selected_val)
+                if opt.value == selected_val:
+                    selected = opt
+            study_btn.disabled = False
+            view.clear_items()
+            view.add_item(category_select)
+            view.add_item(study_btn)
+            update(selected)
+            await inter.response.edit_message(embed=em, view=view)
+
+        async def on_study(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                await inter.response.send_message(
+                    embed=Embed(description="This interaction is not for you", color=Color.red()),
+                    ephemeral=True,
+                )
+                return
+            due = time_req[selected.value]
+            # Simulate long task; in practice you might store timers
+            await inter.response.defer(ephemeral=False)
+            await asyncio.sleep(1)  # keep instant for gameplay; replace with 'due' if desired
+            gain = randint(1, 5)
+            skills_manager(str(ctx.author.id), selected.value, gain)
+            progress = Profiles[str(ctx.author.id)]["skills"][selected.value]
+            em.description = f"You studied {selected.label} {selected.emoji} and gained {gain}%. Progress: {progress}%."
+            await ctx.edit_original_response(embed=em, view=None)
+
+        async def timeout():
+            em.color = Color.light_grey()
+            for child in view.children:
+                child.disabled = True
+            await msg.edit(embed=em, view=view)
+
+        view.on_timeout = timeout
+        category_select.callback = on_select
+        study_btn.callback = on_study
+        view.add_item(category_select)
+        update(None)
+        msg = await ctx.send(embed=em, view=view)
+
+    # ========= ACTIVITY COMMANDS =========
+
     @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    async def kill(self, ctx):
-        """To Kill spawned mob"""
+    async def hunt(self, ctx):
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-        
+
         drops = {
+            "animals": 3,
             "foods": 1,
-            "animals": 2,
-            "tools": 1,
-            "weapons": 0.5,
-            "vehicles": 0.2,
-            "emotes": 0.2
+            "plants": 1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
         self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Adventure", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em = Embed(
+            title="Hunt",
+            description=f"You went hunting in the {loc.capitalize()} and got:
+{self.rewards_descrip(rewards)}",
+            color=Color.green(),
+        )
+        em.set_footer(
+            text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}",
+            icon_url=ctx.author.avatar,
+        )
         await ctx.reply(embed=em)
-        
-    @commands.hybrid_command(aliases=["adv"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    async def adventure(self, ctx):
-        """To adventure or find new places, results in exciting rewards"""
+    async def chop(self, ctx):
+        """Goes chopping in the woods."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-        #aura to new location find chance
-        
+
         drops = {
-            "foods": 2,
+            "foods": 1,
             "plants": 1,
-            "animals": 2,
+            "animals": 1,
             "tools": 1,
             "weapons": 0.5,
             "assets": 1,
             "vehicles": 0.2,
-            "emotes": 0.1
+            "emotes": 1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
         self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Adventure", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em = Embed(
+            title="Chopping",
+            description=f"You went chopping in the {loc.capitalize()} and got:
+{self.rewards_descrip(rewards)}",
+            color=Color.green(),
+        )
+        em.set_footer(
+            text=f"Chop by {ctx.author.display_name} | At {timestamp(ctx)}",
+            icon_url=ctx.author.avatar,
+        )
         await ctx.reply(embed=em)
-        
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def go(self, ctx, *, place:str = ""):
-        """Travel to a whole different locations that's your have discovered already using `adventure` or `explore`."""
-        places = Profiles[str(ctx.author.id)]["places"]
-        if not places:
-            await ctx.reply(embed = Embed(description= f"{kemoji()} You have to place to go 🤣! Discover new locations using `k adventure` & `k explore` first.", color = Color.blue()))
-            return
-            
-        go_btn = Button(style=ButtonStyle.green, custom_id="go", label = "🏃 Go", disabled = True)
-        return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label = "↩️ Return", disabled=True)
-       
-        place_select = Select(custom_id="places", placeholder="Select Location to go", options=[SelectOption(label=i.replace("_"," ").title(),value=i) for i in places], max_values=1, min_values=1)
-        if place:
-            if place.replace(" ", "_").lower() not in DATA["places"]:
-                await ctx.reply(embed=Embed(description="Invalid Location Provided", color= Color.red()))
-                return
-            for option in place_select.options:
-                if place in option.label.lower():
-                    option.default = True
-                    go_btn.disabled = False
-                    break
-        
-        em = Embed(title=f"Travel", description= "Select the location in menu where you want to go then confirm.", color= Color.green())
-        
-        view = View(timeout = 45)
-        async def timeout():
-            nonlocal em, view, msg
-            em.color = Color.light_grey()
-            for children in view.children:
-                children.disabled = True
-            await msg.edit(embed=em, view=view)
-        view.on_timeout = timeout
-        view.add_item(place_select)
-        view.add_item(go_btn)
-        view.add_item(return_btn)
-        
-        async def on_select(inter: Interaction):
-            if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
-            nonlocal go_btn, view, place_select
-            go_btn.disabled = False
-            for option in place_select.options:
-                if option.value == inter.data["values"][0]:
-                    option.default = True
-                    break
-                    
-            await inter.response.edit_message(view=view)
-                
-        async def on_go(inter: Interaction):
-            if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
-            nonlocal em, view, go_btn, return_btn, place_select
-            for option in place_select.options:
-                if option.default:
-                    loc = option.value
-                    option.default = False
-                    break
-            em.description = f"You started your journey to the {loc.replace('_',' ').title()}. Wait untill you reach the destination"
-            em.set_img(url = None)
-            view.clear_items()
-            view.add_item(return_btn)
-            view.add_item(go_btn)
-            go_btn.disabled = True
-            return_btn.disabled = False
-            
-            await inter.response.edit_message(embed=em, view=view)
-        
-        async def on_return(inter: Interaction):
-            if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
-            nonlocal em, view
-            return_btn.disabled = True
-            
-            await inter.response.edit_message(embed=em, view=None)
-           
-        place_select.callback = on_select
-        go_btn.callback = on_go
-        return_btn.callnack = on_return
-        
-        msg = await ctx.reply(embed=em, view=view)
-        
-    @commands.hybrid_command(aliases=['cr'])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def craft(self, ctx, item, amt=1):
-        """Crafts a new item from inventory"""
-        emoji = EMOJI[f"kelly{choice(['hiding', 'ok', 'fight', 'interesting', 'owolove', 'interesting', 'thinking', 'bored', 'interesting'])}"]
-        if item not in DATA["craft"]:
-            await ctx.send(f"**{emoji} | ** that isnt a craftable item")
-            return
-        if amt <= 0:
-            await ctx.send(f"**{emoji} | ** that isnt a valid amount")
-            return
-        descrip = ""
-        color = Color.green()
-        craft = Button(style=ButtonStyle.green, label="Craft")
-        for items, value in DATA["craft"][item]:
-            if Profiles[str(ctx.author.id)]['inv'][items] >= value*amt:
-                descrip += f"`{EMOJI.get(items)} X {value*amt}` :white_check_mark:"
-            else:
-                descrip += f"`{EMOJI.get(items)} X {value*amt}` :x:"
-                craft.disabled = True
-                color = Color.red()
 
-        async def on_callback(interaction):
-            for items, value in DATA["craft"][item]:
-                Profiles[str(ctx.author.id)]['inv'][items] -= (value*amt)
-
-        em = Embed(title=f"Crafting {item.capitalize()}", description=descrip, color=color)
-        em.set_footer(text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}", icon_url= ctx.author.avatar)
-        view = View(timeout=30)
-        view.add_item(craft)
-        msg = await ctx.reply(embed=em, view=view)
-
-        async def on_timeout():
-            await msg.edit(view=None)
-        
-        craft.callback = on_callback
-        view.on_timeout = on_timeout
-            
     @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
-    async def eat(self, ctx):
-        """Eat Items from your inventory."""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-        
+    async def farm(self, ctx):
+        """Goes for cropping and harvesting the farmland."""
+        profile = Profiles[str(ctx.author.id)]
+        aura = profile["aura"]
+        loc = profile["location"]
+
+        drops = {
+            "foods": 3,
+            "plants": 2,
+            "animals": 0.5,
+            "tools": 0.5,
+        }
+
+        rewards = self.reward_player(aura, loc, drops)
+        self.add_rewards(ctx.author.id, rewards)
+        em = Embed(
+            title="Farm",
+            description=f"You worked on the farm in the {loc.capitalize()} and got:
+{self.rewards_descrip(rewards)}",
+            color=Color.green(),
+        )
+        em.set_footer(
+            text=f"Farm by {ctx.author.display_name} | At {timestamp(ctx)}",
+            icon_url=ctx.author.avatar,
+        )
+        await ctx.reply(embed=em)
+
     @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.cooldown(1, 3600, type=commands.BucketType.user)
+    @has_profile()
+    async def mine(self, ctx):
+        """Go for mining rare items in the caves."""
+        profile = Profiles[str(ctx.author.id)]
+        aura = profile["aura"]
+        loc = profile["location"]
+
+        drops = {
+            "weapons": 1,
+            "tools": 1,
+            "assets": 1,
+            "foods": 0.5,
+        }
+
+        rewards = self.reward_player(aura, loc, drops)
+        self.add_rewards(ctx.author.id, rewards)
+        em = Embed(
+            title="Mine",
+            description=f"You went mining in the {loc.capitalize()} and got:
+{self.rewards_descrip(rewards)}",
+            color=Color.green(),
+        )
+        em.set_footer(
+            text=f"Mine by {ctx.author.display_name} | At {timestamp(ctx)}",
+            icon_url=ctx.author.avatar,
+        )
+        await ctx.reply(embed=em)
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     @has_in_inventory("fishing_rod")
     @at_the_location("river")
     async def fish(self, ctx):
-        """Catch Fish directly from the river."""
+        """Catch fish directly from the river."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-        
+
         drops = {
             "foods": 3,
             "tools": 1,
-            "plants": 1
-        }
-
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Adventure", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
-     
-    @commands.hybrid_command(aliases=["brob"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def bankrob(self, ctx):
-        """Attempts bankrobbing someones account bases on your aura level"""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def beg(self, ctx):
-        """Begs: unexpected rewards"""
-        cash = randint(0, 100)
-        sign = choice(["$", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹", "₹"])
-        value = 1
-        if sign == "$":
-            value = 86
-        Profiles[str(ctx.author.id)]["cash"] += cash * value
-
-        await ctx.send(f"**{EMOJI['kelly'+choice(['embaress','laugh','owolove','hiding'])]} | **You got {sign}{cash}")
-
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def hunt(self, ctx):
-        """Goes hunting in the woods"""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
-        
-        drops = {
-            "animals": 3,
-            "foods": 1,
-            "plants": 1
-        }
-
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Adventure", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
-        
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def chop(self, ctx):
-        """Goes chopping in the woods"""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
-        
-        drops = {
-            "foods": 1,
             "plants": 1,
-            "animals": 1,
-            "tools": 1,
-            "weapons": 0.5,
-            "assets": 1,
-            "vehicles": 0.2,
-            "emotes": 1
         }
 
         rewards = self.reward_player(aura, loc, drops)
         self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Chopping", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Chop by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em = Embed(
+            title="Fish",
+            description=f"You went fishing in the {loc.capitalize()} and got:
+{self.rewards_descrip(rewards)}",
+            color=Color.green(),
+        )
+        em.set_footer(
+            text=f"Fish by {ctx.author.display_name} | At {timestamp(ctx)}",
+            icon_url=ctx.author.avatar,
+        )
         await ctx.reply(embed=em)
-        
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def battle(self, ctx, user: Optional[discord.Member] = None):
-        """Battle someone: Show your strength.
-        Amazing rewards.
-        Can also mention user to battle with them otherwise opponent will be selected randomly."""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
 
     @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    async def buy(self, ctx):
-        """Welcome to the Shop: Buy anything using cash or gems"""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def sell(self, ctx):
-        """Welcome to the Shop: Sell anything and its estimated value on Cash or Gem"""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-
-    @commands.hybrid_command(aliases=["quests"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def quest(self, ctx):
-        """Complete quests to revir exciting rewards: ✓ Daily Quest ✓ Adventure Quest ✓ Burial Treasure Quest ✓ Premium Quest"""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-    
-    @commands.hybrid_command(aliases=["w"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def work(self, ctx):
-        """Work in your Job or Get a new Job"""
+    async def adventure(self, ctx):
+        """Adventure or find new places, results in exciting rewards."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-        
-        drops = {
-            "assets": 1 # cash , gem or , rare orb
-        }
 
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Work", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Work by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
-        
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def mine(self, ctx):
-        """Go for Moninin the caves"""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
-        
         drops = {
-            "assets": 3,
-            "tools": 1,
-            "weapons": 1
-        }
-
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Mine", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Mine by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
-    
-    @commands.hybrid_command(aliases=["crop", "crops", "harvest"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def farm(self, ctx):
-        """Goes for Cropping your farmland"""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
-        
-        drops = {
-            "plants": 3,
             "foods": 2,
-        }
-
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Farm", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Farm by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
-        
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def build(self, ctx):
-        """Build Your Favourite Structures"""
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-        
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def steal(self, ctx, user: discord.Member):
-        """Steal item from a user very risky unless you have aura and skill ;>"""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
-        
-        drops = {
-            "foods": 1,
             "plants": 1,
-            "animals": 1,
+            "animals": 2,
             "tools": 1,
             "weapons": 0.5,
             "assets": 1,
             "vehicles": 0.2,
-            "emotes": 1
+            "emotes": 0.1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
         self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Steal", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Steal by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        # chance to discover new place
+        place_manager(str(ctx.author.id), loc)
+        em = Embed(
+            title="Adventure",
+            description=f"You went on adventuring in the {loc.capitalize()} and got:
+{self.rewards_descrip(rewards)}",
+            color=Color.green(),
+        )
+        em.set_footer(
+            text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}",
+            icon_url=ctx.author.avatar,
+        )
         await ctx.reply(embed=em)
-    
-    @commands.hybrid_command(aliases=["exp"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def explore(self, ctx):
-        """Explores a new place each time a bit dangerous. Consumes more energy and food."""
+        """Explores a new place each time. A bit dangerous, consumes more energy and food."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-        #New location find must
-        
+
         drops = {
             "foods": 1,
             "plants": 1,
@@ -755,61 +761,574 @@ class Games(commands.Cog):
             "tools": 0.3,
             "weapons": 0.5,
             "assets": 0.2,
-            "vehicles": 0.1
+            "vehicles": 0.1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
         self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Explore", description= f"You went on adventuring in the {location.capitalize()} and got:\n{self.rewards_descrip(rewards)}", color = Color.green())
-        em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        # must discover at least one new place in your own logic
+        place_manager(str(ctx.author.id), loc)
+        em = Embed(
+            title="Explore",
+            description=f"You explored around {loc.capitalize()} and got:
+{self.rewards_descrip(rewards)}",
+            color=Color.green(),
+        )
+        em.set_footer(
+            text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",
+            icon_url=ctx.author.avatar,
+        )
         await ctx.reply(embed=em)
-        
+
+    # ========= TRAVEL =========
+
     @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    async def trade(self, ctx, item, qty):
-        pass
-        
-    @commands.hybrid_command(aliases=["dm", "daily_missions"])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    @has_profile()
-    async def daily(self, ctx, item, qty):
-        pass
-        
-    @commands.hybrid_command(aliases=[])
-    @commands.cooldown(1,100, type = commands.BucketType.user )
-    @commands.has_permissions()
-    @commands.bot_has_permissions()
-    async def marry(self, ctx, spouse: discord.Member):
-        """Marry someone special 😜💓"""
-        assets = Profiles[str(ctx.author.id)]["assets"]
-        if "ring" not in assets:
-            await ctx.send("Ayoo you need a ring in your inventory to marry someone 😉❤️")
+    async def travel(self, ctx, *, place: Optional[str] = None):
+        """Travel to different locations that you have discovered already."""
+        profile_id = str(ctx.author.id)
+        places = Profiles[profile_id].get("places", [])
+        if not places:
+            await ctx.reply(
+                embed=Embed(
+                    description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",
+                    color=Color.blue(),
+                )
+            )
             return
-        em = Embed(title= f"🤵{ctx.authot.display_name} Weds {spouse.display_name} 👰", description= f"{ctx.author.display_name} you want to marry {spouse.mention} is that correct ? Please confirm your descision", color=Color.purple())
-        em.set_footer(text=f"Marriage attended by {randint(1,8192)} discordians | {timestamp(ctx)} | Aura++", icon_url = ctx.author.avatar)
-        
-        confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", label = "✅")
-        discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", label = "❌")
-       
-        view = View(timeout = 45)
+
+        go_btn = Button(style=ButtonStyle.green, custom_id="go", label="🏃 Go", disabled=True)
+        return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
+
+        place_select = Select(
+            custom_id="places",
+            placeholder="Select Location to go",
+            options=[SelectOption(label=i.replace('_', ' ').title(), value=i) for i in places],
+            max_values=1,
+            min_values=1,
+        )
+
+        if place:
+            key = place.replace(" ", "_").lower()
+            if key not in DATA["places"]:
+                await ctx.reply(embed=Embed(description="Invalid Location Provided", color=Color.red()))
+                return
+            for option in place_select.options:
+                if place.lower() in option.label.lower():
+                    option.default = True
+                    go_btn.disabled = False
+                    break
+
+        em = Embed(
+            title="Travel",
+            description="Select the location in menu where you want to go then confirm.",
+            color=Color.green(),
+        )
+
+        view = View(timeout=45)
+
+        async def timeout():
+            em.color = Color.light_grey()
+            for child in view.children:
+                child.disabled = True
+            await msg.edit(embed=em, view=view)
+
+        view.on_timeout = timeout
+        view.add_item(place_select)
+        view.add_item(go_btn)
+        view.add_item(return_btn)
+
+        async def on_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+            go_btn.disabled = False
+            for option in place_select.options:
+                option.default = (option.value == inter.data["values"][0])
+            await inter.response.edit_message(view=view)
+
+        async def on_go(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+            for option in place_select.options:
+                if option.default:
+                    loc = option.value
+                    Profiles[profile_id]["location"] = loc
+                    break
+            em.description = f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination."
+            view.clear_items()
+            view.add_item(return_btn)
+            go_btn.disabled = True
+            return_btn.disabled = False
+            await inter.response.edit_message(embed=em, view=view)
+
+        async def on_return(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(
+                    "This is not your interaction.", ephemeral=True
+                )
+            return_btn.disabled = True
+            em.description = f"You arrived at {Profiles[profile_id]['location'].replace('_', ' ').title()}."
+            await inter.response.edit_message(embed=em, view=None)
+
+        place_select.callback = on_select
+        go_btn.callback = on_go
+        return_btn.callback = on_return
+
+        msg = await ctx.reply(embed=em, view=view)
+
+    # ========= FEED / BUILD / STEAL =========
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @has_profile()
+    async def feed(self, ctx, item: Optional[str] = None, amount: int = 1):
+        """Eat items from your inventory."""
+        profile_id = str(ctx.author.id)
+        if not item:
+            await ctx.send("Specify a food item to eat.")
+            return
+        item = item.lower()
+        if item not in DATA["foods"]:
+            await ctx.send("That is not edible.")
+            return
+        if amount <= 0:
+            await ctx.send("Invalid amount.")
+            return
+        if not inv_searcher(profile_id, item, amount):
+            await ctx.send("You do not have enough of that food.")
+            return
+        inv_manager(profile_id, item, -amount)
+        Profiles[profile_id]["aura"] += amount  # simple aura gain
+        await ctx.send(f"You ate {amount}x {DATA['id'][item]} and feel stronger.")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 200, type=commands.BucketType.user)
+    @has_profile()
+    async def build(self, ctx, *, item: str):
+        """Build your favourite structures."""
+        item = item.lower()
+        profile_id = str(ctx.author.id)
+        if item not in DATA.get("build", {}):
+            await ctx.send("That is not a buildable structure.")
+            return
+        cost = DATA["build"][item]
+        for need_item, qty in cost.items():
+            if not inv_searcher(profile_id, need_item, qty):
+                await ctx.send("You do not have enough resources to build that.")
+                return
+        for need_item, qty in cost.items():
+            inv_manager(profile_id, need_item, -qty)
+        inv_manager(profile_id, item, 1)
+        await ctx.send(f"You built {DATA['id'].get(item, item)} successfully.")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 100, type=commands.BucketType.user)
+    @has_profile()
+    async def steal(self, ctx, user: discord.Member):
+        """Steal item from a user. Very risky unless you have aura and skill."""
+        thief_id = str(ctx.author.id)
+        victim_id = str(user.id)
+        if thief_id == victim_id:
+            await ctx.send("You cannot steal from yourself.")
+            return
+        if victim_id not in Profiles:
+            await ctx.send("Target profile not found.")
+            return
+        thief_aura = Profiles[thief_id]["aura"]
+        victim_aura = Profiles[victim_id]["aura"]
+        success_chance = max(10, min(90, 50 + (thief_aura - victim_aura) // 10))
+        if randint(1, 100) > success_chance:
+            fine = min(Profiles[thief_id]["assets"].get("cash", 0), 100)
+            inv_manager(thief_id, "cash", -fine)
+            await ctx.send(f"You got caught stealing! You paid a fine of {fine}.")
+            return
+        # pick random non-cash item
+        victim_inv = Profiles[victim_id].get("foods", {})
+        if not victim_inv:
+            await ctx.send("Victim has nothing worth stealing (foods category checked).")
+            return
+        item_key = choice(list(victim_inv.keys()))
+        inv_manager(victim_id, item_key, -1)
+        inv_manager(thief_id, item_key, 1)
+        await ctx.send(f"You successfully stole {DATA['id'].get(item_key, item_key)} from {user.mention}!")
+
+    # ========= CRAFT / TRADE / GIVE / USE =========
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 100, type=commands.BucketType.user)
+    @has_profile()
+    async def craft(self, ctx, item: str, qty: int = 1):
+        """Craft a new item from inventory."""
+        emoji = EMOJI[f"kelly{choice(['hiding', 'ok', 'fight', 'interesting', 'owolove', 'thinking', 'bored'])}"]
+        item = item.lower()
+        if item not in DATA["craft"]:
+            await ctx.send(f"**{emoji} |** that is not a craftable item.")
+            return
+        if qty <= 0:
+            await ctx.send(f"**{emoji} |** that is not a valid amount.")
+            return
+
+        descrip = ""
+        color = Color.green()
+        craft_btn = Button(style=ButtonStyle.green, label="Craft")
+        profile_id = str(ctx.author.id)
+
+        for need_item, value in DATA["craft"][item].items():
+            total_needed = value * qty
+            have = Profiles[profile_id]["inv"].get(need_item, 0)
+            if have >= total_needed:
+                descrip += f"`{EMOJI.get(need_item)} x {total_needed}` ✅
+"
+            else:
+                descrip += f"`{EMOJI.get(need_item)} x {total_needed}` ❌
+"
+                craft_btn.disabled = True
+                color = Color.red()
+
+        async def on_callback(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            for need_item, value in DATA["craft"][item].items():
+                Profiles[profile_id]["inv"][need_item] -= (value * qty)
+            Profiles[profile_id]["inv"][item] = Profiles[profile_id]["inv"].get(item, 0) + qty
+            em.description = f"Successfully crafted {DATA['id'].get(item, item)} x{qty}."
+            await inter.response.edit_message(embed=em, view=None)
+
+        em = Embed(
+            title=f"Crafting {item.capitalize()}",
+            description=descrip,
+            color=color,
+        )
+        em.set_footer(
+            text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
+            icon_url=ctx.author.avatar,
+        )
+        view = View(timeout=30)
+        view.add_item(craft_btn)
+        craft_btn.callback = on_callback
+
+        msg = await ctx.reply(embed=em, view=view)
+
+        async def on_timeout():
+            await msg.edit(view=None)
+
+        view.on_timeout = on_timeout
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 100, type=commands.BucketType.user)
+    @has_profile()
+    async def trade(self, ctx, user: discord.Member, item, val: int = 1):
+        """Placeholder simple trade: same as give, but both must confirm."""
+        await ctx.send("Trade system is basic; use `k give` for direct transfers for now.")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 30, type=commands.BucketType.user)
+    @has_profile()
+    async def give(self, ctx, user: discord.Member, item, amount: int = 1):
+        """Transfers inventory item to other user."""
+        profile = Profiles.get(str(ctx.author.id))
+        if str(user.id) not in Profiles:
+            await ctx.reply("Given user profile not found.")
+            return
+
+        if item.isdigit():
+            amount = int(item)
+            item = "cash"
+        item = item.lower()
+        if item not in DATA["id"]:
+            await ctx.send("Invalid item.")
+            return
+        if amount <= 0 or amount > 1000:
+            await ctx.send("Invalid amount.")
+            return
+        if not inv_searcher(str(ctx.author.id), item, amount):
+            await ctx.send("That item is not in your inventory in that amount.")
+            return
+
+        em = Embed(
+            title="💳 Transfer 💱",
+            description=f"Are you sure you want to give {user.mention} {item} x {amount}?",
+            color=Color.gold(),
+        )
+        confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", label="✅")
+        discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", label="❌")
+
+        view = View(timeout=45)
+
         async def timeout():
             nonlocal em, view, msg
             em.color = Color.light_grey()
-            for children in view.children:
-                children.disabled = True
+            for child in view.children:
+                child.disabled = True
             await msg.edit(embed=em, view=view)
+
         view.on_timeout = timeout
-        
+        view.add_item(discard_btn)
+        view.add_item(confirm_btn)
+
+        async def on_confirm(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            inv_manager(str(ctx.author.id), item, -amount)
+            inv_manager(str(user.id), item, amount)
+            em.description = f"{kemoji()} Successfully sent {DATA['id'][item]} {item} x {amount} to {user.mention}."
+            await inter.response.edit_message(embed=em, view=None)
+            await ctx.send(
+                f"{user.mention} You received a gift",
+                embed=Embed(
+                    description=f"You have received an item from {ctx.author.mention}
+{DATA['id'][item]} {item} x {amount}",
+                    color=Color.green(),
+                ),
+            )
+
+        async def on_discard(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            em.description = "⚠️ You cancelled the transaction."
+            await inter.response.edit_message(embed=em, view=None)
+
+        confirm_btn.callback = on_confirm
+        discard_btn.callback = on_discard
+
+        msg = await ctx.reply(embed=em, view=view)
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 20, type=commands.BucketType.user)
+    @has_profile()
+    async def use(self, ctx, item):
+        """Uses the selected item from inventory."""
+        item = item.lower()
+        if not inv_searcher(str(ctx.author.id), item, 1):
+            await ctx.send("You do not have that item.")
+            return
+        # Example: if food -> feed; if aura item -> boost aura etc.
+        inv_manager(str(ctx.author.id), item, -1)
+        await ctx.send(f"You used {DATA['id'].get(item, item)}.")
+
+    # ========= SHOP / MARKET / BANK / QUESTS =========
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @has_profile()
+    async def shop(self, ctx):
+        """Show basic shop items."""
+        descrip = ""
+        for item, price in DATA.get("shop", {}).items():
+            descrip += f"{DATA['id'].get(item, item)} - {price} cash
+"
+        if not descrip:
+            descrip = "Shop is empty."
+        await ctx.send(embed=Embed(title="Shop", description=descrip, color=Color.green()))
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @has_profile()
+    async def buy(self, ctx, item: Optional[str] = None, amount: int = 1):
+        """Welcome to the Shop: Buy anything using cash or gems."""
+        if not item:
+            await ctx.send("Specify an item to buy.")
+            return
+        item = item.lower()
+        if item not in DATA.get("shop", {}):
+            await ctx.send("That item is not sold here.")
+            return
+        if amount <= 0:
+            await ctx.send("Invalid amount.")
+            return
+        price = DATA["shop"][item] * amount
+        if Profiles[str(ctx.author.id)]["assets"].get("cash", 0) < price:
+            await ctx.send("You do not have enough cash.")
+            return
+        inv_manager(str(ctx.author.id), "cash", -price)
+        inv_manager(str(ctx.author.id), item, amount)
+        await ctx.send(f"You bought {DATA['id'].get(item, item)} x{amount} for {price} cash.")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @has_profile()
+    async def sell(self, ctx, item: Optional[str] = None, amount: int = 1):
+        """Welcome to the Shop: Sell anything for estimated cash value."""
+        if not item:
+            await ctx.send("Specify an item to sell.")
+            return
+        item = item.lower()
+        if amount <= 0:
+            await ctx.send("Invalid amount.")
+            return
+        if not inv_searcher(str(ctx.author.id), item, amount):
+            await ctx.send("You do not have enough of that item.")
+            return
+        price = DATA.get("sell_price", {}).get(item, DATA.get("shop", {}).get(item, 10)) * amount
+        inv_manager(str(ctx.author.id), item, -amount)
+        inv_manager(str(ctx.author.id), "cash", price)
+        await ctx.send(f"You sold {DATA['id'].get(item, item)} x{amount} for {price} cash.")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 100, type=commands.BucketType.user)
+    @has_profile()
+    async def market(self, ctx):
+        """Placeholder for global player market."""
+        await ctx.send("Player market is not fully implemented yet.")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 3600, type=commands.BucketType.user)
+    @has_profile()
+    async def bankrob(self, ctx, user: discord.Member):
+        """Attempts bank robbing someone's account based on your aura level."""
+        robber_id = str(ctx.author.id)
+        victim_id = str(user.id)
+        if victim_id not in Profiles:
+            await ctx.send("Target profile not found.")
+            return
+        robber_aura = Profiles[robber_id]["aura"]
+        success_chance = max(5, min(70, 30 + robber_aura // 20))
+        if randint(1, 100) > success_chance:
+            fine = 200
+            inv_manager(robber_id, "cash", -fine)
+            await ctx.send(f"You failed the bank rob and paid {fine} cash in fines.")
+            return
+        stolen = min(Profiles[victim_id]["assets"].get("cash", 0) // 2, 5000)
+        if stolen <= 0:
+            await ctx.send("Victim has no money to steal.")
+            return
+        inv_manager(victim_id, "cash", -stolen)
+        inv_manager(robber_id, "cash", stolen)
+        await ctx.send(f"You robbed {stolen} cash from {user.mention}!")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 3600, type=commands.BucketType.user)
+    @has_profile()
+    async def quest(self, ctx):
+        """Complete quests to receive exciting rewards."""
+        await ctx.send("Quest system coming soon: Daily, Adventure, Buried Treasure, Premium.")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 86400, type=commands.BucketType.user)
+    @has_profile()
+    async def daily(self, ctx):
+        """Claim daily reward."""
+        reward = randint(100, 500)
+        inv_manager(str(ctx.author.id), "cash", reward)
+        await ctx.send(f"You claimed your daily reward of {reward} cash.")
+
+    # ========= BATTLE / KILL / MARRY =========
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @has_profile()
+    async def battle(self, ctx, user: Optional[discord.Member] = None):
+        """Battle someone; show your strength and get rewards."""
+        if user is None or user.bot:
+            await ctx.send(embed=Embed(description="Random battle is not yet implemented. Mention a player.", color=Color.red()))
+            return
+        p1 = Profiles[str(ctx.author.id)]
+        p2 = Profiles.get(str(user.id))
+        if not p2:
+            await ctx.send("Opponent does not have a profile.")
+            return
+        a1 = p1["aura"]
+        a2 = p2["aura"]
+        if randint(0, a1 + a2) < a2:
+            await ctx.send(f"{user.mention} won the battle!")
+        else:
+            await ctx.send(f"{ctx.author.mention} won the battle!")
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @has_profile()
+    async def kill(self, ctx, mob: str):
+        """To kill spawned mobs only."""
+        if "spawn" not in Server_Settings.get(str(ctx.guild.id), {}):
+            return await ctx.send(embed=Embed(description="There is no spawned mob.", color=Color.red()))
+
+        profile = Profiles[str(ctx.author.id)]
+        aura = profile["aura"]
+        loc = profile["location"]
+
+        drops = {
+            "foods": 1,
+            "animals": 2,
+            "tools": 1,
+            "weapons": 0.5,
+            "vehicles": 0.2,
+            "emotes": 0.2,
+        }
+
+        rewards = self.reward_player(aura, loc, drops)
+        self.add_rewards(ctx.author.id, rewards)
+        em = Embed(
+            title="Kill",
+            description=f"You killed **{mob}** in the {loc.capitalize()} and got:
+{self.rewards_descrip(rewards)}",
+            color=Color.green(),
+        )
+        em.set_footer(
+            text=f"Kill by {ctx.author.display_name} | At {timestamp(ctx)}",
+            icon_url=ctx.author.avatar,
+        )
+        await ctx.reply(embed=em)
+
+    @commands.hybrid_command(aliases=[])
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
+    @has_profile()
+    async def marry(self, ctx, spouse: discord.Member):
+        """Marry someone special 😜💓"""
+        assets = Profiles[str(ctx.author.id)]["assets"]
+        if assets.get("ring", 0) <= 0:
+            await ctx.send("You need a ring in your inventory to marry someone 😉❤️")
+            return
+        em = Embed(
+            title=f"🤵 {ctx.author.display_name} Weds {spouse.display_name} 👰",
+            description=f"{ctx.author.display_name}, do you want to marry {spouse.mention}? Please confirm your decision.",
+            color=Color.purple(),
+        )
+        em.set_footer(
+            text=f"Marriage attended by {randint(1, 8192)} discordians | {timestamp(ctx)} | Aura++",
+            icon_url=ctx.author.avatar,
+        )
+
+        confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", label="✅")
+        discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", label="❌")
+
+        view = View(timeout=45)
+
+        async def timeout():
+            em.color = Color.light_grey()
+            for child in view.children:
+                child.disabled = True
+            await msg.edit(embed=em, view=view)
+
+        view.on_timeout = timeout
         view.add_item(confirm_btn)
         view.add_item(discard_btn)
-        msg = await ctx.send()
-        await ctx.send(embed= Embed(description="This command is yet to be made :/"))
-        
+
+        async def on_confirm(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            Profiles[str(ctx.author.id)]["spouse"] = spouse.id
+            Profiles[str(spouse.id)]["spouse"] = ctx.author.id
+            assets["ring"] -= 1
+            Profiles[str(ctx.author.id)]["aura"] += 10
+            em.description = f"💍 {ctx.author.mention} and {spouse.mention} are now married!"
+            await inter.response.edit_message(embed=em, view=None)
+
+        async def on_discard(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            em.description = "You cancelled the marriage proposal."
+            await inter.response.edit_message(embed=em, view=None)
+
+        confirm_btn.callback = on_confirm
+        discard_btn.callback = on_discard
+        msg = await ctx.send(embed=em, view=view)
+
+
 async def setup(bot):
     await bot.add_cog(Games(bot))
     print("Loaded cogs: Games")
