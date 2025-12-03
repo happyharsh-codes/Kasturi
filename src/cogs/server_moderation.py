@@ -728,7 +728,7 @@ class Moderation(commands.Cog):
             em2.set_thumbnail(url= ctx.author.avatar)
             em2.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
             em2.set_footer(text=f"﹒ ﹒ ⟡ {ctx.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
-            Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
+            Server_Settings[str(ctx.guild.id)]["welcome_channel"] = welcome_channel
             Server_Settings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
             Server_Settings[str(ctx.guild.id)]["welcome_message"] = welcome_message
             await interaction.response.edit_message(embeds=[em,em2], view = None)
@@ -891,7 +891,7 @@ class Moderation(commands.Cog):
             "mass_mention_block": "Blocks mass mention."
         }
         raid_nuke = [
-            "Anti-Message Spam"
+            "Anti-Message Spam",
             "Anti Rapid Join",
             "Anti-Server Nukes",
             "Auto Lockdown",
@@ -901,8 +901,8 @@ class Moderation(commands.Cog):
             
         add_btn = Button(style=ButtonStyle.green, label="Add Features", custom_id="add", disabled=True)
         skip_btn = Button(style=ButtonStyle.secondary, label="Skip", custom_id="skip")
-        feature_select = Select(custom_id="feature", placeholder="Select Features to Enable", options=[SelectOption(label=i.title(),value=i) for i in list(feature.keys())], max_values=11, min_values=1)
-        raid_nuke_select = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in raid_nuke], max_values=7, min_values=1)
+        feature_select = Select(custom_id="feature", placeholder="Select Features to Enable", options=[SelectOption(label=i.title(),value=i) for i in list(feature.keys())], max_values=9, min_values=1)
+        raid_nuke_select = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in raid_nuke], max_values=6, min_values=1)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
 
         class AutomodModal(discord.ui.Modal):
@@ -983,6 +983,7 @@ class Moderation(commands.Cog):
             elif i == 4:
                 em.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages"
             elif i == 5:
+                em.title = "Automod Successfully Set"
                 em.description = "Successfully set automod rules\nYou server is protected now."
             embeds.append(em)
         
@@ -1117,30 +1118,27 @@ class Moderation(commands.Cog):
         done_btn = Button(style=ButtonStyle.secondary, label="Done", custom_id="done")
 
         class RankModal(discord.ui.Modal):
-            async def __init__(self, reward_type):
-              try:
+            def __init__(self, reward_type):
                 super().__init__(title="Add Rank Reward")
                 self.input_box = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
                 self.reward = reward_type
-                nonlocal role_select
-                if reward_type == "Role":
-                    self.select = role_select
-                elif reward_type == "Cash":
+                self.add_item(self.input_box)
+                if reward_type == "Cash":
                     self.select = TextInput(label="Cash Amount", custom_id="cash", placeholder="Enter Cash amount: (1-10000)", required= True, min_length=1, max_length=5, style=TextStyle.short)
+                    self.add_item(self.select)
                 elif reward_type == "Aura":
                     self.select = TextInput(label="Aura Points", custom_id="aura", placeholder="Enter Aura Points: (1-999)", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                    self.add_item(self.select)
                 elif reward_type == "Gems":
                     self.select = TextInput(label="Gems Amount", custom_id="gems", placeholder="Enter Gems amount: (1-100)", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                    self.add_item(self.select)
                 elif reward_type == "Nitro":
                     self.select = TextInput(label="Nitro Code", custom_id="nitro", placeholder="Enter Valid Nitro Gift Code", required= True, min_length=1, max_length=50, style=TextStyle.short)
-                self.add_item(self.input_box)
-                self.add_item(self.select)
-              except Exception as e:
-                await interaction.client.get_user(894072003533877279).send(e)
- 
+                    self.add_item(self.select)
+                
             async def on_submit(self, interaction: Interaction):
               try:
-                nonlocal em, view, add_btn, done_btn, msg, reward_select, update_embed
+                nonlocal em, view, add_btn, done_btn, msg, reward_select, update_embed, role_select
                 invalid = False
                 level = self.input_box.value
                 if level.isdigit() and int(level) < 101 and int(level) > 0:
@@ -1148,7 +1146,10 @@ class Moderation(commands.Cog):
                 else:
                     invalid = True
                 if self.reward == "Role":
-                    value = int(self.select.values[0])
+                    for option in role_select.options:
+                        if option.default:
+                            value = option.value
+                            break
                 elif self.reward == "Cash":
                     value = self.select.value
                     if value.isdigit() and int(value) <= 10000 and int(value) > 0:
@@ -1225,14 +1226,35 @@ class Moderation(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
 
             selected_reward = inter.data["values"][0]
-            nonlocal reward_select, add_btn, view
+            nonlocal reward_select, add_btn, view, done_btn, role_select
             for option in reward_select.options:
+                if option.value in selected_reward:
+                    option.default = True
+                    break
+            if "Role" in selected_reward:
+                view.clear_items()
+                view.add_item(reward_select)
+                view.add_item(role_select)
+                view.add_item(add_btn)
+                if add_btn.label == "Add More":
+                    view.add_item(done_btn)
+            else:
+                add_btn.disabled = False
+            await inter.response.edit_message(view=view)
+
+        async def on_role_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True )
+
+            selected_reward = inter.data["values"][0]
+            nonlocal add_btn, view, role_select
+            for option in role_select.options:
                 if option.value in selected_reward:
                     option.default = True
                     break
             add_btn.disabled = False
             await inter.response.edit_message(view=view)
-
+        
         async def on_add(inter: Interaction):
           try:
             if inter.user.id != ctx.author.id:
@@ -1258,6 +1280,7 @@ class Moderation(commands.Cog):
 
         # Attach handlers
         reward_select.callback = on_reward_select
+        role_select.callback = on_role_select
         add_btn.callback = on_add
         done_btn.callback = on_done
 
