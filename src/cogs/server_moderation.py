@@ -176,7 +176,8 @@ class Moderation(commands.Cog):
         actions = ["Mute", "Kick", "Ban", "Assign Role"]
         action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
         mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(5,61, 5)], max_values=1, min_values=1)
-        role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=[SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role], max_values=1, min_values=1)
+        roles = [SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role and not "everyone" in role.name]
+        role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
         add = Button(style = ButtonStyle.green, label= "Add", custom_id="add", disabled = True)
         done = Button(style = ButtonStyle.secondary, label= "Done", custom_id="done")
        
@@ -235,7 +236,7 @@ class Moderation(commands.Cog):
             if "Mute" in values:
                 view.add_item(mute_duration_select)
             elif "Assign Role" in values:
-                view.add_item(mute_duration_select)
+                view.add_item(role_add_select)
             view.add_item(add)
             add.disabled = False
             
@@ -633,7 +634,7 @@ class Moderation(commands.Cog):
         """Sets the rank update channel 📊  
         Displays level-up and XP progress here."""
         Server_Settings[str(ctx.guild.id)]["rank_channel"] = channel.id
-        em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor Automatic Rank rewards use `k rank_reward`", color= Color.red())
+        em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor Automatic Rank rewards use `k rank_reward`", color= Color.green())
         await ctx.send(embed=em)
 
     @commands.hybrid_command()
@@ -646,7 +647,7 @@ class Moderation(commands.Cog):
         Sets up custom Welcome Message and design it."""
         welcome_theme_no = 1
         welcome_message = ""
-        welcome_channel = channel.id if channel else none
+        welcome_channel = channel.id if channel else None
         
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
@@ -820,10 +821,10 @@ class Moderation(commands.Cog):
                 insta = self.input_box2.value
                 twitter = self.input_box3.value
                 em.title="Social Media Notification Set Successfully ✅"
-                em.description=f"Now youl get your updates in the <#{social_channel}>."
+                em.description=f"Now you'll get your updates in the <#{social_channel}>."
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
                 Server_Settings[str(ctx.guild.id)]["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
-                await msg.edit(embed=em, view=view)
+                await msg.edit(embed=em, view=None)
                 await interaction.response.defer()
               except Exception as e:
                 await interaction.client.get_user(894072003533877279).send(e)
@@ -904,10 +905,6 @@ class Moderation(commands.Cog):
         raid_nuke_select = Select(custom_id="protect", placeholder="Select Protection to Enable", options=[SelectOption(label=i,value=i) for i in raid_nuke], max_values=7, min_values=1)
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
 
-        em = Embed(title= "Automod Setup 1/5",color = Color.pink())
-        em.set_footer(text=f"Initiated by Moderator: {ctx.author.name} | {timestamp(ctx)} | Aura++", icon_url = ctx.author.avatar)
-        page = 0
-
         class AutomodModal(discord.ui.Modal):
             def __init__(self, features):
                 super().__init__(title="Set Automod Features")
@@ -960,29 +957,34 @@ class Moderation(commands.Cog):
                 await msg.edit(embed = em1, view = view)
               except Exception as e:
                 await interaction.client.get_user(894072003533877279).send(e)
- 
-        em1 = em
-        em1.description = "Select Features to enable:\nFor better functioning enable all our features."
-        descrip = ""
-        for feature_heading, feature_description in feature.items():
-            descrip += f"\n{feature_heading.replace('_','').title()}: {feature_description}"
-        em1.description += f"\n```{descrip}```"
-        em2 = em
-        em2.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```"
-        descrip = ""
-        for raid_heading in raid_nuke:
-            descrip += f"\n• {raid_heading.title()}"
-        em2.description += f"```{descrip}```"
-        em3 = em
-        em3.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n•Punishment Triggered\n• Kelly Updates```"
-        em4 = em
-        em4.description = "Select Punishment Method\nPunishment method automatically handles when trigger is hit and punishment gradually increase on more infringement. You can set Punishments via ```k warn_action``` later on."
-        em5 = em
-        em5.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages"
-        em6 = em
-        em6.description = "Successfully set automod rules\nYou server is protected now."
-        embeds = [em1, em2, em3, em4, em5]
-            
+
+        page = 0
+        embeds = []
+        for i in range(6):
+            em = Embed(title= f"Automod Setup {i+1}/5",color = Color.pink())
+            em.set_footer(text=f"Automod used by {ctx.author.name} | {timestamp(ctx)} | Aura++", icon_url = ctx.author.avatar)
+            if i == 0:
+                descrip = ""
+                em.description = "Select Features to enable:\nFor better functioning enable all our features."
+                for feature_heading, feature_description in feature.items():
+                    descrip += f"\n{feature_heading.replace('_','').title()}: {feature_description}"
+                em.description += f"\n```{descrip}```"
+            elif i == 1:
+                em.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```"
+                descrip = ""
+                for raid_heading in raid_nuke:
+                    descrip += f"\n• {raid_heading.title()}"
+                em.description += f"```{descrip}```"
+            elif i == 2:
+                em.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n•Punishment Triggered\n• Kelly Updates```"
+            elif i == 3:  
+                em.description = "Select Punishment Method\nPunishment method automatically handles when trigger is hit and punishment gradually increase on more infringement. You can set Punishments via ```k warn_action``` later on."
+            elif i == 4:
+                em.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages"
+            elif i == 5:
+                em.description = "Successfully set automod rules\nYou server is protected now."
+            embeds.append(em)
+        
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -1074,19 +1076,23 @@ class Moderation(commands.Cog):
             add_btn.disabled = False
             
         async def timeout():
-            nonlocal em, view, msg
+            nonlocal view, msg
+            em = msg.embeds[0]
             em.color = Color.light_grey()
             for children in view.children:
                 children.disabled = True
             await msg.edit(embed = em, view= view)
               
         view = View(timeout=200)
+        view.add_item(feature_select)
+        view.add_item(add_btn)
+        view.add_item(skip_btn)
+        view.on_timeout = timeout
         add_btn.callback = next_page
         skip_btn.callback = next_page
         raid_nuke_select.callback = on_raid_nuke_select
         feature_select.callback = on_feature_select
         channel_select.callback = on_channel_select
-        view.on_timeout = timeout
         
         msg = await ctx.send(embed=em1, view=view)
         
@@ -1111,6 +1117,7 @@ class Moderation(commands.Cog):
 
         class RankModal(discord.ui.Modal):
             def __init__(self, reward_type):
+              try:
                 super().__init__(title="Add Rank Reward")
                 self.input_box = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
                 self.reward = reward_type
@@ -1127,7 +1134,9 @@ class Moderation(commands.Cog):
                     self.select = TextInput(label="Nitro Code", custom_id="nitro", placeholder="Enter Valid Nitro Gift Code", required= True, min_length=1, max_length=50, style=TextStyle.short)
                 self.add_item(self.input_box)
                 self.add_item(self.select)
-                
+              except Exception as e:
+                await interaction.client.get_user(894072003533877279).send(e)
+ 
             async def on_submit(self, interaction: Interaction):
               try:
                 nonlocal em, view, add_btn, done_btn, msg, reward_select, update_embed
@@ -1202,7 +1211,7 @@ class Moderation(commands.Cog):
             if rank_reward:
                 txt = ""
                 for level, reward in rank_reward.items():
-                    txt += f"**Level {level} →** `{reward[0]}`: `{reward[1]}`\n"
+                    txt += f"• Level {level} → {reward[0]}: {reward[1]}\n"
             else:
                 txt = "No rewards set yet."
 
