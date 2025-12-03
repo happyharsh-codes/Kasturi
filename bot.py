@@ -74,7 +74,25 @@ class Bot:
 
     async def duplicate_detector(self, message):
         return False
-        
+
+    async def rankReward(self, message, rank_channel, rewards, level):
+        prize = rewards.get(int(level), None)
+        if not prize:
+            return
+        amount = prize[1]
+        prize = prize[0]
+
+        if prize == "Cash":
+            pass
+        if prize == "Aura":
+            pass
+        if prize == "Gem":
+            pass
+        if prize == "Role":
+            pass
+        if prize == "Nitro":
+            pass
+            
     # ------------- TASK LOOPS -------------
 
     @tasks.loop(minutes=1)
@@ -875,7 +893,7 @@ class Bot:
             return
             
         metadata = Server_Settings[str(guild.id)]
-        automod = metadata["automodx]
+        automod = metadata["automod"]
         
         # ===== MODERATION ====
         if automod["chat_rate_limiter"] and not await self.chat_rate_limiter(message): return 
@@ -924,7 +942,10 @@ class Bot:
                 if total_xp > max_xp:
                     try:
                         rank_channel = await message.guild.fetch_channel(metadata["rank_channel"])
-                        await rank_channel.send(f"{author.mention} has reached **Level {level+1}!** 🎉") 
+                        await rank_channel.send(f"{author.mention} has reached **Level {level+1}!** 🎉")
+                        # Check for any Rank Rewards
+                        if metadat["rank_reward"]:
+                            await self.rankRewards(message, rank_channel, metadata["rank_reward"], level+1)
                     except:
                         await channel.send(embed=Embed(title="Rank Channel Missing", description="Server Rank Channel is missing either because channel is deleted or I don't have access to that channel. Please set your rank channel again using `k set_rank_channel`", color=Color.red()))
                 Server_Settings[str(guild.id)]["rank"][str(author.id)] += 2
