@@ -928,7 +928,7 @@ class Moderation(commands.Cog):
                 
             async def on_submit(self, interaction: Interaction):
               try:
-                nonlocal feature, em1, view, add_btn, msg
+                nonlocal feature, view, add_btn, msg
                 Server_Settings[str(ctx.guild.id)]["automod"] = {}
                 selected_features = self.features
                 non_features = [x for x in list(features.keys()) if x not in selected_protections]
@@ -947,14 +947,15 @@ class Moderation(commands.Cog):
                         Server_Settings[str(ctx.guild.id)]["automod"][feature] = True
                 for not_feature in non_features:
                     Server_Settings[str(ctx.guild.id)]["automod"][not_feature] = False
-                em1.description = "Features succesfully Set"
+                em = msg.embeds[0]
+                em.description = "Features succesfully Set"
                 for i in list(feature.keys()):
                     if i in selected_features:
-                        em1.description += f"\n✅ {i.replace('_','').title()}"
+                        em.description += f"\n✅ {i.replace('_','').title()}"
                     else:
-                        em1.description += f"\n❌ {i.replace('_','').title()}"
+                        em.description += f"\n❌ {i.replace('_','').title()}"
                 add_btn.label = "Continue"
-                await msg.edit(embed = em1, view = view)
+                await msg.edit(embed = em, view = view)
               except Exception as e:
                 await interaction.client.get_user(894072003533877279).send(e)
 
