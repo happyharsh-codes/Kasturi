@@ -580,7 +580,7 @@ class Utility(commands.Cog):
         process_no = 0
         welcome_theme_no = 1
         welcome_message = Server_Settings[str(ctx.guild.id)]["welcome_message"]
-        welcome_channel = Server_Settings[str(ctx.guild.id)]["join/leave_channel"]
+        welcome_channel = Server_Settings[str(ctx.guild.id)]["welcome_channel"]
         yt = Server_Settings[str(ctx.guild.id)]["social"]["yt"]
         insta = Server_Settings[str(ctx.guild.id)]["social"]["insta"]
         twitter = Server_Settings[str(ctx.guild.id)]["social"]["twitter"]
@@ -795,7 +795,7 @@ class Utility(commands.Cog):
                 em.title="Server Setup Completed Successfully ✅"
                 em.set_footer(text="Whenever lost in trouble use `k help <query>`.", icon_url = ctx.author.avatar)
                 em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/finished.gif")
-                Server_Settings[str(ctx.guild.id)]["join/leave_channel"] = welcome_channel
+                Server_Settings[str(ctx.guild.id)]["welcome_channel"] = welcome_channel
                 Server_Settings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
                 Server_Settings[str(ctx.guild.id)]["allowed_channels"] = activated_channels
                 Server_Settings[str(ctx.guild.id)]["social"] = {"yt": yt , "insta": insta, "twitter": twitter, "social_channel": social_channel}
