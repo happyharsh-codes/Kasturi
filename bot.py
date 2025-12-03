@@ -459,7 +459,7 @@ class Bot:
         for member in guild.members:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
                 moderators.append(member.id)
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite,"owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"join/leave_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {},"friends": [],"logging": 0}
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite,"owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
         if invite != "N/A":
             Guild_Invites[str(guild.id)] = invite 
     
@@ -486,7 +486,7 @@ class Bot:
         else:
             em.add_field(name="Reason", value="Bot was kicked or server deleted")
         em.add_field(name="Invite Link", value=invite)
-        em.set_thumbnail(url=guild.icon.url)
+        em.set_thumbnail(url=guild.icon)
         if invite != "N/A":
             await me.send(invite, embed=em)
         else:
@@ -622,7 +622,7 @@ class Bot:
             em.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{Server_Settings[str(member.guild.id)]['welcome_image']}.gif")
             em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
             try:
-                channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
+                channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["welcome_channel"])
                 await channel.send(f"Welcome {member.mention} <:heart_draw:1428773561904140469>",embed=em)
             except:
                 print("No perms allowed")
@@ -665,7 +665,7 @@ class Bot:
             em.set_thumbnail(url= member.avatar)
             em.set_footer(text=f"﹒ ﹒ ⟡ {member.guild.member_count} Members Strong | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
             try:
-                channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["join/leave_channel"])
+                channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["welcome_channel"])
                 await channel.send(embed=em)
             except:
                 print("No perms allowed")
@@ -778,7 +778,7 @@ class Bot:
                 await msg.channel.send("**Your Last Words were recorded and sent to the Guild Owner and Guild Moderators**")
                 await interaction.response.defer()
               except Exception as e:
-                await  interaction.client.get_user(894072003533877279).send(str(e))
+                await interaction.client.get_user(894072003533877279).send(str(e))
                 await interaction.response.defer()
         
         async def last_words(interaction: Interaction):
