@@ -143,6 +143,11 @@ def location_searcher(id, location):
         return True
     return False
 
-def place_manager(id, place):
-    Profiles[id]["places"][place] == 100
-    
+async def place_manager(ctx, place):
+    if Profiles[id]["places"][place]:
+        Profiles[id]["places"][place] += randint(1,10)
+        if Profiles[id]["places"][place] > 100:
+            Profiles[id]["places"][place] = 100
+    else:
+        Profiles[id]["places"][place] = 100
+        await ctx.send(f"{ctx.author.mention} you found a new location: ft. {place.replace('_','').title()}")
