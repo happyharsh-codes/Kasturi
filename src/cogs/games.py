@@ -246,7 +246,7 @@ class Games(commands.Cog):
             if not descrip:
                 descrip = "No items in this category"
             em.description = f"``````"
-        category_select = Select(custom_id="category"placeholder="Select Category",options=[SelectOption(label=i, value=i) for i in categories],max_values=1,min_values=1)
+        category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i) for i in categories],max_values=1,min_values=1)
         
         async def on_select(inter: Interaction):
             nonlocal selected_category, update, em, view
