@@ -66,6 +66,13 @@ class MongoNestedDict(MutableMapping):
     # ---------- Get ----------
     def __getitem__(self, key):
         if key not in self._data:
+            if isinstance(value, dict):
+                return MongoNestedDict(
+                    collection=self.collection,
+                    doc_id=self.doc_id,
+                    data=value,
+                    root=self.root
+                )
             return self.default
         value = self._data[key]
 
@@ -171,10 +178,11 @@ default_sv_settings = {
     "logging": 0
 }
 
-Profiles         = load_mongo_dict("profiles", "server", default_profiles)
+Profiles         = load_mongo_dict("profiles", "server", None)
 Server_Settings  = load_mongo_dict("server_settings", "server", default_sv_settings)
 Invite_Cache     = load_mongo_dict("invite_cache", "server")
 Guild_Invites    = load_mongo_dict("guild_invites", "server")
+Last             = load_mongo_dict("last", "server")
 
 Relation         = load_mongo_dict("relations", "kellymemory")
 Chats            = load_mongo_dict("chats", "kellymemory")
