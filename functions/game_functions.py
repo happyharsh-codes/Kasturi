@@ -27,8 +27,7 @@ default_profiles = {
 }
 '''
 
-def weighted_choice(choices: list): 
-    choices = [(item, weight)] 
+def weighted_choice(choices: list):
     total = sum(w for _, w in choices) 
     r = random() * total 
     upto = 0 
