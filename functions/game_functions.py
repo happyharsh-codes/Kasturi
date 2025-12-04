@@ -27,12 +27,20 @@ default_profiles = {
 }
 '''
 
+import random
+
 def weighted_choice(choices: list):
-    total = sum(w for _, w in choices) 
-    r = random() * total 
-    upto = 0 
+    if not choices:
+        raise ValueError("choices list cannot be empty")
+    
+    total = sum(w for _, w in choices)
+    if total <= 0:
+        return random.choice([item for item, w in choices])
+    
+    r = random.random() * total
+    upto = 0
     for item, w in choices:
-        if upto + w >= r: 
+        if upto + w >= r:
             return item
         upto += w
     return choices[-1][0]
