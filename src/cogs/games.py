@@ -738,7 +738,7 @@ class Games(commands.Cog):
         }
 
         rewards = self.reward_player(aura, new_loc, drops)
-        self.add_rewards(ctx.author.id, reward
+        self.add_rewards(ctx.author.id, reward)
         em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
         em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
