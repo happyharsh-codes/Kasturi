@@ -44,9 +44,7 @@ def weighted_choice(choices: list):
             return item
         upto += w
     return choices[-1][0]
-
-async def timer():
-
+    
 def inv_searcher(id, item, amt):
     category= ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
     for categ in category:
