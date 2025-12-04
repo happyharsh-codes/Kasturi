@@ -521,12 +521,19 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    @at_the_location(["forest", "mountain", "desert"])
     async def hunt(self, ctx):
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-
+        if loc not in ["forest", "mountain", "desert"]:
+            for i in ["forest", "mountain", "desert"]:
+                if profile["places"][i]:
+                    destination = i
+                    break
+            else:
+                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
+            await ctx.invoke(ctx.bot.get_command('travel'), destination)
+            
         drops = {
             "Animals": 3,
             "Foods": 1,
@@ -535,27 +542,28 @@ class Games(commands.Cog):
 
         rewards = self.reward_player(aura, loc, drops)
         self.add_rewards(ctx.author.id, rewards)
-        em = Embed(
-            title="Hunt",
-            description=f"You went hunting in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
-            color=Color.green(),
-        )
-        em.set_footer(
-            text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}",
-            icon_url=ctx.author.avatar,
-        )
+        em = Embed(title="Hunt",description=f"You went hunting in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
+        em.set_footer(text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}"icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    @at_the_location(["forest", "mountain", "desert"])
     async def chop(self, ctx):
         """Goes chopping in the woods."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-
+    
+        if loc not in ["forest", "mountain", "desert"]:
+            for i in ["forest", "mountain", "desert"]:
+                if profile["places"][i]:
+                    destination = i
+                    break
+            else:
+                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
+            await ctx.invoke(ctx.bot.get_command('travel'), destination)
+            
         drops = {
             "Foods": 1,
             "Plants": 1,
@@ -583,7 +591,7 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
-    @at_the_location(["home"])
+    @at_the_location("home")
     async def farm(self, ctx):
         """Goes for cropping and harvesting the farmland."""
         profile = Profiles[str(ctx.author.id)]
@@ -613,13 +621,21 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
-    @at_the_location(["forest", "mountain", "desert"])
     async def mine(self, ctx):
         """Go for mining rare items in the caves."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-
+        
+        if loc not in ["forest", "mountain", "desert"]:
+            for i in ["forest", "mountain", "desert"]:
+                if profile["places"][i]:
+                    destination = i
+                    break
+            else:
+                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
+            await ctx.invoke(ctx.bot.get_command('travel'), destination)
+            
         drops = {
             "Weapons": 1,
             "Tools": 1,
@@ -644,13 +660,21 @@ class Games(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     @has_in_inventory("fishing_rod")
-    @at_the_location(["river", "ocean"])
     async def fish(self, ctx):
         """Catch fish directly from the river."""
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
-
+        
+        if loc not in ["river", "ocean"]:
+            for i in ["river", "ocean"]:
+                if profile["places"][i]:
+                    destination = i
+                    break
+            else:
+                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
+            await ctx.invoke(ctx.bot.get_command('travel'), destination)
+            
         drops = {
             "Foods": 3,
             "Tools": 1,
@@ -679,6 +703,10 @@ class Games(commands.Cog):
         aura = profile["aura"]
         loc = profile["location"]
 
+        new_loc = choice(["ocean","river","desert","mountain","forest"])
+
+        await place_manager(ctx, new_loc)
+        
         drops = {
             "Foods": 2,
             "Plants": 1,
@@ -690,19 +718,11 @@ class Games(commands.Cog):
             "Emotes": 0.1,
         }
 
-        rewards = self.reward_player(aura, loc, drops)
+        rewards = self.reward_player(aura, new_loc, drops)
         self.add_rewards(ctx.author.id, rewards)
-        # chance to discover new place
-        place_manager(str(ctx.author.id), loc)
-        em = Embed(
-            title="Adventure",
-            description=f"You went on adventuring in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
-            color=Color.green(),
-        )
-        em.set_footer(
-            text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}",
-            icon_url=ctx.author.avatar,
-        )
+        
+        em = Embed(title="Adventure",description=f"You went on adventuring in the {new_loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
+        em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=[])
@@ -713,7 +733,10 @@ class Games(commands.Cog):
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
+        new_loc = choice(["ocean","river","desert","mountain","forest"])
 
+        await place_manager(ctx, new_loc)
+        
         drops = {
             "Foods": 1,
             "Plants": 1,
@@ -724,19 +747,12 @@ class Games(commands.Cog):
             "Vehicles": 0.1,
         }
 
-        rewards = self.reward_player(aura, loc, drops)
+        rewards = self.reward_player(aura, new_loc, drops)
         self.add_rewards(ctx.author.id, rewards)
         # must discover at least one new place in your own logic
         place_manager(str(ctx.author.id), loc)
-        em = Embed(
-            title="Explore",
-            description=f"You explored around {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
-            color=Color.green(),
-        )
-        em.set_footer(
-            text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",
-            icon_url=ctx.author.avatar,
-        )
+        em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
+        em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
     # ========= TRAVEL =========
@@ -755,19 +771,9 @@ class Games(commands.Cog):
         #return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
 
         place_select = Select(custom_id="places",placeholder="Select Location to go",options=[SelectOption(label=i.replace('_', ' ').title(), value=i) for i in places],max_values=1,min_values=1,)
-        key = place.replace(" ", "_").lower()
-        if key not in DATA["places"]:
-            await ctx.reply(embed=Embed(description="Invalid Location Provided", color=Color.red()))
-            return
-        for option in place_select.options:
-            if place.lower() in option.label.lower():
-                option.default = True
-                go_btn.disabled = False
-                break
         em = Embed(title="Travel",description="Select the location in menu where you want to go then confirm.",color=Color.green()))
 
         view = View(timeout=45)
-
         async def timeout():
             em.color = Color.light_grey()
             for child in view.children:
@@ -781,9 +787,7 @@ class Games(commands.Cog):
 
         async def on_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             go_btn.disabled = False
             for option in place_select.options:
                 option.default = (option.value == inter.data["values"][0])
@@ -791,33 +795,32 @@ class Games(commands.Cog):
 
         async def on_go(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal place_select, em, view, msg
             for option in place_select.options:
                 if option.default:
                     loc = option.value
-                    Profiles[profile_id]["location"] = loc
                     break
+            travel_time = randint(1,20)
             em.description = f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination."
-            view.clear_items()
-            view.add_item(return_btn)
-            go_btn.disabled = True
-            #return_btn.disabled = False
-            await inter.response.edit_message(embed=em, view=view)
-
+            #em.set_thumbnail(url="")
+            view.timeout = None
+            await inter.response.edit_message(embed=em, view=None)
+            await asyncio.sleep(travel_time)
+            Profiles[profile_id]["location"] = loc
+            if not place:
+                return await ctx.send(f"{ctx.author.mention} you have reached {loc.title()}")
+                
         async def on_return(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                return await inter.response.send_message(
-                    "This is not your interaction.", ephemeral=True
-                )
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             return_btn.disabled = True
             em.description = f"You arrived at {Profiles[profile_id]['location'].replace('_', ' ').title()}."
             await inter.response.edit_message(embed=em, view=None)
 
         place_select.callback = on_select
         go_btn.callback = on_go
-        return_btn.callback = on_return
+        #return_btn.callback = on_return
 
         msg = await ctx.reply(embed=em, view=view)
 
