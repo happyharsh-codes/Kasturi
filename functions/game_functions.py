@@ -42,7 +42,7 @@ def inv_searcher(id, item, amt):
     category= ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
     for categ in category:
         inv = Profiles[id][categ]
-        if item in inv and inv[item] >= amt:
+        if inv[item] and inv[item] >= amt:
             return True
     return False 
     
@@ -50,7 +50,7 @@ def inv_manager(id, item, amt):
     category= ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
     for categ in category:
         inv = Profiles[id][categ]
-        if item in inv and inv[item] >= amt:
+        if inv[item] and inv[item] >= amt:
             Profiles[id][categ][item] -= amt
             if Profiles[id][categ][item] == 0:
                 del Profiles[id][categ][item]
@@ -91,7 +91,7 @@ def at_the_location(loc):
     async def predicate(ctx):
         if loc == Profiles[str(ctx.author.id)]["location"]:
             return True
-        if loc in Profiles[str(ctx.author.id)]["places"]:
+        if Profiles[str(ctx.author.id)]["places"][loc]:
             await ctx.send(f"Moving to location: {loc.replace('_',' ').title()}. Please wait for some time.")
             asyncio.sleep(5)
             Profiles[str(ctx.author.id)]["location"] = loc
@@ -119,13 +119,13 @@ def skills_manager(id: str, skill, percentage):
     
 def skills_searcher(ctx, skill, percentage):
     skills = Profiles[str(id)]["skills"]
-    if skill in skills and skills[skill] >= percentage:
+    if skills[skill] and skills[skill] >= percentage:
         return True
     return False
 
 def skills_manager(id: str, skill, percentage):
     skills = Profiles[id]["skills"]
-    if skill in skills:
+    if skills[skill]:
         Profiles[id]["skills"][skill] += percentage
     else:
         Profile[id]["skills"][skill] = percentage
