@@ -45,6 +45,8 @@ def weighted_choice(choices: list):
         upto += w
     return choices[-1][0]
 
+async def timer():
+
 def inv_searcher(id, item, amt):
     category= ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
     for categ in category:
@@ -96,15 +98,9 @@ def has_in_inventory(item, value = 0):
     
 def at_the_location(loc):
     async def predicate(ctx):
-        if loc == Profiles[str(ctx.author.id)]["location"]:
+        if Profiles[str(ctx.author.id)]["location"] == loc:
             return True
-        if Profiles[str(ctx.author.id)]["places"][loc]:
-            await ctx.send(f"Moving to location: {loc.replace('_',' ').title()}. Please wait for some time.")
-            asyncio.sleep(5)
-            Profiles[str(ctx.author.id)]["location"] = loc
-            return True
-        await ctx.reply(embed=Embed(description=f"Ayoo You must be in `{loc.title()}` to perform this action.", color= Color.gold()))
-        return False
+        return True
     return commands.check(predicate)
 
 def skills_searcher(ctx, skill, percentage):
