@@ -64,7 +64,7 @@ def inv_manager(id, item, amt):
                 
 def has_profile():
     async def predicate(ctx):
-        if Profiles[str(ctx.author.id)]["name"] != "No name noob":
+        if Profiles[str(ctx.author.id)]:
             Profiles[str(ctx.author.id)]["aura"] += 2
             return True
         code = choice(['i will work under kelly',"i will obey kelly from now on", "i will always bow down to kelly"])
