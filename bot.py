@@ -1346,7 +1346,8 @@ class Bot:
         if not ctx.guild:
             return
         try:
-            Profiles[ctx.author.id]["aura"] += 1
+            if Profiles[dtr(ctx.author)]:
+                Profiles[ctx.author.id]["aura"] += 1
             Server_Settings[str(ctx.guild.id)]["premium"] -= 1
             if Server_Settings[str(ctx.guild.id)]["premium"] < 0:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
