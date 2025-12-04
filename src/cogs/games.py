@@ -380,7 +380,7 @@ class Games(commands.Cog):
             await inter.response.edit_message(embed=em, view=None)
             await asyncio.sleep(3600)
             await msg.reply(f"You earned {sal} {DATA['id']['cash']} as salary.")
-            inv_manager(str(ctx.author.id), "cash", sal}
+            inv_manager(str(ctx.author.id), "cash", sal)
             
         async def timeout():
             em.color = Color.light_grey()
@@ -692,6 +692,8 @@ class Games(commands.Cog):
         new_loc = choice(["ocean","river","desert","mountain","forest"])
 
         await place_manager(ctx, new_loc)
+        if new_loc != loc:
+            await ctx.invoke(ctx.bot.get_command('travel'), new_loc)
         
         drops = {
             "Foods": 2,
@@ -722,6 +724,8 @@ class Games(commands.Cog):
         new_loc = choice(["ocean","river","desert","mountain","forest"])
 
         await place_manager(ctx, new_loc)
+        if new_loc != loc:
+            await ctx.invoke(ctx.bot.get_command('travel'), new_loc)
         
         drops = {
             "Foods": 1,
@@ -734,9 +738,7 @@ class Games(commands.Cog):
         }
 
         rewards = self.reward_player(aura, new_loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
-        # must discover at least one new place in your own logic
-        place_manager(str(ctx.author.id), loc)
+        self.add_rewards(ctx.author.id, reward
         em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
         em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
