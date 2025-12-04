@@ -759,7 +759,7 @@ class Games(commands.Cog):
         #return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
 
         place_select = Select(custom_id="places",placeholder="Select Location to go",options=[SelectOption(label=i.replace('_', ' ').title(), value=i) for i in places],max_values=1,min_values=1,)
-        em = Embed(title="Travel",description="Select the location in menu where you want to go then confirm.",color=Color.green()))
+        em = Embed(title="Travel",description="Select the location in menu where you want to go then confirm.",color=Color.green())
 
         view = View(timeout=45)
         async def timeout():
