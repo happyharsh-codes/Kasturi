@@ -66,11 +66,11 @@ class MongoNestedDict(MutableMapping):
     # ---------- Get ----------
     def __getitem__(self, key):
         if key not in self._data:
-            if isinstance(value, dict):
+            if isinstance(self.default, dict):
                 return MongoNestedDict(
                     collection=self.collection,
                     doc_id=self.doc_id,
-                    data=value,
+                    data=self.default,
                     root=self.root
                 )
             return self.default
