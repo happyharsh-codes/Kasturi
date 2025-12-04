@@ -529,7 +529,7 @@ class Games(commands.Cog):
         rewards = self.reward_player(aura, loc, drops)
         self.add_rewards(ctx.author.id, rewards)
         em = Embed(title="Hunt",description=f"You went hunting in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
-        em.set_footer(text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}"icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=[])
