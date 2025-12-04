@@ -1,4 +1,4 @@
- from __init__ import *
+from __init__ import *
 from functions.game_functions import *
 from typing import Optional
 
@@ -288,24 +288,15 @@ class Games(commands.Cog):
     async def work(self, ctx):
         """Work in your Job or get a new Job, for regular wages."""
         options = [
-            SelectOption(label="Doctor", description="The Life saver god",
-                         emoji=discord.PartialEmoji.from_str("🩺"), value="doctor"),
-            SelectOption(label="Engineer", description="New Innovations and Constructions",
-                         emoji=discord.PartialEmoji.from_str("🧰"), value="engineer"),
-            SelectOption(label="Teacher", description="Lead the youth",
-                         emoji=discord.PartialEmoji.from_str("📚"), value="teacher"),
-            SelectOption(label="Programmer", description="Epitome of technology",
-                         emoji=discord.PartialEmoji.from_str("💻"), value="programmer"),
-            SelectOption(label="Chef", description="Perfection in Taste",
-                         emoji=discord.PartialEmoji.from_str("🍳"), value="chef"),
-            SelectOption(label="Blacksmith", description="Always Forging with Metals",
-                         emoji=discord.PartialEmoji.from_str("⚒️"), value="blacksmith"),
-            SelectOption(label="Farmer", description="The Food provider",
-                         emoji=discord.PartialEmoji.from_str("🌾"), value="farmer"),
-            SelectOption(label="Fisherman", description="Handy with Fishes",
-                         emoji=discord.PartialEmoji.from_str("🎣"), value="fisherman"),
-            SelectOption(label="Hunter", description="Nomad Hunter",
-                         emoji=discord.PartialEmoji.from_str("🏹"), value="hunter"),
+            SelectOption(label="Doctor", description="The Life saver god",emoji=discord.PartialEmoji.from_str("🩺"), value="doctor"),
+            SelectOption(label="Engineer", description="New Innovations and Constructions",emoji=discord.PartialEmoji.from_str("🧰"), value="engineer"),
+            SelectOption(label="Teacher", description="Lead the youth",emoji=discord.PartialEmoji.from_str("📚"), value="teacher"),
+            SelectOption(label="Programmer", description="Epitome of technology",emoji=discord.PartialEmoji.from_str("💻"), value="programmer"),
+            SelectOption(label="Chef", description="Perfection in Taste",emoji=discord.PartialEmoji.from_str("🍳"), value="chef"),
+            SelectOption(label="Blacksmith", description="Always Forging with Metals",emoji=discord.PartialEmoji.from_str("⚒️"), value="blacksmith"),
+            SelectOption(label="Farmer", description="The Food provider",emoji=discord.PartialEmoji.from_str("🌾"), value="farmer"),
+            SelectOption(label="Fisherman", description="Handy with Fishes",emoji=discord.PartialEmoji.from_str("🎣"), value="fisherman"),
+            SelectOption(label="Hunter", description="Nomad Hunter",emoji=discord.PartialEmoji.from_str("🏹"), value="hunter"),
         ]
         selected = None
         salary = {
@@ -367,8 +358,10 @@ class Games(commands.Cog):
             required = DATA["jobs"].get(selected.value, [])
             if all(skill in profile_skills and profile_skills[skill] > 0 for skill in required):
                 work_btn.disabled = False
+                work_btn.label = "Job not available"
             else:
                 work_btn.disabled = True
+                work_btn.label = "Work"
 
             view.clear_items()
             view.add_item(category_select)
@@ -378,17 +371,17 @@ class Games(commands.Cog):
 
         async def on_work(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                await inter.response.send_message(
-                    embed=Embed(description="This interaction is not for you", color=Color.red()),
-                    ephemeral=True,
-                )
+                await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
             nonlocal selected, em
             sal = salary[selected.value]
             inv_manager(str(ctx.author.id), "cash", sal)
-            em.description = f"You earned {sal} {DATA['id']['cash']} as salary."
+            em.description = f"You Started Working!!!"
             await inter.response.edit_message(embed=em, view=None)
-
+            await asyncio.sleep(3600)
+            await msg.reply(f"You earned {sal} {DATA['id']['cash']} as salary.")
+            inv_manager(str(ctx.author.id), "cash", sal}
+            
         async def timeout():
             em.color = Color.light_grey()
             for child in view.children:
@@ -469,10 +462,7 @@ class Games(commands.Cog):
         async def on_select(inter: Interaction):
             nonlocal selected
             if inter.user.id != ctx.author.id:
-                await inter.response.send_message(
-                    embed=Embed(description="This interaction is not for you", color=Color.red()),
-                    ephemeral=True,
-                )
+                await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
             selected_val = inter.data["values"][0]
             for opt in category_select.options:
@@ -488,20 +478,16 @@ class Games(commands.Cog):
 
         async def on_study(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                await inter.response.send_message(
-                    embed=Embed(description="This interaction is not for you", color=Color.red()),
-                    ephemeral=True,
-                )
+                await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
+            nonlocal selected, time_req, em, view
             due = time_req[selected.value]
-            # Simulate long task; in practice you might store timers
-            await inter.response.defer(ephemeral=False)
-            await asyncio.sleep(1)  # keep instant for gameplay; replace with 'due' if desired
+            await inter.response.edit_message(embed=em, view=None)
+            await asyncio.sleep(due)
             gain = randint(1, 5)
             skills_manager(str(ctx.author.id), selected.value, gain)
             progress = Profiles[str(ctx.author.id)]["skills"][selected.value]
-            em.description = f"You studied {selected.label} {selected.emoji} and gained {gain}%. Progress: {progress}%."
-            await ctx.edit_original_response(embed=em, view=None)
+            await msg.reply(f"You studied {selected.label} {selected.emoji} and gained {gain}%. Progress: {progress}%.")
 
         async def timeout():
             em.color = Color.light_grey()
@@ -788,6 +774,7 @@ class Games(commands.Cog):
         async def on_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal go_btn, place_select, view
             go_btn.disabled = False
             for option in place_select.options:
                 option.default = (option.value == inter.data["values"][0])
