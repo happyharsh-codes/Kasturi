@@ -81,11 +81,11 @@ class Games(commands.Cog):
         rewards = []
         # weights per aura-band -> level keys
         levels_choice = {
-            200: {"level1": 0.6, "level2": 0.25, "level3": 0.10, "level4": 0.04, "level5": 0.01},
-            400: {"level1": 0.4, "level2": 0.4, "level3": 0.14, "level4": 0.04, "level5": 0.02},
-            600: {"level1": 0.2, "level2": 0.2, "level3": 0.4, "level4": 0.12, "level5": 0.08},
-            800: {"level1": 0.1, "level2": 0.1, "level3": 0.2, "level4": 0.4, "level5": 0.2},
-            1000: {"level1": 0.05, "level2": 0.05, "level3": 0.1, "level4": 0.3, "level5": 0.5},
+            200: {"Level1": 0.6, "Level2": 0.25, "Level3": 0.10, "Level4": 0.04, "Level5": 0.01},
+            400: {"Level1": 0.4, "Level2": 0.4, "Level3": 0.14, "Level4": 0.04, "Level5": 0.02},
+            600: {"Level1": 0.2, "Level2": 0.2, "Level3": 0.4, "Level4": 0.12, "Level5": 0.08},
+            800: {"Level1": 0.1, "Level2": 0.1, "Level3": 0.2, "Level4": 0.4, "Level5": 0.2},
+            1000: {"Level1": 0.05, "Level2": 0.05, "Level3": 0.1, "Level4": 0.3, "Level5": 0.5},
         }
         # count tweak for super-aura
         if aura > 999:
@@ -168,10 +168,9 @@ class Games(commands.Cog):
         return description.strip()
 
     def add_rewards(self, uid, rewards):
-        for category, item_key, qty, level in rewards:
-            inv_cat = Profiles[str(uid)].setdefault(category, {})
-            inv_cat[item_key] = inv_cat.get(item_key, 0) + qty
-
+        for category, item, qty, level in rewards:
+            inv_manager(str(uid), item, qty)
+            
     # ========= PROFILE & WALLET =========
 
     @commands.hybrid_command(aliases=[])
