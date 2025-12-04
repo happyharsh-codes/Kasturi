@@ -1,4 +1,4 @@
-from __init__ import *
+ from __init__ import *
 from functions.game_functions import *
 from typing import Optional
 
@@ -59,6 +59,9 @@ unique: 5%
 rare: 10%
 epic: 30%
 legendary: 50%
+
+---- Places ----
+river , mountain, ocean, forest, desert
 """
 
 
@@ -222,17 +225,11 @@ class Games(commands.Cog):
     @has_profile()
     async def inv(self, ctx):
         """View categorized inventory."""
-        categories = ["foods", "animals", "plants", "assets", "tools", "weapons", "vehicles", "emotes"]
+        categories = ["Foods", "Animals", "Plants", "Assets", "Tools", "Weapons", "Vehicles", "Emotes"]
         profile_id = str(ctx.author.id)
-        selected_category = "foods"
+        selected_category = "Foods"
 
-        em = action_embed(
-            f"{ctx.author.display_name}'s Inventory",
-            "",
-            Color.green(),
-            f"Inv by {ctx.author.name}",
-            ctx.author.avatar,
-        )
+        em = action_embed(f"{ctx.author.display_name}'s Inventory","",Color.green(),f"Inv by {ctx.author.name}",ctx.author.avatar,)
 
         def update():
             nonlocal em, selected_category
@@ -249,42 +246,27 @@ class Games(commands.Cog):
             if not descrip:
                 descrip = "No items in this category"
             em.description = f"``````"
+        category_select = Select(custom_id="category"placeholder="Select Category",options=[SelectOption(label=i, value=i) for i in categories],max_values=1,min_values=1)
+        
+        async def on_select(inter: Interaction):
+            nonlocal selected_category, update, em, view
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
+                    
+            selected_category = inter.data["values"][0]
+            update()
+            await inter.response.edit_message(embed=em, view=view)
 
-        class InvView(View):
-            def __init__(self, *, timeout=45):
-                super().__init__(timeout=timeout)
-                self.add_item(
-                    Select(
-                        custom_id="category",
-                        placeholder="Select Category",
-                        options=[SelectOption(label=i, value=i) for i in categories],
-                        max_values=1,
-                        min_values=1,
-                    )
-                )
+        async def on_timeout():
+            nonlocal msg, view, em
+            em.color = Color.light_grey()
+            for child in view.children:
+                child.disabled = True
+            await msg.edit(embed=em, view=view)
 
-            @discord.ui.select(custom_id="category", placeholder="Select Category",
-                               options=[SelectOption(label=i, value=i) for i in categories],
-                               max_values=1, min_values=1)
-            async def on_select(self, select: Select, inter: Interaction):
-                nonlocal selected_category
-                if inter.user.id != ctx.author.id:
-                    await inter.response.send_message(
-                        embed=Embed(description="This interaction is not for you", color=Color.red()),
-                        ephemeral=True,
-                    )
-                    return
-                selected_category = select.values[0]
-                update()
-                await inter.response.edit_message(embed=em, view=self)
-
-            async def on_timeout(self):
-                em.color = Color.light_grey()
-                for child in self.children:
-                    child.disabled = True
-                await msg.edit(embed=em, view=self)
-
-        view = InvView()
+        view = View(timeout=45)
+        view.on_timeout = on_timeout
+        view.add_item(category_select)
         update()
         msg = await ctx.send(embed=em, view=view)
 
@@ -371,12 +353,9 @@ class Games(commands.Cog):
         view = View(timeout=45)
 
         async def on_select(inter: Interaction):
-            nonlocal selected
+            nonlocal selected, work_btn, category_select, em, view
             if inter.user.id != ctx.author.id:
-                await inter.response.send_message(
-                    embed=Embed(description="This interaction is not for you", color=Color.red()),
-                    ephemeral=True,
-                )
+                await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
             selected_val = inter.data["values"][0]
             for opt in category_select.options:
@@ -404,6 +383,7 @@ class Games(commands.Cog):
                     ephemeral=True,
                 )
                 return
+            nonlocal selected, em
             sal = salary[selected.value]
             inv_manager(str(ctx.author.id), "cash", sal)
             em.description = f"You earned {sal} {DATA['id']['cash']} as salary."
@@ -429,16 +409,16 @@ class Games(commands.Cog):
     @has_profile()
     async def school(self, ctx):
         options = [
-            SelectOption(label="Math", description="Numbers & logic", emoji="➗", value="math"),
-            SelectOption(label="Science", description="Innovate & discover", emoji="🔬", value="science"),
-            SelectOption(label="Geography", description="Explore the world", emoji="🗺️", value="geography"),
-            SelectOption(label="Mechanics", description="Build & design", emoji="🛠️", value="mechanics"),
-            SelectOption(label="Cooking", description="Master of flavors", emoji="🍳", value="cooking"),
-            SelectOption(label="Programming", description="Code the future", emoji="💻", value="programming"),
-            SelectOption(label="Teaching", description="Guide young minds", emoji="📚", value="teaching"),
-            SelectOption(label="Farming", description="Grow & harvest", emoji="🌾", value="farming"),
-            SelectOption(label="Hunting", description="Track & survive", emoji="🏹", value="hunting"),
-            SelectOption(label="Fishing", description="Catch & sustain", emoji="🎣", value="fishing"),
+            SelectOption(label="Math", description="Integration & Calculus: 2 hours", emoji="➗", value="math"),
+            SelectOption(label="Science", description="Innovate & discover: 2 hours", emoji="🔬", value="science"),
+            SelectOption(label="Geography", description="Explore the world: ½ hour", emoji="🗺️", value="geography"),
+            SelectOption(label="Mechanics", description="Build & design: 3 hours", emoji="🛠️", value="mechanics"),
+            SelectOption(label="Cooking", description="Master of flavors: ½ hour", emoji="🍳", value="cooking"),
+            SelectOption(label="Programming", description="Code the future: 1 hour", emoji="💻", value="programming"),
+            SelectOption(label="Teaching", description="Guide young minds: 1 hour", emoji="📚", value="teaching"),
+            SelectOption(label="Farming", description="Grow & harvest: ½ hour", emoji="🌾", value="farming"),
+            SelectOption(label="Hunting", description="Track & surviven: 1½ hour", emoji="🏹", value="hunting"),
+            SelectOption(label="Fishing", description="Catch & sustain: ½ hour", emoji="🎣", value="fishing"),
         ]
         selected = None
         time_req = {
@@ -449,7 +429,7 @@ class Games(commands.Cog):
             "cooking": 1800,
             "programming": 3600,
             "teaching": 3600,
-            "farming": 1800,
+            "farming": 54500,
             "hunting": 1800,
             "fishing": 1800,
         }
@@ -541,15 +521,16 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
+    @at_the_location(["forest", "mountain", "desert"])
     async def hunt(self, ctx):
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
         loc = profile["location"]
 
         drops = {
-            "animals": 3,
-            "foods": 1,
-            "plants": 1,
+            "Animals": 3,
+            "Foods": 1,
+            "Plants": 1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
@@ -568,6 +549,7 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
+    @at_the_location(["forest", "mountain", "desert"])
     async def chop(self, ctx):
         """Goes chopping in the woods."""
         profile = Profiles[str(ctx.author.id)]
@@ -575,14 +557,14 @@ class Games(commands.Cog):
         loc = profile["location"]
 
         drops = {
-            "foods": 1,
-            "plants": 1,
-            "animals": 1,
-            "tools": 1,
-            "weapons": 0.5,
-            "assets": 1,
-            "vehicles": 0.2,
-            "emotes": 1,
+            "Foods": 1,
+            "Plants": 1,
+            "Animals": 1,
+            "Tools": 1,
+            "Weapons": 0.5,
+            "Assets": 1,
+            "Vehicles": 0.2,
+            "Emotes": 1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
@@ -601,6 +583,7 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
+    @at_the_location(["home"])
     async def farm(self, ctx):
         """Goes for cropping and harvesting the farmland."""
         profile = Profiles[str(ctx.author.id)]
@@ -608,10 +591,10 @@ class Games(commands.Cog):
         loc = profile["location"]
 
         drops = {
-            "foods": 3,
-            "plants": 2,
-            "animals": 0.5,
-            "tools": 0.5,
+            "Foods": 3,
+            "Plants": 2,
+            "Animals": 0.5,
+            "Tools": 0.5,
         }
 
         rewards = self.reward_player(aura, loc, drops)
@@ -630,6 +613,7 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
+    @at_the_location(["forest", "mountain", "desert"])
     async def mine(self, ctx):
         """Go for mining rare items in the caves."""
         profile = Profiles[str(ctx.author.id)]
@@ -637,10 +621,10 @@ class Games(commands.Cog):
         loc = profile["location"]
 
         drops = {
-            "weapons": 1,
-            "tools": 1,
-            "assets": 1,
-            "foods": 0.5,
+            "Weapons": 1,
+            "Tools": 1,
+            "Assets": 1,
+            "Foods": 0.5,
         }
 
         rewards = self.reward_player(aura, loc, drops)
@@ -660,7 +644,7 @@ class Games(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     @has_in_inventory("fishing_rod")
-    @at_the_location("river")
+    @at_the_location(["river", "ocean"])
     async def fish(self, ctx):
         """Catch fish directly from the river."""
         profile = Profiles[str(ctx.author.id)]
@@ -668,9 +652,9 @@ class Games(commands.Cog):
         loc = profile["location"]
 
         drops = {
-            "foods": 3,
-            "tools": 1,
-            "plants": 1,
+            "Foods": 3,
+            "Tools": 1,
+            "Plants": 1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
@@ -696,14 +680,14 @@ class Games(commands.Cog):
         loc = profile["location"]
 
         drops = {
-            "foods": 2,
-            "plants": 1,
-            "animals": 2,
-            "tools": 1,
-            "weapons": 0.5,
-            "assets": 1,
-            "vehicles": 0.2,
-            "emotes": 0.1,
+            "Foods": 2,
+            "Plants": 1,
+            "Animals": 2,
+            "Tools": 1,
+            "Weapons": 0.5,
+            "Assets": 1,
+            "Vehicles": 0.2,
+            "Emotes": 0.1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
@@ -731,13 +715,13 @@ class Games(commands.Cog):
         loc = profile["location"]
 
         drops = {
-            "foods": 1,
-            "plants": 1,
-            "animals": 1,
-            "tools": 0.3,
-            "weapons": 0.5,
-            "assets": 0.2,
-            "vehicles": 0.1,
+            "Foods": 1,
+            "Plants": 1,
+            "Animals": 1,
+            "Tools": 0.3,
+            "Weapons": 0.5,
+            "Assets": 0.2,
+            "Vehicles": 0.1,
         }
 
         rewards = self.reward_player(aura, loc, drops)
@@ -765,41 +749,22 @@ class Games(commands.Cog):
         profile_id = str(ctx.author.id)
         places = Profiles[profile_id].get("places", [])
         if not places:
-            await ctx.reply(
-                embed=Embed(
-                    description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",
-                    color=Color.blue(),
-                )
-            )
-            return
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
 
         go_btn = Button(style=ButtonStyle.green, custom_id="go", label="🏃 Go", disabled=True)
-        return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
+        #return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
 
-        place_select = Select(
-            custom_id="places",
-            placeholder="Select Location to go",
-            options=[SelectOption(label=i.replace('_', ' ').title(), value=i) for i in places],
-            max_values=1,
-            min_values=1,
-        )
-
-        if place:
-            key = place.replace(" ", "_").lower()
-            if key not in DATA["places"]:
-                await ctx.reply(embed=Embed(description="Invalid Location Provided", color=Color.red()))
-                return
-            for option in place_select.options:
-                if place.lower() in option.label.lower():
-                    option.default = True
-                    go_btn.disabled = False
-                    break
-
-        em = Embed(
-            title="Travel",
-            description="Select the location in menu where you want to go then confirm.",
-            color=Color.green(),
-        )
+        place_select = Select(custom_id="places",placeholder="Select Location to go",options=[SelectOption(label=i.replace('_', ' ').title(), value=i) for i in places],max_values=1,min_values=1,)
+        key = place.replace(" ", "_").lower()
+        if key not in DATA["places"]:
+            await ctx.reply(embed=Embed(description="Invalid Location Provided", color=Color.red()))
+            return
+        for option in place_select.options:
+            if place.lower() in option.label.lower():
+                option.default = True
+                go_btn.disabled = False
+                break
+        em = Embed(title="Travel",description="Select the location in menu where you want to go then confirm.",color=Color.green()))
 
         view = View(timeout=45)
 
@@ -812,7 +777,7 @@ class Games(commands.Cog):
         view.on_timeout = timeout
         view.add_item(place_select)
         view.add_item(go_btn)
-        view.add_item(return_btn)
+        #view.add_item(return_btn)
 
         async def on_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -838,7 +803,7 @@ class Games(commands.Cog):
             view.clear_items()
             view.add_item(return_btn)
             go_btn.disabled = True
-            return_btn.disabled = False
+            #return_btn.disabled = False
             await inter.response.edit_message(embed=em, view=view)
 
         async def on_return(inter: Interaction):
@@ -884,6 +849,7 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 200, type=commands.BucketType.user)
     @has_profile()
+    @at_the_location(["home"])
     async def build(self, ctx, *, item: str):
         """Build your favourite structures."""
         item = item.lower()
@@ -1223,12 +1189,12 @@ class Games(commands.Cog):
         loc = profile["location"]
 
         drops = {
-            "foods": 1,
-            "animals": 2,
-            "tools": 1,
-            "weapons": 0.5,
-            "vehicles": 0.2,
-            "emotes": 0.2,
+            "Foods": 1,
+            "Animals": 2,
+            "Tools": 1,
+            "Weapons": 0.5,
+            "Vehicles": 0.2,
+            "Emotes": 0.2,
         }
 
         rewards = self.reward_player(aura, loc, drops)
