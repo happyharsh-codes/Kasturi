@@ -58,10 +58,12 @@ def inv_manager(id, item, amt):
     category= ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
     for categ in category:
         inv = Profiles[id][categ]
-        if inv[item] and inv[item] >= amt:
-            Profiles[id][categ][item] -= amt
+        if inv[item]:
+            Profiles[id][categ][item] += amt
             if Profiles[id][categ][item] == 0:
                 del Profiles[id][categ][item]
+        else:
+            Profiles[id][categ][item] = amt
                 
 def has_profile():
     async def predicate(ctx):
