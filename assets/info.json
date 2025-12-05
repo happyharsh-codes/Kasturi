@@ -940,6 +940,8 @@
             },
             "Assets": {
                 "Level1": [
+                    "cash",
+                    "gem",
                     "wood_plank",
                     "cloth_roll",
                     "small_chest"
@@ -960,6 +962,7 @@
                     "golden_frame"
                 ],
                 "Level5": [
+                    "orb",
                     "artifact_core",
                     "ancient_relic",
                     "royal_seal"
@@ -1922,7 +1925,10 @@
         "quantum_shuttle": "\ud83d\ude80",
         "flagship": "\ud83d\udea2",
         "dragon_mount": "\ud83d\udc32",
-        "ether_sail": "\u26f5"
+        "ether_sail": "\u26f5",
+        "cash": 💸,
+        "gem": 💎,
+        "orb": 🔮
     },
     "skills": [
         "fishing",
