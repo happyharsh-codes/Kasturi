@@ -1253,7 +1253,7 @@ class Games(commands.Cog):
         async def on_confirm(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlcal em, view
+            nonlocal em, view
             Profiles[str(ctx.author.id)]["spouse"] = spouse.id
             Profiles[str(spouse.id)]["spouse"] = ctx.author.id
             assets["ring"] -= 1
