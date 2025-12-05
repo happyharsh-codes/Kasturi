@@ -454,6 +454,8 @@
     },
     "Assets": {
         "Level1": [
+            "cash",
+            "gem",
             "copper_coin",
             "small_chest",
             "paper_map",
@@ -494,6 +496,7 @@
             "luxury_crate"
         ],
         "Level5": [
+            "orb",
             "diamond_contract",
             "ancient_relic",
             "artifact_core",
@@ -940,8 +943,6 @@
             },
             "Assets": {
                 "Level1": [
-                    "cash",
-                    "gem",
                     "wood_plank",
                     "cloth_roll",
                     "small_chest"
@@ -962,7 +963,6 @@
                     "golden_frame"
                 ],
                 "Level5": [
-                    "orb",
                     "artifact_core",
                     "ancient_relic",
                     "royal_seal"
@@ -1926,9 +1926,9 @@
         "flagship": "\ud83d\udea2",
         "dragon_mount": "\ud83d\udc32",
         "ether_sail": "\u26f5",
-        "cash": 💸,
-        "gem": 💎,
-        "orb": 🔮
+        "cash": "\u1f4b8",
+        "gem": "\uDC8E",
+        "orb": "uD83D"
     },
     "skills": [
         "fishing",
