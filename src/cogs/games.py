@@ -701,7 +701,7 @@ class Games(commands.Cog):
 
         await place_manager(ctx, new_loc)
         if new_loc != loc:
-            await ctx.invoke(ctx.bot.get_command('travel'), new_loc)
+            await ctx.invoke(ctx.bot.get_command('travel'), place=new_loc)
         
         drops = {
             "Foods": 2,
@@ -733,7 +733,7 @@ class Games(commands.Cog):
 
         await place_manager(ctx, new_loc)
         if new_loc != loc:
-            await ctx.invoke(ctx.bot.get_command('travel'), new_loc)
+            await ctx.invoke(ctx.bot.get_command('travel'), place=new_loc)
         
         drops = {
             "Foods": 1,
@@ -760,8 +760,6 @@ class Games(commands.Cog):
         """Travel to different locations that you have discovered already."""
         profile_id = str(ctx.author.id)
         places = Profiles[profile_id].get("places", [])
-        if Profiles[profile_id]["location"] != "home":
-            places.append("home")
         if not places:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
 
@@ -769,6 +767,8 @@ class Games(commands.Cog):
         #return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
 
         place_select = Select(custom_id="places",placeholder="Select Location to go",options=[SelectOption(label=i.replace('_', ' ').title(), value=i) for i in places],max_values=1,min_values=1,)
+        if Profiles[profile_id]["location"] != "home":
+            place_select.options.append(SelectOption(label="Home", value="home"))
         em = Embed(title="Travel",description="Select the location in menu where you want to go then confirm.",color=Color.green())
 
         view = View(timeout=45)
