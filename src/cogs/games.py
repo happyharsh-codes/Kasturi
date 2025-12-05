@@ -146,15 +146,15 @@ class Games(commands.Cog):
 
         for category, item_key, qty, level in rewards:
             emoji = DATA["id"].get(item_key, "")
-            if level == "level1":
+            if level == "Level1":
                 level1 += emoji * qty
-            elif level == "level2":
+            elif level == "Level2":
                 level2 += emoji * qty
-            elif level == "level3":
+            elif level == "Level3":
                 level3 += emoji * qty
-            elif level == "level4":
+            elif level == "Level4":
                 level4 += emoji * qty
-            elif level == "level5":
+            elif level == "Level5":
                 level5 += emoji * qty
 
         description = ""
@@ -245,7 +245,7 @@ class Games(commands.Cog):
                     descrip += "\n"
             if not descrip:
                 descrip = "No items in this category"
-            em.description = f"``````"
+            em.description = f"```{descrip}```"
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i) for i in categories],max_values=1,min_values=1)
         
         async def on_select(inter: Interaction):
@@ -288,15 +288,15 @@ class Games(commands.Cog):
     async def work(self, ctx):
         """Work in your Job or get a new Job, for regular wages."""
         options = [
-            SelectOption(label="Doctor", description="The Life saver god",emoji=discord.PartialEmoji.from_str("🩺"), value="doctor"),
-            SelectOption(label="Engineer", description="New Innovations and Constructions",emoji=discord.PartialEmoji.from_str("🧰"), value="engineer"),
-            SelectOption(label="Teacher", description="Lead the youth",emoji=discord.PartialEmoji.from_str("📚"), value="teacher"),
-            SelectOption(label="Programmer", description="Epitome of technology",emoji=discord.PartialEmoji.from_str("💻"), value="programmer"),
-            SelectOption(label="Chef", description="Perfection in Taste",emoji=discord.PartialEmoji.from_str("🍳"), value="chef"),
-            SelectOption(label="Blacksmith", description="Always Forging with Metals",emoji=discord.PartialEmoji.from_str("⚒️"), value="blacksmith"),
-            SelectOption(label="Farmer", description="The Food provider",emoji=discord.PartialEmoji.from_str("🌾"), value="farmer"),
-            SelectOption(label="Fisherman", description="Handy with Fishes",emoji=discord.PartialEmoji.from_str("🎣"), value="fisherman"),
-            SelectOption(label="Hunter", description="Nomad Hunter",emoji=discord.PartialEmoji.from_str("🏹"), value="hunter"),
+            SelectOption(label="Doctor", description="The Life saver god Earns: 1,00,000/hour",emoji=discord.PartialEmoji.from_str("🩺"), value="doctor"),
+            SelectOption(label="Engineer", description="New Innovations and Constructions Earns: 1,00,000/hour",emoji=discord.PartialEmoji.from_str("🧰"), value="engineer"),
+            SelectOption(label="Teacher", description="Lead the youth Earns: 50,000/hour",emoji=discord.PartialEmoji.from_str("📚"), value="teacher"),
+            SelectOption(label="Programmer", description="Epitome of technology Earns: 80,000/hour",emoji=discord.PartialEmoji.from_str("💻"), value="programmer"),
+            SelectOption(label="Chef", description="Perfection in Taste Earns: 34,000/hour",emoji=discord.PartialEmoji.from_str("🍳"), value="chef"),
+            SelectOption(label="Blacksmith", description="Always Forging with Metals Earns: 25,600/hour",emoji=discord.PartialEmoji.from_str("⚒️"), value="blacksmith"),
+            SelectOption(label="Farmer", description="The Food provider Earns: 30,000/hours",emoji=discord.PartialEmoji.from_str("🌾"), value="farmer"),
+            SelectOption(label="Fisherman", description="Handy with Fishes Earns: 19,000/hour",emoji=discord.PartialEmoji.from_str("🎣"), value="fisherman"),
+            SelectOption(label="Hunter", description="Nomad Hunter Earns: 10,000/hour",emoji=discord.PartialEmoji.from_str("🏹"), value="hunter"),
         ]
         selected = None
         salary = {
@@ -373,10 +373,18 @@ class Games(commands.Cog):
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
-            nonlocal selected, em
+            nonlocal selected, em, salary, msg
             sal = salary[selected.value]
-            inv_manager(str(ctx.author.id), "cash", sal)
-            em.description = f"You Started Working!!!"
+            skill = Profiles[str(ctx.author.id)]["skills"][selected]
+            if skill < 20:
+                sal += randint(-10000,500)
+            elif skill < 60:
+                sal += randint(-2000, 2000)
+            elif skill == 100:
+                sal += 10000
+            else:
+                sal += randint(1,5000)
+            em.description = f"You Started Working!!! You'll be notified when you are done."
             await inter.response.edit_message(embed=em, view=None)
             await asyncio.sleep(3600)
             await msg.reply(f"You earned {sal} {DATA['id']['cash']} as salary.")
@@ -460,7 +468,7 @@ class Games(commands.Cog):
         view = View(timeout=45)
 
         async def on_select(inter: Interaction):
-            nonlocal selected
+            nonlocal selected, view, em, study_btn
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
@@ -518,7 +526,7 @@ class Games(commands.Cog):
                     break
             else:
                 return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-            await ctx.invoke(ctx.bot.get_command('travel'), destination)
+            await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
             "Animals": 3,
@@ -548,7 +556,7 @@ class Games(commands.Cog):
                     break
             else:
                 return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-            await ctx.invoke(ctx.bot.get_command('travel'), destination)
+            await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
             "Foods": 1,
@@ -620,7 +628,7 @@ class Games(commands.Cog):
                     break
             else:
                 return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-            await ctx.invoke(ctx.bot.get_command('travel'), destination)
+            await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
             "Weapons": 1,
@@ -659,7 +667,7 @@ class Games(commands.Cog):
                     break
             else:
                 return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-            await ctx.invoke(ctx.bot.get_command('travel'), destination)
+            await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
             "Foods": 3,
@@ -680,7 +688,7 @@ class Games(commands.Cog):
         )
         await ctx.reply(embed=em)
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["adv"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def adventure(self, ctx):
@@ -713,7 +721,7 @@ class Games(commands.Cog):
         em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["exp"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def explore(self, ctx):
@@ -745,13 +753,15 @@ class Games(commands.Cog):
 
     # ========= TRAVEL =========
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["go"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def travel(self, ctx, *, place: Optional[str] = None):
         """Travel to different locations that you have discovered already."""
         profile_id = str(ctx.author.id)
         places = Profiles[profile_id].get("places", [])
+        if Profiles[profile_id]["location"] != "home":
+            places.append("home")
         if not places:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
 
@@ -785,7 +795,7 @@ class Games(commands.Cog):
         async def on_go(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal place_select, em, view, msg
+            nonlocal place_select, em, view, msg, profile_id, place
             for option in place_select.options:
                 if option.default:
                     loc = option.value
@@ -803,6 +813,7 @@ class Games(commands.Cog):
         async def on_return(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal return_btn, em, profile_id
             return_btn.disabled = True
             em.description = f"You arrived at {Profiles[profile_id]['location'].replace('_', ' ').title()}."
             await inter.response.edit_message(embed=em, view=None)
@@ -815,7 +826,7 @@ class Games(commands.Cog):
 
     # ========= FEED / BUILD / STEAL =========
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["eat"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def feed(self, ctx, item: Optional[str] = None, amount: int = 1):
@@ -963,7 +974,7 @@ class Games(commands.Cog):
     async def give(self, ctx, user: discord.Member, item, amount: int = 1):
         """Transfers inventory item to other user."""
         profile = Profiles.get(str(ctx.author.id))
-        if str(user.id) not in Profiles:
+        if not Profiles[str(user.id)]:
             await ctx.reply("Given user profile not found.")
             return
 
@@ -1005,6 +1016,7 @@ class Games(commands.Cog):
         async def on_confirm(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal em, view
             inv_manager(str(ctx.author.id), item, -amount)
             inv_manager(str(user.id), item, amount)
             em.description = f"{kemoji()} Successfully sent {DATA['id'][item]} {item} x {amount} to {user.mention}."
@@ -1020,6 +1032,7 @@ class Games(commands.Cog):
         async def on_discard(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal em
             em.description = "⚠️ You cancelled the transaction."
             await inter.response.edit_message(embed=em, view=None)
 
@@ -1105,7 +1118,7 @@ class Games(commands.Cog):
         """Placeholder for global player market."""
         await ctx.send("Player market is not fully implemented yet.")
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["rob"])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
     async def bankrob(self, ctx, user: discord.Member):
@@ -1148,7 +1161,7 @@ class Games(commands.Cog):
 
     # ========= BATTLE / KILL / MARRY =========
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["b"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def battle(self, ctx, user: Optional[discord.Member] = None):
@@ -1173,8 +1186,8 @@ class Games(commands.Cog):
     @has_profile()
     async def kill(self, ctx, mob: str):
         """To kill spawned mobs only."""
-        if "spawn" not in Server_Settings.get(str(ctx.guild.id), {}):
-            return await ctx.send(embed=Embed(description="There is no spawned mob.", color=Color.red()))
+        if not Server_Settings[str(ctx.guild.id)]["spawn"] and mob.lower() in Server_Settings[str(ctx.guild.id)]["spawn"]:
+            return await ctx.send(embed=Embed(description="There is no spawned mob or invalid mob given.", color=Color.red()))
 
         profile = Profiles[str(ctx.author.id)]
         aura = profile["aura"]
@@ -1227,6 +1240,7 @@ class Games(commands.Cog):
         view = View(timeout=45)
 
         async def timeout():
+            nonlocal em, view, msg
             em.color = Color.light_grey()
             for child in view.children:
                 child.disabled = True
@@ -1239,17 +1253,21 @@ class Games(commands.Cog):
         async def on_confirm(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlcal em, view
             Profiles[str(ctx.author.id)]["spouse"] = spouse.id
             Profiles[str(spouse.id)]["spouse"] = ctx.author.id
             assets["ring"] -= 1
             Profiles[str(ctx.author.id)]["aura"] += 10
             em.description = f"💍 {ctx.author.mention} and {spouse.mention} are now married!"
+            view.timeout = None
             await inter.response.edit_message(embed=em, view=None)
 
         async def on_discard(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal em, view
             em.description = "You cancelled the marriage proposal."
+            view.timeout = None
             await inter.response.edit_message(embed=em, view=None)
 
         confirm_btn.callback = on_confirm
