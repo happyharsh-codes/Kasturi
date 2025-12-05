@@ -75,7 +75,7 @@ def has_profile():
         except asyncio.TimeoutError:
             return False 
         if msg.content.lower() == code:
-            Profiles[str(ctx.author.id)] = {"name": ctx.author.name,"health": 100,"hunger": 100,"location": "home","aura":0,"skills": {},"foods": {},"plants": {},"assets": {"cash": 100,"gem": 50,"orbs": 1},"tools": {},"weapons": {},"vehicles": {},"quests": {},"places": {},"jobs": {}}
+            Profiles[str(ctx.author.id)] = {"name": ctx.author.name,v"health": 100,"hunger": 100, "location": "home", "aura":0, "skills": {}, "foods": {}, "plants": {}, "assets": {"cash": 100,"gem": 50,"orbs": 1}, "tools": {}, "weapons": {}, "vehicles": {}, "emotes", "quests": {}, "places": {}, "jobs": {}}
             em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile created successfully. Start playing eith game commands now: `hunt`, `chop`, `adv`, `mine`, `work`, `school`, `craft`, `use`, `eat` .., .\n:white_check_mark: You obatained bonous ₹100 cash 💵\n:white_check_mark: You obtained 50 gem 💎 and 1 Dark Magic Orb 🔮\nUse `k help games` to get more help and info.",color=Color.green())
             em.set_footer(text=f"{ctx.author.name} created acc at {timestamp(ctx)}", icon_url= ctx.author.avatar)
             await ctx.send(embed = em)
@@ -98,7 +98,8 @@ def at_the_location(loc):
     async def predicate(ctx):
         if Profiles[str(ctx.author.id)]["location"] == loc:
             return True
-        return True
+        await ctx.reply(f"You must be at `{loc.title()}` to run this command")
+        return False
     return commands.check(predicate)
 
 def skills_searcher(ctx, skill, percentage):
