@@ -48,24 +48,127 @@ def weighted_choice(choices: list):
             return item
         upto += w
     return choices[-1][0]
+    
+def reward_player(aura: int, location, drops, count_range=(3, 7)):
+    rewards = []
+    # weights per aura-band -> level keys
+    levels_choice = {
+        200: {"Level1": 0.6, "Level2": 0.25, "Level3": 0.10, "Level4": 0.04, "Level5": 0.01},
+        400: {"Level1": 0.4, "Level2": 0.4, "Level3": 0.14, "Level4": 0.04, "Level5": 0.02},
+        600: {"Level1": 0.2, "Level2": 0.2, "Level3": 0.4, "Level4": 0.12, "Level5": 0.08},
+        800: {"Level1": 0.1, "Level2": 0.1, "Level3": 0.2, "Level4": 0.4, "Level5": 0.2},
+        1000: {"Level1": 0.05, "Level2": 0.05, "Level3": 0.1, "Level4": 0.3, "Level5": 0.5},
+    }
+    # count tweak for super-aura
+    if aura > 999:
+        count_range = (5, 8)
 
+    # expand category weights into a list used by weighted_choice helper
+    # expected signature: weighted_choice(list_of_(value, weight))
+    cat_weight_list = list(drops.items())
 
+    # decide which aura band to use
+    def aura_band(a):
+        if a <= 200:
+            return 200
+        if a <= 400:
+            return 400
+        if a <= 600:
+            return 600
+        if a <= 800:
+            return 800
+        return 1000
+
+    band = aura_band(aura)
+    level_weight_list = list(levels_choice[band].items())
+
+    for _ in range(randint(*count_range)):
+        category = weighted_choice(cat_weight_list)
+        level = weighted_choice(level_weight_list)
+
+        # DATA["places"][location][category][level] is list of item-keys
+        if location not in DATA["places"]:
+            continue
+        if category not in DATA["places"][location]:
+            continue
+        if level not in DATA["places"][location][category]:
+            continue
+
+        available = DATA["places"][location][category][level]
+        if not available:
+            continue
+
+        item_key = choice(available)
+        qty = randint(1, 3)
+        if aura > 999:
+            qty = randint(3, 5)
+
+        rewards.append((category, item_key, qty, level))
+    return rewards
+
+def rewards_descrip(rewards):
+    level1 = "<:common:> "
+    level2 = "<:unique:> "
+    level3 = "<:rare:> "
+    level4 = "<:epic:> "
+    level5 = "<:legendary:> "
+    rewards = random.shuffle(rewards)
+    for category, item_key, qty, level in rewards:
+        emoji = DATA["id"].get(item_key, "")
+        if level == "Level1":
+            level1 += emoji * qty
+        elif level == "Level2":
+            level2 += emoji * qty
+        elif level == "Level3":
+            level3 += emoji * qty
+        elif level == "Level4":
+            level4 += emoji * qty
+        elif level == "Level5":
+            level5 += emoji * qty
+
+    description = ""
+    if level1 != "<:common:> ":
+        description += f"{level1}\n"
+    if level2 != "<:unique:> ":
+        description += f"{level2}\n"
+    if level3 != "<:rare:> ":
+        description += f"{level3}\n"
+    if level4 != "<:epic:> ":
+        description += f"{level4}\n"
+    if level5 != "<:legendary:> ":
+        description += f"{level5}"
+    return description.strip()
+
+def add_rewards(uid, rewards):
+    for category, item, qty, level in rewards:
+        inv_manager(str(uid), item, qty)
+
+def add_task(uid, name, duration, rewards, channel, message, info)
+    due = datetime.now() + timedelta(seconds=duration)
+    due_str = due.isoformat()
+    Profiles[str(uid)]["tasks"][due_str] = {"name": name, "duration": duration, "channel": channel, "rewards": rewards, "message": message, "info": info}
+
+def add_reminder(uid, name, duration, rewards, channel, message, info)
+    due = datetime.now() + timedelta(seconds=duration)
+    due_str = due.isoformat()
+    Profiles[str(uid)]["reminders"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, "rewards": rewards, "info": info}
+    
 async def perform_task(task, uid, client):
-    
-    if task["name"] == "studying":
-        em = Embed(title="Currently Studying", description= f"Ayoo user you are currently studying", color = Color.orange())
-        em.set_footer(text = f"{task['name'].title()} - {remaining//task['duration']}% Completed")
-        channel = client.get_channel(task["channel"])
-    
+    profile = Profiles[uid]
+    em = Embed(title=f"{task['name'] Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n", color = Color.green())
+    em.set_footer(text = f"{task['name'].title()} - ▓▓▓▓▓▓▓▓▓▓100% Completed")
+    rewards = reward_player(profile["aura"], profile["location"], task["rewards"])
+    em.description += rewards_descrip(rewards)
+    add_rewards(uid, rewards)
+    channel = client.get_channel(task["channel"])
     if not channel:
         try:
             channel = await client.fetch_channel(task["channel"])
         except:
             return -1
-    await channel.send(embed= em, view= view)
+    await channel.send(f"<@{uid}>", embed= em, view= view)
 
 async def perform_reminder(reminder, uid, client):
-    
     if task["name"] == "studying":
         em = Embed(title="Currently Studying", description= f"Ayoo user you are currently studying", color = Color.orange())
         em.set_footer(text = f"{task['name'].title()} - {remaining//task['duration']}% Completed")
@@ -156,6 +259,7 @@ def not_busy()
         remaining_seconds = remaining.total_seconds()
         minutes, seconds = divmod(remaining_seconds, 60)
         percentage_completed = (remaining_seconds//task["duration"])*100
+        percentage_bar = "▓" * (percentage_completed//10) + "░" * (10 - (percentage_completed//10))
         if activity == "sleeping":
             return True 
         elif activity == "working":
@@ -166,7 +270,7 @@ def not_busy()
             em = Embed(title="Currently Traveling", description= f"Ayoo user you are currently **Travelling**. You cant perform that command now. Wait until you reach the destination .\n**Time Remaining**: {minutes:.0f}:{seconds:02.0f}", color = Color.orange())
         elif activity == "exploring":
             em = Embed(title="Currently Out Exploring", description= f"Ayoo user you are currently **Exploring**. You cant perform that command now. Wait until you finish to claim the Rewards.\n**Time Remaining**: {minutes:.0f}:{seconds:02.0f}", color = Color.orange())
-        em.set_footer(text = f"{task['name'].title()} - {percentage_completed}% Completed")
+        em.set_footer(text = f"{task['name'].title()} - {percentage_bar}{percentage_completed}% Completed")
         
         view = View(timeout=45)
         async timeout():
