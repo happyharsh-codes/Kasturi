@@ -143,31 +143,67 @@ def add_rewards(uid, rewards):
     for category, item, qty, level in rewards:
         inv_manager(str(uid), item, qty)
 
-def add_task(uid, name, duration, rewards, channel, message, info)
+def add_task(uid, name, duration, channel, message, **info)
     due = datetime.now() + timedelta(seconds=duration)
     due_str = due.isoformat()
-    Profiles[str(uid)]["tasks"][due_str] = {"name": name, "duration": duration, "channel": channel, "rewards": rewards, "message": message, "info": info}
+    Profiles[str(uid)]["tasks"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
 
-def add_reminder(uid, name, duration, rewards, channel, message, info)
+def add_reminder(uid, name, duration, channel, message, **info)
     due = datetime.now() + timedelta(seconds=duration)
     due_str = due.isoformat()
-    Profiles[str(uid)]["reminders"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, "rewards": rewards, "info": info}
+    Profiles[str(uid)]["reminders"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
     
 async def perform_task(task, uid, client):
     profile = Profiles[uid]
-    em = Embed(title=f"{task['name'] Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n", color = Color.green())
-    em.set_footer(text = f"{task['name'].title()} - ▓▓▓▓▓▓▓▓▓▓100% Completed")
-    rewards = reward_player(profile["aura"], profile["location"], task["rewards"])
-    em.description += rewards_descrip(rewards)
-    add_rewards(uid, rewards)
+    Profiles[uid]["activity"] = "sleeping"
     channel = client.get_channel(task["channel"])
     if not channel:
         try:
             channel = await client.fetch_channel(task["channel"])
         except:
             return -1
-    await channel.send(f"<@{uid}>", embed= em, view= view)
+    if task["name"] == "working":
+        sal = task["salary"]
+        profession = task["profession"]
+        inv_manager(uid, "cash", sal)
+        em = Embed(title= f"Work Finished", description = f"You fished your work today. Great work at job. \n**Salary Recived:** {sal}", color = Color.green())
+        em.set_footer(text= f"Salary transferred to your bank account")
+        await channel.send(f"<@{uid}>", embed= em)
+        
+    elif task["name"] == "studying":
+        subject = task["subject"]
+        gain = randint(1, 5)
+        skills_manager(str(ctx.author.id), selected.value, gain)
+        progress = Profiles[str(ctx.author.id)]["skills"][selected.value]
+        em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task["emoji"]} and gained {gain}%. Progress: {progress}%.", color = Color.green())
+        em.set_footer(text= f"Class ▓▓▓▓▓▓▓▓▓▓100% Completed | Skill++")
+        await channel.send(f"<@{uid}>", embed= em)
 
+    elif task["name"] == "travelling":
+        await channel.send(f"<@{uid}> You have reached {task["destination"].title()}")
+        Profiles[uid]["location"] = task["destination"]
+
+    elif task["name"] == "crafting":
+        inv_manager(uid, task["item"], task["amt"])
+        await channel.send(f"<@{uid}> You have crafted {DATA["id"][item]} {item} x {task["amt"]} successfully")
+
+    elif task["name"] == "exploring":
+        place = task["place"]
+        await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`")
+        if Profiles[uid]["places"][place]:
+            Profiles[uid]["places"][place] += randint(1,6)
+            if Profiles[uid]["places"][place] > 100:
+                Profiles[uid]["places"][place] = 100
+        else:
+            Profiles[uid]["places"][place] = randint(1,6)
+    else:
+        rewards = reward_player(profile["aura"], profile["location"], task["rewards"])
+        em = Embed(title=f"{task['name'] Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n", color = Color.green())
+        em.set_footer(text = f"{task['name'].title()} - ▓▓▓▓▓▓▓▓▓▓100% Completed")
+        em.description += rewards_descrip(rewards)
+        add_rewards(uid, rewards)
+        await channel.send(f"<@{uid}>", embed= em)
+        
 async def perform_reminder(reminder, uid, client):
     if task["name"] == "studying":
         em = Embed(title="Currently Studying", description= f"Ayoo user you are currently studying", color = Color.orange())
