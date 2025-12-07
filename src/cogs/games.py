@@ -13,10 +13,13 @@ Vehicles: [🛴🦽🦼🚲🛵🏍️🚙🚗🛻🚚🚐🚜🏎️🚒🚑�
 Emotes:  [kellycute, kellyhappy..]
 Weapons: [🔫⚔️🏹💣🔪🗡️🛡️🤺..]
 
+#Game Checks
 has_profile()
+not_busy()
 at_the_location(loc)
 has_in_inventory(item, val=0)
 
+#Game functions
 inv_searcher()
 inv_manager()
 location_searcher()
@@ -77,103 +80,7 @@ class Games(commands.Cog):
         self.client = client
         # Optional: master rarity map if you keep it centrally
         # self.master = DATA["places_master"]
-
-    # ========= CORE REWARD LOGIC =========
-
-    def reward_player(self, aura: int, location, drops: dict, count_range=(3, 7)):
-        rewards = []
-        # weights per aura-band -> level keys
-        levels_choice = {
-            200: {"Level1": 0.6, "Level2": 0.25, "Level3": 0.10, "Level4": 0.04, "Level5": 0.01},
-            400: {"Level1": 0.4, "Level2": 0.4, "Level3": 0.14, "Level4": 0.04, "Level5": 0.02},
-            600: {"Level1": 0.2, "Level2": 0.2, "Level3": 0.4, "Level4": 0.12, "Level5": 0.08},
-            800: {"Level1": 0.1, "Level2": 0.1, "Level3": 0.2, "Level4": 0.4, "Level5": 0.2},
-            1000: {"Level1": 0.05, "Level2": 0.05, "Level3": 0.1, "Level4": 0.3, "Level5": 0.5},
-        }
-        # count tweak for super-aura
-        if aura > 999:
-            count_range = (5, 8)
-
-        # expand category weights into a list used by weighted_choice helper
-        # expected signature: weighted_choice(list_of_(value, weight))
-        cat_weight_list = list(drops.items())
-
-        # decide which aura band to use
-        def aura_band(a):
-            if a <= 200:
-                return 200
-            if a <= 400:
-                return 400
-            if a <= 600:
-                return 600
-            if a <= 800:
-                return 800
-            return 1000
-
-        band = aura_band(aura)
-        level_weight_list = list(levels_choice[band].items())
-
-        for _ in range(randint(*count_range)):
-            category = weighted_choice(cat_weight_list)
-            level = weighted_choice(level_weight_list)
-
-            # DATA["places"][location][category][level] is list of item-keys
-            if location not in DATA["places"]:
-                continue
-            if category not in DATA["places"][location]:
-                continue
-            if level not in DATA["places"][location][category]:
-                continue
-
-            available = DATA["places"][location][category][level]
-            if not available:
-                continue
-
-            item_key = choice(available)
-            qty = randint(1, 3)
-            if aura > 999:
-                qty = randint(3, 5)
-
-            rewards.append((category, item_key, qty, level))
-        return rewards
-
-    def rewards_descrip(self, rewards):
-        level1 = "<:common:> "
-        level2 = "<:unique:> "
-        level3 = "<:rare:> "
-        level4 = "<:epic:> "
-        level5 = "<:legendary:> "
-
-        for category, item_key, qty, level in rewards:
-            emoji = DATA["id"].get(item_key, "")
-            if level == "Level1":
-                level1 += emoji * qty
-            elif level == "Level2":
-                level2 += emoji * qty
-            elif level == "Level3":
-                level3 += emoji * qty
-            elif level == "Level4":
-                level4 += emoji * qty
-            elif level == "Level5":
-                level5 += emoji * qty
-
-        description = ""
-        if level1 != "<:common:> ":
-            description += f"{level1}\n"
-        if level2 != "<:unique:> ":
-            description += f"{level2}\n"
-        if level3 != "<:rare:> ":
-            description += f"{level3}\n"
-        if level4 != "<:epic:> ":
-            description += f"{level4}\n"
-        if level5 != "<:legendary:> ":
-            description += f"{level5}"
-        return description.strip()
-
-    def add_rewards(self, uid, rewards):
-        for category, item, qty, level in rewards:
-            inv_manager(str(uid), item, qty)
-            
+    
     # ========= PROFILE & WALLET =========
 
     @commands.hybrid_command(aliases=[])
@@ -282,7 +189,7 @@ class Games(commands.Cog):
 
     # ========= WORK / JOBS =========
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["job"])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
     async def work(self, ctx):
@@ -405,7 +312,7 @@ class Games(commands.Cog):
 
     # ========= SCHOOL / SKILLS =========
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["skills"])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
     async def school(self, ctx):
@@ -512,7 +419,7 @@ class Games(commands.Cog):
 
     # ========= ACTIVITY COMMANDS =========
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["h"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def hunt(self, ctx):
@@ -534,9 +441,9 @@ class Games(commands.Cog):
             "Plants": 1,
         }
 
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Hunt",description=f"You went hunting in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
+        rewards = reward_player(aura, loc, drops)
+        add_rewards(ctx.author.id, rewards)
+        em = Embed(title="Hunt",description=f"You went hunting in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",color=Color.green())
         em.set_footer(text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
@@ -569,11 +476,11 @@ class Games(commands.Cog):
             "Emotes": 1,
         }
 
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
+        rewards = reward_player(aura, loc, drops)
+        add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Chopping",
-            description=f"You went chopping in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
+            description=f"You went chopping in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -599,11 +506,11 @@ class Games(commands.Cog):
             "Tools": 0.5,
         }
 
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
+        rewards = reward_player(aura, loc, drops)
+        add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Farm",
-            description=f"You worked on the farm in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
+            description=f"You worked on the farm in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -637,11 +544,11 @@ class Games(commands.Cog):
             "Foods": 0.5,
         }
 
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
+        rewards = reward_player(aura, loc, drops)
+        add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Mine",
-            description=f"You went mining in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
+            description=f"You went mining in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -675,11 +582,11 @@ class Games(commands.Cog):
             "Plants": 1,
         }
 
-        rewards = self.reward_player(aura, loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
+        rewards = reward_player(aura, loc, drops)
+        add_rewards(ctx.author.id, rewards)
         em = Embed(
             title="Fish",
-            description=f"You went fishing in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
+            description=f"You went fishing in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",
             color=Color.green(),
         )
         em.set_footer(
@@ -714,10 +621,10 @@ class Games(commands.Cog):
             "Emotes": 0.1,
         }
 
-        rewards = self.reward_player(aura, new_loc, drops)
-        self.add_rewards(ctx.author.id, rewards)
+        rewards = reward_player(aura, new_loc, drops)
+        add_rewards(ctx.author.id, rewards)
         
-        em = Embed(title="Adventure",description=f"You went on adventuring in the {new_loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
+        em = Embed(title="Adventure",description=f"You went on adventuring in the {new_loc.capitalize()} and got:\n{rewards_descrip(rewards)}",color=Color.green())
         em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
@@ -745,9 +652,9 @@ class Games(commands.Cog):
             "Vehicles": 0.1,
         }
 
-        rewards = self.reward_player(aura, new_loc, drops)
-        self.add_rewards(ctx.author.id, reward)
-        em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",color=Color.green())
+        rewards = reward_player(aura, new_loc, drops)
+        add_rewards(ctx.author.id, reward)
+        em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{rewards_descrip(rewards)}",color=Color.green())
         em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
