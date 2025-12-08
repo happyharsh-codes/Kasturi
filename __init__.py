@@ -91,6 +91,29 @@ class MongoNestedDict(MutableMapping):
             value = dict(value)
         self._data[key] = value
         self._sync()
+
+    def get(self, key, default=None):
+        if key not in self._data[key]:
+            if isinstance(self.default, dict):
+                return MongoNestedDict(
+                    collection=self.collection,
+                    doc_id=self.doc_id,
+                    data=value,
+                    root=self.root
+                )
+            if self.default:
+                return self.default
+            return default
+        value = self._data[key]
+        if isinstance(value, dict):
+            return MongoNestedDict(
+                collection=self.collection,
+                doc_id=self.doc_id,
+                data=value,
+                root=self.root
+            )
+        return value
+        
         
     # --------- Contains ------
     def __contains__(self, key):
