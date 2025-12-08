@@ -91,7 +91,11 @@ class MongoNestedDict(MutableMapping):
             value = dict(value)
         self._data[key] = value
         self._sync()
-
+        
+    # --------- Contains ------
+    def __contains__(self, key):
+        return key in self._data
+    
     # ---------- Delete ----------
     def __delitem__(self, key):
         if key not in self._data:
