@@ -236,25 +236,7 @@ async def run_all_reminders(client):
                     await perform_reminder(reminder, id, client)
 
     
-def inv_searcher(id, item, amt):
-    category= ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
-    for categ in category:
-        inv = Profiles[id][categ]
-        if inv[item] and inv[item] >= amt:
-            return True
-    return False 
-    
-def inv_manager(id, item, amt):
-    category= ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
-    for categ in category:
-        inv = Profiles[id][categ]
-        if inv[item]:
-            Profiles[id][categ][item] += amt
-            if Profiles[id][categ][item] == 0:
-                del Profiles[id][categ][item]
-        else:
-            Profiles[id][categ][item] = amt
-                
+
 def has_profile():
     async def predicate(ctx):
         if Profiles[str(ctx.author.id)]:
@@ -354,53 +336,79 @@ def at_the_location(loc):
         return False
     return commands.check(predicate)
 
-def skills_searcher(ctx, skill, percentage):
-    skills = Profiles[str(id)]["skills"]
-    if skill in skills and skills[skill] >= percentage:
-        return True
-    return False
+class GameProfile:
 
-def skills_manager(id: str, skill, percentage):
-    skills = Profiles[id]["skills"]
-    if skill in skills:
-        Profiles[id]["skills"][skill] += percentage
-    else:
-        Profile[id]["skills"][skill] = percentage
-    if Profile[id]["skills"][skill] > 100:
-        Profile[id]["skills"][skill] = 100
-    elif Profile[id]["skills"][skill] <= 0:
-        del Profile[id][
-        "skills"][skill]
+    def __init__(self, uid: str):
+        self.uid = str(uid)
+        self.__fetch_data__()
     
-def skills_searcher(ctx, skill, percentage):
-    skills = Profiles[str(id)]["skills"]
-    if skills[skill] and skills[skill] >= percentage:
-        return True
-    return False
+    def __fetch_data__(self):
+        if self.uid in Profiles:
+            self._data = Profiles[self.uid]
+        else:
+            raise ValueError(f"Profile UID {self.uid} not found in global Profiles dictionary.")
 
-def skills_manager(id: str, skill, percentage):
-    skills = Profiles[id]["skills"]
-    if skills[skill]:
-        Profiles[id]["skills"][skill] += percentage
-    else:
-        Profile[id]["skills"][skill] = percentage
-    if Profile[id]["skills"][skill] > 100:
-        Profile[id]["skills"][skill] = 100
-    elif Profile[id]["skills"][skill] <= 0:
-        del Profile[id]["skills"][skill]
+    def __setattr__(self, name, value):
+        if name in ('uid', '_data'):
+            object.__setattr__(self, name, value)
+        else:
+            self._data[name] = value
+            
+    def __getattr__(self, name):
+        if name in self._data:
+            return self._data[name]
+        return 
+        #raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        
+    def inv_searcher(self, item, amt):
+        category = ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
+        for categ in category:
+            inv = self.categ
+            if item in inv and inv[item] >= amt:
+                return True
+        return False 
+
+    def inv_manager(self, item, amt):
+        category = ("foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes")
+        for categ in category:
+            if item in DATA[categ]:
+                category = categ
+                break    
+        inv = self.category
+        if item in inv or amt > 0:
+            inv[item] = inv.get(item, 0) + amt
+            if inv[item] <= 0:
+                del inv[item]
+                
+    def skills_searcher(self, skill, percentage):
+        skills = self.skills
+        if skill in skills and skills[skill] >= percentage:
+            return True
+        return False
+
+    def skills_manager(self, skill, percentage):
+        skills = self.skills
+        skills[skill] = skills.get(skill, 0) + percentage
+
+        if skills[skill] > 100:
+            skills[skill] = 100
+        elif skills[skill] <= 0:
+            del skills[skill]
+            
+    def location_searcher(self, location):
+        loc = self.location
+        if loc == location:
+            return True
+        return False
+
+    async def place_manager(self, ctx, place):
+        places = self.places
+        if place in places:
+            places[place] += randint(1, 6)
+        else:
+            places[place] = randint(1,6)
+            await ctx.send(f"{ctx.author.mention} you found a new location: ft. **{place.replace('_','').title()}**")
+        
+        if places[place] > 100:
+            places[place] = 100
     
-def location_searcher(id, location):
-    loc = Profiles[id]["loc"]
-    if loc == location:
-        return True
-    return False
-
-async def place_manager(ctx, place):
-    id = str(ctx.author.id)
-    if Profiles[id]["places"][place]:
-        Profiles[id]["places"][place] += randint(1,10)
-        if Profiles[id]["places"][place] > 100:
-            Profiles[id]["places"][place] = 100
-    else:
-        Profiles[id]["places"][place] = 100
-        await ctx.send(f"{ctx.author.mention} you found a new location: ft. {place.replace('_','').title()}")
