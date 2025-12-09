@@ -326,7 +326,7 @@ def at_the_location(loc):
 
 class GameProfile:
 
-    def __init__(self, uid: str):
+    def __init__(self, uid):
         self.uid = str(uid)
         self.__fetch_data__()
     
