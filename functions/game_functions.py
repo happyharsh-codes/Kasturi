@@ -143,16 +143,6 @@ def add_rewards(uid, rewards):
     for category, item, qty, level in rewards:
         inv_manager(str(uid), item, qty)
 
-def add_task(uid, name, duration, channel, message, **info)
-    due = datetime.now() + timedelta(seconds=duration)
-    due_str = due.isoformat()
-    Profiles[str(uid)]["tasks"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
-
-def add_reminder(uid, name, duration, channel, message, **info)
-    due = datetime.now() + timedelta(seconds=duration)
-    due_str = due.isoformat()
-    Profiles[str(uid)]["reminders"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
-    
 async def perform_task(task, uid, client):
     profile = Profiles[uid]
     Profiles[uid]["activity"] = "sleeping"
@@ -198,7 +188,7 @@ async def perform_task(task, uid, client):
             Profiles[uid]["places"][place] = randint(1,6)
     else:
         rewards = reward_player(profile["aura"], profile["location"], task["rewards"])
-        em = Embed(title=f"{task['name'] Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n", color = Color.green())
+        em = Embed(title=f"{task['name']} Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n", color = Color.green())
         em.set_footer(text = f"{task['name'].title()} - ▓▓▓▓▓▓▓▓▓▓100% Completed")
         em.description += rewards_descrip(rewards)
         add_rewards(uid, rewards)
@@ -234,8 +224,6 @@ async def run_all_reminders(client):
             for due, reminder in profile["reminders"]:
                 if datetime.now() > datetime.fromisoformat(due):
                     await perform_reminder(reminder, id, client)
-
-    
 
 def has_profile():
     async def predicate(ctx):
@@ -411,4 +399,14 @@ class GameProfile:
         
         if places[place] > 100:
             places[place] = 100
+
+    def add_task(self, name, duration, channel, message, **info)
+        due = datetime.now() + timedelta(seconds=duration)
+        due_str = due.isoformat()
+        self.tasks[due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
+
+    def add_reminder(self, name, duration, channel, message, **info)
+        due = datetime.now() + timedelta(seconds=duration)
+        due_str = due.isoformat()
+        self.tasks["reminders"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
     
