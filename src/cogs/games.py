@@ -64,7 +64,7 @@ epic: 30%
 legendary: 50%
 
 ---- Places ----
-river , mountain, ocean, forest, desert
+river, mountain, ocean, forest, desert
 """
 
 
@@ -73,8 +73,7 @@ def action_embed(title, description, color, footer=None, avatar=None):
     if footer:
         em.set_footer(text=footer, icon_url=avatar)
     return em
-
-
+    
 class Games(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
@@ -89,40 +88,28 @@ class Games(commands.Cog):
     async def profile(self, ctx, user: Optional[discord.Member] = None):
         if not user:
             user = ctx.author
-        profile = Profiles[str(user.id)]
+        profile = GameProfile(ctx.author.id)(
         descrip = (
             f"Wallet:\n"
-            f"**Cash**: {profile['assets'].get('cash', 0)}\n"
-            f"**Gems**: {profile['assets'].get('gems', 0)}\n"
-            f"**Orbs**: {profile['assets'].get('orb', 0)}"
+            f"**Cash**: {profile.assets.get('cash', 0}\n"
+            f"**Gems**: {profile.assets.get('gems', 0)}\n"
+            f"**Orbs**: {profile.assets.get('orb', 0)}"
         )
-        em = action_embed(
-            f"{user.display_name}'s Profile",
-            descrip,
-            Color.green(),
-            f"Profile used by {ctx.author.name}",
-            ctx.author.avatar,
-        )
+        em = action_embed(f"{user.display_name}'s Profile", descrip,Color.green(),f"Profile used by {ctx.author.name}",ctx.author.avatall0 66ekb)
         await ctx.send(embed=em)
 
     @commands.hybrid_command(aliases=["bal", "wallet", "cash"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def balance(self, ctx):
-        profile = Profiles[str(ctx.author.id)]
+        profile = GameProfile(ctx.author.id)
         descrip = (
             f"Wallet:\n"
-            f"**Cash**: {profile['assets'].get('cash', 0)}\n"
-            f"**Gems**: {profile['assets'].get('gems', 0)}\n"
-            f"**Orbs**: {profile['assets'].get('orb', 0)}"
+            f"**Cash**: {profile.assets.get('cash', 0)}\n"
+            f"**Gems**: {profile.assets.get('gems', 0)}\n"
+            f"**Orbs**: {profile.assets.get('orb', 0)}"
         )
-        em = action_embed(
-            f"{ctx.author.display_name}'s Wallet",
-            descrip,
-            Color.green(),
-            f"Bal used by {ctx.author.name}",
-            ctx.author.avatar,
-        )
+        em = action_embed(f"{ctx.author.display_name}'s Wallet",descrip,Color.green(),f"Bal used by {ctx.author.name}",ctx.author.avatar)
         await ctx.send(embed=em)
 
     # ========= INVENTORY =========
@@ -133,15 +120,14 @@ class Games(commands.Cog):
     async def inv(self, ctx):
         """View categorized inventory."""
         categories = ["Foods", "Animals", "Plants", "Assets", "Tools", "Weapons", "Vehicles", "Emotes"]
-        profile_id = str(ctx.author.id)
-        selected_category = "Foods"
+        profile = GameProfile(ctx.author.id)
 
         em = action_embed(f"{ctx.author.display_name}'s Inventory","",Color.green(),f"Inv by {ctx.author.name}",ctx.author.avatar,)
 
-        def update():
-            nonlocal em, selected_category
+        def update(selected_category):
+            nonlocal em
             descrip = ""
-            items = Profiles[profile_id].get(selected_category, {})
+            items = profile.get(selected_category, {})
             break_line = 0
             for item_key, val in items.items():
                 emoji = DATA["id"].get(item_key, item_key)
@@ -160,8 +146,7 @@ class Games(commands.Cog):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                     
-            selected_category = inter.data["values"][0]
-            update()
+            update(inter.data["values"][0])
             await inter.response.edit_message(embed=em, view=view)
 
         async def on_timeout():
@@ -174,7 +159,7 @@ class Games(commands.Cog):
         view = View(timeout=45)
         view.on_timeout = on_timeout
         view.add_item(category_select)
-        update()
+        update("Foods")
         msg = await ctx.send(embed=em, view=view)
 
     # ========= SIMPLE ECONOMY =========
@@ -183,9 +168,10 @@ class Games(commands.Cog):
     @commands.cooldown(1, 1000, type=commands.BucketType.user)
     @has_profile()
     async def beg(self, ctx):
+        profile = GameProfile(ctx.author.id)
         beg_amt = randint(1, 100)
         await ctx.send(f"{ctx.author.mention} You got {beg_amt} in your bowl!! {kemoji()}")
-        inv_manager(str(ctx.author.id), "cash", beg_amt)
+        profile.inv_manager("cash", beg_amt)
 
     # ========= WORK / JOBS =========
 
