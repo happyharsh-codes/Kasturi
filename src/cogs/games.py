@@ -91,7 +91,7 @@ class Games(commands.Cog):
         profile = GameProfile(ctx.author.id)
         descrip = (
             f"Wallet:\n"
-            f"**Cash**: {profile.assets.get('cash', 0}\n"
+            f"**Cash**: {profile.assets.get('cash', 0)}\n"
             f"**Gems**: {profile.assets.get('gems', 0)}\n"
             f"**Orbs**: {profile.assets.get('orb', 0)}"
         )
