@@ -95,8 +95,7 @@ class Games(commands.Cog):
             f"**Gems**: {profile.assets.get('gems', 0)}\n"
             f"**Orbs**: {profile.assets.get('orb', 0)}"
         )
-        em = action_embed(f"{user.display_name}'s Profile", descrip,Color.green())
-        em.set_footer(text = f"Profile used by {ctx.author.name}",ctx.author.avatar)
+        em = action_embed(f"{user.display_name}'s Profile", descrip, Color.green(), f"Profile used by {ctx.author.name}", ctx.author.avatar)
         await ctx.send(embed=em)
 
     @commands.hybrid_command(aliases=["bal", "wallet", "cash"])
