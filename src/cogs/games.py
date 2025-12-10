@@ -178,18 +178,20 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=["job"])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
+    @not_busy()
     async def work(self, ctx):
         """Work in your Job or get a new Job, for regular wages."""
+        profile = GameProfile(ctx.author.id)
         options = [
-            SelectOption(label="Doctor", description="The Life saver god Earns: 1,00,000/hour",emoji=discord.PartialEmoji.from_str("🩺"), value="doctor"),
-            SelectOption(label="Engineer", description="New Innovations and Constructions Earns: 1,00,000/hour",emoji=discord.PartialEmoji.from_str("🧰"), value="engineer"),
-            SelectOption(label="Teacher", description="Lead the youth Earns: 50,000/hour",emoji=discord.PartialEmoji.from_str("📚"), value="teacher"),
-            SelectOption(label="Programmer", description="Epitome of technology Earns: 80,000/hour",emoji=discord.PartialEmoji.from_str("💻"), value="programmer"),
-            SelectOption(label="Chef", description="Perfection in Taste Earns: 34,000/hour",emoji=discord.PartialEmoji.from_str("🍳"), value="chef"),
-            SelectOption(label="Blacksmith", description="Always Forging with Metals Earns: 25,600/hour",emoji=discord.PartialEmoji.from_str("⚒️"), value="blacksmith"),
-            SelectOption(label="Farmer", description="The Food provider Earns: 30,000/hours",emoji=discord.PartialEmoji.from_str("🌾"), value="farmer"),
-            SelectOption(label="Fisherman", description="Handy with Fishes Earns: 19,000/hour",emoji=discord.PartialEmoji.from_str("🎣"), value="fisherman"),
-            SelectOption(label="Hunter", description="Nomad Hunter Earns: 10,000/hour",emoji=discord.PartialEmoji.from_str("🏹"), value="hunter"),
+            SelectOption(label="Doctor", description="The Life saver god; Earns: 1,00,000/hour",emoji=discord.PartialEmoji.from_str("🩺"), value="doctor"),
+            SelectOption(label="Engineer", description="New Innovations and Constructions; Earns: 1,00,000/hour",emoji=discord.PartialEmoji.from_str("🧰"), value="engineer"),
+            SelectOption(label="Teacher", description="Lead the youth; Earns: 50,000/hour",emoji=discord.PartialEmoji.from_str("📚"), value="teacher"),
+            SelectOption(label="Programmer", description="Epitome of technology; Earns: 80,000/hour",emoji=discord.PartialEmoji.from_str("💻"), value="programmer"),
+            SelectOption(label="Chef", description="Perfection in Taste; Earns: 34,000/hour",emoji=discord.PartialEmoji.from_str("🍳"), value="chef"),
+            SelectOption(label="Blacksmith", description="Always Forging with Metals; Earns: 25,600/hour",emoji=discord.PartialEmoji.from_str("⚒️"), value="blacksmith"),
+            SelectOption(label="Farmer", description="The Food provider; Earns: 30,000/hours",emoji=discord.PartialEmoji.from_str("🌾"), value="farmer"),
+            SelectOption(label="Fisherman", description="Handy with Fishes; Earns: 19,000/hour",emoji=discord.PartialEmoji.from_str("🎣"), value="fisherman"),
+            SelectOption(label="Hunter", description="Classical old Nomad Hunter; Earns: 10,000/hour",emoji=discord.PartialEmoji.from_str("🏹"), value="hunter"),
         ]
         selected = None
         salary = {
@@ -237,7 +239,7 @@ class Games(commands.Cog):
         view = View(timeout=45)
 
         async def on_select(inter: Interaction):
-            nonlocal selected, work_btn, category_select, em, view
+            nonlocal profile, selected, work_btn, category_select, em, view, update
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
@@ -247,13 +249,13 @@ class Games(commands.Cog):
                 if opt.value == selected_val:
                     selected = opt
 
-            profile_skills = Profiles[str(ctx.author.id)].get("skills", {})
+            profile_skills = profile.skills
             required = DATA["jobs"].get(selected.value, [])
             if all(skill in profile_skills and profile_skills[skill] > 0 for skill in required):
-                work_btn.disabled = False
+                work_btn.disabled = True
                 work_btn.label = "Job not available"
             else:
-                work_btn.disabled = True
+                work_btn.disabled = False
                 work_btn.label = "Work"
 
             view.clear_items()
@@ -266,9 +268,9 @@ class Games(commands.Cog):
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
-            nonlocal selected, em, salary, msg
+            nonlocal profile, selected, em, salary, msg
             sal = salary[selected.value]
-            skill = Profiles[str(ctx.author.id)]["skills"][selected]
+            skill = profile.skills[selected.value]
             if skill < 20:
                 sal += randint(-10000,500)
             elif skill < 60:
@@ -279,9 +281,9 @@ class Games(commands.Cog):
                 sal += randint(1,5000)
             em.description = f"You Started Working!!! You'll be notified when you are done."
             await inter.response.edit_message(embed=em, view=None)
-            await asyncio.sleep(3600)
-            await msg.reply(f"You earned {sal} {DATA['id']['cash']} as salary.")
-            inv_manager(str(ctx.author.id), "cash", sal)
+            profile.add_task("working", randint(3600,7200), inter.channel_id, inter.message.id, salary = sal, profession = selected.value)
+            profile.activity = "working"
+            view.timeout = None
             
         async def timeout():
             em.color = Color.light_grey()
@@ -301,7 +303,9 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=["skills"])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
+    @not_busy()
     async def school(self, ctx):
+        profile = GameProfile(ctx.author.id)
         options = [
             SelectOption(label="Math", description="Integration & Calculus: 2 hours", emoji="➗", value="math"),
             SelectOption(label="Science", description="Innovate & discover: 2 hours", emoji="🔬", value="science"),
@@ -381,15 +385,13 @@ class Games(commands.Cog):
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
-            nonlocal selected, time_req, em, view
+            nonlocal profile, selected, time_req, em, view
             due = time_req[selected.value]
             await inter.response.edit_message(embed=em, view=None)
-            await asyncio.sleep(due)
-            gain = randint(1, 5)
-            skills_manager(str(ctx.author.id), selected.value, gain)
-            progress = Profiles[str(ctx.author.id)]["skills"][selected.value]
-            await msg.reply(f"You studied {selected.label} {selected.emoji} and gained {gain}%. Progress: {progress}%.")
-
+            view.timeout = None
+            profile.add_task("studying", due, inter.channel_id, inter.message.id, subject = selected.value)
+            profile.activity = "studying"
+            
         async def timeout():
             em.color = Color.light_grey()
             for child in view.children:
@@ -408,13 +410,13 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=["h"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
+    @not_busy()
     async def hunt(self, ctx):
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
+        profile = GameProfile(ctx.author.id)
+        loc = profile.location
         if loc not in ["forest", "mountain", "desert"]:
             for i in ["forest", "mountain", "desert"]:
-                if profile["places"][i]:
+                if profile.places[i]:
                     destination = i
                     break
             else:
@@ -427,20 +429,19 @@ class Games(commands.Cog):
             "Plants": 1,
         }
 
-        rewards = reward_player(aura, loc, drops)
-        add_rewards(ctx.author.id, rewards)
-        em = Embed(title="Hunt",description=f"You went hunting in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",color=Color.green())
+        rewards = profile.reward_player(drops)
+        em = Embed(title="Hunt",description=f"You went hunting in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
+    @not_busy()
     async def chop(self, ctx):
         """Goes chopping in the woods."""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
+        profile = GameProfile(ctx.author.id)
+        loc = profile.location
     
         if loc not in ["forest", "mountain", "desert"]:
             for i in ["forest", "mountain", "desert"]:
@@ -452,67 +453,42 @@ class Games(commands.Cog):
             await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
-            "Foods": 1,
-            "Plants": 1,
-            "Animals": 1,
-            "Tools": 1,
-            "Weapons": 0.5,
-            "Assets": 1,
-            "Vehicles": 0.2,
-            "Emotes": 1,
+            "Foods": 0.1,
+            "Plants": 0.9
         }
 
-        rewards = reward_player(aura, loc, drops)
-        add_rewards(ctx.author.id, rewards)
-        em = Embed(
-            title="Chopping",
-            description=f"You went chopping in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",
-            color=Color.green(),
-        )
-        em.set_footer(
-            text=f"Chop by {ctx.author.display_name} | At {timestamp(ctx)}",
-            icon_url=ctx.author.avatar,
-        )
+        rewards = profile.reward_player(drops)
+        em = Embed(title="Chopping",description=f"You went chopping in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
+        em.set_footer(text=f"Chop by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
     @at_the_location("home")
+    @not_busy()
     async def farm(self, ctx):
         """Goes for cropping and harvesting the farmland."""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
+        profile = GameProfile(ctx.author.id)
+        loc = profile.location
 
         drops = {
-            "Foods": 3,
-            "Plants": 2,
-            "Animals": 0.5,
-            "Tools": 0.5,
+            "Crops": 2
         }
 
-        rewards = reward_player(aura, loc, drops)
-        add_rewards(ctx.author.id, rewards)
-        em = Embed(
-            title="Farm",
-            description=f"You worked on the farm in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",
-            color=Color.green(),
-        )
-        em.set_footer(
-            text=f"Farm by {ctx.author.display_name} | At {timestamp(ctx)}",
-            icon_url=ctx.author.avatar,
-        )
+        rewards = profile.reward_player(drops)
+        em = Embed(title="Farm",description=f"You worked on the farm in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
+        em.set_footer(text=f"Farm by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar,)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
+    @not_busy()
     async def mine(self, ctx):
         """Go for mining rare items in the caves."""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
+        profile = GameProfile(ctx.author.id)
+        loc = profile.location
         
         if loc not in ["forest", "mountain", "desert"]:
             for i in ["forest", "mountain", "desert"]:
@@ -524,34 +500,24 @@ class Games(commands.Cog):
             await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
-            "Weapons": 1,
-            "Tools": 1,
-            "Assets": 1,
-            "Foods": 0.5,
+            "Weapons": 0.02,
+            "Minerals": 0.98
         }
 
-        rewards = reward_player(aura, loc, drops)
-        add_rewards(ctx.author.id, rewards)
-        em = Embed(
-            title="Mine",
-            description=f"You went mining in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",
-            color=Color.green(),
-        )
-        em.set_footer(
-            text=f"Mine by {ctx.author.display_name} | At {timestamp(ctx)}",
-            icon_url=ctx.author.avatar,
-        )
+        rewards = profile.reward_player(drops)
+        em = Embed(title="Mine",description=f"You went mining in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
+        em.set_footer(text=f"Mine by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     @has_in_inventory("fishing_rod")
+    @not_busy()
     async def fish(self, ctx):
         """Catch fish directly from the river."""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
+        profile = GameProfile(ctx.author.id)
+        loc = profile.location
         
         if loc not in ["river", "ocean"]:
             for i in ["river", "ocean"]:
@@ -563,22 +529,15 @@ class Games(commands.Cog):
             await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
-            "Foods": 3,
+            "Fish": 10,
             "Tools": 1,
             "Plants": 1,
+            "weapons": 1,
         }
 
-        rewards = reward_player(aura, loc, drops)
-        add_rewards(ctx.author.id, rewards)
-        em = Embed(
-            title="Fish",
-            description=f"You went fishing in the {loc.capitalize()} and got:\n{rewards_descrip(rewards)}",
-            color=Color.green(),
-        )
-        em.set_footer(
-            text=f"Fish by {ctx.author.display_name} | At {timestamp(ctx)}",
-            icon_url=ctx.author.avatar,
-        )
+        rewards = player.reward_player(drops)
+        em = Embed(title="Fish",description=f"You went fishing in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
+        em.set_footer(text=f"Fish by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar,)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=["adv"])
@@ -586,13 +545,12 @@ class Games(commands.Cog):
     @has_profile()
     async def adventure(self, ctx):
         """Adventure or find new places, results in exciting rewards."""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
-
+        profile = GameProfile(ctx.author.id)
+        loc = profile.location
+        
         new_loc = choice(["ocean","river","desert","mountain","forest"])
 
-        await place_manager(ctx, new_loc)
+        await profile.place_manager(ctx, new_loc)
         if new_loc != loc:
             await ctx.invoke(ctx.bot.get_command('travel'), place=new_loc)
         
@@ -607,21 +565,19 @@ class Games(commands.Cog):
             "Emotes": 0.1,
         }
 
-        rewards = reward_player(aura, new_loc, drops)
-        add_rewards(ctx.author.id, rewards)
-        
-        em = Embed(title="Adventure",description=f"You went on adventuring in the {new_loc.capitalize()} and got:\n{rewards_descrip(rewards)}",color=Color.green())
+        rewards = profile.reward_player(drops)
+        em = Embed(title="Adventure",description=f"You went on adventuring in the {new_loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
 
     @commands.hybrid_command(aliases=["exp"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
+    @not_busy()
     async def explore(self, ctx):
         """Explores a new place each time. A bit dangerous, consumes more energy and food."""
-        profile = Profiles[str(ctx.author.id)]
-        aura = profile["aura"]
-        loc = profile["location"]
+        profile = GameProfile(ctx.author.id)
+        loc = profile.location
         new_loc = choice(["ocean","river","desert","mountain","forest"])
 
         await place_manager(ctx, new_loc)
@@ -637,33 +593,47 @@ class Games(commands.Cog):
             "Assets": 0.2,
             "Vehicles": 0.1,
         }
-
-        rewards = reward_player(aura, new_loc, drops)
-        add_rewards(ctx.author.id, reward)
-        em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{rewards_descrip(rewards)}",color=Color.green())
-        em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
+        
+        msg = await ctx.reply("You started exploring in the woods for new locations. Wait until you discover something new")
+        profile.add_task("exploring", randint(1200, 3600), msg.channel.id, msg.id, drops = drops, place = discoverables)
+        profile.activity = "exploring"
+        profile.location = "exploring"
 
     # ========= TRAVEL =========
 
     @commands.hybrid_command(aliases=["go"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
+    @not_busy()
     async def travel(self, ctx, *, place: Optional[str] = None):
         """Travel to different locations that you have discovered already."""
-        profile_id = str(ctx.author.id)
-        places = Profiles[profile_id].get("places", [])
+        profile = GameProfile(ctx.author.id)
+        places = profile.places
         if not places:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-
+        if place:
+            if place.lower() not on places:
+                return await ctx.send("Invalid Place given")
+            loc = place.lower()
+            travel_time = randint(1,20)
+            em = Embed(title="Travel",description=f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination.", color = Color.green())
+            #em.set_thumbnail(url="")
+            profile.location = "travelling"
+            protile.activity = "travelling"
+           
+            await ctx.send(embed=em)
+            await asyncio.sleep(travel_time)
+            profile.location = loc
+            profile.activity = "sleeping"
+            return await ctx.send(f"{ctx.author.mention} you have reached {loc.title()}")
+                
         go_btn = Button(style=ButtonStyle.green, custom_id="go", label="🏃 Go", disabled=True)
         #return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
 
         place_select = Select(custom_id="places",placeholder="Select Location to go",options=[SelectOption(label=i.replace('_', ' ').title(), value=i) for i in places],max_values=1,min_values=1,)
-        if Profiles[profile_id]["location"] != "home":
+        if profile.location != "home":
             place_select.options.append(SelectOption(label="Home", value="home"))
         em = Embed(title="Travel",description="Select the location in menu where you want to go then confirm.",color=Color.green())
-
         view = View(timeout=45)
         async def timeout():
             em.color = Color.light_grey()
@@ -696,12 +666,14 @@ class Games(commands.Cog):
             travel_time = randint(1,20)
             em.description = f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination."
             #em.set_thumbnail(url="")
+            profile.location = "travelling"
+            protile.activity = "travelling"
             view.timeout = None
             await inter.response.edit_message(embed=em, view=None)
             await asyncio.sleep(travel_time)
-            Profiles[profile_id]["location"] = loc
-            if not place:
-                return await ctx.send(f"{ctx.author.mention} you have reached {loc.title()}")
+            profile.location = loc
+            profile.activity = "sleeping"
+            return await ctx.send(f"{ctx.author.mention} you have reached {loc.title()}")
                 
         async def on_return(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -719,12 +691,12 @@ class Games(commands.Cog):
 
     # ========= FEED / BUILD / STEAL =========
 
-    @commands.hybrid_command(aliases=["eat"])
+    @commands.hybrid_command(aliases=["eat", "food"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     async def feed(self, ctx, item: Optional[str] = None, amount: int = 1):
         """Eat items from your inventory."""
-        profile_id = str(ctx.author.id)
+        profile = GameProfile(ctx.author.id)
         if not item:
             await ctx.send("Specify a food item to eat.")
             return
