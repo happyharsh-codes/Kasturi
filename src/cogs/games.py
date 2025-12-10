@@ -612,7 +612,7 @@ class Games(commands.Cog):
         if not places:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
         if place:
-            if place.lower() not on places:
+            if place.lower() not in places:
                 return await ctx.send("Invalid Place given")
             loc = place.lower()
             travel_time = randint(1,20)
