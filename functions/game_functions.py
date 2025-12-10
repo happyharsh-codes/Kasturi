@@ -48,63 +48,6 @@ def weighted_choice(choices: list):
             return item
         upto += w
     return choices[-1][0]
-    
-def reward_player(aura: int, location, drops, count_range=(3, 7)):
-    rewards = []
-    # weights per aura-band -> level keys
-    levels_choice = {
-        200: {"Level1": 0.6, "Level2": 0.25, "Level3": 0.10, "Level4": 0.04, "Level5": 0.01},
-        400: {"Level1": 0.4, "Level2": 0.4, "Level3": 0.14, "Level4": 0.04, "Level5": 0.02},
-        600: {"Level1": 0.2, "Level2": 0.2, "Level3": 0.4, "Level4": 0.12, "Level5": 0.08},
-        800: {"Level1": 0.1, "Level2": 0.1, "Level3": 0.2, "Level4": 0.4, "Level5": 0.2},
-        1000: {"Level1": 0.05, "Level2": 0.05, "Level3": 0.1, "Level4": 0.3, "Level5": 0.5},
-    }
-    # count tweak for super-aura
-    if aura > 999:
-        count_range = (5, 8)
-
-    # expand category weights into a list used by weighted_choice helper
-    # expected signature: weighted_choice(list_of_(value, weight))
-    cat_weight_list = list(drops.items())
-
-    # decide which aura band to use
-    def aura_band(a):
-        if a <= 200:
-            return 200
-        if a <= 400:
-            return 400
-        if a <= 600:
-            return 600
-        if a <= 800:
-            return 800
-        return 1000
-
-    band = aura_band(aura)
-    level_weight_list = list(levels_choice[band].items())
-
-    for _ in range(randint(*count_range)):
-        category = weighted_choice(cat_weight_list)
-        level = weighted_choice(level_weight_list)
-
-        # DATA["places"][location][category][level] is list of item-keys
-        if location not in DATA["places"]:
-            continue
-        if category not in DATA["places"][location]:
-            continue
-        if level not in DATA["places"][location][category]:
-            continue
-
-        available = DATA["places"][location][category][level]
-        if not available:
-            continue
-
-        item_key = choice(available)
-        qty = randint(1, 3)
-        if aura > 999:
-            qty = randint(3, 5)
-
-        rewards.append((category, item_key, qty, level))
-    return rewards
 
 def rewards_descrip(rewards):
     level1 = "<:common:> "
@@ -139,13 +82,9 @@ def rewards_descrip(rewards):
         description += f"{level5}"
     return description.strip()
 
-def add_rewards(uid, rewards):
-    for category, item, qty, level in rewards:
-        inv_manager(str(uid), item, qty)
-
 async def perform_task(task, uid, client):
-    profile = Profiles[uid]
-    Profiles[uid]["activity"] = "sleeping"
+    profile = GameProfile(uid)
+    profile.activity = "sleeping"
     channel = client.get_channel(task["channel"])
     if not channel:
         try:
@@ -155,7 +94,7 @@ async def perform_task(task, uid, client):
     if task["name"] == "working":
         sal = task["salary"]
         profession = task["profession"]
-        inv_manager(uid, "cash", sal)
+        profile.inv_manager("cash", sal)
         em = Embed(title= f"Work Finished", description = f"You fished your work today. Great work at job. \n**Salary Recived:** {sal}", color = Color.green())
         em.set_footer(text= f"Salary transferred to your bank account")
         await channel.send(f"<@{uid}>", embed= em)
@@ -163,7 +102,7 @@ async def perform_task(task, uid, client):
     elif task["name"] == "studying":
         subject = task["subject"]
         gain = randint(1, 5)
-        skills_manager(str(ctx.author.id), selected.value, gain)
+        profiel.skills_manager(str(ctx.author.id), selected.value, gain)
         progress = Profiles[str(ctx.author.id)]["skills"][selected.value]
         em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task["emoji"]} and gained {gain}%. Progress: {progress}%.", color = Color.green())
         em.set_footer(text= f"Class ▓▓▓▓▓▓▓▓▓▓100% Completed | Skill++")
@@ -171,27 +110,33 @@ async def perform_task(task, uid, client):
 
     elif task["name"] == "travelling":
         await channel.send(f"<@{uid}> You have reached {task["destination"].title()}")
-        Profiles[uid]["location"] = task["destination"]
+        profile.location = task["destination"]
 
     elif task["name"] == "crafting":
-        inv_manager(uid, task["item"], task["amt"])
+        profile.inv_manager(task["item"], task["amt"])
         await channel.send(f"<@{uid}> You have crafted {DATA["id"][item]} {item} x {task["amt"]} successfully")
 
     elif task["name"] == "exploring":
         place = task["place"]
-        await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`")
-        if Profiles[uid]["places"][place]:
-            Profiles[uid]["places"][place] += randint(1,6)
-            if Profiles[uid]["places"][place] > 100:
-                Profiles[uid]["places"][place] = 100
-        else:
-            Profiles[uid]["places"][place] = randint(1,6)
+        profile.location = place
+        rewards = profile.reward_player(task["drops"])
+        profile.place_manager(task["destination"])
+        em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{rewards}",color=Color.green())
+        em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
+        try:
+            msg = await channel.fetch_message(task["message"])
+            ctx = client.get_context(msg)
+            await profile.place_manager(ctx, place)
+        except:
+            profile.places[place] = min(profile.place.get(place, 0) + randint(1,6), 100)
+        await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`", embed=em)
+        
     else:
         rewards = reward_player(profile["aura"], profile["location"], task["rewards"])
         em = Embed(title=f"{task['name']} Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n", color = Color.green())
         em.set_footer(text = f"{task['name'].title()} - ▓▓▓▓▓▓▓▓▓▓100% Completed")
         em.description += rewards_descrip(rewards)
-        add_rewards(uid, rewards)
+        self.add_rewards(rewards)
         await channel.send(f"<@{uid}>", embed= em)
         
 async def perform_reminder(reminder, uid, client):
@@ -399,14 +344,79 @@ class GameProfile:
         
         if places[place] > 100:
             places[place] = 100
-
-    def add_task(self, name, duration, channel, message, **info)
+    
+    def add_task(self, name, duration, channel, message, **info):
         due = datetime.now() + timedelta(seconds=duration)
         due_str = due.isoformat()
         self.tasks[due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
 
-    def add_reminder(self, name, duration, channel, message, **info)
+    def add_reminder(self, name, duration, channel, message, **info):
         due = datetime.now() + timedelta(seconds=duration)
         due_str = due.isoformat()
         self.tasks["reminders"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
-    
+
+    def add_rewards(self, rewards):
+        for category, item, qty, level in rewards:
+            self.inv_manager(item, qty)
+
+    def reward_player(self, drops, count_range=(3, 7)):
+        """Rewards players with drops and count range, rewards based on user location and aura.
+        Adds Rewards to player inventory and return the reward description"""
+        rewards = []
+        aura = self.aura
+        location= self.location
+        # weights per aura-band -> level keys
+        levels_choice = {
+            200: {"Level1": 0.6, "Level2": 0.25, "Level3": 0.10, "Level4": 0.04, "Level5": 0.01},
+            400: {"Level1": 0.4, "Level2": 0.4, "Level3": 0.14, "Level4": 0.04, "Level5": 0.02},
+            600: {"Level1": 0.2, "Level2": 0.2, "Level3": 0.4, "Level4": 0.12, "Level5": 0.08},
+            800: {"Level1": 0.1, "Level2": 0.1, "Level3": 0.2, "Level4": 0.4, "Level5": 0.2},
+            1000: {"Level1": 0.05, "Level2": 0.05, "Level3": 0.1, "Level4": 0.3, "Level5": 0.5},
+        }
+        # count tweak for super-aura
+        if aura > 999:
+            count_range = (5, 8)
+
+        # expand category weights into a list used by weighted_choice helper
+        # expected signature: weighted_choice(list_of_(value, weight))
+        cat_weight_list = list(drops.items())
+
+        # decide which aura band to use
+        def aura_band(a):
+            if a <= 200:
+                return 200
+            elif a <= 400:
+                return 400
+            elif a <= 600:
+                return 600
+            elif a <= 800:
+                return 800
+            return 1000
+
+        band = aura_band(aura)
+        level_weight_list = list(levels_choice[band].items())
+
+        for _ in range(randint(*count_range)):
+            category = weighted_choice(cat_weight_list)
+            level = weighted_choice(level_weight_list)
+
+            # DATA["places"][location][category][level] is list of item-keys
+            if location not in DATA["places"]:
+                continue
+            if category not in DATA["places"][location]:
+                continue
+            if level not in DATA["places"][location][category]:
+                continue
+
+            available = DATA["places"][location][category][level]
+            if not available:
+                continue
+
+            item_key = choice(available)
+            qty = randint(1, 3)
+            if aura > 999:
+                qty = randint(3, 5)
+
+            rewards.append((category, item_key, qty, level))
+        self.add_rewards(rewards)
+        return rewards_descrip(rewards)
