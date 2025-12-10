@@ -142,7 +142,7 @@ class Games(commands.Cog):
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i) for i in categories],max_values=1,min_values=1)
         
         async def on_select(inter: Interaction):
-            nonlocal selected_category, update, em, view
+            nonlocal update, em, view
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                     
