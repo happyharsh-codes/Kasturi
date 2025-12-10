@@ -88,7 +88,7 @@ class Games(commands.Cog):
     async def profile(self, ctx, user: Optional[discord.Member] = None):
         if not user:
             user = ctx.author
-        profile = GameProfile(ctx.author.id)(
+        profile = GameProfile(ctx.author.id)
         descrip = (
             f"Wallet:\n"
             f"**Cash**: {profile.assets.get('cash', 0}\n"
