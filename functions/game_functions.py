@@ -102,8 +102,8 @@ async def perform_task(task, uid, client):
     elif task["name"] == "studying":
         subject = task["subject"]
         gain = randint(1, 5)
-        profiel.skills_manager(str(ctx.author.id), selected.value, gain)
-        progress = Profiles[str(ctx.author.id)]["skills"][selected.value]
+        profile.skills_manager(str(ctx.author.id), selected.value, gain)
+        progress = profile.skills.get(subject, 0)
         em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task['emoji']} and gained {gain}%. Progress: {progress}%.", color = Color.green())
         em.set_footer(text= f"Class ▓▓▓▓▓▓▓▓▓▓100% Completed | Skill++")
         await channel.send(f"<@{uid}>", embed= em)
@@ -113,30 +113,29 @@ async def perform_task(task, uid, client):
         profile.location = task["destination"]
 
     elif task["name"] == "crafting":
-        profile.inv_manager(task["item"], task["amt"])
-        await channel.send(f"<@{uid}> You have crafted {DATA['id'][item]} {item} x {task['amt']} successfully")
+        item = task["item"]
+        amt = task["amount"]
+        profile.inv_manager(item, amt)
+        await channel.send(f"<@{uid}> You have crafted {DATA['id'][item]} {item} x {amt} successfully")
 
     elif task["name"] == "exploring":
-        place = task["place"]
+        place = task["destination"]
         profile.location = place
-        rewards = profile.reward_player(task["drops"])
-        profile.place_manager(task["destination"])
-        em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{rewards}",color=Color.green())
-        em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
+        rewards = profile.reward_player(task["drops"])  
+        em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{rewards}",color=Color.green())  
         try:
             msg = await channel.fetch_message(task["message"])
             ctx = client.get_context(msg)
             await profile.place_manager(ctx, place)
+            em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)  
         except:
             profile.places[place] = min(profile.place.get(place, 0) + randint(1,6), 100)
         await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`", embed=em)
         
     else:
         rewards = reward_player(profile["aura"], profile["location"], task["rewards"])
-        em = Embed(title=f"{task['name']} Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n", color = Color.green())
+        em = Embed(title=f"{task['name']} Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n{rewards}", color = Color.green())
         em.set_footer(text = f"{task['name'].title()} - ▓▓▓▓▓▓▓▓▓▓100% Completed")
-        em.description += rewards_descrip(rewards)
-        self.add_rewards(rewards)
         await channel.send(f"<@{uid}>", embed= em)
         
 async def perform_reminder(reminder, uid, client):
@@ -192,7 +191,7 @@ def has_profile():
         return False
     return commands.check(predicate)
 
-def not_busy()
+def not_busy():
     async def predicate(ctx):
         uid = str(ctx.author.id)
         activity = Profiles[uid]["activity"]
@@ -204,10 +203,10 @@ def not_busy()
                 break
         else:
             return True
-        remaining = datetime.now() - datetime.fromisoformat(duration)
+        remaining = datetime.fromisoformat(duration) - datetime.now()
         remaining_seconds = remaining.total_seconds()
         minutes, seconds = divmod(remaining_seconds, 60)
-        percentage_completed = (remaining_seconds//task["duration"])*100
+        percentage_completed = min(100, max((remaining_seconds//task["duration"])*100, 0))
         percentage_bar = "▓" * (percentage_completed//10) + "░" * (10 - (percentage_completed//10))
         if activity == "sleeping":
             return True 
@@ -253,7 +252,8 @@ def not_busy()
     
 def has_in_inventory(item, value = 0):
     async def predicate(ctx):
-        if inv_searcher(str(ctx.author.id), item, value):
+        profile = GameProfile(ctx.author.id)
+        if profile.inv_searcher(item, value):
             return True 
         await ctx.send(embed=Embed(description=f"Ayoo You must need `{item.title()}` in your inventory to perform this."), color= Color.gold())
         return False
