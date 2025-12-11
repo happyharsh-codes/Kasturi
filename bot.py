@@ -46,7 +46,7 @@ class Bot:
                 async for msg in message.channel.histoty(limit=100):
                     if delete_count >= count:
                         break
-                    if msg.author = message.author
+                    if msg.author == message.author
                         await msg.delete()
                         delete_count += 1
             except:
