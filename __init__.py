@@ -101,8 +101,6 @@ class MongoNestedDict(MutableMapping):
                     data=value,
                     root=self.root
                 )
-            if self.default:
-                return self.default
             return default
         value = self._data[key]
         if isinstance(value, dict):
