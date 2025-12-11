@@ -259,7 +259,7 @@ def has_in_inventory(item, value = 0):
         profile = GameProfile(ctx.author.id)
         if profile.inv_searcher(item, value):
             return True 
-        await ctx.send(embed=Embed(description=f"Ayoo You must need `{item.title()}` in your inventory to perform this."), color= Color.gold())
+        await ctx.send(embed=Embed(description=f"Ayoo You must need `{item.title()}` in your inventory to perform this.", color= Color.gold()))
         return False
     return commands.check(predicate)
     
