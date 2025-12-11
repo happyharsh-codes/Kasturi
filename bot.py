@@ -1,5 +1,5 @@
 from __init__ import *
-from function.game_functions import*
+from functions.game_functions import*
 
 UNICODE_EMOJI_RE = re.compile(r"[\U0001F300-\U0001FAFF]")
 DISCORD_EMOJI_RE = re.compile(r"<a?:\w+:\d+>")
