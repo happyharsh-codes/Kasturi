@@ -263,6 +263,10 @@ def has_in_inventory(item, value = 0):
     
 def at_the_location(loc):
     async def predicate(ctx):
+        uid = str(ctx.author.id)
+        if not Profiles[uid]:
+            raise commands.CheckFailure("Profile does not exist")
+        
         if Profiles[str(ctx.author.id)]["location"] == loc:
             return True
         await ctx.reply(f"You must be at `{loc.title()}` to run this command")
