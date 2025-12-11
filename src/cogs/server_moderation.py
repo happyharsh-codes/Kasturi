@@ -10,12 +10,19 @@ async def hierarchy_check(ctx, member):
     if member.id == ctx.guild.owner_id:
         await ctx.reply(embed=Embed(title="❌ Cannot take action on server owner.", color=Color.red()))
         return False
-
-    # 3. If both users have only @everyone — allow
+        
+    #3. But owner can act on anyone
+    if ctx.author.id == ctx.guild.owner_id:
+        if ctx.guild.me.top_role >=  member.top_role:
+            return True
+        await ctx.reply(embed=Embed(title="❌ I cannot act on that user due to role hierarchy.", color=Color.red()))
+        return False
+            
+    # 4. If both users have only @everyone — allow
     if len(member.roles) == 1 and len(ctx.author.roles) == 1:
         return True
 
-    # 4. Check hierarchy normally
+    # 5. Check hierarchy normally
     if member.top_role >= ctx.author.top_role:
         await ctx.reply(embed=Embed(title="❌ That user has higher or equal role than you.", color=Color.red()))
         return False
@@ -190,7 +197,15 @@ class Moderation(commands.Cog):
         actions = ["Mute", "Kick", "Ban", "Assign Role"]
         action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
         mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(5,61, 5)], max_values=1, min_values=1)
-        roles = [SelectOption(label=role.name, value=str(role.id)) for role in ctx.guild.roles if not role.is_default() and role.position < ctx.author.top_role.position and role.position < ctx.guild.me.top_role.position]
+        roles = []
+        author_top = ctx.author.top_role
+        bot_top = ctx.guild.me.top_role
+
+        for role in ctx.guild.roles:
+            if role.position == 0:  # everyone
+                continue
+            if role.position < author_top.position and role.position < bot_top.position:
+                roles.append(SelectOption(label=f"@{role.name}", value=str(role.id)))
         if not roles:
             role_add_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
@@ -994,7 +1009,7 @@ class Moderation(commands.Cog):
             elif i == 3:  
                 em.description = "**Punishment Method**\nPunishment method automatically handles when trigger is hit and punishment gradually increase on more infringement. Each automod trigger leads to 1 chat misbehave. 5 chat misbehaves lead to 1 warn. Warn leads to automated actions. You can set Punishments via ```k warn_action``` later on."
             elif i == 4:
-                em.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages```"
+                em.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```OR```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages```"
             elif i == 5:
                 em.title = "Automod Successfully Set"
                 em.description = "Successfully set automod rules\nYou server is protected now."
@@ -1111,7 +1126,7 @@ class Moderation(commands.Cog):
                     option.default = True
             if inter.data.get("custom_id", "") == "feature":
                 selected_features = selected_values
-            await features_adder(interaction, select)
+            await features_adder(interaction, selected)
             
         async def on_channel_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -1164,7 +1179,15 @@ class Moderation(commands.Cog):
             return await ctx.send(embed=Embed(description=":x: You must set a Rank Channel first.\nUse `k set_rank_channel`.",color=Color.red()))
 
         reward_select = Select(custom_id="reward_type",placeholder="Select Reward Type",options=[SelectOption(label=i, value=i) for i in ["Role", "Cash", "Aura", "Gems", "Nitro"]],max_values=1,min_values=1,disabled=False)
-        roles = [SelectOption(label=role.name, value=str(role.id)) for role in ctx.guild.roles if not role.is_default()  and role.position < ctx.author.top_role.position and role.position < ctx.guild.me.top_role.position]
+        roles = []
+        author_top = ctx.author.top_role
+        bot_top = ctx.guild.me.top_role
+
+        for role in ctx.guild.roles:
+            if role.position == 0:  # everyone
+                continue
+            if role.position < author_top.position and role.position < bot_top.position:
+                roles.append(SelectOption(label=f"@{role.name}", value=str(role.id)))
         if not roles:
             role_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
