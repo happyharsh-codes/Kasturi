@@ -93,7 +93,7 @@ class MongoNestedDict(MutableMapping):
         self._sync()
 
     def get(self, key, default=None):
-        if key not in self._data[key]:
+        if key not in self._data:
             if isinstance(self.default, dict):
                 return MongoNestedDict(
                     collection=self.collection,
