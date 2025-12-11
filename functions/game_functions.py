@@ -195,7 +195,7 @@ def not_busy():
     async def predicate(ctx):
         uid = str(ctx.author.id)
         if not Profiles[uid]:
-            raise commands.CheckFailure("Profile does not exist")
+            return
         activity = Profiles[uid]["activity"]
         tasks = Profiles[uid]["tasks"]
         for due, t in tasks.items():
@@ -254,6 +254,8 @@ def not_busy():
     
 def has_in_inventory(item, value = 0):
     async def predicate(ctx):
+        if not Profiles[str(ctx.author.id)]:
+            return
         profile = GameProfile(ctx.author.id)
         if profile.inv_searcher(item, value):
             return True 
@@ -265,8 +267,7 @@ def at_the_location(loc):
     async def predicate(ctx):
         uid = str(ctx.author.id)
         if not Profiles[uid]:
-            raise commands.CheckFailure("Profile does not exist")
-        
+            return
         if Profiles[str(ctx.author.id)]["location"] == loc:
             return True
         await ctx.reply(f"You must be at `{loc.title()}` to run this command")
