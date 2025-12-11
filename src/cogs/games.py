@@ -658,7 +658,7 @@ class Games(commands.Cog):
         async def on_go(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal place_select, em, view, msg, profile_id, place
+            nonlocal place_select, em, view, msg, place
             for option in place_select.options:
                 if option.default:
                     loc = option.value
