@@ -194,6 +194,8 @@ def has_profile():
 def not_busy():
     async def predicate(ctx):
         uid = str(ctx.author.id)
+        if not Profiles[uid]:
+            raise commands.CheckFailure("Profile does not exist")
         activity = Profiles[uid]["activity"]
         tasks = Profiles[uid]["tasks"]
         for due, t in tasks.items():
