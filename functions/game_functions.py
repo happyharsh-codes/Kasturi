@@ -84,7 +84,6 @@ def rewards_descrip(rewards):
 
 async def perform_task(task, uid, client):
     profile = GameProfile(uid)
-    profile.activity = "sleeping"
     channel = client.get_channel(task["channel"])
     if not channel:
         try:
@@ -102,7 +101,7 @@ async def perform_task(task, uid, client):
     elif task["name"] == "studying":
         subject = task["subject"]
         gain = randint(1, 5)
-        profile.skills_manager(str(ctx.author.id), selected.value, gain)
+        profile.skills_manager(subject, gain)
         progress = profile.skills.get(subject, 0)
         em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task['emoji']} and gained {gain}%. Progress: {progress}%.", color = Color.green())
         em.set_footer(text= f"Class ▓▓▓▓▓▓▓▓▓▓100% Completed | Skill++")
@@ -122,22 +121,23 @@ async def perform_task(task, uid, client):
         place = task["destination"]
         profile.location = place
         rewards = profile.reward_player(task["drops"])  
-        em = Embed(title="Explore",description=f"You explored around {new_loc.capitalize()} and got:\n{rewards}",color=Color.green())  
+        em = Embed(title="Explore",description=f"You explored around {task['destination'].capitalize()} and got:\n{rewards}",color=Color.green())  
         try:
             msg = await channel.fetch_message(task["message"])
             ctx = client.get_context(msg)
             await profile.place_manager(ctx, place)
             em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)  
         except:
-            profile.places[place] = min(profile.place.get(place, 0) + randint(1,6), 100)
+            profile.places[place] = min((profile.place.get(place, 0) + randint(1,6)), 100)
         await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`", embed=em)
         
     else:
-        rewards = reward_player(profile["aura"], profile["location"], task["rewards"])
+        rewards = profile.reward_player(task["rewards"])
         em = Embed(title=f"{task['name']} Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n{rewards}", color = Color.green())
         em.set_footer(text = f"{task['name'].title()} - ▓▓▓▓▓▓▓▓▓▓100% Completed")
         await channel.send(f"<@{uid}>", embed= em)
-        
+    profile.activity = "sleeping"
+    
 async def perform_reminder(reminder, uid, client):
     channel = client.get_channel(reminder["channel"])
     if not channel:
@@ -153,20 +153,20 @@ async def run_all_tasks(client):
     """Runs all the task from all users that hit the time limit
     includes task like - travel, working, studying, crafting, exploring, mining, mob spawn."""
     for id, profile in Profiles.items():
-        if profile["tasks"]:
-            for due, task in profile["tasks"].items():
-                if datetime.now() > datetime.fromisoformat(due):
-                    await perform_task(task, id, client)
-
+        to_run = [ (due, task) for due, task in profile["tasks"].items() if datetime.now() > datetime.fromisoformat(due) ]
+        for due, task in to_run:
+            await perform_task(task, id, client)
+            del profile["tasks"][due]
+    
 async def run_all_reminders(client):
     """Runs all reminders from all user that hit the limit. Reminders are usually for very long tasks.
     Reminders includes - quests, marriage wishes, tips, build, etc"""
     for id, profile in Profiles.items():
-        if profile["reminders"]:
-            for due, reminder in profile["reminders"].items():
-                if datetime.now() > datetime.fromisoformat(due):
-                    await perform_reminder(reminder, id, client)
-
+        to_run = [ (due, reminder) for due, reminder in profile["reminder"].items() if datetime.now() > datetime.fromisoformat(due) ]
+        for due, reminder in to_run:
+            await perform_reminder(reminder, id, client)
+            del profile["reminder"][due]
+    
 def has_profile():
     async def predicate(ctx):
         if Profiles[str(ctx.author.id)]:
