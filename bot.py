@@ -1006,7 +1006,7 @@ class Bot:
         if automod.get("nsfw_filter") and await self.nsfw_filter(message): return
         session_id = f"{author.id}_{channel.id}"
         if not Last[session_id]:
-            Last[session_id] = { datetime.now().isoformat: message.content }
+            Last[session_id] = { datetime.now().isoformat(): message.content }
         else:
             Last[session_id][datetime.now().isoformat()] =  message.content
         if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, session_id, automod.get("chat_rate_limiter")): return 
