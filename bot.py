@@ -130,7 +130,7 @@ class Bot:
         def similar(new_msg, old_msg):
             return new_msg == old_msg
         for time, old_msg in Last[session_id].items():
-            if similar(old_msg, message.content)
+            if similar(old_msg, message.content):
                 duplicate_count += 1
                 old_msg_contents.append(old_msg)
         if duplicate_count < 3:
