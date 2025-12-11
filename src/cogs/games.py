@@ -127,7 +127,7 @@ class Games(commands.Cog):
         def update(selected_category):
             nonlocal em
             descrip = ""
-            items = profile.get(selected_category, {})
+            items = profile.get(selected_category.lower(), {})
             break_line = 0
             for item_key, val in items.items():
                 emoji = DATA["id"].get(item_key, item_key)
@@ -619,7 +619,7 @@ class Games(commands.Cog):
             em = Embed(title="Travel",description=f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination.", color = Color.green())
             #em.set_thumbnail(url="")
             profile.location = "travelling"
-            protile.activity = "travelling"
+            profile.activity = "travelling"
            
             await ctx.send(embed=em)
             await asyncio.sleep(travel_time)
@@ -658,7 +658,7 @@ class Games(commands.Cog):
         async def on_go(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal place_select, em, view, msg, place
+            nonlocal place_select, em, view, msg, profile
             for option in place_select.options:
                 if option.default:
                     loc = option.value
