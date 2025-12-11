@@ -296,6 +296,11 @@ class GameProfile:
         if name in self._data:
             return self._data[name]
         raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+
+    def get(self, name, default=None):
+        if name in self._data:
+            return self._data[name]
+        return default
         
     def inv_searcher(self, item, amt):
         category = ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
@@ -308,7 +313,7 @@ class GameProfile:
     def inv_manager(self, item, amt):
         category = ("foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes")
         for categ in category:
-            if item in DATA[categ]:
+            if item.lower() in DATA[categ.capitalize()]:
                 category = categ
                 break    
         inv = self._data[category]
