@@ -1,4 +1,8 @@
 from __init__ import *
+from function.game_functions import*
+
+UNICODE_EMOJI_RE = re.compile(r"[\U0001F300-\U0001FAFF]")
+DISCORD_EMOJI_RE = re.compile(r"<a?:\w+:\d+>")
 
 class Bot:
 
@@ -32,48 +36,117 @@ class Bot:
         except Exception:
             pass
 
-    async def chat_rate_limiter(self, message):
-        session_id = f"{author.id}_{channel.id}"
-        if session_id in Last:
-            if (datetime.now() - datetime.fromisoformat(Last[session_id][0])).seconds < 5:
-                Last[session_id].append(datetime.now().isoformat())
-                if len(Last[session_id]) > chat_rate_limit:
-                    #trigger punishment
-                    delete_count = 0
-                    try:
-                        async for msg in channel.history(limit=100):
-                            if delete_count >= chat_rate_limit:
-                                break
-                            if msg.author == author:
-                                await msg.delete()
-                                delete_count += 1
-                    except:
-                        pass
-                    await channel.send(f"{author.mention} You are sending messages too quickly")
-                    return False
-            else:
-                Last[session_id] = [datetime.now().isoformat()]
-        else:
-            Last[session_id] = [datetime.now().isoformat()]
-        return True
+    async def chat_rate_limiter(self, message, session_id, chat_rate_limit):
+        count = 0 # no of messages in last 5 seconds
+        for time in Last[session_id]:
+            if (datetime.now - datetime.fromisoformat(time)).seconds <= 5:
+                count += 1
+        if count > limit:
+            try:
+                async for msg in message.channel.histoty(limit=100):
+                    if delete_count >= count:
+                        break
+                    if msg.author = message.author
+                        await msg.delete()
+                        delete_count += 1
+            except:
+                pass
+            await message.channel.send(f"{message.author.mention} You are sending messages too quickly")
+            return True
+        return False 
         
-    async def emoji_spam(self, message):
+    async def emoji_spam(self, message, limit):
+        content = message.content
+        unicode_count = len(UNICODE_EMOJI_RE.findall(content))
+        discord_count = len(DISCORD_EMOJI_RE.findall(content))
+        total = unicode_count + discord_count
+        if total > limit:
+            try:
+                await message.delete()
+            except:
+                pass
+            await message.channel.send(f"{message.author.mention} Too many emojis! ({total}/{limit})",delete_after= 5 )
+            return True
         return False
-
-    async def mass_mention_block(self, message):
+        
+    async def mass_mention_block(self, message, limit):
+        if message.mention_everyone:
+            await message.delete()
+            await message.channel.send(f"{message.author.mention} Mass mention blocked.", delete_after=4)
+            return True
+            
+        if len(message.mentions) > limit:
+            await message.delete()
+            await message.channel.send(f"{message.author.mention} Too many mentions!", delete_after=4)
+            return True  
         return False
 
     async def caps_block(self, message):
+        text = message.content
+        if len(text) < 6:   # small messages allowed
+            return False
+        letters = [c for c in text if c.isalpha()]
+        if not letters:
+            return True
+        caps = sum(1 for c in letters if c.isupper())
+        ratio = caps / len(letters)
+        if ratio > 0.20:
+            try: await message.delete()
+            except: pass
+            await message.channel.send(f"{message.author.mention} Too many CAPS.", delete_after=4)
+            return True
         return False
         
-    async def link_filter(self, message):
+    async def link_filter(self, message, type):
+        "type: suspicious links/ all links"
+        SUSPICIOUS = ["grabify", "iplogger", "gyatt", "free-nitro", "robux-free"]
+        content = message.content.lower()
+        has_link = "http://" in content or "https://" in content
+        if not has_link:
+            return False
+        if type == "all":
+            await message.delete()
+            await message.channel.send(f"{message.author.mention} Links are not allowed.", delete_after= 5)
+            return True
+        if type == "suspicious":
+            if any(bad in content for bad in SUSPICIOUS):
+                await message.delete()
+                await message.channel.send(f"{message.author.mention} Suspicious link removed.", delete_after=5)
+                return True
         return False
         
     async def nsfw_filter(self, message):
-        return False
+        NSFW_WORDS = {"sex", "porn", "xnxx", "xvideos", "nude", "boobs", "dick"}
+        content = message.content.lower()
+        if any(word in content for word in NSFW_WORDS):
+            await message.delete()
+            await message.channel.send(f"{message.author.mention} NSFW content detected.", delete_after=5)
+            return True
+        return False 
 
-    async def duplicate_detector(self, message):
-        return False
+    async def duplicate_detector(self, message, session_id):
+        duplicate_count = 0
+        old_msg_contents = []
+        def similar(new_msg, old_msg):
+            return new_msg == old_msg
+        for time, old_msg in Last[session_id].items():
+            if similar(old_msg, message.content)
+                duplicate_count += 1
+                old_msg_contents.append(old_msg)
+        if duplicate_count < 3:
+            return False
+        delete_count = 0
+        try:
+            async for msg in channel.history(limit=100):
+                if delete_count >= 3:
+                    break
+                if msg.author == message.author and msg.content in old_msg_contents:
+                    await msg.delete()
+                    delete_count += 1
+        except:
+            pass
+        await channel.send(f"{author.mention} Duplicate messages Blocked")
+        return True
 
     async def rankReward(self, message, rank_channel, rewards, level):
         prize = rewards.get(int(level), None)
@@ -83,19 +156,33 @@ class Bot:
         prize = prize[0]
 
         if prize == "Cash":
-            pass
+            await rank_channel.send(f"{message.author.mention} You recived Cash prize {amount} on Leveling up!! Check your balance now")
+            profile = GameProfile(message.author.id)
+            profile.inv_manager("cash", amount)
         if prize == "Aura":
-            pass
+            await rank_channel.send(f"{message.author.mention} You recived Aura prize {amount} on Leveling up!! Check your balance now")
+            profile = GameProfile(message.author.id)
+            profile.inv_manager("aura", amount)
         if prize == "Gem":
-            pass
+            await rank_channel.send(f"{message.author.mention} You recived Gems prize {amount} on Leveling up!! Check your balance now")
+            profile = GameProfile(message.author.id)
+            profile.inv_manager("gem", amount)
         if prize == "Role":
-            pass
+            role = message.guild.get_role(amount)
+            if not role:
+                try:
+                    role = await message.guild.fetch_role(amount)
+                except:
+                    return
+            await rank_channel.send(f"{message.author.mention} You recived Role prize {role.mention} on Leveling up!! Check your balance now")
+            await client.get_context(message).invoke(client.get_command("assignrole"), message.author, role))
         if prize == "Nitro":
-            pass
+            await rank_channel.send(f"{message.author.mention} You recived Cash prize {amount} on Leveling up!! Check your balance now")
+            await safe_dm(message.author, message= f"You won Nitro gift code: {amount}")
             
     # ------------- TASK LOOPS -------------
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(seconds=15)
     async def universal_loop(self):
         #Unmuting users
         for guild_id in list(Server_Settings.values()):
@@ -116,6 +203,20 @@ class Bot:
         reminders = self.kelly.getReminders()
         for task in reminders:
             await self.kelly.remind(task)   
+
+        #clearing cache
+        for session_ids, data in Last.items():
+            for time, msg in data.items():
+                if (datetime.now() - datetime.fromisoformat(time)).seconds > 60:
+                    del data[time]
+                    if data == {}:
+                        del Last[session_ids]
+                    break
+
+        #game tasks
+        await run_all_tasks(self.client)
+        await run_all_reminders(self.client)
+
 
     @tasks.loop(minutes=2)
     async def mood_swings(self):
@@ -892,16 +993,18 @@ class Bot:
             return
             
         metadata = Server_Settings[str(guild.id)]
-        automod = metadata["automod"]
         
         # ===== MODERATION ====
-        if automod.get("chat_rate_limiter") and not await self.chat_rate_limiter(message): return 
-        if automod.get("emoji_spam") and not await self.emoji_spam(message): return
-        if automod.get("mass_mention_block") and not await self.mass_mention_block(message): return
-        if automod.get("caps_block") and not await self.caps_block(message): return
-        if automod.get("link_filter") and not await self.link_filter(message): return
-        if automod.get("nsfw_filter") and not await self.nsfw_filter(message): return
-        if automod.get("duplicate_detector") and not await self.duplicate_detector(message): return
+        automod = metadata["automod"]
+        if automod.get("emoji_spam") and await self.emoji_spam(message, automod.get("emoji_spam")): return
+        if automod.get("mass_mention_block") and await self.mass_mention_block(message, automod.get("mass_mention_block")): return
+        if automod.get("caps_block") and await self.caps_block(message): return
+        if automod.get("link_filter") and await self.link_filter(message, automod.get("link_filter")): return
+        if automod.get("nsfw_filter") and await self.nsfw_filter(message): return
+        session_id = f"{author.id}_{channel.id}"
+        Last[session_id] = Last.get(session_id, []).update({datetime.now().isoformat(): message.content})
+        if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, session_id, automod.get("chat_rate_limiter")): return 
+        if automod.get("duplicate_detector") and await self.duplicate_detector(message, session_id): return
         
         # ===== Deleting banned words ====
         for word in metadata["banned_words"]:
