@@ -1002,7 +1002,7 @@ class Bot:
         if automod.get("link_filter") and await self.link_filter(message, automod.get("link_filter")): return
         if automod.get("nsfw_filter") and await self.nsfw_filter(message): return
         session_id = f"{author.id}_{channel.id}"
-        Last[session_id] = Last.get(session_id, []).update({datetime.now().isoformat(): message.content})
+        Last[session_id] = Last.get(session_id, {}).update({datetime.now().isoformat(): message.content})
         if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, session_id, automod.get("chat_rate_limiter")): return 
         if automod.get("duplicate_detector") and await self.duplicate_detector(message, session_id): return
         
