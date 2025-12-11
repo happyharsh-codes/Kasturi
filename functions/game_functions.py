@@ -195,7 +195,7 @@ def not_busy():
     async def predicate(ctx):
         uid = str(ctx.author.id)
         if not Profiles[uid]:
-            return
+            return True
         activity = Profiles[uid]["activity"]
         tasks = Profiles[uid]["tasks"]
         for due, t in tasks.items():
