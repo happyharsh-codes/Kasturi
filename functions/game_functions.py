@@ -109,12 +109,12 @@ async def perform_task(task, uid, client):
         await channel.send(f"<@{uid}>", embed= em)
 
     elif task["name"] == "travelling":
-        await channel.send(f"<@{uid}> You have reached {task["destination"].title()}")
+        await channel.send(f"<@{uid}> You have reached {task['destination'].title()}")
         profile.location = task["destination"]
 
     elif task["name"] == "crafting":
         profile.inv_manager(task["item"], task["amt"])
-        await channel.send(f"<@{uid}> You have crafted {DATA["id"][item]} {item} x {task["amt"]} successfully")
+        await channel.send(f"<@{uid}> You have crafted {DATA['id'][item]} {item} x {task['amt']} successfully")
 
     elif task["name"] == "exploring":
         place = task["place"]
