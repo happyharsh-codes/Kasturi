@@ -929,7 +929,7 @@ class Bot:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
                 if randint(1,100) == 1: #Surprise
                     self.kelly.ayaka.addReminder("surprise", user_id= after.id, delay_minutes=10)
-                if not Relation[str(before.id)] or not Relation[str(before.id)] > 10:
+                if not Relation[str(before.id)] or Relation[str(before.id)] < 10:
                     return
                 if randint(1,25) != 1: #10% chance
                     return
@@ -938,14 +938,17 @@ class Bot:
                     if not member:
                         continue
                     allowed_channels = Server_Settings[str(guild.id)]["allowed_channels"]
-                    if allowed_channels != []:
-                        try:
-                            channel = await guild.fetch_channel(allowed_channels[0])
-                            await channel.send(f"{member.mention} " + self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
-                        except:
-                            await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
-                    else:
+                    if not allowed_channels:
+                        continue 
+                    try:
+                        channel = await guild.fetch_channel(allowed_channels[0])
+                        response = self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis"))
+                        await channel.send(f"{member.mention} {response}")
+                    except:
                         await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
+                    return
+                else:
+                    await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
                     return
         except Exception as e:
             await self.client.get_user(894072003533877279).send(f"Exception on presence change: {e}")
@@ -1003,7 +1006,7 @@ class Bot:
         if automod.get("nsfw_filter") and await self.nsfw_filter(message): return
         session_id = f"{author.id}_{channel.id}"
         if not Last[session_id]:
-            Last[session_id] = { datetime.now().isoformat: message.content q}
+            Last[session_id] = { datetime.now().isoformat: message.content }
         else:
             Last[session_id][datetime.now().isoformat()] =  message.content
         if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, session_id, automod.get("chat_rate_limiter")): return 
