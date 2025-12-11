@@ -678,9 +678,9 @@ class Games(commands.Cog):
         async def on_return(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal em, profile_id
+            nonlocal em
             #return_btn.disabled = True
-            em.description = f"You arrived at {Profiles[profile_id]['location'].replace('_', ' ').title()}."
+            em.description = f"You arrived at {profile.location.replace('_', ' ').title()}."
             await inter.response.edit_message(embed=em, view=None)
 
         place_select.callback = on_select
