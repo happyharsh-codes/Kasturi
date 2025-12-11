@@ -1,15 +1,29 @@
 from __init__ import *
 
 async def hierarchy_check(ctx, member):
+    # 1. Cannot act on yourself
+    if member.id == ctx.author.id:
+        await ctx.reply(embed=Embed(title="❌ You cannot act on yourself.", color=Color.red()))
+        return False
+
+    # 2. Cannot act on owner
     if member.id == ctx.guild.owner_id:
-        await ctx.reply(embed = Embed(title="❌ Cannot take action on server owner.", color = Color.red()))
+        await ctx.reply(embed=Embed(title="❌ Cannot take action on server owner.", color=Color.red()))
         return False
+
+    # 3. If both users have only @everyone — allow
+    if len(member.roles) == 1 and len(ctx.author.roles) == 1:
+        return True
+
+    # 4. Check hierarchy normally
     if member.top_role >= ctx.author.top_role:
-        await ctx.reply(embed = Embed(title="❌ That user has higher or equal role than you.", color = Color.red()))
+        await ctx.reply(embed=Embed(title="❌ That user has higher or equal role than you.", color=Color.red()))
         return False
+
     if member.top_role >= ctx.guild.me.top_role:
-        await ctx.reply(embed = Embed(title="❌ I cannot act on that user due to role hierarchy.", color = Color.red()))
+        await ctx.reply(embed=Embed(title="❌ I cannot act on that user due to role hierarchy.", color=Color.red()))
         return False
+
     return True
 
 class Moderation(commands.Cog):
@@ -176,7 +190,7 @@ class Moderation(commands.Cog):
         actions = ["Mute", "Kick", "Ban", "Assign Role"]
         action_select = Select(custom_id="action", placeholder="Select Tirgger Action", options=[SelectOption(label=str(i),value=str(i)) for i in actions], max_values=1, min_values=1, disabled = True)
         mute_duration_select = Select(custom_id="mute_duration", placeholder="Select Mute Duration Minutes", options=[SelectOption(label=str(i),value=str(i)) for i in range(5,61, 5)], max_values=1, min_values=1)
-        roles = [SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role and not "everyone" in role.name]
+        roles = [SelectOption(label=role.name, value=str(role.id)) for role in ctx.guild.roles if not role.is_default() and role.position < ctx.author.top_role.position and role.position < ctx.guild.me.top_role.position]
         if not roles:
             role_add_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
@@ -236,12 +250,15 @@ class Moderation(commands.Cog):
             view.clear_items()
             view.add_item(warn_no_select)
             view.add_item(action_select)
+            add.disabled = False
             if "Mute" in values:
                 view.add_item(mute_duration_select)
+                add.disabled = True
             elif "Assign Role" in values:
                 view.add_item(role_add_select)
+                add.disabled = True
             view.add_item(add)
-            add.disabled = False
+            
             
             await interaction.response.edit_message(view=view)
           except Exception as e:
@@ -1147,7 +1164,7 @@ class Moderation(commands.Cog):
             return await ctx.send(embed=Embed(description=":x: You must set a Rank Channel first.\nUse `k set_rank_channel`.",color=Color.red()))
 
         reward_select = Select(custom_id="reward_type",placeholder="Select Reward Type",options=[SelectOption(label=i, value=i) for i in ["Role", "Cash", "Aura", "Gems", "Nitro"]],max_values=1,min_values=1,disabled=False)
-        roles = [SelectOption(label=role.name,value=str(role.id)) for role in ctx.guild.roles if role < ctx.author.top_role and role < ctx.guild.me.top_role and not "everyone" in role.name]
+        roles = [SelectOption(label=role.name, value=str(role.id)) for role in ctx.guild.roles if not role.is_default()  and role.position < ctx.author.top_role.position and role.position < ctx.guild.me.top_role.position]
         if not roles:
             role_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
@@ -1276,14 +1293,16 @@ class Moderation(commands.Cog):
                 if option.value in selected_reward:
                     option.default = True
                     break
+            add_btn.disabled = False
             if "Role" in selected_reward:
                 view.clear_items()
                 view.add_item(reward_select)
                 view.add_item(role_select)
                 view.add_item(add_btn)
+                add_btn.disabled = True
                 if add_btn.label == "Add More":
                     view.add_item(done_btn)
-            add_btn.disabled = False
+            
             await inter.response.edit_message(view=view)
 
         async def on_role_select(inter: Interaction):
