@@ -175,7 +175,7 @@ class Bot:
                 except:
                     return
             await rank_channel.send(f"{message.author.mention} You recived Role prize {role.mention} on Leveling up!! Check your balance now")
-            await client.get_context(message).invoke(client.get_command("assignrole"), message.author, role))
+            await client.get_context(message).invoke(client.get_command("assignrole"), message.author, role)
         if prize == "Nitro":
             await rank_channel.send(f"{message.author.mention} You recived Cash prize {amount} on Leveling up!! Check your balance now")
             await safe_dm(message.author, message= f"You won Nitro gift code: {amount}")
@@ -1094,7 +1094,7 @@ class Bot:
                 em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
                 await message.channel.send(embed=em)
                 return
-            if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
+            if await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
                 if content.startswith("k "):
                     message.content = content.replace("k ", "???", 1)
                 elif content.startswith("kelly "):
@@ -1532,6 +1532,8 @@ class Bot:
         elif isinstance(error, commands.CheckFailure):
             pass
         else:
+            etype, value, tb = sys.exc_info()
+            full_error = ''.join(traceback.format_exception(etype, value, tb))
             await ctx.send(embed=Embed(description="Unknown error happened :/"))
-            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{error}```"))
+            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{full_error[:1900]}``` \n```{error}```"))
                 
