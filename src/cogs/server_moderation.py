@@ -916,7 +916,7 @@ class Moderation(commands.Cog):
         mass_mention_block = Select(custom_id="mass_mention", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
                                                                     
         class AutomodModal(discord.ui.Modal):
-            def __init__(self, features):
+            def __init__(self):
                 super().__init__(title="Set Automod Features")
                 self.custom_words_block = TextInput(label="Custom Block Words", custom_id="block_list", placeholder="Enter Custom words separated by comma.", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.custom_words_block)
@@ -951,11 +951,12 @@ class Moderation(commands.Cog):
                     else:
                         em.description += f"\n❌ {i.replace('_','').title()}"
                 add_btn.label = "Continue"
+                add_btn.disabled = False
                 await msg.edit(embed = em, view = view)
               except Exception as e:
                 await interaction.client.get_user(894072003533877279).send(e)
 
-        page = 0
+        page = 1
         embeds = []
         for i in range(6):
             em = Embed(title= f"Automod Setup {i+1}/5",color = Color.pink())
@@ -974,33 +975,33 @@ class Moderation(commands.Cog):
             elif i == 2:
                 em.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n•Punishment Triggered\n• Kelly Updates```"
             elif i == 3:  
-                em.description = "Select Punishment Method\nPunishment method automatically handles when trigger is hit and punishment gradually increase on more infringement. You can set Punishments via ```k warn_action``` later on."
+                em.description = "**Punishment Method**\nPunishment method automatically handles when trigger is hit and punishment gradually increase on more infringement. Each automod trigger leads to 1 chat misbehave. 5 chat misbehaves lead to 1 warn. Warn leads to automated actions. You can set Punishments via ```k warn_action``` later on."
             elif i == 4:
-                em.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages"
+                em.description = "Allow Permission Access: For Auto-moderation I require these permission. Best option would be to give me all permissions.\n```• Administrator```\nOr\n```• Manage Guild, Manage Roles, Manage Webhooks\n• Manage Nicknames, Kick, Ban, Timeout Members\n• Manage Messages```"
             elif i == 5:
                 em.title = "Automod Successfully Set"
                 em.description = "Successfully set automod rules\nYou server is protected now."
             embeds.append(em)
 
         async def features_adder(inter, select):
-            nonlocal selected_features, view, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
+            nonlocal selected_features, view, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block, add_btn
             if "chat_rate_limit" in selected_features:
                 selected_features.remove("chat_rate_limiter")
                 view.add_item(chat_rate_limiter)
                 await inter.response.edit_message(view=view)
                 return
             elif "emoji_spam" in selected_features:
-                selected_features.remove("chat_rate_limiter")
+                selected_features.remove("emoji_spam")
                 view.add_item(emoji_spam)
                 await inter.response.edit_message(view=view)
                 return
             elif "link_filter" in selected_features:
-                selected_features.remove("chat_rate_limiter")
+                selected_features.remove("link_filter")
                 view.add_item(link_feature)
                 await inter.response.edit_message(view=view)
                 return
             elif "mass_mention_block" in selected_features:
-                selected_features.remove("chat_rate_limiter")
+                selected_features.remove("mass_mention_block")
                 view.add_item(mass_mention_block)
                 await inter.response.edit_message(view=view)
                 return
@@ -1009,6 +1010,10 @@ class Moderation(commands.Cog):
                 modal = AutomodModal()
                 await inter.response.send_modal(modal)
                 return
+            elif not selected_features:
+                add_btn.disabled = False
+                await inter.response.edit_message(view=view)
+                
             
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -1017,18 +1022,6 @@ class Moderation(commands.Cog):
             page += 1
             em = embeds[page-1]
             btn = inter.data.get("custom_id")
-            if page == 1:
-                if btn == "skip":
-                    page += 1
-                else:
-                    nonlocal AutomodModal
-                    selected_features = []
-                    for option in feature_select.options:
-                        if option.default:
-                            selected_features.append(option.value)
-                    modal = AutomodModal(selected_features)
-                    await inter.response.send_modal(modal)
-                    return
             if page == 2:
                 view.clear_items()
                 view.add_item(raid_nuke_select)
@@ -1081,18 +1074,28 @@ class Moderation(commands.Cog):
             add_btn.disabled = False
             await inter.response.edit_message(view=view)            
             
-        async def on_feature_select(inter: Interaction, select):
+        async def on_feature_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal selected_features, feature_select, chat_rate_limiter, emoji_spam, mass_mention_block, link_filter
             selected_values = inter.data.get("values",[])
-            for option in select.options:
+            if inter.data.get("custom_id") == "feature":
+                selected = feature_select
+            elif inter.data.get("custom_id") == "chat_rate_limiter":
+                selected = chat_rate_limiter
+            elif inter.data.get("custom_id") == "emoji_spam":
+                selected = emoji_spam
+            elif inter.data.get("custom_id") == "link_filter":
+                selected = link_filter
+            elif inter.data.get("custom_id") == "mass_mention_block":
+                selected = mass_mention_block
+            for option in selected.options:
                 if option.value in selected_values:
                     option.default = True
-            if select.custom_id == "feature":
-                nonlocal selected_features
+            if inter.data.get("custom_id", "") == "feature":
                 selected_features = selected_values
             await features_adder(interaction, select)
-
+            
         async def on_channel_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
