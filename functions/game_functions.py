@@ -55,7 +55,7 @@ def rewards_descrip(rewards):
     level3 = "<:rare:> "
     level4 = "<:epic:> "
     level5 = "<:legendary:> "
-    rewards = random.shuffle(rewards)
+    random.shuffle(rewards)
     for category, item_key, qty, level in rewards:
         emoji = DATA["id"].get(item_key, "")
         if level == "Level1":
@@ -104,7 +104,7 @@ async def perform_task(task, uid, client):
         gain = randint(1, 5)
         profiel.skills_manager(str(ctx.author.id), selected.value, gain)
         progress = Profiles[str(ctx.author.id)]["skills"][selected.value]
-        em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task["emoji"]} and gained {gain}%. Progress: {progress}%.", color = Color.green())
+        em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task['emoji']} and gained {gain}%. Progress: {progress}%.", color = Color.green())
         em.set_footer(text= f"Class ▓▓▓▓▓▓▓▓▓▓100% Completed | Skill++")
         await channel.send(f"<@{uid}>", embed= em)
 
@@ -140,24 +140,22 @@ async def perform_task(task, uid, client):
         await channel.send(f"<@{uid}>", embed= em)
         
 async def perform_reminder(reminder, uid, client):
-    if task["name"] == "studying":
-        em = Embed(title="Currently Studying", description= f"Ayoo user you are currently studying", color = Color.orange())
-        em.set_footer(text = f"{task['name'].title()} - {remaining//task['duration']}% Completed")
-        channel = client.get_channel(task["channel"])
-    
+    channel = client.get_channel(reminder["channel"])
     if not channel:
         try:
-            channel = await client.fetch_channel(task["channel"])
+            channel = await client.fetch_channel(reminder["channel"])
         except:
             return -1
-    await channel.send(embed= em, view= view)
+
+    em = Embed(title="", description= "", color= Color.green())
+    await channel.send(embed= em)
     
 async def run_all_tasks(client):
     """Runs all the task from all users that hit the time limit
     includes task like - travel, working, studying, crafting, exploring, mining, mob spawn."""
     for id, profile in Profiles.items():
         if profile["tasks"]:
-            for due, task in profile["tasks"]:
+            for due, task in profile["tasks"].items():
                 if datetime.now() > datetime.fromisoformat(due):
                     await perform_task(task, id, client)
 
@@ -166,7 +164,7 @@ async def run_all_reminders(client):
     Reminders includes - quests, marriage wishes, tips, build, etc"""
     for id, profile in Profiles.items():
         if profile["reminders"]:
-            for due, reminder in profile["reminders"]:
+            for due, reminder in profile["reminders"].items():
                 if datetime.now() > datetime.fromisoformat(due):
                     await perform_reminder(reminder, id, client)
 
@@ -224,7 +222,7 @@ def not_busy()
         em.set_footer(text = f"{task['name'].title()} - {percentage_bar}{percentage_completed}% Completed")
         
         view = View(timeout=45)
-        async timeout():
+        async def timeout():
             nonlocal em, view, msg
             em.color = Color.light_grey()
             for children in view.children:
@@ -290,13 +288,12 @@ class GameProfile:
     def __getattr__(self, name):
         if name in self._data:
             return self._data[name]
-        return 
-        #raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+        raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
         
     def inv_searcher(self, item, amt):
         category = ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
         for categ in category:
-            inv = self.categ
+            inv = self._data[categ]
             if item in inv and inv[item] >= amt:
                 return True
         return False 
@@ -307,7 +304,7 @@ class GameProfile:
             if item in DATA[categ]:
                 category = categ
                 break    
-        inv = self.category
+        inv = self._data[category]
         if item in inv or amt > 0:
             inv[item] = inv.get(item, 0) + amt
             if inv[item] <= 0:
@@ -322,7 +319,6 @@ class GameProfile:
     def skills_manager(self, skill, percentage):
         skills = self.skills
         skills[skill] = skills.get(skill, 0) + percentage
-
         if skills[skill] > 100:
             skills[skill] = 100
         elif skills[skill] <= 0:
@@ -353,7 +349,7 @@ class GameProfile:
     def add_reminder(self, name, duration, channel, message, **info):
         due = datetime.now() + timedelta(seconds=duration)
         due_str = due.isoformat()
-        self.tasks["reminders"][due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
+        self.reminders[due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
 
     def add_rewards(self, rewards):
         for category, item, qty, level in rewards:
