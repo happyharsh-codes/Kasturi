@@ -188,7 +188,7 @@ def has_profile():
             emoji = EMOJI[f"kelly{choice(['annoyed', 'laugh', 'gigle', 'waiting', 'idontcare', 'chips', 'bweh', 'bweh'])}"]
             await msg.reply(f"**{emoji} | ** you dont even do a single thing properly disgusting!! Dont ever come to me again")
         
-        return False
+        raise commands.CheckFaliure("New Profile Created")
     return commands.check(predicate)
 
 def not_busy():
