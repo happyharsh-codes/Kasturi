@@ -423,6 +423,7 @@ def generate_travel_gif(
         end_city: str,
         distance_km: float,
         speed_kmh: float,
+        display_type = "km",
         output_name="travel.gif"
     ):
 
@@ -451,6 +452,7 @@ def generate_travel_gif(
         progress = frame / (total_frames - 1)        # 0 → 1
         covered = progress * distance_km
         remaining = distance_km - covered
+        percentage = (covered//distance_km) * 100
         eta_seconds = travel_seconds - (frame / FPS)
 
         img = Image.new("RGB", (WIDTH, HEIGHT), (14, 16, 22))
@@ -461,8 +463,13 @@ def generate_travel_gif(
                   font=load_font(32), fill="white")
         draw.text((right_pad, bar_y+bar_height), f"{end_city}",
                   font=load_font(32), fill="white", anchor="rt")
-        draw.text((left_pad, bar_y-bar_height*1.5),
+        if display_type == "km":
+            draw.text((left_pad, bar_y-bar_height*1.5),
               f"{int(remaining)} km",
+              font=load_font(32), fill="#9EB4CC")
+        else:
+            draw.text((left_pad, bar_y-bar_height*1.5),
+              f"{int(percentage)} %",
               font=load_font(32), fill="#9EB4CC")
         draw.text((right_pad, bar_y-bar_height*1.5),
                   f"⏱{int(eta_seconds)}s",
