@@ -35,6 +35,9 @@ import pytz
 from pymongo import MongoClient
 from collections.abc import MutableMapping
 
+from PIL import Image, ImageDraw, ImageFont
+import imageio
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -405,5 +408,105 @@ class ReportBugModal(discord.ui.Modal):
 # ===== Kelly Enoji ====
 def kemoji():
     return EMOJI[choice(list(EMOJI.keys()))]
-    
+
+# ================= FONT LOADING ================= #
+def load_font(size=48):
+    try:
+        return ImageFont.truetype("DejaVuSans.ttf", size)
+    except:
+        return ImageFont.load_default()
+
+
+# ================= MAIN GIF FUNCTION ================= #
+def generate_travel_gif(
+        start_city: str,
+        end_city: str,
+        distance_km: float,
+        speed_kmh: float,
+        output_name="travel.gif"
+    ):
+
+    # --- UI Canvas & Style --- #
+    WIDTH, HEIGHT = 820, 260
+    FPS = 10  # default smoothness
+    bar_height = 56
+    left_pad, right_pad = 70, WIDTH - 70
+    bar_y = HEIGHT // 2
+
+    # --- Time Calculation --- #
+    travel_seconds = (distance_km / speed_kmh) * 3600  # time required
+    travel_seconds = min(travel_seconds, 90)           # hard limit 90s for memory safety
+    total_frames = int(travel_seconds * FPS)
+
+    # --- Auto-reduce if frames too heavy --- #
+    if total_frames > 900:  # very long trip → reduce load
+        FPS = 4
+        total_frames = int(travel_seconds * FPS)
+
+    # ================= GIF WRITER ================= #
+    writer = imageio.get_writer(output_name, fps=FPS)
+
+    # ================= FRAME GENERATION ================= #
+    for frame in range(total_frames):
+        progress = frame / (total_frames - 1)        # 0 → 1
+        covered = progress * distance_km
+        remaining = distance_km - covered
+        eta_seconds = travel_seconds - (frame / FPS)
+
+        img = Image.new("RGB", (WIDTH, HEIGHT), (14, 16, 22))
+        draw = ImageDraw.Draw(img)
+
+        # ---------- Title & Travel Info ---------- #
+        draw.text((left_pad, bar_y+bar_height), f"{start_city}",
+                  font=load_font(32), fill="white")
+        draw.text((right_pad, bar_y+bar_height), f"{end_city}",
+                  font=load_font(32), fill="white", anchor="rt")
+        draw.text((left_pad, bar_y-bar_height*1.5),
+              f"{int(remaining)} km",
+              font=load_font(32), fill="#9EB4CC")
+        draw.text((right_pad, bar_y-bar_height*1.5),
+                  f"⏱{int(eta_seconds)}s",
+                  font=load_font(32), fill="#9EB4CC", anchor="rt")
+
+        # ---------- PROGRESS BAR BACK PLATE ---------- #
+        '''draw.rounded_rectangle(
+            (left_pad, bar_y - bar_height//2, right_pad, bar_y + bar_height//2),
+            radius=14, fill="#000000"
+        )'''
+        bar = Image.new("RGBA", (right_pad - left_pad, bar_height), (0, 0, 0, 255))
+        mask = Image.new("L", (right_pad - left_pad, bar_height), 0)
+        m = ImageDraw.Draw(mask)
+        m.rounded_rectangle((0, 0, right_pad-left_pad, bar_height), radius=14, fill=255)
+        img.paste(bar, (left_pad, bar_y - bar_height//2), mask)
+
+        # ---------- GRADIENT BAR FILL ---------- #
+        fill_x = left_pad + (right_pad - left_pad) * progress
+
+        for x in range(left_pad, int(fill_x)):
+            mix = (x - left_pad) / (right_pad - left_pad)
+
+            # gradient BLUE → PURPLE → PINK
+            r = int(40 + 200 * mix)
+            g = int(150 - 110 * mix)
+            b = int(255 - 80 * mix)
+
+            draw.line([(x, bar_y - bar_height//2), (x, bar_y + bar_height//2)],
+                      fill=(r, g, b), width=3)
+
+        # ---------- MOVING DOT MARKER ---------- #
+        dot_x = fill_x
+        draw.ellipse((dot_x - 32, bar_y - 32, dot_x + 32, bar_y + 32),fill="#00E3FF")
+        draw.text((WIDTH//2, bar_y-bar_height*1.5),
+              f"{int((covered/distance_km)*100)}%",
+              font=load_font(32), fill="#9EB4CC")
+
+        # ---------- TEXT BELOW BAR ---------- #
+        
+
+        # ---------- Add Frame ---------- #
+        writer.append_data(img)
+
+    writer.close()
+    print(f"\n🎉 Travel GIF Created Successfully → {output_name}\n")
+
 print("__init__ was runned")
