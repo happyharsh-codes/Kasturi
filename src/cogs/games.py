@@ -718,7 +718,7 @@ class Games(commands.Cog):
         eatables= eatables[:25]
         def update():
             nonlocal em, view, on_eat
-            em.description = f"Health: **{profile.health}** Hunger: **{profile hunger}**"
+            em.description = f"Health: **{profile.health}** Hunger: **{profile.hunger}**"
             view.clear_items()
             if not eatables:
                 em.description += "\nYou have nothing to eat"
