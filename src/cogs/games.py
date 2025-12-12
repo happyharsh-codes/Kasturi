@@ -762,7 +762,7 @@ class Games(commands.Cog):
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         for build, requirements in DATA["build"].items():
             can_build = True
-            em = Embed(title= f"Build {build.replace("_"," ").title()}", description= "Building Recipe Requires:")
+            em = Embed(title= f"Build {build.replace('_',' ').title()}", description= "Building Recipe Requires:")
             for item, amt in requirements.items():
                 if profile.inv_searcher(item, amt):
                     em.description += f"\n✅ `{item}` {DATA['id'][item]} x {amt}"
@@ -875,7 +875,7 @@ class Games(commands.Cog):
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         for build, requirements in DATA["build"].items():
             can_build = True
-            em = Embed(title= f"Build {build.replace("_"," ").title()}", description= "Building Recipe Requires:")
+            em = Embed(title= f"Build {build.replace('_',' ').title()}", description= "Building Recipe Requires:")
             for item, amt in requirements.items():
                 if profile.inv_searcher(item, amt):
                     em.description += f"\n✅ `{item}` {DATA['id'][item]} x {amt}"
