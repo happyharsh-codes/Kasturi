@@ -752,11 +752,6 @@ class Games(commands.Cog):
         cards = []
         builds = []
         page = 1
-        if item:
-            item = item.replace(" ","_").lower() 
-            if not item in DATA["build"]:
-                return await ctx.reply("Invalid Build item")
-            page = list(builds.keys()).index(item) + 1 
         build_btn = Button(label = "Build", custom_id="build", style=ButtonStyle.green)
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
@@ -779,6 +774,12 @@ class Games(commands.Cog):
             em.add_field(name="Time:", value=time_str)
             builds[build] = time
 
+        if item:
+            item = item.replace(" ","_").lower() 
+            if not item in DATA["build"]:
+                return await ctx.reply("Invalid Build item")
+            page = list(builds.keys()).index(item) + 1 
+        
         async def on_build(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -865,15 +866,10 @@ class Games(commands.Cog):
         cards = []
         crafts = []
         page = 1
-        if item:
-            item = item.replace(" ","_").lower() 
-            if not item in DATA["craft"]:
-                return await ctx.reply("Invalid Build item")
-            page = list(builds.keys()).index(item) + 1 
         build_btn = Button(label = "Build", custom_id="build", style=ButtonStyle.green)
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
-        for build, requirements in DATA["build"].items():
+        for craft, requirements in DATA["build"].items():
             can_build = True
             em = Embed(title= f"Build {build.replace('_',' ').title()}", description= "Building Recipe Requires:")
             for item, amt in requirements.items():
@@ -887,20 +883,26 @@ class Games(commands.Cog):
             else:
                 em.color = Color.red()
             cards.append(em)
-            time = randint(1800, 10800)
+            time = randint(10, 200)
             time_str = f"**{time//3600}**hrs **{time//60}**min"
             em.add_field(name="Time:", value=time_str)
-            builds[build] = time
+            crafts[craft] = time
 
+        if item:
+            item = item.replace(" ","_").lower() 
+            if not item in DATA["craft"]:
+                return await ctx.reply("Invalid Build item")
+            page = list(craft.keys()).index(item) + 1 
+        
         async def on_build(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal builds, page, view
-            build_item = list(builds.keys())[page-1]
+            nonlocal crafts, page, view
+            build_item = list(crafts.keys())[page-1]
             for item, amt in DATA["build"][build_item]:
                 profile.inv_manager(item, -amt)
             view = None
-            time = builds[build_item]
+            time = crafts[build_item]
             em = cards[page-1]
             em.description = f"You Started Building `{build_item}`. Wait until your build is finished. **Duration**:\n**{time//3600}**hrs **{time//60}**min\n. Build will automatically show in your profile once finished."
             generate_travel_gif("", "", time, 1, "percentage")
