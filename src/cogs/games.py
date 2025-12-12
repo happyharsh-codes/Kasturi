@@ -723,7 +723,7 @@ class Games(commands.Cog):
             if not eatables:
                 em.description += "\nYou have nothing to eat"
             for food, amt in eatables.items():
-                btn = Button(label= f"{DATA["id"][food] x {amt}", style=ButtonStyle.blurple, custom_id= f"{food}_{amt}") 
+                btn = Button(label= f"{DATA["id"][food]} x {amt}", style=ButtonStyle.blurple, custom_id= f"{food}_{amt}") 
                 btn.callback = on_eat
                 view.add_item(btn)
         
@@ -765,9 +765,9 @@ class Games(commands.Cog):
             em = Embed(title= f"Build {build.replace("_"," ").title()}", description= "Building Recipe Requires:")
             for item, amt in requirements.items():
                 if profile.inv_searcher(item, amt):
-                    em.description += f"\n✅ `{item}` {DATA["id"][item] x {amt}"
+                    em.description += f"\n✅ `{item}` {DATA["id"][item]} x {amt}"
                 else:
-                    em.description += f"\n❌ `{item}` {DATA["id"][item] x {amt}"
+                    em.description += f"\n❌ `{item}` {DATA["id"][item]} x {amt}"
                     can_build = False
             if can_build:
                 em.color = Color.green()
@@ -878,9 +878,9 @@ class Games(commands.Cog):
             em = Embed(title= f"Build {build.replace("_"," ").title()}", description= "Building Recipe Requires:")
             for item, amt in requirements.items():
                 if profile.inv_searcher(item, amt):
-                    em.description += f"\n✅ `{item}` {DATA["id"][item] x {amt}"
+                    em.description += f"\n✅ `{item}` {DATA["id"][item]} x {amt}"
                 else:
-                    em.description += f"\n❌ `{item}` {DATA["id"][item] x {amt}"
+                    em.description += f"\n❌ `{item}` {DATA["id"][item]} x {amt}"
                     can_build = False
             if can_build:
                 em.color = Color.green()
