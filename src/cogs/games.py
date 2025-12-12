@@ -706,7 +706,7 @@ class Games(commands.Cog):
         for food, amt in profile.foods.items:
             if food in DATA["Eatables"]:
                 eatables[food] = amt
-        em = Embed(title="Eat Foods", f"Health: **{profile.health}** Hunger: **{profile.hunger}**", color = Color.green())
+        em = Embed(title="Eat Foods", description= f"Health: **{profile.health}** Hunger: **{profile.hunger}**", color = Color.green())
         em.set_footer(text=f"Eat by {ctx.author.display_name} {timestamp(ctx)}")
         view = View(timeout=45)
         async def timeout():
