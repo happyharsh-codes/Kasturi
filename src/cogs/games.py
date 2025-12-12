@@ -92,7 +92,7 @@ class Games(commands.Cog):
         descrip = (
             f"Wallet:\n"
             f"**Cash**: {profile.assets.get('cash', 0)}\n"
-            f"**Gems**: {profile.assets.get('gems', 0)}\n"
+            f"**Gems**: {profile.assets.get('gem', 0)}\n"
             f"**Orbs**: {profile.assets.get('orb', 0)}"
         )
         em = action_embed(f"{user.display_name}'s Profile", descrip, Color.green(), f"Profile used by {ctx.author.name}", ctx.author.avatar)
@@ -106,7 +106,7 @@ class Games(commands.Cog):
         descrip = (
             f"Wallet:\n"
             f"**Cash**: {profile.assets.get('cash', 0)}\n"
-            f"**Gems**: {profile.assets.get('gems', 0)}\n"
+            f"**Gems**: {profile.assets.get('gem', 0)}\n"
             f"**Orbs**: {profile.assets.get('orb', 0)}"
         )
         em = action_embed(f"{ctx.author.display_name}'s Wallet",descrip,Color.green(),f"Bal used by {ctx.author.name}",ctx.author.avatar)
@@ -251,12 +251,12 @@ class Games(commands.Cog):
 
             profile_skills = profile.skills
             required = DATA["jobs"].get(selected.value, [])
-            if all(skill in profile_skills and profile_skills[skill] > 0 for skill in required):
-                work_btn.disabled = True
-                work_btn.label = "Job not available"
-            else:
+            if all(skill in profile_skills and profile_skills.get(skill,0) > 0 for skill in required):
                 work_btn.disabled = False
                 work_btn.label = "Work"
+            else:
+                work_btn.disabled = True
+                work_btn.label = "Job not available"
 
             view.clear_items()
             view.add_item(category_select)
@@ -327,7 +327,7 @@ class Games(commands.Cog):
             "cooking": 1800,
             "programming": 3600,
             "teaching": 3600,
-            "farming": 54500,
+            "farming": 5400,
             "hunting": 1800,
             "fishing": 1800,
         }
@@ -445,11 +445,11 @@ class Games(commands.Cog):
     
         if loc not in ["forest", "mountain", "desert"]:
             for i in ["forest", "mountain", "desert"]:
-                if profile["places"][i]:
+                if profile.places[i]:
                     destination = i
                     break
             else:
-                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
+                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for chopping 🪵! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
             await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
@@ -492,11 +492,11 @@ class Games(commands.Cog):
         
         if loc not in ["forest", "mountain", "desert"]:
             for i in ["forest", "mountain", "desert"]:
-                if profile["places"][i]:
+                if profile.places[i]:
                     destination = i
                     break
             else:
-                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
+                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for Mining ⛏️! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
             await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
@@ -521,21 +521,21 @@ class Games(commands.Cog):
         
         if loc not in ["river", "ocean"]:
             for i in ["river", "ocean"]:
-                if profile["places"][i]:
+                if profile.places[i]:
                     destination = i
                     break
             else:
-                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
+                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for Fishing 🎣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
             await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
             
         drops = {
             "Fish": 10,
             "Tools": 1,
             "Plants": 1,
-            "weapons": 1,
+            "Weapons": 1,
         }
 
-        rewards = player.reward_player(drops)
+        rewards = profile.reward_player(drops)
         em = Embed(title="Fish",description=f"You went fishing in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Fish by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar,)
         await ctx.reply(embed=em)
@@ -580,7 +580,7 @@ class Games(commands.Cog):
         loc = profile.location
         new_loc = choice(["ocean","river","desert","mountain","forest"])
 
-        await place_manager(ctx, new_loc)
+        await profile.place_manager(ctx, new_loc)
         if new_loc != loc:
             await ctx.invoke(ctx.bot.get_command('travel'), place=new_loc)
         
@@ -595,7 +595,7 @@ class Games(commands.Cog):
         }
         
         msg = await ctx.reply("You started exploring in the woods for new locations. Wait until you discover something new")
-        profile.add_task("exploring", randint(1200, 3600), msg.channel.id, msg.id, drops = drops, place = discoverables)
+        profile.add_task("exploring", randint(1200, 3600), msg.channel.id, msg.id, drops = drops, place = new_loc)
         profile.activity = "exploring"
         profile.location = "exploring"
 
@@ -664,12 +664,14 @@ class Games(commands.Cog):
                     loc = option.value
                     break
             travel_time = randint(1,20)
+            generate_travel_gif(profile.location.title(), loc.title(), travel_time, 1, "km")
+            gif = discord.File("travel.gif")
             em.description = f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination."
-            #em.set_thumbnail(url="")
+            em.set_image(url="attachment://travel.gif")
             profile.location = "travelling"
             protile.activity = "travelling"
             view.timeout = None
-            await inter.response.edit_message(embed=em, view=None)
+            await inter.response.edit_message(file=gif, embed=em, view=None)
             await asyncio.sleep(travel_time)
             profile.location = loc
             profile.activity = "sleeping"
@@ -697,44 +699,130 @@ class Games(commands.Cog):
     async def feed(self, ctx, item: Optional[str] = None, amount: int = 1):
         """Eat items from your inventory."""
         profile = GameProfile(ctx.author.id)
-        if not item:
+        if item:
             await ctx.send("Specify a food item to eat.")
             return
-        item = item.lower()
-        if item not in DATA["foods"]:
-            await ctx.send("That is not edible.")
-            return
-        if amount <= 0:
-            await ctx.send("Invalid amount.")
-            return
-        if not inv_searcher(profile_id, item, amount):
-            await ctx.send("You do not have enough of that food.")
-            return
-        inv_manager(profile_id, item, -amount)
-        Profiles[profile_id]["aura"] += amount  # simple aura gain
-        await ctx.send(f"You ate {amount}x {DATA['id'][item]} and feel stronger.")
+        eatables = []
+        for food, amt in profile.foods.items:
+            if food in DATA["Eatables"]:
+                eatables[food] = amt
+        em = Embed(title="Eat Foods", f"Health: **{profile.health}** Hunger: **{profile hunger}**", color = Color.green())
+        em.set_footer(text=f"Eat by {ctx.author.display_name} {timestamp(ctx)}")
+        view = View(timeout=45)
+        async def timeout():
+            em.color = Color.light_grey()
+            for child in view.children:
+                child.disabled = True
+            await msg.edit(embed=em, view=view)
+        view.on_timeout = timeout
+        eatables= eatables[:25]
+        def update():
+            nonlocal em, view, on_eat
+            em.description = f"Health: **{profile.health}** Hunger: **{profile hunger}**"
+            view.clear_items()
+            if not eatables:
+                em.description += "\nYou have nothing to eat"
+            for food, amt in eatables.items():
+                btn = Button(label= f"{DATA["id"][food] x {amt}", style=ButtonStyle.blurple, custom_id= f"{food}_{amt}") 
+                btn.callback = on_eat
+                view.add_item(btn)
+        
+        async def on_eat(inter: interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal eatables, em, view, update
+            food = inter.data["custom_id"].split("_")[0]
+            profile.inv_manager(food, 1)
+            eatables[food] -= 1
+            if eatables[food] == 0:
+                del eatables[food]
+            update()
+            await inter.response.edit_message(embed=em, view=view)
+        
+        update()
+        msg = await ctx.reply(embed=em, view=view)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 200, type=commands.BucketType.user)
     @has_profile()
-    @at_the_location(["home"])
+    @at_the_location("home")
     async def build(self, ctx, *, item: str):
         """Build your favourite structures."""
-        item = item.lower()
-        profile_id = str(ctx.author.id)
-        if item not in DATA.get("build", {}):
-            await ctx.send("That is not a buildable structure.")
-            return
-        cost = DATA["build"][item]
-        for need_item, qty in cost.items():
-            if not inv_searcher(profile_id, need_item, qty):
-                await ctx.send("You do not have enough resources to build that.")
-                return
-        for need_item, qty in cost.items():
-            inv_manager(profile_id, need_item, -qty)
-        inv_manager(profile_id, item, 1)
-        await ctx.send(f"You built {DATA['id'].get(item, item)} successfully.")
+        profile = GameProfile(ctx.author.id)
+        cards = []
+        builds = []
+        page = 1
+        if item:
+            item = item.replace(" ","_").lower() 
+            if not item in DATA["build"]:
+                return await ctx.reply("Invalid Build item")
+            page = list(builds.keys()).index(item) + 1 
+        build_btn = Button(label = "Build", custom_id="build", style=ButtonStyle.green)
+        go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        for build, requirements in DATA["build"].items():
+            can_build = True
+            em = Embed(title= f"Build {build.replace("_"," ").title()}", description= "Building Recipe Requires:")
+            for item, amt in requirements.items():
+                if profile.inv_searcher(item, amt):
+                    em.description += f"\n✅ `{item}` {DATA["id"][item] x {amt}"
+                else:
+                    em.description += f"\n❌ `{item}` {DATA["id"][item] x {amt}"
+                    can_build = False
+            if can_build:
+                em.color = Color.green()
+            else:
+                em.color = Color.red()
+            cards.append(em)
+            time = randint(1800, 10800)
+            time_str = f"**{time//3600}**hrs **{time//60}**min"
+            em.add_field(name="Time:", value=time_str)
+            builds[build] = time
 
+        async def on_build(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal builds, page, view
+            build_item = list(builds.keys())[page-1]
+            for item, amt in DATA["build"][build_item]:
+                profile.inv_manager(item, -amt)
+            view = None
+            time = builds[build_item]
+            em = cards[page-1]
+            em.description = f"You Started Building `{build_item}`. Wait until your build is finished. **Duration**:\n**{time//3600}**hrs **{time//60}**min\n. Build will automatically show in your profile once finished."
+            generate_travel_gif("", "", time, 1, "percentage")
+            gif = discord.File(f"travel.gif")
+            em.set_image(url= f"attachment://travel.gif")
+            await inter.response.edit_message(file=gif, embed=em, view=None)
+            profile.add_reminder("building", time, inter.channel_id, inter.message.id)
+            
+        async def on_go(inter: interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal page, cards, go_left, go_right, view, build_btn
+            if inter.data["custom_id"] == "go_left":
+                page -= 1
+            else: page += 1
+            go_left.disabled = page == 1
+            go_right.disabled = page == len(cards)
+            em = cards[page-1]
+            build_btn.disabled = em.color == Color.red()
+            await inter.response.edit_message(embed=em, view=view)
+        
+        view = View(timeout=45)
+        async def timeout():
+            em.color = Color.light_grey()
+            for child in view.children:
+                child.disabled = True
+            await msg.edit(embed=em, view=view)
+
+        view.on_timeout = timeout
+        view.add_item(go_left)
+        view.add_item(build_btn)
+        view.add_item(go_right)
+        build_btn.disabled = cards[page-1].color == Color.red()
+        msg = await ctx.send(embed=cards[page-1], view=view)
+        
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 100, type=commands.BucketType.user)
     @has_profile()
@@ -773,58 +861,81 @@ class Games(commands.Cog):
     @has_profile()
     async def craft(self, ctx, item: str, qty: int = 1):
         """Craft a new item from inventory."""
-        emoji = EMOJI[f"kelly{choice(['hiding', 'ok', 'fight', 'interesting', 'owolove', 'thinking', 'bored'])}"]
-        item = item.lower()
-        if item not in DATA["craft"]:
-            await ctx.send(f"**{emoji} |** that is not a craftable item.")
-            return
-        if qty <= 0:
-            await ctx.send(f"**{emoji} |** that is not a valid amount.")
-            return
-
-        descrip = ""
-        color = Color.green()
-        craft_btn = Button(style=ButtonStyle.green, label="Craft")
-        profile_id = str(ctx.author.id)
-
-        for need_item, value in DATA["craft"][item].items():
-            total_needed = value * qty
-            have = Profiles[profile_id]["inv"].get(need_item, 0)
-            if have >= total_needed:
-                descrip += f"`{EMOJI.get(need_item)} x {total_needed}` ✅\n"
+        profile = GameProfile(ctx.author.id)
+        cards = []
+        crafts = []
+        page = 1
+        if item:
+            item = item.replace(" ","_").lower() 
+            if not item in DATA["craft"]:
+                return await ctx.reply("Invalid Build item")
+            page = list(builds.keys()).index(item) + 1 
+        build_btn = Button(label = "Build", custom_id="build", style=ButtonStyle.green)
+        go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        for build, requirements in DATA["build"].items():
+            can_build = True
+            em = Embed(title= f"Build {build.replace("_"," ").title()}", description= "Building Recipe Requires:")
+            for item, amt in requirements.items():
+                if profile.inv_searcher(item, amt):
+                    em.description += f"\n✅ `{item}` {DATA["id"][item] x {amt}"
+                else:
+                    em.description += f"\n❌ `{item}` {DATA["id"][item] x {amt}"
+                    can_build = False
+            if can_build:
+                em.color = Color.green()
             else:
-                descrip += f"`{EMOJI.get(need_item)} x {total_needed}` ❌\n"
-                craft_btn.disabled = True
-                color = Color.red()
+                em.color = Color.red()
+            cards.append(em)
+            time = randint(1800, 10800)
+            time_str = f"**{time//3600}**hrs **{time//60}**min"
+            em.add_field(name="Time:", value=time_str)
+            builds[build] = time
 
-        async def on_callback(inter: Interaction):
+        async def on_build(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            for need_item, value in DATA["craft"][item].items():
-                Profiles[profile_id]["inv"][need_item] -= (value * qty)
-            Profiles[profile_id]["inv"][item] = Profiles[profile_id]["inv"].get(item, 0) + qty
-            em.description = f"Successfully crafted {DATA['id'].get(item, item)} x{qty}."
-            await inter.response.edit_message(embed=em, view=None)
+            nonlocal builds, page, view
+            build_item = list(builds.keys())[page-1]
+            for item, amt in DATA["build"][build_item]:
+                profile.inv_manager(item, -amt)
+            view = None
+            time = builds[build_item]
+            em = cards[page-1]
+            em.description = f"You Started Building `{build_item}`. Wait until your build is finished. **Duration**:\n**{time//3600}**hrs **{time//60}**min\n. Build will automatically show in your profile once finished."
+            generate_travel_gif("", "", time, 1, "percentage")
+            gif = discord.File(f"travel.gif")
+            em.set_image(url= f"attachment://travel.gif")
+            await inter.response.edit_message(file=gif, embed=em, view=None)
+            profile.add_reminder("building", time, inter.channel_id, inter.message.id)
+            
+        async def on_go(inter: interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal page, cards, go_left, go_right, view, build_btn
+            if inter.data["custom_id"] == "go_left":
+                page -= 1
+            else: page += 1
+            go_left.disabled = page == 1
+            go_right.disabled = page == len(cards)
+            em = cards[page-1]
+            build_btn.disabled = em.color == Color.red()
+            await inter.response.edit_message(embed=em, view=view)
+        
+        view = View(timeout=45)
+        async def timeout():
+            em.color = Color.light_grey()
+            for child in view.children:
+                child.disabled = True
+            await msg.edit(embed=em, view=view)
 
-        em = Embed(
-            title=f"Crafting {item.capitalize()}",
-            description=descrip,
-            color=color,
-        )
-        em.set_footer(
-            text=f"Requested by {ctx.author.name} at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S')}",
-            icon_url=ctx.author.avatar,
-        )
-        view = View(timeout=30)
-        view.add_item(craft_btn)
-        craft_btn.callback = on_callback
-
-        msg = await ctx.reply(embed=em, view=view)
-
-        async def on_timeout():
-            await msg.edit(view=None)
-
-        view.on_timeout = on_timeout
+        view.on_timeout = timeout
+        view.add_item(go_left)
+        view.add_item(build_btn)
+        view.add_item(go_right)
+        build_btn.disabled = cards[page-1].color == Color.red()
+        msg = await ctx.send(embed=cards[page-1], view=view)
+        
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 100, type=commands.BucketType.user)
@@ -833,12 +944,12 @@ class Games(commands.Cog):
         """Placeholder simple trade: same as give, but both must confirm."""
         await ctx.send("Trade system is basic; use `k give` for direct transfers for now.")
 
-    @commands.hybrid_command(aliases=[])
+    @commands.hybrid_command(aliases=["transfer"])
     @commands.cooldown(1, 30, type=commands.BucketType.user)
     @has_profile()
     async def give(self, ctx, user: discord.Member, item, amount: int = 1):
         """Transfers inventory item to other user."""
-        profile = Profiles.get(str(ctx.author.id))
+        profile = GameProfile(ctx.author.id)
         if not Profiles[str(user.id)]:
             await ctx.reply("Given user profile not found.")
             return
@@ -846,22 +957,18 @@ class Games(commands.Cog):
         if item.isdigit():
             amount = int(item)
             item = "cash"
-        item = item.lower()
+        item = item.lower().replace(" ","_")
         if item not in DATA["id"]:
             await ctx.send("Invalid item.")
             return
-        if amount <= 0 or amount > 1000:
+        if amount <= 0 or amount > 100000:
             await ctx.send("Invalid amount.")
             return
         if not inv_searcher(str(ctx.author.id), item, amount):
             await ctx.send("That item is not in your inventory in that amount.")
             return
 
-        em = Embed(
-            title="💳 Transfer 💱",
-            description=f"Are you sure you want to give {user.mention} {item} x {amount}?",
-            color=Color.gold(),
-        )
+        em = Embed(title="💳 Transfer 💱",description=f"Are you sure you want to give {user.mention} {item} x {amount}?",color=Color.gold(),)
         confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", label="✅")
         discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", label="❌")
 
@@ -881,24 +988,21 @@ class Games(commands.Cog):
         async def on_confirm(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal em, view
-            inv_manager(str(ctx.author.id), item, -amount)
-            inv_manager(str(user.id), item, amount)
+            nonlocal em, view, profile
+            profile.inv_manager(item, -amount)
+            profile2 = GameProfile(user.id)
+            profile2.inv_manager(item, amount)
             em.description = f"{kemoji()} Successfully sent {DATA['id'][item]} {item} x {amount} to {user.mention}."
+            view = None
             await inter.response.edit_message(embed=em, view=None)
-            await ctx.send(
-                f"{user.mention} You received a gift",
-                embed=Embed(
-                    description=f"You have received an item from {ctx.author.mention}\n{DATA['id'][item]} {item} x {amount}",
-                    color=Color.green(),
-                ),
-            )
+            await ctx.send(f"{user.mention} You received a gift",embed=Embed(description=f"You have received an item from {ctx.author.mention}\n{DATA['id'][item]} {item} x {amount}",color=Color.green()))
 
         async def on_discard(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal em
+            nonlocal em, view
             em.description = "⚠️ You cancelled the transaction."
+            view = None
             await inter.response.edit_message(embed=em, view=None)
 
         confirm_btn.callback = on_confirm
@@ -911,13 +1015,12 @@ class Games(commands.Cog):
     @has_profile()
     async def use(self, ctx, item):
         """Uses the selected item from inventory."""
-        item = item.lower()
-        if not inv_searcher(str(ctx.author.id), item, 1):
-            await ctx.send("You do not have that item.")
-            return
-        # Example: if food -> feed; if aura item -> boost aura etc.
-        inv_manager(str(ctx.author.id), item, -1)
-        await ctx.send(f"You used {DATA['id'].get(item, item)}.")
+        item = item.lower().replace(" ", "_")
+        profile = GameProfile(ctx.author.id)
+        if not profile.inv_searcher(item, 1):
+            return await ctx.send("You do not have that item.")
+        
+        await ctx.send("This command is yet to be made")
 
     # ========= SHOP / MARKET / BANK / QUESTS =========
 
