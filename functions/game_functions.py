@@ -209,7 +209,8 @@ def not_busy():
         remaining_seconds = remaining.total_seconds()
         minutes, seconds = divmod(remaining_seconds, 60)
         percentage_completed = min(100, max((remaining_seconds//task["duration"])*100, 0))
-        percentage_bar = "▓" * (percentage_completed//10) + "░" * (10 - (percentage_completed//10))
+        blocks = int(percentage_completed//10)
+        percentage_bar = "▓" * blocks + "░" * (10 - blocks)
         if activity == "sleeping":
             return True 
         elif activity == "working":
@@ -330,11 +331,11 @@ class GameProfile:
 
     def skills_manager(self, skill, percentage):
         skills = self.skills
-        skills[skill] = skills.get(skill, 0) + percentage
+        self.skills[skill] = skills.get(skill, 0) + percentage
         if skills[skill] > 100:
-            skills[skill] = 100
+            self.skills[skill] = 100
         elif skills[skill] <= 0:
-            del skills[skill]
+            del self.skills[skill]
             
     def location_searcher(self, location):
         loc = self.location
@@ -345,13 +346,13 @@ class GameProfile:
     async def place_manager(self, ctx, place):
         places = self.places
         if place in places:
-            places[place] += randint(1, 6)
+            self.places[place] += randint(1, 6)
         else:
-            places[place] = randint(1,6)
+            self.places[place] = randint(1,6)
             await ctx.send(f"{ctx.author.mention} you found a new location: ft. **{place.replace('_','').title()}**")
         
         if places[place] > 100:
-            places[place] = 100
+            self.places[place] = 100
     
     def add_task(self, name, duration, channel, message, **info):
         due = datetime.now() + timedelta(seconds=duration)
