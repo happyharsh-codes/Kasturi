@@ -387,6 +387,7 @@ class Games(commands.Cog):
                 return
             nonlocal profile, selected, time_req, em, view
             due = time_req[selected.value]
+            em.description += "\nYou have started studying. Wait until your classes finish. You wont be able to use many commands in this duration."
             await inter.response.edit_message(embed=em, view=None)
             view.timeout = None
             profile.add_task("studying", due, inter.channel_id, inter.message.id, subject = selected.value)
@@ -608,20 +609,25 @@ class Games(commands.Cog):
     async def travel(self, ctx, *, place: Optional[str] = None):
         """Travel to different locations that you have discovered already."""
         profile = GameProfile(ctx.author.id)
-        places = profile.places
+        places = profile.places.keys()
+        location = profile.location
+        if location != "home":
+            places.append("home")
         if not places:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
         if place:
-            if place.lower() not in places:
+            loc = place.replace("_"," ").lower()
+            if loc not in places:
                 return await ctx.send("Invalid Place given")
-            loc = place.lower()
             travel_time = randint(1,20)
             em = Embed(title="Travel",description=f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination.", color = Color.green())
-            #em.set_thumbnail(url="")
+            em.set_image(url="attachment://travel.gif")
+            gif = discord.File("travel.gif")
+            
             profile.location = "travelling"
             profile.activity = "travelling"
            
-            await ctx.send(embed=em)
+            await ctx.send(file=gif, embed=em)
             await asyncio.sleep(travel_time)
             profile.location = loc
             profile.activity = "sleeping"
@@ -656,6 +662,7 @@ class Games(commands.Cog):
             await inter.response.edit_message(view=view)
 
         async def on_go(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal place_select, em, view, msg, profile
@@ -676,7 +683,8 @@ class Games(commands.Cog):
             profile.location = loc
             profile.activity = "sleeping"
             return await ctx.send(f"{ctx.author.mention} you have reached {loc.title()}")
-                
+          except Exception as e:
+              await inter.client.get_user(894072003533877279).send(str(e))
         async def on_return(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -728,6 +736,7 @@ class Games(commands.Cog):
                 view.add_item(btn)
         
         async def on_eat(inter: interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal eatables, em, view, update
@@ -738,7 +747,9 @@ class Games(commands.Cog):
                 del eatables[food]
             update()
             await inter.response.edit_message(embed=em, view=view)
-        
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(str(e))
+              
         update()
         msg = await ctx.reply(embed=em, view=view)
 
@@ -781,6 +792,7 @@ class Games(commands.Cog):
             page = list(builds.keys()).index(item) + 1 
         
         async def on_build(inter: Interaction):
+          try:  
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal builds, page, view
@@ -796,8 +808,11 @@ class Games(commands.Cog):
             em.set_image(url= f"attachment://travel.gif")
             await inter.response.edit_message(file=gif, embed=em, view=None)
             profile.add_reminder("building", time, inter.channel_id, inter.message.id)
-            
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(str(e))
+        
         async def on_go(inter: interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal page, cards, go_left, go_right, view, build_btn
@@ -809,7 +824,8 @@ class Games(commands.Cog):
             em = cards[page-1]
             build_btn.disabled = em.color == Color.red()
             await inter.response.edit_message(embed=em, view=view)
-        
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(str(e))
         view = View(timeout=45)
         async def timeout():
             em.color = Color.light_grey()
