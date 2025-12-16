@@ -125,7 +125,7 @@ class Games(commands.Cog):
         em = action_embed(f"{ctx.author.display_name}'s Inventory","",Color.green(),f"Inv by {ctx.author.name}",ctx.author.avatar,)
 
         def update(selected_category):
-            nonlocal em
+            nonlocal em, profile
             descrip = ""
             items = profile.get(selected_category.lower(), {})
             break_line = 0
@@ -609,7 +609,7 @@ class Games(commands.Cog):
     async def travel(self, ctx, *, place: Optional[str] = None):
         """Travel to different locations that you have discovered already."""
         profile = GameProfile(ctx.author.id)
-        places = profile.places.keys()
+        places = list(profile.places.keys())
         location = profile.location
         if location != "home":
             places.append("home")
@@ -707,11 +707,11 @@ class Games(commands.Cog):
     async def feed(self, ctx, item: Optional[str] = None, amount: int = 1):
         """Eat items from your inventory."""
         profile = GameProfile(ctx.author.id)
-        if item:
+        if item and item.lower() not in DATA["eatables"]:
             await ctx.send("Specify a food item to eat.")
             return
         eatables = []
-        for food, amt in profile.foods.items:
+        for food, amt in profile.foods.items():
             if food in DATA["Eatables"]:
                 eatables[food] = amt
         em = Embed(title="Eat Foods", description= f"Health: **{profile.health}** Hunger: **{profile.hunger}**", color = Color.green())
@@ -971,7 +971,6 @@ class Games(commands.Cog):
         if not Profiles[str(user.id)]:
             await ctx.reply("Given user profile not found.")
             return
-
         if item.isdigit():
             amount = int(item)
             item = "cash"
@@ -982,7 +981,7 @@ class Games(commands.Cog):
         if amount <= 0 or amount > 100000:
             await ctx.send("Invalid amount.")
             return
-        if not inv_searcher(str(ctx.author.id), item, amount):
+        if not profile.inv_searcher(item, amount):
             await ctx.send("That item is not in your inventory in that amount.")
             return
 
@@ -1142,7 +1141,8 @@ class Games(commands.Cog):
     async def daily(self, ctx):
         """Claim daily reward."""
         reward = randint(100, 500)
-        inv_manager(str(ctx.author.id), "cash", reward)
+        profile = GameProfile(ctx.author.id)
+        profile.inv_manager("cash", reward)
         await ctx.send(f"You claimed your daily reward of {reward} cash.")
 
     # ========= BATTLE / KILL / MARRY =========
@@ -1206,7 +1206,8 @@ class Games(commands.Cog):
     @has_profile()
     async def marry(self, ctx, spouse: discord.Member):
         """Marry someone special 😜💓"""
-        assets = Profiles[str(ctx.author.id)]["assets"]
+        profile = GameProfile(ctx.author.id)
+        assets = profile.assets
         if assets.get("ring", 0) <= 0:
             await ctx.send("You need a ring in your inventory to marry someone 😉❤️")
             return
