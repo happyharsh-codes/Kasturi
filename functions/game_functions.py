@@ -314,7 +314,7 @@ class GameProfile:
     def inv_manager(self, item, amt):
         category = ("foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes")
         for categ in category:
-            if item.lower() in DATA[categ.capitalize()]:
+            if any(item.lower() in DATA[categ.capitalize()][level] for level in ["Level1", "Level2", "Level3", "Level4", "Level5"]):
                 category = categ
                 break    
         inv = self._data[category]
