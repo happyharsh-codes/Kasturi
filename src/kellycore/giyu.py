@@ -29,29 +29,46 @@ class Giyu:
         self.client = client
 
     async def giyusend(self, channel, content, uid):
-        try:
-            webhook = await channel.create_webhook(name="Giyu")
-            if isinstance(content, Embed):
-                await webhook.send(content= f"<@{uid}> ", embed=content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
-            else:
-                await webhook.send(content= f"<@{uid}> " + content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
-            await webhook.delete()
-        except:
-            if isinstance(content, Embed):
-                await channel.send(f"**Giyu**: <@{uid}> ", embed=content)
-            else:
-                await channel.send(f"**Giyu**: <@{uid}> " + content)
+        async with channel.typing():
+            try:
+                webhook = await channel.create_webhook(name="Giyu")
+                if isinstance(content, Embed):
+                    await webhook.send(content= f"<@{uid}> ", embed=content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
+                else:
+                    await webhook.send(content= f"<@{uid}> " + content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
+                await webhook.delete()
+            except:
+                if isinstance(content, Embed):
+                    await channel.send(f"**Giyu**: <@{uid}> ", embed=content)
+                else:
+                    await channel.send(f"**Giyu**: <@{uid}> " + content)
                                                     
         
     async def giyuFilter(self, message):
         """Filters:
         - Bad words
-        - Spam
+        - Simp Detector
         - Attitude detection"""
-        bad = ["kill", "fuck", "abuse"]
+        content = message.content.lower()
+
+        #Default Internal Bad Words
+        bad = ["kill", "fuck", "abuse", "dick", "pussy", "chut", "asshole", "]
         for w in bad:
-            if w in message.content.lower():
+            if w in content:
                 return True
+
+        #Simp Detector
+        simp_score = 0
+        simp_words = { "coochie": 4, "hot": 1, "sexy": 2, "makeup": 1, "only fans": 5, "onlyfans": 5, "smell": 3, "blacked": 1, "pretty": 1, "I have": 2, "feelings": 3, "pain": 2, "hey": 1, "heyy": 2, "heyyy": 4, "cute": 1, "cutie": 2, "qt": 3, "smash": 3, "DM": 3, "dm": 3, "piss on me": 500, "damn": 2, "I want you": 4, "I love you": 4, "Ily": 4, "ass": 1, "😩": 2, "🍆": 3, "🍑": 3, "💦": 3, "fart": 3}
+        for simp_word in simp_words.keys():
+            if simp_word.lower() in content:
+                simp_score += simp_words[simp_word]
+        
+        if simp_score >= 5:
+            print("SIMP DETECTED")
+            return True
+
+        #Attitude Detector
         return False
 
     async def giyuQuery(self, message, mood, type="member"):
