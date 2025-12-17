@@ -24,18 +24,19 @@ class Ayaka:
         self.busy = KellyBusy()
     
     async def ayakasend(self, channel, content, uid):
-        try:
-            webhook = await channel.create_webhook(name="Ayaka")
-            if isinstance(content, Embed):
-                await webhook.send(content= f"<@{uid}> ", embed=content, username="Ayaka", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayaka_{randint(1,3)}.png")
-            else:
-                await webhook.send(content= f"<@{uid}> " + content, username="Ayaka", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayaka_{randint(1,3)}.png")
-            await webhook.delete()
-        except:
-            if isinstance(content, Embed):
-                await channel.send(f"**Ayaka**: <@{uid}> ", embed=content)
-            else:
-                await channel.send(f"**Ayaka**: <@{uid}> " + content)
+        async with channel.typing():
+            try:
+                webhook = await channel.create_webhook(name="Ayaka")
+                if isinstance(content, Embed):
+                    await webhook.send(content= f"<@{uid}> ", embed=content, username="Ayaka", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayaka_{randint(1,3)}.png")
+                else:
+                    await webhook.send(content= f"<@{uid}> " + content, username="Ayaka", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayaka_{randint(1,3)}.png")
+                await webhook.delete()
+            except:
+                if isinstance(content, Embed):
+                    await channel.send(f"**Ayaka**: <@{uid}> ", embed=content)
+                else:
+                    await channel.send(f"**Ayaka**: <@{uid}> " + content)
 
     # ----------------------------------------------------------------------
     #   KELLY'S SCHEDULE MANAGER
