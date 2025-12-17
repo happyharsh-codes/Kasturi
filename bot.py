@@ -13,24 +13,17 @@ class Bot:
         self.me = None
     # ------------- INTERNAL HELPERS -------------
 
-    async def get_log_channel(self, guild: Guild):
-        """Return the logging channel for this guild or None if disabled/not set."""
-        logging = Server_Settings[str(guild.id)]["logging"]
-        if not logging:
-            return
-        try:
-            channel = await guild.fetch_channel(logging)
-            if isinstance(channel, discord.TextChannel):
-                return channel
-        except Exception:
-            return None
-        return None
-
     async def send_log(self, guild: Guild, embed: discord.Embed):
         """Send an embed to the guild's log channel if logging is enabled."""
-        channel = await self.get_log_channel(guild)
-        if not channel:
+        channel_id = Server_Settings[str(guild.id)]["logging"]
+        if not channel_id:
             return
+        channel = self.client.get_channel(channel_id)
+        if not channel:
+            try:
+                channel = await self.client.fetch_channel(channel_id)
+            except:
+                return
         try:
             await channel.send(embed=embed)
         except Exception:
@@ -1493,7 +1486,7 @@ class Bot:
             ctx.message.content = ctx.message.content.replace("???", "Kelly ")
             await self.kelly.kellyQuery(ctx.message)
             if randint(1,10) == 8:
-                self.kelly.ayaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=ranint(1,25))
+                self.kelly.ayaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
             em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
             await ctx.send(embed= em)
