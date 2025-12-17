@@ -52,9 +52,16 @@ class Giyu:
         content = message.content.lower()
 
         #Default Internal Bad Words
-        bad = ["kill", "fuck", "abuse", "dick", "pussy", "chut", "asshole", "]
+        bad = ["kill", "fuck", "abuse", "dick", "pussy", "chut", "asshole"]
         for w in bad:
             if w in content:
+                prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is detected saying bad words in the chat. As cheif guard scold user in a single sentence."
+                response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+                try:
+                    await message.delete()
+                except:
+                    pass
+                await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
                 return True
 
         #Simp Detector
@@ -66,6 +73,13 @@ class Giyu:
         
         if simp_score >= 5:
             print("SIMP DETECTED")
+            prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is detected simping in the chat. As cheif guard scold user in a single sentence."
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            try:
+                await message.delete()
+            except:
+                pass
+            await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             return True
 
         #Attitude Detector
