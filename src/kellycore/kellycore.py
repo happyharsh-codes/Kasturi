@@ -148,8 +148,44 @@ class Kelly:
                     del schedules[due_str]
                     return
                 self.runCommand(message, task["command"], task["params"])
+                del schedules[due_str]
                 return
-                
+
+    async def performReminders(self):
+        if self.status != "active":
+            return
+        reminders = self.memory._memory["reminders"]
+        for due_str, task in reminders.items():
+            if datetime.fromisoformat(due_str) < datetime.now():
+                if task["reminder"] == "surprise":
+                    prompt = f"""Roleplay Kelly — sassy, human-like Discord mod with moods and personality.\nMood: {self.mood.mood}. Surprise user with something interesting. Generate responses in 10-30 words and 1-4 emojis."""
+                    response = getResponse("", prompt, assistant= self.memory.getUserChats(limit=4)
+                elif task["reminder"] == "tip":
+                    response = choice(TIP)
+                if not task["channel"]:
+                    user = self.client.get_user(task["user"])
+                    await safe_dm(user, message=response)
+                    del reminders[due_str]
+                    return
+                channel = self.client.get_channel(task["channel"])
+                if not channel:
+                    try:
+                        channel = await self.fetch_channel(task["channel"])
+                    except:
+                        del reminders[due_str]
+                        return
+                try:
+                    message = await channel.fetch_message(task["message"])
+                except:
+                    if task["user"]:
+                        await channel.send(f"<@{task['user']}> {response}")
+                    else:
+                        await channel.send(response)
+                    del reminders[due_str]
+                    return
+                await message.reply(response)
+                del reminders[due_str]
+                return
     async def kellyQuery(self, message: discord.Message):
         """
         Main handler for incoming user messages.
