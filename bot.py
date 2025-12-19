@@ -999,7 +999,7 @@ class Bot:
             Last[session_id][datetime.now().isoformat()] =  message.content
         if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, session_id, automod.get("chat_rate_limiter")): return 
         if automod.get("duplicate_detector") and await self.duplicate_detector(message, session_id): return
-        if self.kelly.giyu.giyuFilter(message): return
+        if await self.kelly.giyu.giyuFilter(message): return
             
         # ===== Deleting banned words ====
         for word in metadata["banned_words"]:
