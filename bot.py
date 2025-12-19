@@ -178,24 +178,19 @@ class Bot:
     @tasks.loop(seconds=15)
     async def universal_loop(self):
         #Unmuting users
-        for guild_id in list(Server_Settings.values()):
-            settings = Server_Settings[guild_id]
-            for muted_id in list(settings["muted"].keys()):
-                if datetime.fromisoformat(settings["muted"][muted_id]) < datetime.now():
-                    # Remove expired mute
-                    del settings["muted"][muted_id]
-                    user = await self.client.fetch_user(int(muted_id))
-                    em = Embed(title="✅ You’ve Been Unmuted",description="**Reason:** Mute expired.\nYou may chat again. Please follow the server rules and behave.",color=Color.green())
-                    em.set_footer(text="Please refrain from sending messages like this. Future violations may result in a ban.")
-                    em.set_author(name=user.name, icon_url=user.avatar)
-                    await safe_dm(user,em)
-                    Server_Settings[guild_id] = settings
+        for muted_id in list(self.kelly.giyu._giyu["muted"].keys()):
+            if datetime.fromisoformat(self.kelly.giyu._giyu["muted"][muted_id]) < datetime.now():
+                # Remove expired mute
+                del self.kelly.giyu._giyu["muted"][muted_id]
+                user = await self.client.fetch_user(int(muted_id))
+                em = Embed(title="✅ You’ve Been Unmuted",description="**Reason:** Mute expired.\nYou may chat again. Please follow the server rules and behave.",color=Color.green())
+                em.set_footer(text="Please refrain from sending messages like this. Future violations may result in a ban.")
+                em.set_author(name=user.name, icon_url=user.avatar)
+                await safe_dm(user,em)
 
         #Tasks and Reminders
-        await self.kelly.ayaka.performTasks()
-        reminders = self.kelly.getReminders()
-        for task in reminders:
-            await self.kelly.remind(task)   
+        await self.kelly.performTasks()
+        await self.kelly.performReminders()
 
         #clearing cache
         for session_ids, data in Last.items():
@@ -921,7 +916,7 @@ class Bot:
         try:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
                 if randint(1,100) == 1: #Surprise
-                    self.kelly.ayaka.addReminder("surprise", user_id= after.id, delay_minutes=10)
+                    self.kelly.ayasaka.addReminder("surprise", user_id= after.id, delay_minutes=10)
                 if not Relation[str(before.id)] or Relation[str(before.id)] < 10:
                     return
                 if randint(1,25) != 1: #10% chance
@@ -1004,7 +999,8 @@ class Bot:
             Last[session_id][datetime.now().isoformat()] =  message.content
         if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, session_id, automod.get("chat_rate_limiter")): return 
         if automod.get("duplicate_detector") and await self.duplicate_detector(message, session_id): return
-        
+        if self.kelly.giyu.giyuFilter(message): return
+            
         # ===== Deleting banned words ====
         for word in metadata["banned_words"]:
             if word in content:
@@ -1103,6 +1099,10 @@ class Bot:
                 await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
             await self.kelly.kellyQuery(message)
+        elif "giyu" in content:
+            await self.kelly.giyu.giyuTalk(message)
+        elif "ayasaka" in content:
+            await self.kelly.ayasaka.ayasakaTalk(message)
         print("Latency: ", (time.time() - start))
         return
         
@@ -1454,7 +1454,7 @@ class Bot:
             if Server_Settings[str(ctx.guild.id)]["premium"] < 0:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
             if randint(1, 10) == 8:
-                self.kelly.ayaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
+                self.kelly.ayasaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
         except Exception as e:
             await self.me.send(f"Exception on command completion: {e}")
 
@@ -1466,7 +1466,7 @@ class Bot:
         try:
             await ctx._typing.__aexit__(None, None, None)
             if randint(1,100) == 1:
-                self.kelly.ayaka.addReminder("surprise", message_id=ctx.message.id, channel_id=ctx.message.channel.id, user_id= ctx.author.id, delay_minutes=10)
+                self.kelly.ayasaka.addReminder("surprise", message_id=ctx.message.id, channel_id=ctx.message.channel.id, user_id= ctx.author.id, delay_minutes=10)
         except Exception:
             pass
 
@@ -1486,7 +1486,7 @@ class Bot:
             ctx.message.content = ctx.message.content.replace("???", "Kelly ")
             await self.kelly.kellyQuery(ctx.message)
             if randint(1,10) == 8:
-                self.kelly.ayaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
+                self.kelly.ayasaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
             em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
             await ctx.send(embed= em)
