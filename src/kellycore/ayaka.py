@@ -116,19 +116,21 @@ class Ayaka:
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
             self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayaka")
             await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
+            prompt2 = f"You are discord mod bot. Your task is to detect suitable command to run from the chat, if exists else Null. Send JSON block only: - command: (command_name, null if no command to run), - params: (eg: {{'param1': 'value1'}} only when command is not null)"
             return False
         
         # If schedule is overloaded assistant handles
         if self.kelly.status == "busy":
             prompt = f"You are Akaya, Kelly's Assistant. Kelly is cute discord mod bot with lively attitude and saas. Kelly's schedules are overloaded already and shes very busy. Generate small Response with emojis. Inform user about Kelly's state. Inform that tasks cant be added as Kelly's schedules are full if user sends a task then only. Chat with user, flirt or simp and drive user away as its your only chance to make a move if needed. If its your first chat tell them they can chat with you by typing your name 'Ayasaka'"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayaka")
             await self.ayakasend(message.channel, self.akayaEmojify(response), message.author.id)
             return False
 
         # If schedules but slot available -> Schedule task
         upnext = self.busy.getNextAvailableTime(message.guild.id)
         if upnext:
-            prompt2 = f"""You are Kelly discord mod bot(lively with mood attitude and sass). Generate Json dict containing - command: (default none for talking) {self.kelly.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
+            prompt2 = f"""You are Kelly discord mod bot(lively with mood attitude and sass). Generate Json dict containing - command: (default none for talking) {self.kelly.commands} (eg: {{"command_name":{{"param1": "value"}}}}). Commands List along with param and type: {{ 'github': [username:str], 'yt': [seach:str], 'insta': ['username':str], 'joke':[], 'picture': [prompt:str], 'roast': [user:int], 'mute_from_kelly': [member:int, minutes:int, reason:str],  'mute': [member:int, minutes:int, reason:str], 'unmute_from_kelly': [member:int, reason:str], 'unmute': [member:int, reason:str], 'kick': [member:int, reason:str], 'warn': [member:int, reason:str], 'ban': [member:int, reason:str], 'ban_from_kelly': [member:int, reason:str], 'unban': [member:int, reason:str], 'unban_from_kelly': [member:int, reason:str], 'assignrole': [member:int, role:int], 'removerole': [member:int, role:int], 'deafen': [member:int, minutes:int], 'undeafen': [member:int], 'clean': ['ammount':8nt], 'slowmode': [channel:int, seconds:int], 'purge': [amount:int], 'lock': [minutes:int], 'unlock': [], 'set_rank_channel': [channel:int], 'rank', 'top', 'invite', 'vote', 'avatar', 'premium', 'info': [search:int(search id)], 'bug', 'game'(help for game), 'music'(help for music), 'util'(help for utility), 'help', 'activate' }}"""
             raw_result = getResponse(f"User(id = {message.author.id}): {message.content}", prompt2).lower()
             try:
                 if not raw_result.startswith("```"):
