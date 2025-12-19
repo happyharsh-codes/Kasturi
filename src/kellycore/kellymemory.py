@@ -1,11 +1,11 @@
-from __init__ import*
+from __init__ import *
 
 class KellyMemory:
     """
     Stores and manages Kelly's Memory
     Stores:
         - User chats
-        - Likes / dislikes #can also set manually from k memory command
+        - Likes / dislikes
         - Frequently used words
         - User behaviour patterns
         - Friend list
@@ -16,99 +16,126 @@ class KellyMemory:
 
     def __init__(self):
         self._memory = load_mongo_dict("memory", "kellymemory")
-        if not self._memory["schedules"]:
-            self._memory["schedules"] = {}
-        if not self._memory["users"]:
-            self._memory["users"] = {}
-        if not self._memory["friends"]:
-            self._memory["friends"] = []
-        if not self._memory["reminders"]:
-            self._memory["reminders"] = {}
+        self._memory.setdefault("schedules", {})
+        self._memory.setdefault("users", {})
+        self._memory.setdefault("friends", [])
+        self._memory.setdefault("reminders", {})
+        self._memory.setdefault("personality", {})
 
-    def getUserChats(self, user_id, limit = 4):
-        if self._memory["users"][user_id]:
-            all_user_chats = self._memory["users"][user_id]["chats"][-1:-limit]
-            res = ", ".join(all_user_chats)
-            return res
-        return ""
-      
+    def getUserChats(self, user_id, limit: int = 4):
+        if not self._memory["users"][user_id]
+            return ""
+        chats = self._memory["users"]][user_id]["chats"]
+        all_user_chats = chats[-limit:]
+        return ", ".join(all_user_chats)
+
     def addUserChat(self, message, response, uid, reply_by="Kelly"):
         """Store last conversation detail."""
-        message = message.replace("\n","").replace(":","")
-        response = response.replace("\n","").replace(":","")
-        if not self._memory["users"][uid]:
-            self._memory["users"][uid] = { "chats": [f"User:{message}\n{reply_by}:{response}"], "behaviours": "", "likes": [], "dislikes": [], "relations": 1}
+        message = message.replace("\n", "").replace(":", "")
+        response = response.replace("\n", "").replace(":", "")
+
+        user = self._memory["users"].get(uid)
+        line = f"User:{message}, {reply_by}:{response}"
+
+        if not user:
+            self._memory["users"][uid] = {
+                "chats": [line],
+                "behaviours": "",
+                "likes": [],
+                "dislikes": [],
+                "relations": 1,
+            }
         else:
-            self._memory["users"][uid]["chats"].append(f"User:{message}\n{reply_by}:{response}")
-            if len(self._memory["users"][uid]["chats"]) > 8:
-                self._memory["users"][uid]["chats"].pop(0)
+            user["chats"].append(line)
+            if len(user["chats"]) > 8:
+                user["chats"].pop(0)
 
     def addFriend(self, uid):
         """Add user to friend list."""
-        self._memory["friends"].append(int(uid))
-      
+        uid = int(uid)
+        if uid not in self._memory["friends"]:
+            self._memory["friends"].append(uid)
+
     def removeFriend(self, uid):
         """Removes User from friend list."""
-        self._memory["friends"].remove(int(uid))
+        uid = int(uid)
+        if uid in self._memory["friends"]:
+            self._memory["friends"].remove(uid)
+
+    def _ensure_user(self, uid):
+        """Internal helper to create a blank user record if missing."""
+        if uid not in self._memory["users"]:
+            self._memory["users"][uid] = {
+                "chats": [],
+                "behaviours": "",
+                "likes": [],
+                "dislikes": [],
+                "relations": 1,
+            }
+        return self._memory["users"][uid]
 
     def addLikes(self, uid, like_item):
         """Adds item to users liked items in memory"""
-        if not self._memory["users"][uid]:
-            self._memory["users"][uid] = { "chats": [], "behaviours": "", "likes": [like_item], "dislikes": [], "relations": 1 }
-        else:
-            self._memory["users"][uid]["likes"].append(like_item)
+        user = self._ensure_user(uid)
+        user["likes"].append(like_item)
 
     def addDislikes(self, uid, dislike_item):
         """Adds item to users disliked items in memory"""
-        if not self._memory["users"][uid]:
-            self._memory["users"][uid] = { "chats": [], "behaviours": "", "likes": [], "dislikes": [dislike_item], "relations": 1 }
-        else:
-            self._memory["users"][uid]["dislikes"].append(dislike_item)
+        user = self._ensure_user(uid)
+        user["dislikes"].append(dislike_item)
 
     def getUserLikes(self, uid):
         """Provides users liked items from the memory"""
-        if not self._memory["users"][uid]:
+        user = self._memory["users"].get(uid)
+        if not user:
             return []
-        return self.memory["users"][uid]["likes"]
+        return user.get("likes", [])
 
     def getUserDislikes(self, uid):
         """Provides users disliked items from the memory"""
-        if not self._memory["users"][uid]:
+        user = self._memory["users"].get(uid)
+        if not user:
             return []
-        return self.memory["users"][uid]["dislikes"]
+        return user.get("dislikes", [])
 
     def addUserBehaviour(self, uid, behave: str):
-        """Adds user behaviour to the core memory. Is stored behaviours becomes very long, summerises it and stores it."""
-        if not self._memory["users"][uid]:
-            self._memory["users"][uids] = { "chat": [], "behaviours": behave, "likes": [], "dislikes": [], "relations": 1 }
-        else:
-            self._memory["users"][uid]["behaviours"] += " " + behave
-            if len(self._memory["users"][uid]["behaviours"]) > 1024:
-                self._memory["users"][uid]["behaviours"] = self.summarizeBehaviour(self._memory["users"][uid]["behaviours"])
-    
-    def summarizeBehaviour(self, long_behaviour):
-        prompt = "Summarize user behaviour and shorten it. Respond with shorten sentence only"
-        shor_behaviour = getResponse(long_behaviour, prompt)
+        """
+        Adds user behaviour to the core memory.
+        If stored behaviours becomes very long, summarises and stores it.
+        """
+        user = self._ensure_user(uid)
+        user["behaviours"] = (user.get("behaviours", "") + " " + behave).strip()
+        if len(user["behaviours"]) > 1024:
+            user["behaviours"] = self.summarizeBehaviour(user["behaviours"])
+
+    def summarizeBehaviour(self, long_behaviour: str) -> str:
+        prompt = (
+            "Summarize user behaviour and shorten it. "
+            "Respond with shortened sentence only."
+        )
+        short_behaviour = getResponse(long_behaviour, prompt)
         return short_behaviour
 
     def getUserBehaviour(self, uid):
-        if not self._memory["users"][uid]:
+        user = self._memory["users"].get(uid)
+        if not user:
             return ""
-        return self._memory["users"][uid]["behaviours"]
+        return user.get("behaviours", "")
 
     def getUserRelation(self, uid):
-        if not self._memory["users"][uid]:
+        user = self._memory["users"].get(uid)
+        if not user:
             return 0
-        return self._memory["users"][uid]["relations"]
+        return user.get("relations", 0)
 
-    def modifyUserRelation(self, uid, value):
-        if not self._memory["users"][uid]:
-            self._memory["users"][uids] = { "chat": [], "behaviours": "", "likes": [], "dislikes": [], "relations": value }
-        else:
-            self._memory["users"][uids]["relations"] += value
+    def modifyUserRelation(self, uid, value: int):
+        user = self._ensure_user(uid)
+        user["relations"] = user.get("relations", 0) + value
 
     def getPersona(self):
-        return self._memory["personality"]
+        return self._memory.["personality"]
 
-    def modifyPersonality(self, persona, value):
-        self._memory["personality"][persona] = self._memory["personality"].get(persona, 0) + value
+    def modifyPersonality(self, persona, value: int):
+        self._memory["personality"][persona] = (
+            self._memory["personality"].get(persona, 0) + value
+        )
