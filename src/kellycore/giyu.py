@@ -2,7 +2,7 @@ from __init__ import*
 
 class Giyu:
     """
-    Kelly's official guard.
+    Kelly's personal guard.
     You have to pass through him compulsorily.
     Filters:
         - Bad words
@@ -196,7 +196,7 @@ class Giyu:
         await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
         command = self.kelly.search_commands(message)
         if command:
-            await self.kelly.ayasaka.ayasakaQueueTasks(message, command)
+            await self.kelly.ayasaka.ayasakaQueueTask(message, command)
                 
     def giyuEmojify(self, message):
         emoji_exchanger = {
