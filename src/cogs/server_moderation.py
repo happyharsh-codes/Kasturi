@@ -46,7 +46,8 @@ class Moderation(commands.Cog):
     async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, minutes, *, reason: str):
         """Temporarily prevents a user from chatting with Kelly, not server-wide."""
         until = (datetime.now(UTC) + timedelta(minutes=minutes)).isoformat()
-        Server_Settings[str(ctx.guild.id)]["muted"][str(member.id)] = until
+        giyu = load_mongo_dict("giyu", "kellymemory")
+        giyu["muted"][str(member.id)] = until
 
         embed = action_embed(ctx,
             "🔇 Kelly Chat Mute Applied",
@@ -85,11 +86,12 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(moderate_members=True)
     async def unmute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         """Removes Kelly-only chat mute."""
-        muted = Server_Settings[str(ctx.guild.id)]["muted"]
+        giyu = load_mongo_dict("giyu", "kellymemory")
+        muted = giyu["muted"]
         if str(member.id) not in muted:
             return await ctx.send("⚠️ That user is not muted from Kelly.")
 
-        del Server_Settings[str(ctx.guild.id)]["muted"][str(member.id)]
+        del giyu["muted"][str(member.id)]
 
         embed = action_embed(ctx,
             "🔊 Kelly Chat Unmuted",
@@ -406,8 +408,9 @@ class Moderation(commands.Cog):
         embed.set_footer(text=f"Kelly Ban by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
         await safe_dm(member, embed)
-        
-        Server_Settings[str(ctx.guild.id)]["block_list"].append(member.id)
+
+        giyu = load_mongo_dict("giyu", "kellymemory")
+        giyu["block_list"].append(member.id)
         em = Embed(title="Member Banned From Kelly Talkings", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
         em.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         em.set_author(name=member.name, icon_url=member.avatar)
@@ -443,8 +446,9 @@ class Moderation(commands.Cog):
         embed.set_footer(text=f"Kelly Umban by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
         
         await safe_dm(member, embed)
-        
-        Server_Settings[str(ctx.guild.id)]["block_list"].remove(member.id)
+
+        guyu = load_mongo_dict("giyu", "kellymemory")
+        giyu["block_list"].remove(member.id)
         em = Embed(
             title="Member Unbanned from Kelly Talk",
             description=f"{member.mention} was unbanned from kelly talking.\n**Reason: ** {reason}\nYou can Chat with Kelly using `kelly hi`.\nPlease be respectful this time.",
@@ -953,9 +957,10 @@ class Moderation(commands.Cog):
                 self.custom_words_block = TextInput(label="Custom Block Words", custom_id="block_list", placeholder="Enter Custom words separated by comma.", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
                 self.add_item(self.custom_words_block)
                     
-            async def on_submit(self, interaction: Interaction):
+            async def on_submit(self, inter: Interaction):
               try:
                 nonlocal feature, view, add_btn, msg, feature_select, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
+                await inter.response.defer()
                 add_btn.disabled = False
                 Server_Settings[str(ctx.guild.id)]["automod"] = {}
                 selected_features = [x.value for x in feature_select.options if x.default]
@@ -986,7 +991,7 @@ class Moderation(commands.Cog):
                 add_btn.disabled = False
                 await msg.edit(embed = em, view = view)
               except Exception as e:
-                await interaction.client.get_user(894072003533877279).send(e)
+                await inter.client.get_user(894072003533877279).send(e)
 
         page = 1
         embeds = []
@@ -1016,6 +1021,7 @@ class Moderation(commands.Cog):
             embeds.append(em)
 
         async def features_adder(inter, select):
+          try 
             nonlocal selected_features, view, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block, add_btn
             if "chat_rate_limit" in selected_features:
                 selected_features.remove("chat_rate_limiter")
@@ -1037,7 +1043,8 @@ class Moderation(commands.Cog):
                 view.add_item(mass_mention_block)
                 await inter.response.edit_message(view=view)
                 return
-            elif "custom_word_block" in selected_features:
+            elif "custom_words_block" in selected_features:
+                selected_features.remove("custom_words_block")
                 nonlocal AutomodModal
                 modal = AutomodModal()
                 await inter.response.send_modal(modal)
@@ -1045,8 +1052,9 @@ class Moderation(commands.Cog):
             elif not selected_features:
                 add_btn.disabled = False
                 await inter.response.edit_message(view=view)
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(e)
                 
-            
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -1110,6 +1118,7 @@ class Moderation(commands.Cog):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal selected_features, feature_select, chat_rate_limiter, emoji_spam, mass_mention_block, link_filter
+            await inter.response.defer()
             selected_values = inter.data.get("values",[])
             if inter.data.get("custom_id") == "feature":
                 selected = feature_select
@@ -1126,7 +1135,7 @@ class Moderation(commands.Cog):
                     option.default = True
             if inter.data.get("custom_id", "") == "feature":
                 selected_features = selected_values
-            await features_adder(interaction, selected)
+            await features_adder(inter, selected)
             
         async def on_channel_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
