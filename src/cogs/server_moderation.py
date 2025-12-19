@@ -1021,7 +1021,7 @@ class Moderation(commands.Cog):
             embeds.append(em)
 
         async def features_adder(inter, select):
-          try 
+          try:
             nonlocal selected_features, view, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block, add_btn
             if "chat_rate_limit" in selected_features:
                 selected_features.remove("chat_rate_limiter")
