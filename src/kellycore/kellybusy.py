@@ -23,7 +23,7 @@ class KellyBusy:
     def getNextFreeTime(self):
         """Returns next Kelly free of schedule time"""
         if not self._schedules or len(self._schedules) == 0:
-            return 0
+            return datetime.now()
         last_time = max(datetime.fromisoformat(entry) for entry in self._schedules)
         return last_time
 
