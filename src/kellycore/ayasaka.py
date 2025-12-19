@@ -18,7 +18,7 @@ class Ayasaka:
 
     def __init__(self, kelly):
         self.kelly = kelly
-        self.busy = KellyBusy(kelly.memory._memory["schedules"])
+        self.busy = KellyBusy(kelly, kelly.memory._memory["schedules"])
     
     async def ayakasend(self, channel, content, uid):
         try:
