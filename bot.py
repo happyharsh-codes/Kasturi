@@ -1103,7 +1103,8 @@ class Bot:
             await self.kelly.giyu.giyuTalk(message)
         elif "ayasaka" in content:
             await self.kelly.ayasaka.ayasakaTalk(message)
-        print("Latency: ", (time.time() - start))
+        if randint(1,100) == 51:
+            await message.channel.send(f"Latency:  {(time.time() - start)} {kemoji()}")
         return
         
     async def on_message_edit(self, before, after):
