@@ -87,3 +87,14 @@ class Ayasaka:
             
     def ayasakaEmojify(self, message):
         return message
+
+    def addReminder(self, reminder, user_id=0, message_id=0, channel_id=0, delay_minutes=0):
+        due = datetime.now() + timedelta(minutes=delay_minutes)
+        due_str = due.isoformat()
+        self.kelly.memory._memory["reminders"][due_str] = {
+            "reminder": reminder,
+            "user": user_id,
+            "message": message_id,
+            "channel": channel_id,
+        }
+            
