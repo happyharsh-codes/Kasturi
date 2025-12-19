@@ -184,7 +184,7 @@ class Giyu:
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             command = await self.kelly.search_commands(message)
             if command:
-                await self.kelly.ayasaka.ayasakaQueueTasks(message, command)
+                await self.kelly.ayasaka.ayasakaQueueTask(message, command)
             return False
 
         #Finally Let talk with Kelly 🤣 
