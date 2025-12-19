@@ -54,7 +54,7 @@ class KellyMood:
             self.kelly.status = "active"
 
     def moodSwing(self):
-        initial_mood = self.getCurrentMood()
+        initial_mood = self.getMood()
         depreciating_moods = ["sleepy", "lazy", "happy", "annoyed", "mischievous"]
         for mood in depreciating_moods:
             if not self.mood[mood]:
