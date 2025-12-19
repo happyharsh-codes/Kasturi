@@ -107,7 +107,7 @@ class Giyu:
         """    
         #Check Filters
         if await self.giyuFilter(message):
-            return 
+            return False
 
         #Dm messages Rules:
         #Kelly handles all by herself 
@@ -122,7 +122,7 @@ class Giyu:
             return False 
 
         #New User Initialisation 
-        if message.author.id in self._giyu["new_user"]:
+        if message.author.id not in self._giyu["new_user"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
             response = getResponse(message.content, prompt)
             em = Embed(title= f"Hi I'm Giyu {EMOJI2['giyuhi']}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
@@ -171,8 +171,8 @@ class Giyu:
                 return True
             return False
 
-        #Sleepy
-        elif mood["sleepy"] > 90:
+        #Sleeping
+        elif self.kelly.status == "sleeping":
             if "Server owner" in type:
                 return True
             if "Moderator" in type and randint (1,5) == 1:
