@@ -30,7 +30,7 @@ class KellyMemory:
     def getUserChats(self, user_id, limit: int = 4):
         if not self._memory["users"][user_id]
             return ""
-        chats = self._memory["users"]][user_id]["chats"]
+        chats = self._memory["users"][user_id]["chats"]
         all_user_chats = chats[-limit:]
         return ", ".join(all_user_chats)
 
