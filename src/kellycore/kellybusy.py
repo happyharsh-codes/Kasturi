@@ -10,7 +10,8 @@ class KellyBusy:
         - Kelly eventually performs task immediately
     """
 
-    def __init__(self, schedules):
+    def __init__(self, kelly schedules):
+        self.kelly = kelly
         self._schedules = schedules 
 
     def isBusy(self):
@@ -38,7 +39,7 @@ class KellyBusy:
             "priority": priority
         }
         if self.isBusy():
-            self.status = "busy"
+            self.kelly.status = "busy"
 
     def getSchedules(self):
         return self._schedules
