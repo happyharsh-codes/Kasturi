@@ -1,8 +1,5 @@
 from __init__ import*
 from src.kellycore.kellymood import KellyMood
-from src.kellycore.kellyrelation import KellyRealtion
-from src.kellycore.kellypersonality import KellyPersona
-from src.kellycore.kellybusy import KellyBusy
 from src.kellycore.kellymemory import KellyMemory
 from src.kellycore.giyu import Giyu
 from src.kellycore.ayasaka import Ayasaka 
@@ -24,7 +21,7 @@ class Kelly:
         self.name = name
         self.client = bot #discord bot
         self.status = "active"
-        self.mood = KellyMood(bot)
+        self.mood = KellyMood(bot, self)
         self.memory = KellyMemory()
         self.giyu = Giyu(bot, self)
         self.ayasaka = Ayasaka(self)
@@ -192,7 +189,7 @@ class Kelly:
             if not await self.giyu.giyuQuery(message, self.mood.mood, type):#if giyu already sent msg so here will not send so here we'll simply return
                 return
             #------- 2. Ayasaka the assistant handles the message before getting to kelly -------#
-            if not await self.ayaka.ayakaQuery(message, self.mood.mood, type):
+            if not await self.ayasaka.ayasakaQuery(message, self.mood.mood, type):
                 return
 
             # Setting up Prompt
@@ -243,7 +240,7 @@ class Kelly:
                     if result["execution"] == "now":
                         await self.runCommand(message, result["command"], params)
                     elif result["execution"] == "later":
-                        await self.kelly.ayasakaQueueTasks(message, result["command"], params)
+                        await self.kelly.ayasakaQueueTask(message, result["command"], params)
                 except Exception as parse_error:
                     pass
                 
