@@ -125,6 +125,7 @@ class Giyu:
         if message.author.id not in self._giyu["new_user"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
             response = getResponse(message.content, prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
+            await message.channel.send(response)
             em = Embed(title= f"Hi I'm Giyu {EMOJI2['giyuhi']}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
             em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
             dm_channel = message.author.dm_channel
@@ -135,7 +136,7 @@ class Giyu:
                 await dm_channel.send(embed = em)
             except:
                 await self.giyusend(message.channel, em, message.author.id)
-            self.kelly.memory.addUserRelation(message.author.id, 2)
+            self.kelly.memory.modifyUserRelation(message.author.id, 2)
             self._giyu["new_user"].append(message.user.id)
             return True
 
