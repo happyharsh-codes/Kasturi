@@ -63,7 +63,7 @@ class Kelly:
         if not command_name:
             return
         prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {command_name}\nRequired parameters and types: {self.commands[command_name]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
-        raw_result = getResponse("", prompt)
+        raw_result = getResponse(message.content, prompt)
         try:
             raw_result = raw_result.strip().lower()
             if raw_result.startswith("{"):
