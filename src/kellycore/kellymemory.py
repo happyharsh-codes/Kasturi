@@ -140,7 +140,7 @@ class KellyMemory:
     def getPersona(self):
         return self._memory["personality"]
 
-    def modifyPersonality(self, persona, value: int):
+    def modifyPersona(self, persona, value: int):
         self._memory["personality"][persona] = (
             self._memory["personality"].get(persona, 0) + value
         )
