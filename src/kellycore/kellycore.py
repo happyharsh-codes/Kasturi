@@ -5,34 +5,30 @@ from src.kellycore.kellypersonality import KellyPersona
 from src.kellycore.kellybusy import KellyBusy
 from src.kellycore.kellymemory import KellyMemory
 from src.kellycore.giyu import Giyu
-from src.kellycore.ayaka import Ayaka 
+from src.kellycore.ayasaka import Ayasaka 
 
 class Kelly:
     """Main Kelly Core(Brain) - kellycore.py  
     Governs all activities:
         - Receives messages: -> if command run command else talk
-        -   * Relation system - kellyrelation.py
-            * Mood system - kellymood.py
-            * Personality - kellypersonality.py
+        -   * Mood system - kellymood.py
             * Memory - kellymemory.py
-            * Busy - kellybusy.py
             * Giyu - giyu.py
-            * Ayaka - ayaka.py
-        - Handles callbacks from KellyRelation (friend / ban)
-        - Manages busy-tasks via KellyBusy
+            * Ayasaka - ayasaka.py
+        - Handles callbacks from KellyMemory(friend / ban)
+        - Giyu guard, chat filters and protects Kelly when she sleeps
+        - Ayasaka, assistant Manages busy-tasks via KellyBusy
         - Stores server & user data in memory systems
     """
     def __init__(self, name, bot):
         self.name = name
         self.client = bot #discord bot
         self.mood = KellyMood(bot)
-        self.personality = KellyPersona(Persona)
-        self.relations = KellyRealtion()
         self.memory = KellyMemory()
-        self.giyu = Giyu(bot)
-        self.ayaka = Ayaka(self)
+        self.giyu = Giyu(bot, self)
+        self.ayasaka = Ayasaka(self)
         self.mood.generateRandomMood()
-        self.commands = {cmd.name : list(cmd.clean_perms.keys()) for cmd in bot.commands}
+        self.commands = {}
                 
     async def reportError(self, error):
         try:
@@ -45,10 +41,11 @@ class Kelly:
             pass
         print("".join(traceback.format_exception(etype, value, tb)))
 
-
     async def search_commands(self, message):
         start = time.time()
-        prompt_command = f"""You are a command classifier for a Discord bot.\nRules:\n- Output ONLY valid JSON\n- Choose ONE command from the allowed list\n- If no command matches, return null\n- Do NOT invent commands\n- Do NOT include parameters\n- Do NOT include explanations or text\nAllowed commands:\n{list(self.kelly.commands.keys())}\nOutput format:\n{{ "command": "<command_name or null>" }}"""
+        if not self.commands:
+            self.commands = {command.name: list(command.clean_params.keys()) for command in self.client.commands}
+        prompt_command = f"""You are a command classifier for a Discord bot.\nRules:\n- Output ONLY valid JSON\n- Choose ONE command from the allowed list\n- If no command matches, return null\n- Do NOT invent commands\n- Do NOT include parameters\n- Do NOT include explanations or text\nAllowed commands:\n{list(self.commands.keys())}\nOutput format:\n{{ "command": "<command_name or null>" }}"""
         raw_result = getResponse(message.content, prompt_command)
         try:
             raw_result = raw_result.strip().lower()
@@ -62,7 +59,7 @@ class Kelly:
         command_name = result["command"]
         if not comand_name:
             return
-        prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {command_name}\nRequired parameters and types: {param_schema}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
+        prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {command_name}\nRequired parameters and types: {self.command[command_name]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
         raw_result = getResponse("", prompt)
         try:
             raw_result = raw_result.strip().lower()
@@ -77,11 +74,8 @@ class Kelly:
         print(f"search_commands Latency: {time.time() - start}")
         return (command_name, params)
     
-    async def runCommand(self, message: discord.Message, ai_result: dict):
+    async def runCommand(self, message: discord.Message, cmd_name, params):
         try:
-            cmd_name = list(ai_result.get("command").keys())[0]
-            params = list(ai_result.get("command").values())[0]
-
             if not cmd_name:
                 await message.channel.send("I’m not seeing any command here. 🙄")
                 return
@@ -135,29 +129,24 @@ class Kelly:
         """
         Main handler for incoming user messages.
         Steps:
-            1. Giyu Check
-                - Check if user is Blocked
-                - Check is user is Muted
-                - Check is user is new
-                - Check if Kelly is busy:
-                    - If busy, talk but queue the request.
-                - Check if Kelly is sleeping 
-            2. Kelly Reply
-            3. Generate Message Result
+            1. Giyu Check - filter message, blocked, muted, agressive, kelly sleeping
+            2. Ayasaka Check - kelly busy, kelly lazy, schedules overflow
+            3. Kelly Reply
+            4. Generate Message Result
                 - Update relation (respect) based on message style.
                     - relation hits > 80: Kelly thinks of making friend
                     - relation hits < -20: Kelly thiks of warn, mute, ban
                 - Adjust mood / persona based on outcome.
-                - Stores user chat
-                - Store memory / info about user
+                - Stores user chat / behaviours / likes / dislikes
                 - Process the user request - Runs valid command if required and if mood supports
+            5. Run Command -> if kelly in right mood performs commands right now else adds them in Kelly's schedules for later
         """
         try: 
             #------Initializing------#
-            mood = self.mood.getCurrentMood()
-            persona = self.personality.getRequiredPersona()
-            relation = self.relations.getUserRelation(message.author.id)
-            behave = self.memory.getUserInfo(message.author.id)["behaviours"]
+            mood = self.mood.gettMood()
+            persona = self.memory.getPersona()
+            relation = self.memory.getUserRelation(message.author.id)
+            behave = self.memory.getUserBehaviour(message.author.id)
             type = ""
             if message.author.id == 894072003533877279:
                 type += "God aka your creator "
@@ -174,6 +163,7 @@ class Kelly:
             #------- 1. Giyu the bodyguard handles the message before getting to kelly -------#
             if not await self.giyu.giyuQuery(message, self.mood.mood, type):#if giyu already sent msg so here will not send so here we'll simply return
                 return
+            #------- 2. Ayasaka the assistant handles the message before getting to kelly -------#
             if not await self.ayaka.ayakaQuery(message, self.mood.mood, type):
                 return
 
@@ -183,16 +173,16 @@ class Kelly:
             elif self.mood.mood["sad"] > 80 or self.mood.mood["depressed"] > 80:
                 prompt += " Kelly is extremely sad and depressed"
 
-            #------ 2. Sending message------#
+            #------ 3. Kelly Reply------#
             async with message.channel.typing():
                 msg = await message.channel.send(f"-# {choice(['thinking','busy','playing games','sleeping','yawning','drooling','watching','understanding','remembring','wondering','imagining','dreaming','creating','chatting','looking','helping'])}... {EMOJI[choice(list(EMOJI.keys()))]}")
                 assist = self.memory.getUserChatData(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist, client=0)
-                self.memory.storeChatData(message.content, kelly_reply, message.author.id) #Saving chat
+                self.memory.addChatData(message.content, kelly_reply, message.author.id) #Saving chat
                 await msg.delete()
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
 
-            #------ 3. Getting Convo summary------#
+            #------ 4. Getting Convo summary------#
             current_status = {"respect": relation,"mood": mood, "persona": persona}
             prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
                 Current status: {current_status}
