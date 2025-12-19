@@ -255,7 +255,7 @@ class Bot:
                         try:
                             channel = await guild.fetch_channel(int(channel_id))
                             if mood:
-                                await channel.send(action_text)
+                                await channel.send(action_text, delete_after=240)
                                 await channel.send(message, delete_after=120)
                             elif randint(1, 10) == 7 and settings["timer_messages"]:
                                 text = "Kelly got to revive the ded chat"
@@ -271,7 +271,7 @@ class Bot:
                 else:
                     for channel in guild.text_channels:
                         if channel.last_message and mood:
-                            await channel.send(action_text)
+                            await channel.send(action_text, delete_after=240)
                             await channel.send(message, delete_after=120)
         except Exception as e:
             await self.me.send(f"Exception on Mood change: {e}")
