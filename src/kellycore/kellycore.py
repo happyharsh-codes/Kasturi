@@ -23,13 +23,17 @@ class Kelly:
     def __init__(self, name, bot):
         self.name = name
         self.client = bot #discord bot
+        self.status = "active"
         self.mood = KellyMood(bot)
         self.memory = KellyMemory()
         self.giyu = Giyu(bot, self)
         self.ayasaka = Ayasaka(self)
         self.mood.generateRandomMood()
         self.commands = {}
-                
+
+    def setStatus(self, status):
+        self.status = status
+        
     async def reportError(self, error):
         try:
             me = self.client.get_user(894072003533877279)
@@ -53,7 +57,9 @@ class Kelly:
                 result = loads(raw_result)
             if raw_result.startswith("```"):
                 block = raw_result.split("```")[1]
-                result = loads(raw_result.replace("json",""))
+                result = loads(block.replace("json",""))
+            else:
+                result = loads(raw_result)
         except Exception as parse_error:
              return
         command_name = result["command"]
@@ -67,8 +73,9 @@ class Kelly:
                 params = loads(raw_result)
             if raw_result.startswith("```"):
                 block = raw_result.split("```")[1]
-                params = loads(raw_result.replace("json",""))
-            params = loads(raw_result)
+                params = loads(block.replace("json",""))
+            else:
+                params = loads(raw_result)
         except Exception as parse_error:
              return
         print(f"search_commands Latency: {time.time() - start}")
@@ -124,7 +131,28 @@ class Kelly:
 
         except Exception as e:
             await self.reportError(e)
-    
+            
+    async def performTasks(self):
+        if self.status != "active":
+            return
+        schedules = self.memory.getSchedules()
+        for due_str, task in schedules.items():
+            if datetime.fromisoformat(due_str) < datetime.now():
+                channel = self.client.get_channel(task["channel"])
+                if not channel:
+                    try:
+                        channel = await self.fetch_channel(task["channel"])
+                    except:
+                        del schedules[due_str]
+                        return
+                try:
+                    message = await channel.fetch_message(task["message"])
+                except:
+                    del schedules[due_str]
+                    return
+                self.runCommand(message, task["command"], task["params"])
+                return
+                
     async def kellyQuery(self, message: discord.Message):
         """
         Main handler for incoming user messages.
@@ -143,6 +171,7 @@ class Kelly:
         """
         try: 
             #------Initializing------#
+            start = time.time()
             mood = self.mood.gettMood()
             persona = self.memory.getPersona()
             relation = self.memory.getUserRelation(message.author.id)
@@ -158,8 +187,7 @@ class Kelly:
                 type = "Moderator "
             if not type:
                 type = "Member"
-            prompt = f"""Roleplay Kelly, a Discord Mod (human like with mood and sass). Current mood: {mood}, perosna: {persona}, relation: {self.relations.getUserRelation(message.author.id)}, User: {{Name: {message.author.display_name}, type:{type}, id:{message.author.id}}}\nGenerate response in 20 words with 0-4 emojiy. Keep chat interesting and fun by interacting with user and asking enagaging questions."""
-
+            
             #------- 1. Giyu the bodyguard handles the message before getting to kelly -------#
             if not await self.giyu.giyuQuery(message, self.mood.mood, type):#if giyu already sent msg so here will not send so here we'll simply return
                 return
@@ -167,70 +195,80 @@ class Kelly:
             if not await self.ayaka.ayakaQuery(message, self.mood.mood, type):
                 return
 
-            # Setting Kelly Mood - only alters the response
-            if self.mood.mood["mischievous"] > 80:
-                prompt += " Kelly is feeling extra mischevious today"
-            elif self.mood.mood["sad"] > 80 or self.mood.mood["depressed"] > 80:
-                prompt += " Kelly is extremely sad and depressed"
-
+            # Setting up Prompt
+            prompt = f"""Roleplay Kelly — sassy, human-like Discord mod with moods and personality.\nMood: {self.mood.mood},Persona: {persona},Relation: {relation},User: {message.author.display_name} ({type})\nRules:\n• Reply in 10–30 words, 0–3 emojis\n• Tone must match your mood\nYou can perform user task, save for later or deny\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict\n• You may reference Giyu (Guard) or Ayaka (Assistant) naturally"""
+            usermessage = f"Name: {message.author.display_name}, Id: {message.author.id}, Type: {type}, Says: {message.content}"
+            
             #------ 3. Kelly Reply------#
             async with message.channel.typing():
                 msg = await message.channel.send(f"-# {choice(['thinking','busy','playing games','sleeping','yawning','drooling','watching','understanding','remembring','wondering','imagining','dreaming','creating','chatting','looking','helping'])}... {EMOJI[choice(list(EMOJI.keys()))]}")
                 assist = self.memory.getUserChatData(message.author.id) #getting previous chats
-                kelly_reply = getResponse(message.content, prompt, assistant= assist, client=0)
+                kelly_reply = getResponse(usermessage, prompt, assistant= assist)
                 self.memory.addChatData(message.content, kelly_reply, message.author.id) #Saving chat
                 await msg.delete()
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
 
             #------ 4. Getting Convo summary------#
             current_status = {"respect": relation,"mood": mood, "persona": persona}
-            prompt2 = f"""You are Kelly/Kasturi kelly discord mod bot(lively with mood attitude and sass)
-                Current status: {current_status}
-                Generate Json dict using kelly response and mood
-                - respect: (-10 : +10) (int)
-                - mood: (happy(default)/sad/depressed/angry/annoyed/lazy/sleepy/mischevious) (from these only)
-                - personality_change: {{(personality_name): +/- 10 (int)}}
-                - info: (str) (small info about user behaviour and type)
-                - command: (default none for talking) {self.commands} (eg: {{"command_name":{{"param1": "value"}}}})"""
-            raw_result = getResponse(f"User(id = {message.author.id}): {message.content}\nKelly: {kelly_reply}", prompt2, assistant=assist, client=0).lower()
+            if not self.commands:
+                self.commands = {command.name: list(command.clean_params.keys()) for command in self.client.commands}
+            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nAvailable commands:{list(self.commands.keys())}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-10 to +10)\nmood_shift: happy|sad|depressed|angry|annoyed|lazy|sleepy|mischievous|none\npersonality_shift: {{trait:int}} or {{}}\ninfo: one line about user behaviour\ncommand: command_name or null\nexecution: now|later|deny (extract from chat)"""
+            raw_result = getResponse(f"{usermessage}\nKelly: {kelly_reply}", prompt2)
             try:
-                if not raw_result.startswith("```"):
-                    raw_result = "```json " + raw_result + " ```"
-                result = loads(raw_result.replace("+","").split("```json")[1].split('```')[0])
-
+                raw_result = raw_result.strip().lower()
+                if raw_result.startswith("{"):
+                    result = loads(raw_result)
+                elif raw_result.startswith("```"):
+                    block = raw_result.split("```")[1]
+                    result = loads(block.replace("json",""))
+                else:
+                    result = loads(raw_result)
             except Exception as parse_error:
                 print("Could not parse Kelly AI response:", parse_error) 
-                result = {"respect": 0, "mood": "happy", "personality_change": {}, "info": [], "command": None}
+                result = {"respect_delta": 0, "mood_shift": "happy", "personality_shift": {}, "info": "", "command": None}
 
+            #------5. Performing Task/Command Now------#
+            if "command" in result and result["command"] and result["command"] != "null":
+                prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {result["command"]}\nRequired parameters and types: {self.command[result["command"]]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
+                raw_result = getResponse("", prompt)
+                try:
+                    raw_result = raw_result.strip().lower()
+                    if raw_result.startswith("{"):
+                        params = loads(raw_result)
+                    elif raw_result.startswith("```"):
+                        block = raw_result.split("```")[1]
+                        params = loads(block.replace("json",""))
+                    else:
+                        params = loads(raw_result)
+                    if result["execution"] == "now":
+                        await self.runCommand(message, result["command"], params)
+                    elif result["execution"] == "later":
+                        await self.kelly.ayasakaQueueTasks(message, result["command"], params)
+                except Exception as parse_error:
+                    pass
+                
             #-----Updating Kelly Now-----#
             self.mood.modifyMood({"sleepy": 10})
             if "mood" in result:
                 self.mood.modifyMood({result["mood"]: randint(1,15)})
                 if result["mood"] == "happy":
                     self.relations.modifyUserRespect(2, message.author.id)
-            if "personality_change" in result and isinstance(result["personality_change"], int):
-                self.personality.modifyPersonality(result['personality_change'])
+            if "personality_shift" in result:
+                self.memory.modifyPersona(list(result['personality_shift'].keys())[0], list(result['personality_shift'].values())[0])
             if "relation" in result:
-                rel = self.relations.modifyUserRespect(result["respect"], message.author.id)
+                rel = self.memory.modifyUserRelation(message.author.id, result["respect"])
                 if rel == "friend":
                     await self.thinkFriendAction(message, prompt)
                 elif rel == "ban":
                     await self.thinkBanAction(message, prompt)
             
-            #------Performing Task/Command Now------#
-            if "command" in result and result["command"] and result["command"] != "none":
-                if isinstance(list(result["command"].values())[0], list):
-                    params = {}
-                    cmd = list(result["command"].keys())[0]
-                    for index, param in enumerate(self.commands[cmd]):
-                        params[param] = list(result["command"].values())[0][index]
-                    result["command"] = {cmd: params}
-                await self.runCommand(message, result)
-
         except Exception as error:
             await self.reportError(error)
         print(f">==MOOD<\n{self.mood.mood}\n>==<")
-        print(f">==PERSONALITY<\n{self.personality.persona}\n>==<")
+        print(f">==PERSONALITY<\n{self.memory._memory["personality"]}\n>==<")
+        print(f"KellyQuery Latency: {time.time() - start}s")
+        if randint(1,100) == 100:
+            await message.channel.send(f"-# Latency: {time.time() - start}s {kemoji()}", delete_after=8)
 
     def kellyEmojify(self, message):
         message = str(message)
