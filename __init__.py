@@ -114,7 +114,10 @@ class MongoNestedDict(MutableMapping):
                 root=self.root
             )
         return value
-        
+
+    def setdefault(self, key, default):
+        if key not in self._data:
+            self._data[key] = default
         
     # --------- Contains ------
     def __contains__(self, key):
