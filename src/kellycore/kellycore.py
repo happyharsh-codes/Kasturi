@@ -60,7 +60,7 @@ class Kelly:
         except Exception as parse_error:
              return
         command_name = result["command"]
-        if not comand_name:
+        if not command_name:
             return
         prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {command_name}\nRequired parameters and types: {self.command[command_name]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
         raw_result = getResponse("", prompt)
@@ -249,7 +249,7 @@ class Kelly:
             if "mood" in result:
                 self.mood.modifyMood({result["mood"]: randint(1,15)})
                 if result["mood"] == "happy":
-                    self.relations.modifyUserRespect(2, message.author.id)
+                    self.memory.modifyUserRelation(message.author.id, 2)
             if "personality_shift" in result:
                 self.memory.modifyPersona(list(result['personality_shift'].keys())[0], list(result['personality_shift'].values())[0])
             if "relation" in result:
