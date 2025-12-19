@@ -281,15 +281,15 @@ class Kelly:
                     pass
                 
             #-----Updating Kelly Now-----#
-            self.mood.modifyMood({"sleepy": 10})
-            if "mood" in result:
-                self.mood.modifyMood({result["mood"]: randint(1,15)})
+            self.mood.modifyMood({"sleepy": randint(1,10)})
+            if "mood_shift" in result:
+                self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
                 if result["mood"] == "happy":
                     self.memory.modifyUserRelation(message.author.id, 2)
-            if "personality_shift" in result:
+            if "personality_shift" in result and result["personality_shift"]:
                 self.memory.modifyPersona(list(result['personality_shift'].keys())[0], list(result['personality_shift'].values())[0])
-            if "relation" in result:
-                rel = self.memory.modifyUserRelation(message.author.id, result["respect"])
+            if "respect_delta" in result:
+                rel = self.memory.modifyUserRelation(message.author.id, result["respect_delta"])
                 if rel == "friend":
                     await self.thinkFriendAction(message, prompt)
                 elif rel == "ban":
