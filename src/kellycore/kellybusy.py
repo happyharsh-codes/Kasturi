@@ -37,7 +37,7 @@ class KellyBusy:
             "priority": priority
         }
 
-    def getSchedules(self)
+    def getSchedules(self):
         return self._schedules
             
             
