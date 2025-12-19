@@ -235,7 +235,7 @@ class Kelly:
             #------ 3. Kelly Reply------#
             async with message.channel.typing():
                 msg = await message.channel.send(f"-# {choice(['thinking','busy','playing games','sleeping','yawning','drooling','watching','understanding','remembring','wondering','imagining','dreaming','creating','chatting','looking','helping'])}... {EMOJI[choice(list(EMOJI.keys()))]}")
-                assist = self.memory.getUserChatData(message.author.id) #getting previous chats
+                assist = self.memory.getUserChats(message.author.id) #getting previous chats
                 kelly_reply = getResponse(usermessage, prompt, assistant= assist)
                 self.memory.addChatData(message.content, kelly_reply, message.author.id) #Saving chat
                 await msg.delete()
