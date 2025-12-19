@@ -205,7 +205,7 @@ class Kelly:
         try: 
             #------Initializing------#
             start = time.time()
-            mood = self.mood.gettMood()
+            mood = self.mood.getMood()
             persona = self.memory.getPersona()
             relation = self.memory.getUserRelation(message.author.id)
             behave = self.memory.getUserBehaviour(message.author.id)
