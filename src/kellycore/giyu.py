@@ -137,7 +137,7 @@ class Giyu:
             except:
                 await self.giyusend(message.channel, em, message.author.id)
             self.kelly.memory.modifyUserRelation(message.author.id, 2)
-            self._giyu["new_user"].append(message.user.id)
+            self._giyu["new_user"].append(message.author.id)
             return True
 
         #Blocked User
