@@ -4,14 +4,19 @@ class KellyMemory:
     """
     Stores and manages Kelly's Memory
     Stores:
-        - User chats
-        - Likes / dislikes
-        - Frequently used words
-        - User behaviour patterns
+        - Users Info
+           - Chat details
+           - User behaviour patterns 
+           - Likes / dislikes
+           - Relations
+               -positive relaion: good relation, can be increased by helping kelly, talking and behaving nicely
+               -very high positive relaion can lead to be friends with kelly.
+               -negative relation: bad relation, usually due to bad words, bad behaviour, or ordering kelly
+               -very negative relation can lead to ban the user from ever talking to kelly
         - Friend list
         - Kelly Personality
-        - Relations
         - Schedules
+            -just there in memory , managed by KellyBusy class
     """
 
     def __init__(self):
