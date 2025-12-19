@@ -44,6 +44,38 @@ class Kelly:
         except:
             pass
         print("".join(traceback.format_exception(etype, value, tb)))
+
+
+    async def search_commands(self, message):
+        start = time.time()
+        prompt_command = f"""You are a command classifier for a Discord bot.\nRules:\n- Output ONLY valid JSON\n- Choose ONE command from the allowed list\n- If no command matches, return null\n- Do NOT invent commands\n- Do NOT include parameters\n- Do NOT include explanations or text\nAllowed commands:\n{list(self.kelly.commands.keys())}\nOutput format:\n{{ "command": "<command_name or null>" }}"""
+        raw_result = getResponse(message.content, prompt_command)
+        try:
+            raw_result = raw_result.strip().lower()
+            if raw_result.startswith("{"):
+                result = loads(raw_result)
+            if raw_result.startswith("```"):
+                block = raw_result.split("```")[1]
+                result = loads(raw_result.replace("json",""))
+        except Exception as parse_error:
+             return
+        command_name = result["command"]
+        if not comand_name:
+            return
+        prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {command_name}\nRequired parameters and types: {param_schema}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
+        raw_result = getResponse("", prompt)
+        try:
+            raw_result = raw_result.strip().lower()
+            if raw_result.startswith("{"):
+                params = loads(raw_result)
+            if raw_result.startswith("```"):
+                block = raw_result.split("```")[1]
+                params = loads(raw_result.replace("json",""))
+            params = loads(raw_result)
+        except Exception as parse_error:
+             return
+        print(f"search_commands Latency: {time.time() - start}")
+        return (command_name, params)
     
     async def runCommand(self, message: discord.Message, ai_result: dict):
         try:
