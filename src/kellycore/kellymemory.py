@@ -138,7 +138,7 @@ class KellyMemory:
         user["relations"] = user.get("relations", 0) + value
 
     def getPersona(self):
-        return self._memory.["personality"]
+        return self._memory["personality"]
 
     def modifyPersonality(self, persona, value: int):
         self._memory["personality"][persona] = (
