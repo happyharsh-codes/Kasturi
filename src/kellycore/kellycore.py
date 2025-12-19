@@ -298,7 +298,7 @@ class Kelly:
         except Exception as error:
             await self.reportError(error)
         print(f">==MOOD<\n{self.mood.mood}\n>==<")
-        print(f">==PERSONALITY<\n{self.memory._memory["personality"]}\n>==<")
+        print(f">==PERSONALITY<\n{self.memory._memory['personality']}\n>==<")
         print(f"KellyQuery Latency: {time.time() - start}s")
         if randint(1,100) == 100:
             await message.channel.send(f"-# Latency: {time.time() - start}s {kemoji()}", delete_after=8)
