@@ -56,7 +56,7 @@ class KellyMood:
             self.kelly.status = "active"
 
     def moodSwing(self):
-        inital_mood = self.getMood()
+        initial_mood = self.getMood()
         for mood in self.mood:
             self.mood[mood] -= randint(1, 8)
             if self.mood[mood] < 0:
