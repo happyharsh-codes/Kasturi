@@ -18,7 +18,9 @@ class KellyMood:
         self.client = bot
         self.kelly = kelly
 
-
+    def getMood(self):
+        return max(self.mood, key=self.mood.get)
+                
     def generateRandomMood(self):
         from random import randint
         mood = {}
@@ -54,38 +56,14 @@ class KellyMood:
             self.kelly.status = "active"
 
     def moodSwing(self):
-        initial_mood = self.getMood()
-        depreciating_moods = ["sleepy", "lazy", "happy", "annoyed", "mischievous"]
-        for mood in depreciating_moods:
-            if not self.mood[mood]:
-                continue 
-            self.mood[mood] -= 5
+        inital_mood = self.getMood()
+        for mood in moods:
+            self.mood[mood] -= randint(1, 8)
             if self.mood[mood] < 0:
-                self.mood[mood] = 0
-                if mood == "happy":
-                    self.mood["sad"] = 100
-                elif mood == "lazy":
-                    self.mood[choice(["happy", "mischievous"])] = 100
-                elif mood == "mischievous":
-                    self.mood["lazy"] = 100
-                elif mood == "sleepy":
-                    self.mood[choice(["happy", "lazy"])] = 100
-                elif mood == "annoyed":
-                    self.mood["happy"] = 100
-        mood_change = self.getCurrentMood()
-        if mood_change == initial_mood:
-            return None
-        return mood_change, initial_mood
+                self.mood[mood] = randint(91,100)
+        final_mood = self.getMood()
+        return final_mood, initial_mood
     
-    def getMood(self):
-        maxz = max(self.mood.values())
-        candidates = [m for m, v in self.mood.items() if v == maxz]
-        if len(candidates) == 1:
-            return candidates[0]
-        for mood in self._MOODS:
-            if mood in candidates:
-                return mood
-                
     def moodToDoTasks(self):
         mood = self.mood
         #Kelly wont perform tasks in these situations
