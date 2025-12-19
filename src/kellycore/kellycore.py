@@ -159,7 +159,7 @@ class Kelly:
             if datetime.fromisoformat(due_str) < datetime.now():
                 if task["reminder"] == "surprise":
                     prompt = f"""Roleplay Kelly — sassy, human-like Discord mod with moods and personality.\nMood: {self.mood.mood}. Surprise user with something interesting. Generate responses in 10-30 words and 1-4 emojis."""
-                    response = getResponse("", prompt, assistant= self.memory.getUserChats(task["user"], limit=4)
+                    response = getResponse("", prompt, assistant= self.memory.getUserChats(task["user"], limit=4))
                 elif task["reminder"] == "tip":
                     response = choice(TIP)
                 if not task["channel"]:
