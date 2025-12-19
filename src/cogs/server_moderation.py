@@ -1049,7 +1049,7 @@ class Moderation(commands.Cog):
                 modal = AutomodModal()
                 await inter.response.send_modal(modal)
                 return
-            elif not selected_features:
+            else:
                 add_btn.disabled = False
                 await inter.response.edit_message(view=view)
           except Exception as e:
@@ -1118,7 +1118,6 @@ class Moderation(commands.Cog):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal selected_features, feature_select, chat_rate_limiter, emoji_spam, mass_mention_block, link_filter
-            await inter.response.defer()
             selected_values = inter.data.get("values",[])
             if inter.data.get("custom_id") == "feature":
                 selected = feature_select
