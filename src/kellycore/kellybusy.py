@@ -37,6 +37,8 @@ class KellyBusy:
             "channel": channel_id,
             "priority": priority
         }
+        if self.isBusy():
+            self.status = "busy"
 
     def getSchedules(self):
         return self._schedules
