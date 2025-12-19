@@ -25,19 +25,25 @@ class Giyu:
             
     """
 
-    def __init__(self, client):
+    def __init__(self, client, kelly):
         self.client = client
+        self.kelly = kelly
+        self._giyu = load_mongo_dict("Giyu", "kellymemory")
+        self._giyu.setdefault("new_user", [])
+        self._giyu.setdefault("block_list", [])
+        self._giyu.setdefault("muted", {})
 
     async def giyusend(self, channel, content, uid):
-        async with channel.typing():
-            try:
-                webhook = await channel.create_webhook(name="Giyu")
+        try:
+            webhook = await channel.create_webhook(name="Giyu")
+            async with channel.typing():
                 if isinstance(content, Embed):
                     await webhook.send(content= f"<@{uid}> ", embed=content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
                 else:
                     await webhook.send(content= f"<@{uid}> " + content, username="Giyu", avatar_url=f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
-                await webhook.delete()
-            except:
+            await webhook.delete()
+        except:
+            async with channel.typing():
                 if isinstance(content, Embed):
                     await channel.send(f"**Giyu**: <@{uid}> ", embed=content)
                 else:
@@ -89,14 +95,13 @@ class Giyu:
         """
         Checks Before Kellyquery:
         - Checks Filters
+        - Checks if unknown DMs
         - Check if user is New
         - Check if user is Blocked
         - Check if user is Muted
-        - Check if Kelly is busy:
-            - If busy, talk but queue the request.
-        - Check if Kelly is sleeping:
-            - If sleeping does not let anyone 
-                - A small percentage of chance server settings owner and moderator can bypass this 
+        - Check if Kelly is Sleeping:
+            - If sleeping does not let anyone intefere
+                - A small percentage of chance server owner and moderator can bypass this 
         - Chek if someone touches kelly or does kelly pat:
             - if not good relation: not allowed 
         """    
@@ -109,7 +114,7 @@ class Giyu:
         #Only friends and allowed members can dm her
         #Hidden treasures and rewards 
         if isinstance(message.channel, discord.DMChannel):
-            if message.author.id in Database["friends"]:
+            if message.author.id in self.kelly.memory._memory["friends"]:
                 return True 
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is not even on Kelly's friend list and still Dms Kelly.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
@@ -117,25 +122,28 @@ class Giyu:
             return False 
 
         #New User Initialisation 
-        if not Relation[str(message.author.id)]:
+        if message.author.id in self._giyu["new_user"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
             response = getResponse(message.content, prompt)
             em = Embed(title= f"Hi I'm Giyu {EMOJI2['giyuhi']}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
             em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
             dm_channel = message.author.dm_channel
+            self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
             if not dm_channel:
                 dm_channel = await message.author.create_dm()
             try:
                 await dm_channel.send(embed = em)
             except:
                 await self.giyusend(message.channel, em, message.author.id)
-            Relation[str(message.author.id)] = 2
+            self.kelly.memory.addUserRelation(message.author.id, 2)
+            self._giyu["new_user"].append(message.user.id)
             return True
 
         #Blocked User
-        elif message.author.id in Server_Settings[str(message.guild.id)]["block_list"]:
+        elif message.author.id in self._giyu["block_list"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is already BANNED by kelly shoo him away.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
             await message.reply(self.giyuEmojify(f"**Giyu**: {response}"))
             if "Server owner" in type and randint(1,6) == 1:
                 return True
@@ -144,9 +152,10 @@ class Giyu:
             return False
 
         #Muted User
-        elif str(message.author.id) in Server_Settings[str(message.guild.id)]["muted"]:
+        elif str(message.author.id) in self._giyu["muted"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is muted by kelly for sometime, shoo him away.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             return False
 
@@ -154,27 +163,41 @@ class Giyu:
         elif "pats" in message.content.lower() or "pat" in message.content.lower(): #only friends can pat kelly
             prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is highly dignified cute mod girl, don't let anyone touch or pat her. Generate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
-            if "Server owner" in type or message.author.id in Server_Settings[str(message.guild.id)]["friends"]:
+            if "Server owner" in type or message.author.id in self.kelly.memory._memory["friends"]:
                 return True 
             if "Moderator" in type and randint (1,5) == 1:
                 return True
             return False
 
-        #Slespy
+        #Sleepy
         elif mood["sleepy"] > 90:
             if "Server owner" in type:
                 return True
             if "Moderator" in type and randint (1,5) == 1:
                 return True
-            prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is currently sleeping\nGenerate: Your Response in 20 words with emojis"
+            prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is currently sleeping\nGenerate Your Response in 20 words with emojis. Inform user about Kelly's state. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule."
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
+            command = self.kelly.search_commands(message)
+            if command:
+                await self.kelly.ayasaka.ayasakaQueueTasks(message, command)
             return False
 
         #Finally Let talk with Kelly 🤣 
         return True
 
+    def giyuTalk(self, message):
+        prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate Your Response in 20 words with emojis. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule. Keep stern face and provide user with all help function and rules and regulations and details."
+        response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+        self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
+        await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
+        command = self.kelly.search_commands(message)
+        if command:
+            await self.kelly.ayasaka.ayasakaQueueTasks(message, command)
+                
     def giyuEmojify(self, message):
         emoji_exchanger = {
             "😫": "giyutedio",
