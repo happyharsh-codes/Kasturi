@@ -28,7 +28,7 @@ class KellyMemory:
         self._memory.setdefault("personality", {})
 
     def getUserChats(self, user_id, limit: int = 4):
-        if not self._memory["users"][user_id]
+        if not self._memory["users"][user_id]:
             return ""
         chats = self._memory["users"][user_id]["chats"]
         all_user_chats = chats[-limit:]
