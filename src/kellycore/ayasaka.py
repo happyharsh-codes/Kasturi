@@ -51,7 +51,7 @@ class Ayasaka:
         # If Kelly is lazy, assistant manages
         if self.kelly.status == "lazy":
             prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot with lively attitude and sass. Kelly is currently very lazy, grumpy. Generate small Response with emojis. Inform user about Kelly's state. If user ask for a task, inform that you have added task in Kelly's schedules. Chat with user, flirt or simp and drive user away as its your only chance to make a move if needed or stay unamused. If its your first chat tell them they can chat with you by typing your name 'Ayasaka'."
-            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
             self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
             await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
             command = self.kelly.search_commands(message)
@@ -62,7 +62,7 @@ class Ayasaka:
         # If schedule is overloaded assistant handles
         if self.kelly.status == "busy":
             prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot with lively attitude and saas. Kelly's schedules are overloaded already and shes very busy. Generate small Response with emojis. Inform user about Kelly's state. Inform that tasks cant be added as Kelly's schedules are full if user sends a task then only. Chat with user, flirt or simp and drive user away as its your only chance to make a move if needed. If its your first chat tell them they can chat with you by typing your name 'Ayasaka'"
-            response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+            response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
             self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
             await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
             return False
@@ -71,7 +71,7 @@ class Ayasaka:
 
     async def ayasakaTalk(self, message):
         prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot with lively attitude and sass. Ayasaka is gorgeous, flirting, sexy assistant. Generate small Response with emojis. If user ask for a task, inform that you have added task in Kelly's schedules. Chat with user, flirt or simp and drive user away as its your only chance to make a move if needed or stay unamused."
-        response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+        response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
         await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
         command = self.kelly.search_commands(message)
@@ -80,7 +80,7 @@ class Ayasaka:
             
     async def ayasakaQueueTask(self, message, command):
         prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot with lively attitude and sass. Ayasaka is gorgeous, flirting, sexy assistant. Generate small Response with emojis. Inform User that you have added task in Kelly's schedules. Chat with user, flirt or simp and drive user away as its your only chance to make a move if needed or stay unamused."
-        response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
+        response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
         await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
         self.busy.addSchedules(user_id=message.author.id, command_name=command[0], params=command[1], message_id=message.id, channel_id=message.channel.id, priority=1)
