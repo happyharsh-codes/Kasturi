@@ -21,13 +21,14 @@ class KellyBusy:
         
     def getNextFreeTime(self):
         """Returns next Kelly free of schedule time"""
-        if not self._schedules:
+        if not self._schedules or len(self._schedules) == 0:
             return 0
         last_time = max(datetime.fromisoformat(entry) for entry in self._schedules)
         return last_time
 
     def addSchedules(self, user_id, command_name, params, message_id, channel_id, priority=1):
         """Adds task on Kelly's schedules"""
+        due = self.getNextFreeTime() + timedelta(seconds=randint(1,120))
         self._schedules[due.isoformat()] = {
             "uid": user_id,
             "command": command_name,
