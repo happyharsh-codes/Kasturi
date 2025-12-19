@@ -138,7 +138,7 @@ class Kelly:
                 channel = self.client.get_channel(task["channel"])
                 if not channel:
                     try:
-                        channel = await self.fetch_channel(task["channel"])
+                        channel = await self.client.fetch_channel(task["channel"])
                     except:
                         del schedules[due_str]
                         return
@@ -170,7 +170,7 @@ class Kelly:
                 channel = self.client.get_channel(task["channel"])
                 if not channel:
                     try:
-                        channel = await self.fetch_channel(task["channel"])
+                        channel = await self.client.fetch_channel(task["channel"])
                     except:
                         del reminders[due_str]
                         return
