@@ -10,7 +10,7 @@ class KellyBusy:
         - Kelly eventually performs task immediately
     """
 
-    def __init__(self, kelly schedules):
+    def __init__(self, kelly, schedules):
         self.kelly = kelly
         self._schedules = schedules 
 
