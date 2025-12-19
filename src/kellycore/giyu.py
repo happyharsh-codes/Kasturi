@@ -189,7 +189,7 @@ class Giyu:
         #Finally Let talk with Kelly 🤣 
         return True
 
-    def giyuTalk(self, message):
+    async def giyuTalk(self, message):
         prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate Your Response in 20 words with emojis. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule. Keep stern face and provide user with all help function and rules and regulations and details."
         response = getResponse(f"{message.author.display_name}: {message.content}", prompt)
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
