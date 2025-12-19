@@ -13,9 +13,10 @@ class KellyMood:
     _MOODS = ["depressed", "sleepy", "annoyed", "angry", "lazy", "sad", "mischievous", "happy"]
     _OPPOSITE_TRAIT_CHART = {"happy": {"sad", "angry", "annoyed", "depressed"}, "angry": {"happy"}, "sleepy": {"angry", "annoyed", "depressed"}, "lazy": {"depressed"}, "annoyed": {"happy"}, "mischievous": {"sad", "annoyed", "angry"}, "sad": {"happy"}, "depressed": {"happy", "sleepy", "mischievous"} }
     
-    def __init__(self, bot):
+    def __init__(self, bot, kelly):
         self.mood = self.generateRandomMood()
         self.client = bot
+        self.kelly = kelly
 
 
     def generateRandomMood(self):
@@ -43,6 +44,14 @@ class KellyMood:
                 self.mood[trait] -= mood_change[mood]
                 if self.mood[trait] < 0:
                     self.mood[trait] = 0
+        if self.mood["sleepy"] > 90:
+            self.kelly.status = "sleeping"
+        elif self.mood["lazy"] > 90:
+            self.kelly.status = "lazy"
+        elif self.mood["mischievous"] > 90:
+            self.kelly.status = "mischievous"
+        else:
+            self.kelly.status = "active"
 
     def moodSwing(self):
         initial_mood = self.getCurrentMood()
@@ -68,7 +77,7 @@ class KellyMood:
             return None
         return mood_change, initial_mood
     
-    def getCurrentMood(self):
+    def getMood(self):
         maxz = max(self.mood.values())
         candidates = [m for m, v in self.mood.items() if v == maxz]
         if len(candidates) == 1:
