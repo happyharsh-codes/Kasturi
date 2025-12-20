@@ -960,7 +960,6 @@ class Moderation(commands.Cog):
             async def on_submit(self, inter: Interaction):
               try:
                 nonlocal feature, view, add_btn, msg, feature_select, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
-                add_btn.disabled = False
                 Server_Settings[str(ctx.guild.id)]["automod"] = {}
                 selected_features = [x.value for x in feature_select.options if x.default]
                 non_features = [x for x in list(feature.keys()) if x not in selected_features]
@@ -1099,6 +1098,7 @@ class Moderation(commands.Cog):
             if page == 5:
                 add_btn.label = "Finish 🎉"
             if page == 6:
+                view.timeout = None
                 view = None
             await inter.response.edit_message(embed=em, view=view)
 
@@ -1114,6 +1114,7 @@ class Moderation(commands.Cog):
             await inter.response.edit_message(view=view)            
             
         async def on_feature_select(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal add_btn, skip_btn, view, selected_features, feature_select, chat_rate_limiter, emoji_spam, mass_mention_block, link_filter
@@ -1129,15 +1130,16 @@ class Moderation(commands.Cog):
             elif inter.data.get("custom_id") == "mass_mention_block":
                 selected = mass_mention_block
             for option in selected.options:
-                if option.value in selected_values:
-                    option.default = True
+                option.default = option.value in selected_values
             if inter.data.get("custom_id", "") == "feature":
                 selected_features = selected_values
                 view.clear_items()
                 view.add_item(add_btn)
                 view.add_item(skip_btn)
             await features_adder(inter, selected)
-            
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(e)
+                
         async def on_channel_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
@@ -1370,8 +1372,9 @@ class Moderation(commands.Cog):
         async def on_done(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal em, update_embed
+            nonlocal em, update_embed, view
             update_embed()
+            view.timeout = None
             await inter.response.edit_message(embed=em, view=None)
 
         # Attach handlers
