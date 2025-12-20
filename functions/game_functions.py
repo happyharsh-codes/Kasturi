@@ -356,7 +356,7 @@ class GameProfile:
     def inv_manager(self, item, amt):
         category = ("eatables", "assets", "plants", "animals", "vehicles", "minerals", "weapons", "tools", "builds")
         for categ in category:
-            if item in GAME[categ]
+            if item in GAME[categ]:
                 category = categ
                 break    
         inv = self._data[category]
