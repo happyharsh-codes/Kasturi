@@ -473,7 +473,7 @@ class Kelly:
             "😮": "kellyinteresting",
             "😯": "kellyinteresting"
         }
-        mood_map = {
+        '''mood_map = {
             "happy": {"kellypat", "kellylaugh", "kellygigle", "kellyowolove", "kellyenjoying", "kellyvibing"},
             "sad": {"kellycry", "kellysob"},
             "angry": {"kellywatching", "kellyfight", "kellyannoyed"},
@@ -489,7 +489,7 @@ class Kelly:
 
             for mood, triggers in mood_map.items():
                 if kellyemoji in triggers:
-                    self.mood.modifyMood({mood: randint(1, 8)})
+                    self.mood.modifyMood({mood: randint(1, 8)})'''
             
         return message
 
