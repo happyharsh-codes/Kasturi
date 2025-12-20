@@ -206,83 +206,64 @@ class Bot:
         await run_all_reminders(self.client)
 
 
-    @tasks.loop(minutes=2)
+     @tasks.loop(minutes=2)
     async def mood_swings(self):
         try:
             #sync all
-            Server_Settings.root._sync()
-            Profiles.root._sync()
-            Last.root._sync()
-            Invite_Cache.root._sync()
-            Guild_Invites.root._sync()
-            self.kelly.memory._memory.root._sync()
-            self.kelly.giyu._giyu.root._sync()
-            self.kelly.ayasaka._ayasaka.root._sync()
+            #Server_Settings.root._sync()
+            #Profiles.root._sync()
+            #Last.root._sync()
+            #Invite_Cache.root._sync()
+            #Guild_Invites.root._sync()
+            #self.kelly.memory._memory.root._sync()
+            #self.kelly.giyu._giyu.root._sync()
+            #self.kelly.ayasaka._ayasaka.root._sync()
         
             mood = self.kelly.mood.moodSwing()
             action_text = None
             message = None
 
+            #Timer Message
+            if randint(1,7) == 3:
+                text = "Kelly got to revive the ded chat"
+                prompt = "Roleplay Kelly, a cute Discord Mod (human like with mood and sass). Generate response activating ded chat in 20 words with 1-4 emojis"
+                loop = asyncio.get_event_loop()
+                response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
+                reply = self.kelly.kellyEmojify(response)
+                
+                for gid, settings in Server_Settings:
+                    if not settings["timer_messages"]:
+                        continue
+                    for channel_id in settings["activated_channels"]:
+                        channel = self.client.get_channel(channel_id)
+                        if not channel:
+                            try:
+                                channel = self.client.fetch_channel(channel_id)
+                            except:
+                                continue
+                        await channel.send(reply)
+            
             if mood[0] != mood[1]:
                 prev_mood = mood[1]
                 new_mood = mood[0]
-                special_lines = {
-                    "angry": "Kelly is fuming right now 🔥 with anger (mood change = angry)",
-                    "sad": "Kelly feels a bit emotional 💔 so sad (mood change = sad)",
-                    "mischievous": "Kelly is up to something suspicious 😼 (mood change = mischievous)",
-                    "lazy": "Kelly is too lazy to even get her ass up right now (mood change = lazy)",
-                    "depressed": "Kelly is so depressed needs someone to comfort her (mood change = depressed)"
-                }
-                action = {
-                    "sleepy": "-# Kelly is sleeping 😴",
-                    "depressed": "-# Kelly is depressed 😔",
-                    "angry": "-# Kelly is angry 😡",
-                    "lazy": "-# Kelly is too lazy to respond now 😪",
-                    "sad": "-# Kelly is so sad right now 😭",
-                    "mischievous": "-# Kelly is feeling a little mischievous 😉",
-                    "annoyed": "-# Kelly is so annoyed now 😒"
-                }
-                text = special_lines.get(new_mood, f"Kelly just got a mood change to **{new_mood}**")
-                action_text = self.kelly.kellyEmojify(action.get(new_mood, f"-# Kelly just got {new_mood}"))
+                action = {"happy": "-# Kelly is so haply now 😃","sleepy": "-# Kelly is sleeping 😴","depressed": "-# Kelly is depressed 😔","angry": "-# Kelly is angry 😡","annoyed": "-# Kelly is very annoyed right now 😣","lazy": "-# Kelly is too lazy to respond now 😪","sad": "-# Kelly is so sad right now 😭","mischievous": "-# Kelly is feeling a little mischievous 😉"}
                 if prev_mood == "sleepy":
-                    text = "Kelly just woke up from her deep slumber (mood change = woke up)"
-                prompt = (
-                    "Roleplay Kelly, a cute Discord Mod (human like with mood and sass)."
-                    "Generate response telling all audience kelly went this mood change in 20 words with 1-5 emojis"
-                )
-                loop = asyncio.get_event_loop()
-                response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
-                message = self.kelly.kellyEmojify(response)
-
-            for gid, settings in Server_Settings.items():
-                try:
-                    guild = await self.client.fetch_guild(int(gid))
-                except Exception:
-                    continue
-
-                if settings["allowed_channels"]:
-                    for channel_id in settings["allowed_channels"]:
-                        try:
-                            channel = await guild.fetch_channel(int(channel_id))
-                            if mood:
-                                await channel.send(action_text, delete_after=240)
-                                await channel.send(message, delete_after=120)
-                            elif randint(1, 10) == 7 and settings["timer_messages"]:
-                                text = "Kelly got to revive the ded chat"
-                                prompt = (
-                                    "Roleplay Kelly, a cute Discord Mod (human like with mood and sass)."
-                                    "Generate response activating ded chat in 20 words with 1-4 emojis"
-                                )
-                                loop = asyncio.get_event_loop()
-                                response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
-                                await channel.send(self.kelly.kellyEmojify(response))
-                        except Exception as e:
-                            await self.client.get_user(894072003533877279).send(f"Exception on Mood change: {e}")
+                    mood_shift = "woke_up"
+                elif new_mood == "sleepy":
+                    mood_shift = "went_to_sleep"
                 else:
-                    for channel in guild.text_channels:
-                        if channel.last_message and mood:
-                            await channel.send(action_text, delete_after=240)
-                            await channel.send(message, delete_after=120)
+                    mood_shift = new_mood
+                for channel_id in Kelly_Last:
+                    channel = self.client.get_channel(channel_id)
+                    if not channel:
+                        try:
+                            channel = self.client.fetch_channel(channel_id)
+                        except:
+                            continue
+                    await channel.send(action[new_mood], delete_after=150)
+                    await channel.send(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150)
+            
+                
         except Exception as e:
             print("Error on Mood Change")
             await self.me.send(f"Exception on Mood change: {str(e)}")
