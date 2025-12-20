@@ -950,7 +950,29 @@ class Moderation(commands.Cog):
         emoji_spam = Select(custom_id="emoji_spam", placeholder="Select Emoji Limit per message", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,11)])
         link_filter = Select(custom_id="link_filter", placeholder="Select Link filter type", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in ["All Links", "Suspicious Links"]])
         mass_mention_block = Select(custom_id="mass_mention_block", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
-                                                                    
+        
+        words = ""
+        def save():
+            nonlocal words, feature, view, add_btn, msg, feature_select, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
+            Server_Settings[str(ctx.guild.id)]["automod"] = {}
+            selected_features = [x.value for x in feature_select.options if x.default]
+            non_features = [x for x in list(feature.keys()) if x not in selected_features]
+            for _feature in selected_features:
+                if _feature == "custom_words_block":
+                    Server_Settings[str(ctx.guild.id)]["banned_words"] = words
+                elif _feature == "chat_rate_limiter":
+                    Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [int(x.value) for x in chat_rate_limiter.options if x.default][0]
+                elif _feature == "emoji_spam":
+                    Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [int(x.value) for x in emoji_spam.options if x.default][0]
+                elif _feature == "link_filter":
+                    Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [int(x.value) for x in link_filter.options if x.default][0]
+                elif _feature == "mass_mention_block":
+                    Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [int(x.value) for x in mass_mention_block.options if x.default][0]
+                else:
+                    Server_Settings[str(ctx.guild.id)]["automod"][_feature] = True
+            for not_feature in non_features:
+                Server_Settings[str(ctx.guild.id)]["automod"][not_feature] = False
+                
         class AutomodModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Automod Features")
@@ -959,25 +981,8 @@ class Moderation(commands.Cog):
                     
             async def on_submit(self, inter: Interaction):
               try:
-                nonlocal feature, view, add_btn, msg, feature_select, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
-                Server_Settings[str(ctx.guild.id)]["automod"] = {}
-                selected_features = [x.value for x in feature_select.options if x.default]
-                non_features = [x for x in list(feature.keys()) if x not in selected_features]
-                for _feature in selected_features:
-                    if _feature == "custom_words_block":
-                        Server_Settings[str(ctx.guild.id)]["banned_words"] = map(lambda x: x.strip(), self.custom_words_block.value.split(","))
-                    elif _feature == "chat_rate_limiter":
-                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in chat_rate_limiter.options if x.default][0]
-                    elif _feature == "emoji_spam":
-                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in emoji_spam.options if x.default][0]
-                    elif _feature == "link_filter":
-                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in link_filter.options if x.default][0]
-                    elif _feature == "mass_mention_block":
-                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in mass_mention_block.options if x.default][0]
-                    else:
-                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = True
-                for not_feature in non_features:
-                    Server_Settings[str(ctx.guild.id)]["automod"][not_feature] = False
+                nonlocal em, view, words
+                words = map(lambda x: x.strip(), self.custom_words_block.value.split(","))
                 em = msg.embeds[0]
                 em.description = "Features succesfully Set"
                 for i in list(feature.keys()):
@@ -988,7 +993,7 @@ class Moderation(commands.Cog):
                 add_btn.label = "Continue"
                 add_btn.disabled = False
                 await msg.edit(embed = em, view = view)
-                await inter.reponse.defer()
+                await inter.response.defer()
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
 
@@ -1057,11 +1062,12 @@ class Moderation(commands.Cog):
         async def next_page(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal embeds, msg, view, page, add_btn, skip_btn, feature_select, raid_nuke_select, channel_select, raid_nuke, feature
+            nonlocal save, embeds, msg, view, page, add_btn, skip_btn, feature_select, raid_nuke_select, channel_select, raid_nuke, feature
             page += 1
             em = embeds[page-1]
             btn = inter.data.get("custom_id")
             if page == 2:
+                save()
                 view.clear_items()
                 view.add_item(raid_nuke_select)
                 view.add_item(add_btn)
