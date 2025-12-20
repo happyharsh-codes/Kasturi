@@ -926,9 +926,10 @@ class Bot:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
                 if randint(1,100) == 1: #Surprise
                     self.kelly.ayasaka.addReminder("surprise", user_id= after.id, delay_minutes=10)
-                if not Relation[str(before.id)] or Relation[str(before.id)] < 10:
+                if randint(1,25) != 13: #10% chance
                     return
-                if randint(1,25) != 1: #10% chance
+                relation = self.kelly.memory.getUserRelation(after.id)
+                if relation < 10:
                     return
                 for guild in self.client.guilds:
                     member = guild.get_member(before.id)
@@ -1042,7 +1043,7 @@ class Bot:
         if metadata["rank_channel"] != 0:
             if metadata["rank"][str(author.id)]:
                 total_xp = metadata["rank"][str(author.id)]
-                level = (math.sqrt(1+8*(total_xp//15)) -1)//2
+                level = math.floor( (math.sqrt(1+(8 * total_xp / 15)) - 1) / 2)
                 max_xp = ((level+1)*(level+2)*15)//2
                 total_xp += 2
                 if total_xp > max_xp:
