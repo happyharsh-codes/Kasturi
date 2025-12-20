@@ -54,7 +54,7 @@ class Ayasaka:
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
             self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
             await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
-            command = self.kelly.search_commands(message)
+            command = self.kelly.search_commands(f"User: {message.content}, Bot: {response}")
             if command:
                 self.busy.addSchedules(user_id=message.author.id, command_name=command[0], params=command[1], message_id=message.id, channel_id=message.channel.id, priority=1)
             return False
@@ -74,7 +74,7 @@ class Ayasaka:
         response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
         await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
-        command = await self.kelly.search_commands(message)
+        command = await self.kelly.search_commands(f"User: {message.content}, Bot: {response}")
         if command:
             self.busy.addSchedules(user_id=message.author.id, command_name=command[0], params=command[1], message_id=message.id, channel_id=message.channel.id, priority=1)
             
