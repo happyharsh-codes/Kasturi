@@ -223,7 +223,7 @@ class Bot:
             action_text = None
             message = None
 
-            if mood:
+            if mood[0] != mood[1]:
                 prev_mood = mood[1]
                 new_mood = mood[0]
                 special_lines = {
@@ -284,7 +284,8 @@ class Bot:
                             await channel.send(action_text, delete_after=240)
                             await channel.send(message, delete_after=120)
         except Exception as e:
-            await self.me.send(f"Exception on Mood change: {e}")
+            print("Error on Mood Change")
+            await self.me.send(f"Exception on Mood change: {str(e)}")
         
     # ------------- EVENTS -------------
 
