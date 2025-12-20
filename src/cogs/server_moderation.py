@@ -981,15 +981,16 @@ class Moderation(commands.Cog):
                     
             async def on_submit(self, inter: Interaction):
               try:
-                nonlocal em, view, words
+                nonlocal em, view, words, feature_select, feature
                 words = map(lambda x: x.strip(), self.custom_words_block.value.split(","))
                 em = msg.embeds[0]
                 em.description = "Features succesfully Set"
+                selected_features = [x.value for x in feature_select.options if x.default]
                 for i in list(feature.keys()):
                     if i in selected_features:
-                        em.description += f"\n✅ {i.replace('_','').title()}"
+                        em.description += f"\n✅ {i.replace('_',' ').title()}"
                     else:
-                        em.description += f"\n❌ {i.replace('_','').title()}"
+                        em.description += f"\n❌ {i.replace('_',' ').title()}"
                 add_btn.label = "Continue"
                 add_btn.disabled = False
                 await msg.edit(embed = em, view = view)
