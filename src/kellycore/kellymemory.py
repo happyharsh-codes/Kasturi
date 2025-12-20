@@ -136,6 +136,11 @@ class KellyMemory:
     def modifyUserRelation(self, uid, value: int):
         user = self._ensure_user(uid)
         user["relations"] = user.get("relations", 0) + value
+        if user["relation"] > 80 and uid not in self._memory["friends"]:
+            return "friend"
+        elif user["relation"] < -20:
+            return "ban"
+        return ""
 
     def getPersona(self):
         return self._memory["personality"]
