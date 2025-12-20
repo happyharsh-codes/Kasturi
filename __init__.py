@@ -74,7 +74,7 @@ class MongoNestedDict(MutableMapping):
                     collection=self.collection,
                     doc_id=self.doc_id,
                     data=self.default,
-                    #root=self.root
+                    root=self.root
                 )
             return self.default
         value = self._data[key]
@@ -84,7 +84,7 @@ class MongoNestedDict(MutableMapping):
                 collection=self.collection,
                 doc_id=self.doc_id,
                 data=value,
-                #root=self.root
+                root=self.root
             )
         return value
 
@@ -101,8 +101,8 @@ class MongoNestedDict(MutableMapping):
                 return MongoNestedDict(
                     collection=self.collection,
                     doc_id=self.doc_id,
-                    data=value,
-                    #root=self.root
+                    data=self.default,
+                    root=self.root
                 )
             return default
         value = self._data[key]
@@ -111,7 +111,7 @@ class MongoNestedDict(MutableMapping):
                 collection=self.collection,
                 doc_id=self.doc_id,
                 data=value,
-                #root=self.root
+                root=self.root
             )
         return value
 
