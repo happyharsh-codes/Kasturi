@@ -46,6 +46,8 @@ with open("assets/info.json", "r") as f:
     EMOJI = DATA.get("emoji")
     EMOJI2 = DATA.get("emoji2")
     TIP = DATA.get("tips")
+with open("assets/game.json", "r") as f:
+    GAME = load(f)
         
 # ===== Setting Mongo Db ====
 
