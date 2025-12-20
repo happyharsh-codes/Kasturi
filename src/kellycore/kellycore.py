@@ -46,7 +46,7 @@ class Kelly:
         start = time.time()
         if not self.commands:
             self.commands = {command.name: list(command.clean_params.keys()) for command in self.client.commands}
-        prompt_command = f"""You are a command classifier for a Discord bot.\nRules:\n- Output ONLY valid JSON\n- Choose ONE command from the allowed list\n- If no command matches, return null\n- Do NOT invent commands\n- Do NOT include parameters\n- Do NOT include explanations or text\nAllowed commands:\n{list(self.commands.keys())}\nOutput format:\n{{ "command": "<command_name or null>" }}"""
+        prompt_command = f"""You are a command classifier for a Discord bot.\nRules:\n- Output ONLY valid JSON\n-If bot doses not speak of performing command return null immediately\n- Choose ONE command from the allowed list\n- If no command matches, return null\n- Do NOT invent commands\n- Do NOT include parameters\n- Do NOT include explanations or text\nAllowed commands:\n{list(self.commands.keys())}\nOutput format:\n{{ "command": "<command_name or null>" }}"""
         raw_result = getResponse(message.content, prompt_command)
         try:
             raw_result = raw_result.strip().lower()
