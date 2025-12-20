@@ -294,7 +294,7 @@ class Kelly:
             #-----Updating Kelly Now-----#
             self.mood.modifyMood({"sleepy": randint(1,7)})
             if "mood_shift" in result:
-                if result["mood_shift"] in ["lazy", "happy", "sad", "mischievous", "depressed", "annoyed", "angry"]
+                if result["mood_shift"] in ["lazy", "happy", "sad", "mischievous", "depressed", "annoyed", "angry"]:
                     self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
                 if result["mood_shift"] == "happy":
                     self.memory.modifyUserRelation(message.author.id, 2)
