@@ -267,7 +267,7 @@ class Kelly:
 
             #------5. Performing Task/Command Now------#
             if "command" in result and result["command"] and result["command"] != "null" and result["command"] != "none":
-                if not self.commands[result["command"]:
+                if not self.commands[result["command"]]:
                     if result["execution"] == "now":
                         await self.runCommand(message, result["command"], {})
                     elif result["execution"] == "later":
@@ -492,14 +492,14 @@ class Kelly:
             "mischievous": {"kellydaydreaming", "kellybweh", "kellyacting", "kellydumbfounded", "kellysimping",},
             "sleepy": {"kellytired", "kellyyawn", "kellysleeping", "kellydrooling" },
             "lazy": {"kellytired", "kellysleeping", "kellyyawn", "kellychips"}
-        }
+        }'''
         for emoji, kellyemoji in emoji_exchanger.items():
             if emoji in message:
                 message = message.replace(emoji, EMOJI[kellyemoji])
 
-            for mood, triggers in mood_map.items():
-                if kellyemoji in triggers:
-                    self.mood.modifyMood({mood: randint(1, 8)})'''
+            #for mood, triggers in mood_map.items():
+                #if kellyemoji in triggers:
+                    #self.mood.modifyMood({mood: randint(1, 8)})
             
         return message
 
