@@ -390,7 +390,7 @@
     "castle": {"emoji":"🕍","buy":15000,"sell":7500,"level":5,"category":"builds","craft":{"stone_chunk":80,"iron_ore":30,"gold_nugget":10,"hammer":5,"axe":5,"diamond_gem":2},"info":"Fortified castle with high walls"},
     "camp_tent": {"emoji":"⛺","buy":2000,"sell":1000,"level":2,"category":"builds","craft":{"wood_log":8,"cloth_sheet":5,"hammer":1,"axe":1,"pencil":1,"paint_brush":1},"info":"Tent for temporary outdoor stay"},
     "hospital_building": {"emoji":"🏥","buy":12000,"sell":6000,"level":5,"category":"builds","craft":{"stone_chunk":50,"iron_ore":20,"hammer":4,"stethoscope":2,"syringe":2,"medic_kit":3},"info":"Large hospital providing medical care"},
-    "factory": {"emoji":"🏭","buy":14000,"sell":7000,"level":5,"category":"builds","craft":{"iron_ore":60,"stone_chunk":30,"hammer":5,"wrench":3"toolkit":2,"oil_barrel":5},"info":"Industrial building for manufacturing"},
+    "factory": {"emoji":"🏭","buy":14000,"sell":7000,"level":5,"category":"builds","craft":{"iron_ore":60,"stone_chunk":30,"hammer":5,"wrench":3,"toolkit":2,"oil_barrel":5},"info":"Industrial building for manufacturing"},
     "shop": {"emoji":"🏪","buy":5000,"sell":2500,"level":3,"category":"builds","craft":{"wood_log":20,"stone_chunk":10,"hammer":2,"axe":1,"crate_box":3,"key":1},"info":"Small local shop for goods"},
     "bank": {"emoji":"🏦","buy":10000,"sell":5000,"level":5,"category":"builds","craft":{"stone_chunk":50,"iron_ore":20,"hammer":4,"vault":1,"gold_nugget":10,"lock":2},"info":"Bank building with secure vaults"},
     "hotel": {"emoji":"🏨","buy":12000,"sell":6000,"level":5,"category":"builds","craft":{"stone_chunk":60,"wood_log":30,"hammer":5,"axe":3,"pillow":5,"bed":5},"info":"Luxurious hotel for travelers"},
