@@ -182,7 +182,7 @@ def has_profile():
             return False 
         if msg.content.lower() == code:
             Profiles[str(ctx.author.id)] = {"name": ctx.author.name, "activity": "sleeping", "health": 100,"hunger": 100, "location": "home", "aura":0, "skills": {}, "eatables": {}, "plants": {}, "animals": {}, "assets": {"cash": 100,"gem": 50,"orb": 1}, "builds": {}, "tools": {}, "weapons": {}, "vehicles": {}, "minerals": {}, "quests": {}, "places": {}, "tasks": {}, "reminders": {}}
-            em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile created successfully. Start playing eith game commands now: `hunt`, `chop`, `adv`, `mine`, `work`, `school`, `craft`, `use`, `eat` .., .\n:white_check_mark: You obatained bonous ₹100 cash 💵\n:white_check_mark: You obtained 50 gem 💎 and 1 Dark Magic Orb 🔮\nUse `k help games` to get more help and info.",color=Color.green())
+            em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile created successfully. Start playing eith game commands now: `hunt`, `chop`, `adv`, `mine`, `work`, `school`, `craft`, `use`, `eat` ...\n:white_check_mark: You obatained bonous ₹100 cash {GAME['id']['cash']['emoji']}\n:white_check_mark: You obtained 50 gems {GAME['id']['gem']['emoji']} and 1 Dark Magic Orb {GAME['id']['orb']['emoji']}\nUse `k games` to get more help and info.",color=Color.green())
             em.set_footer(text=f"{ctx.author.name} created acc at {timestamp(ctx)}", icon_url= ctx.author.avatar)
             await ctx.send(embed = em)
         else:
