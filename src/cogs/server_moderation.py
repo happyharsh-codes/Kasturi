@@ -966,7 +966,7 @@ class Moderation(commands.Cog):
                 elif _feature == "emoji_spam":
                     Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [int(x.value) for x in emoji_spam.options if x.default][0]
                 elif _feature == "link_filter":
-                    Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [int(x.value) for x in link_filter.options if x.default][0]
+                    Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in link_filter.options if x.default][0]
                 elif _feature == "mass_mention_block":
                     Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [int(x.value) for x in mass_mention_block.options if x.default][0]
                 else:
