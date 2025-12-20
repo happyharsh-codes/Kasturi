@@ -185,7 +185,7 @@ class Dev_Tech_Tools(commands.Cog):
                 for f in ["temp_code.c", "temp_code.cpp", "temp_code.java", "temp_code.class", "temp_out", "temp_out.exe"]:
                     if os.path.exists(f): os.remove(f)
         
-        language_select = Select(custom_id="language_select", placeholder="Select Language", required= True, min_values=1, max_values=1, options = [SelectOption(label=i.title(), value=i) for i in list(LAN_CONFIG.keys()))
+        language_select = Select(custom_id="language_select", placeholder="Select Language", required= True, min_values=1, max_values=1, options = [SelectOption(label=i.title(), value=i) for i in list(LAN_CONFIG.keys())])
         compile = Button(style=ButtonStyle.green, label="Run", custom_id="compile", disabled=True)                                                            
         
         async def on_select(inter):
