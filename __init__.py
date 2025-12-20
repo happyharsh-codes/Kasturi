@@ -217,6 +217,7 @@ Server_Settings  = load_mongo_dict("server_settings", "server", default_sv_setti
 Invite_Cache     = load_mongo_dict("invite_cache", "server")
 Guild_Invites    = load_mongo_dict("guild_invites", "server")
 Last             = load_mongo_dict("last", "server")
+Kelly_Last       = load_mongo_dict("kelly_last", "server")
 
 # ===== Setting up Clients =====
 
