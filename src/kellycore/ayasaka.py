@@ -73,7 +73,7 @@ class Ayasaka:
         # If Kelly is lazy, assistant manages
         if self.kelly.status == "lazy":
             if not any(cmd in message.content for cmd in self.kelly.commands):
-                await self.ayasakasend(message.channel, self.ayasakaEmojify(DATA["ayasaka_responses"]["kelly_lazy"]), message.author.id)
+                await self.ayasakasend(message.channel, self.ayasakaEmojify(choice(DATA["ayasaka_responses"]["kelly_lazy"])), message.author.id)
                 return False
             prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot with lively attitude and sass. Kelly is currently very lazy, grumpy. Generate small Response in 20 words with emojis. Inform user about Kelly's state. If user ask for a task, inform that you have added task in Kelly's schedules. Chat with user, flirt or simp and drive user away as its your only chance to make a move if needed or stay unamused. If its your first chat tell them they can chat with you by typing your name 'Ayasaka'."
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
@@ -87,7 +87,7 @@ class Ayasaka:
         # If schedule is overloaded assistant handles
         if self.kelly.status == "busy":
             if not any(cmd in message.content for cmd in self.kelly.commands):
-                await self.ayasakasend(message.channel, self.ayasakaEmojify(DATA["ayasaka_responses"]["kelly_busy"]), message.author.id)
+                await self.ayasakasend(message.channel, self.ayasakaEmojify(choice(DATA["ayasaka_responses"]["kelly_busy"])), message.author.id)
                 return False
             prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot with lively attitude and saas. Kelly's schedules are overloaded already and shes very busy. Generate small Response in 20 words with emojis. Inform user about Kelly's state. Inform that tasks cant be added as Kelly's schedules are full if user sends a task then only. Chat with user, flirt or simp and drive user away as its your only chance to make a move if needed. If its your first chat tell them they can chat with you by typing your name 'Ayasaka'"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
