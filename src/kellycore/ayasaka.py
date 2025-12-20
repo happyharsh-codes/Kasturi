@@ -67,6 +67,7 @@ class Ayasaka:
                 await self.ayasakasend(message.channel, em, message.author.id)
             self.kelly.memory.modifyUserRelation(message.author.id, 2)
             self._ayasaka["new_user"].append(message.author.id)
+            self._ayasaka.root._sync()
             return True
             
         # If Kelly is lazy, assistant manages
