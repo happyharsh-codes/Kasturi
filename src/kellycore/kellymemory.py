@@ -28,9 +28,9 @@ class KellyMemory:
         self._memory.setdefault("personality", {})
 
     def getUserChats(self, user_id, limit: int = 4):
-        if not self._memory["users"][user_id]:
+        if not self._memory["users"][str(user_id)]:
             return ""
-        chats = self._memory["users"][user_id]["chats"]
+        chats = self._memory["users"][str(user_id)]["chats"]
         all_user_chats = chats[-limit:]
         return ", ".join(all_user_chats)
 
@@ -39,11 +39,11 @@ class KellyMemory:
         message = message.replace("\n", "").replace(":", "")
         response = response.replace("\n", "").replace(":", "")
 
-        user = self._memory["users"].get(uid)
+        user = self._memory["users"].get(str(uid))
         line = f"User:{message}, {reply_by}:{response}"
 
         if not user:
-            self._memory["users"][uid] = {
+            self._memory["users"][str(uid)] = {
                 "chats": [line],
                 "behaviours": "",
                 "likes": [],
@@ -70,7 +70,7 @@ class KellyMemory:
             self._memory["friends"].remove(uid)
             self._memory._sync()
             
-    def _ensure_user(self, uid):
+    def _ensure_user(self, uid: str):
         """Internal helper to create a blank user record if missing."""
         if uid not in self._memory["users"]:
             self._memory["users"][uid] = {
@@ -84,26 +84,26 @@ class KellyMemory:
 
     def addLikes(self, uid, like_item):
         """Adds item to users liked items in memory"""
-        user = self._ensure_user(uid)
+        user = self._ensure_user(str(uid))
         user["likes"].append(like_item)
         self._memory._sync()
         
     def addDislikes(self, uid, dislike_item):
         """Adds item to users disliked items in memory"""
-        user = self._ensure_user(uid)
+        user = self._ensure_user(str(uid))
         user["dislikes"].append(dislike_item)
         self._memory._sync()
         
     def getUserLikes(self, uid):
         """Provides users liked items from the memory"""
-        user = self._memory["users"].get(uid)
+        user = self._memory["users"].get(str(uid))
         if not user:
             return []
         return user.get("likes", [])
 
     def getUserDislikes(self, uid):
         """Provides users disliked items from the memory"""
-        user = self._memory["users"].get(uid)
+        user = self._memory["users"].get(str(uid))
         if not user:
             return []
         return user.get("dislikes", [])
@@ -113,7 +113,7 @@ class KellyMemory:
         Adds user behaviour to the core memory.
         If stored behaviours becomes very long, summarises and stores it.
         """
-        user = self._ensure_user(uid)
+        user = self._ensure_user(str(uid))
         user["behaviours"] = (user.get("behaviours", "") + " " + behave).strip()
         if len(user["behaviours"]) > 1024:
             user["behaviours"] = self.summarizeBehaviour(user["behaviours"])
@@ -128,19 +128,19 @@ class KellyMemory:
         return short_behaviour
 
     def getUserBehaviour(self, uid):
-        user = self._memory["users"].get(uid)
+        user = self._memory["users"].get(str(uid))
         if not user:
             return ""
         return user.get("behaviours", "")
 
     def getUserRelation(self, uid):
-        user = self._memory["users"].get(uid)
+        user = self._memory["users"].get(str(uid))
         if not user:
             return 0
         return user.get("relations", 0)
 
     def modifyUserRelation(self, uid, value: int):
-        user = self._ensure_user(uid)
+        user = self._ensure_user(str(uid))
         user["relations"] = user.get("relations", 0) + value
         self._memory._sync()
         if user["relations"] > 80 and uid not in self._memory["friends"]:
