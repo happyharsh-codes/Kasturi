@@ -30,7 +30,7 @@ class KellyMood:
         mood["sad"] = 100 - mood["happy"]
         mood["angry"] = 0 # triggered by chatting
         mood["annoyed"] = 0 # triggerede by chatting
-        mood["depressed"] = 100 - mood["depressed"]
+        mood["depressed"] = 100 - mood["sleepy"]
         mood["mischievous"] = 100 - mood["lazy"]
         print(mood)
         return mood
@@ -52,18 +52,19 @@ class KellyMood:
                 self.mood[mood] = 100
             elif self.mood[mood] < 0:
                 self.mood[mood] = 0
-            trait = self._OPPOSITE_TRAIT_CHART[mood]
-            self.mood[trait] -= mood_change[mood]
-            if self.mood[trait] < 0:
-                self.mood[trait] = 0
-            if self.mood[trait] > 100:
-                self.mood[trait] = 100
+            trait = self._OPPOSITE_TRAIT_CHART.get(mood)
+            if trait:
+                self.mood[trait] -= mood_change[mood]
+                if self.mood[trait] < 0:
+                    self.mood[trait] = 0
+                if self.mood[trait] > 100:
+                    self.mood[trait] = 100
         self.setStatus()
         
     def moodSwing(self):
         initial_mood = self.getMood()
         for mood in self.mood:
-            if mood in ["mischievous", "lazy", "sad", "depressed", "angry", "annoyed"] and ranint(1,3) != 3:
+            if mood in ["mischievous", "lazy", "sad", "depressed", "angry", "annoyed"] and randint(1,3) != 3:
                 continue
             self.mood[mood] -= randint(1, 7)
             if self.mood[mood] < 0:
