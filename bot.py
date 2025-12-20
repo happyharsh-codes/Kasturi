@@ -206,7 +206,7 @@ class Bot:
         await run_all_reminders(self.client)
 
 
-     @tasks.loop(minutes=2)
+    @tasks.loop(minutes=2)
     async def mood_swings(self):
         try:
             #sync all
