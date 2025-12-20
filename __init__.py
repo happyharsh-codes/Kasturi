@@ -74,7 +74,7 @@ class MongoNestedDict(MutableMapping):
                     collection=self.collection,
                     doc_id=self.doc_id,
                     data=self.default,
-                    root=self.root
+                    #root=self.root
                 )
             return self.default
         value = self._data[key]
@@ -84,7 +84,7 @@ class MongoNestedDict(MutableMapping):
                 collection=self.collection,
                 doc_id=self.doc_id,
                 data=value,
-                root=self.root
+                #root=self.root
             )
         return value
 
@@ -102,7 +102,7 @@ class MongoNestedDict(MutableMapping):
                     collection=self.collection,
                     doc_id=self.doc_id,
                     data=value,
-                    root=self.root
+                    #root=self.root
                 )
             return default
         value = self._data[key]
@@ -111,13 +111,14 @@ class MongoNestedDict(MutableMapping):
                 collection=self.collection,
                 doc_id=self.doc_id,
                 data=value,
-                root=self.root
+                #root=self.root
             )
         return value
 
     def setdefault(self, key, default):
         if key not in self._data:
             self._data[key] = default
+            self._sync()
         
     # --------- Contains ------
     def __contains__(self, key):
