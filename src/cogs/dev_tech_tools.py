@@ -133,19 +133,93 @@ class Dev_Tech_Tools(commands.Cog):
 
     @commands.hybrid_command(name="code", description="Enter Code to compile", aliases=["codesnippet"])
     @commands.cooldown(1, 60, type=commands.BucketType.user)
-    async def code(self, ctx, language: str = "python", *, snippet: str = None):
+    async def code(self, ctx, language: str = "python", *, code: str = None):
         """Runs your code in any language"""
-        if not snippet:
+        if not code:
             await ctx.send("❌ Please provide a code snippet.")
             return
-        
+            
+        lang = ""
         em = Embed(
             title=f"🧠 Code Snippet ({language})",
-            description=f"```{language}\n{snippet}```",
+            description=f"```{language}\n{snippet[:100]}...```",
             color=Color.blurple()
         )
-        em.set_footer(text=f"Shared by {ctx.author}", icon_url=ctx.author.avatar)
-        await ctx.send(embed=em)
+        em.set_footer(text=f"Shared by {ctx.author.display_name}", icon_url=ctx.author.avatar)
+        
+        LANG_CONFIG = {"python": {"run": ["python3", "-c"]}, "javascript": {"run": ["node", "-e"]}, "ruby": {"run": ["ruby", "-e"]}, "bash": {"run": ["bash", "-c"]},"php": {"run": ["php", "-r"]}, "cpp": { "compile": ["g++", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".cpp"},  "c": { "compile": ["gcc", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".c"},"java": {"compile": ["javac"], "run": ["java"], "extension": ".java"}}
+        
+        def execute_code(lang, code):
+            if lang not in LANG_CONFIG:
+                return f"Language {lang} not supported."
+            config = LANG_CONFIG[lang]
+            try:
+                # HANDLING COMPILED LANGUAGES (C, C++, Java)
+                if "compile" in config:
+                    filename = f"temp_code{config['extension']}"
+                    with open(filename, "w") as f:
+                        f.write(code)
+                # Compile step
+                compile_cmd = config["compile"] + [filename]
+                comp = subprocess.run(compile_cmd, capture_output=True, text=True)
+                if comp.returncode != 0:
+                    return f"Compilation Error:\n{comp.stderr}"
+            
+                # Run step
+                run_cmd = config["run"]
+                # Java special case: 'java temp_code' (no extension or path)
+                if lang == "java": run_cmd = ["java", "temp_code"]
+            
+                # HANDLING INTERPRETED LANGUAGES (Python, JS, etc.)
+                else:
+                    run_cmd = config["run"] + [code]
+
+                # Execute
+                result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=5)
+                return result.stdout if result.returncode == 0 else result.stderr
+
+            except Exception as e:
+                return f"Error: {str(e)}"
+            finally:
+                # Cleanup temporary files
+                for f in ["temp_code.c", "temp_code.cpp", "temp_code.java", "temp_code.class", "temp_out", "temp_out.exe"]:
+                    if os.path.exists(f): os.remove(f)
+        
+        language_select = Select(custom_id="language_select", placeholder="Select Language", required= True, min_values=1, max_values=1, options = [SelectOption(label=i.title(), value=i) for i in list(LAN_CONFIG.keys()))
+        compile = Button(style=ButtonStyle.green, label="Run", custom_id="compile", disabled=True)                                                            
+        
+        async def on_select(inter):
+            if inter.user.id != ctx.author.id:
+                await inter.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
+            nonlocal language_select, lang
+            for option in language_select.options:
+                if option.value in inter.data["values"]:
+                    option.default = True
+                    lang = option.value
+                    break
+            compile.disabled = False
+            await inter.response.edit_message(view=view)
+
+        async def on_compile(inter):
+            if inter.user.id != ctx.author.id:
+                await inter.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
+                return
+            nonlocal execute_code, lang
+            output = execute_code(lang, code)
+        
+        async def on_timeout():
+            nonlocal em, msg
+            em.color = Color.greyple()
+            msg.edit(embed=em, view=None)
+            
+        view = View(timeout=45)
+        view.add_item(language_select)
+        view.add_item(compile)
+        view.on_timeout = on_timeout
+        compile.callback = on_compile
+        language_select.callback = on_select
+        msg = await ctx.send(embed=em, view=view)
 
     @commands.hybrid_command(name="insta", description="Search Instagram Profile via Id", aliases=["instagram"])
     @commands.cooldown(1, 30, type=commands.BucketType.user)
