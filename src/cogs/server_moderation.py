@@ -949,7 +949,7 @@ class Moderation(commands.Cog):
         chat_rate_limiter = Select(custom_id="chat_rate_limiter", placeholder="Chat Rate every 5s", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(1,11)])
         emoji_spam = Select(custom_id="emoji_spam", placeholder="Select Emoji Limit per message", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,11)])
         link_filter = Select(custom_id="link_filter", placeholder="Select Link filter type", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in ["All Links", "Suspicious Links"]])
-        mass_mention_block = Select(custom_id="mass_mention", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
+        mass_mention_block = Select(custom_id="mass_mention_block", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
                                                                     
         class AutomodModal(discord.ui.Modal):
             def __init__(self):
