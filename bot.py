@@ -32,7 +32,7 @@ class Bot:
     async def chat_rate_limiter(self, message, session_id, chat_rate_limit):
         count = 0 # no of messages in last 5 seconds
         for time in Last[session_id]:
-            if (datetime.now - datetime.fromisoformat(time)).seconds <= 5:
+            if (datetime.now - datetime.fromisoformat(time)).seconds() <= 5:
                 count += 1
         if count > limit:
             try:
