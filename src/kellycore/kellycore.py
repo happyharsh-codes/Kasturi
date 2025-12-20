@@ -62,6 +62,8 @@ class Kelly:
         command_name = result["command"]
         if not command_name:
             return
+        if not self.commands[command_name]:
+            return command_name, {}
         prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {command_name}\nRequired parameters and types: {self.commands[command_name]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
         raw_result = getResponse(message.content, prompt)
         try:
@@ -281,7 +283,7 @@ class Kelly:
                     pass
                 
             #-----Updating Kelly Now-----#
-            self.mood.modifyMood({"sleepy": randint(1,10)})
+            self.mood.modifyMood({"sleepy": randint(1,7)})
             if "mood_shift" in result:
                 self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
                 if result["mood_shift"] == "happy":
