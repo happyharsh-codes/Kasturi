@@ -25,7 +25,7 @@ class KellyMood:
         from random import randint
         mood = {}
         mood["happy"] = randint(1,100)
-        mood["sleepy"] = randint(1,100
+        mood["sleepy"] = randint(1,100)
         mood["lazy"] = randint(1,100)
         mood["sad"] = 100 - mood["happy"]
         mood["angry"] = 0 # triggered by chatting
@@ -63,9 +63,14 @@ class KellyMood:
     def moodSwing(self):
         initial_mood = self.getMood()
         for mood in self.mood:
+            if mood in ["mischievous", "lazy", "sad", "depressed", "angry", "annoyed"] and ranint(1,3) != 3:
+                continue
             self.mood[mood] -= randint(1, 7)
             if self.mood[mood] < 0:
-                self.mood[mood] = randint(91,100)
+                if mood == "sleepy":
+                    self.mood[mood] = 0
+                else:
+                    self.mood[mood] = randint(91,100)
         final_mood = self.getMood()
         self.setStatus()
         return final_mood, initial_mood
