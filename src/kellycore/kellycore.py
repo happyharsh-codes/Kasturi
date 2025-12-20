@@ -225,13 +225,14 @@ class Kelly:
                 type = "Moderator "
             if not type:
                 type = "Member"
-            
-            #------- 1. Giyu the bodyguard handles the message before getting to kelly -------#
-            if not await self.giyu.giyuQuery(message, self.mood.mood, type):#if giyu already sent msg so here will not send so here we'll simply return
-                return
-            #------- 2. Ayasaka the assistant handles the message before getting to kelly -------#
-            if not await self.ayasaka.ayasakaQuery(message, self.mood.mood, type):
-                return
+
+            if relation != 0:
+                #------- 1. Giyu the bodyguard handles the message before getting to kelly -------#
+                if not await self.giyu.giyuQuery(message, self.mood.mood, type):#if giyu already sent msg so here will not send so here we'll simply return
+                    return
+                #------- 2. Ayasaka the assistant handles the message before getting to kelly -------#
+                if not await self.ayasaka.ayasakaQuery(message, self.mood.mood, type):
+                    return
 
             # Setting up Prompt
             prompt = f"""Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.mood.mood},Persona: {persona},Relation: {relation},User: {message.author.display_name} ({type})\nReply in 10–30 words, 0–3 emojis based on your mood\nYou can perform user task, save for later or deny\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict\n• You may reference Giyu (Guard) or Ayaka (Assistant) naturally"""
