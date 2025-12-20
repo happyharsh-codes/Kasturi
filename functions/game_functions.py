@@ -12,20 +12,21 @@ default_profiles = {
     "location": "home",
     "aura":0,
     "skills": {},
-    "foods": {},
+    "eatables": {},
     "plants": {},
     "animals": {},
+    "minerals": {},
+    "builds": {},
     "assets": {
         "cash": 100,
         "gem": 50,
-        "orbs": 1
+        "orb": 1
     },
     "tools": {},
     "weapons": {},
     "vehicles": {},
     "quests": {},
     "places": {},
-    "jobs": {},
     "tasks": {},
     "reminders": {}
 }
@@ -180,7 +181,7 @@ def has_profile():
         except asyncio.TimeoutError:
             return False 
         if msg.content.lower() == code:
-            Profiles[str(ctx.author.id)] = {"name": ctx.author.name, "activity": "sleeping", "health": 100,"hunger": 100, "location": "home", "aura":0, "skills": {}, "foods": {}, "plants": {}, "animals": {}, "assets": {"cash": 100,"gem": 50,"orbs": 1}, "tools": {}, "weapons": {}, "vehicles": {}, "emotes": {}, "quests": {}, "places": {}, "jobs": {}, "tasks": {}, "reminders": {}}
+            Profiles[str(ctx.author.id)] = {"name": ctx.author.name, "activity": "sleeping", "health": 100,"hunger": 100, "location": "home", "aura":0, "skills": {}, "eatables": {}, "plants": {}, "animals": {}, "assets": {"cash": 100,"gem": 50,"orb": 1}, "builds": {}, "tools": {}, "weapons": {}, "vehicles": {}, "minerals": {}, "quests": {}, "places": {}, "tasks": {}, "reminders": {}}
             em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile created successfully. Start playing eith game commands now: `hunt`, `chop`, `adv`, `mine`, `work`, `school`, `craft`, `use`, `eat` .., .\n:white_check_mark: You obatained bonous ₹100 cash 💵\n:white_check_mark: You obtained 50 gem 💎 and 1 Dark Magic Orb 🔮\nUse `k help games` to get more help and info.",color=Color.green())
             em.set_footer(text=f"{ctx.author.name} created acc at {timestamp(ctx)}", icon_url= ctx.author.avatar)
             await ctx.send(embed = em)
@@ -194,63 +195,92 @@ def has_profile():
 def not_busy():
     async def predicate(ctx):
         uid = str(ctx.author.id)
-        if not Profiles[uid]:
+        if not Profiles.get(uid) or not Profiles[uid].get("activity"):
             return True
+
         activity = Profiles[uid]["activity"]
-        tasks = Profiles[uid]["tasks"]
-        for due, t in tasks.items():
+        tasks_dict = Profiles[uid].get("tasks", {})
+
+        # Find the current task
+        task = None
+        duration_iso = None
+        for due, t in tasks_dict.items():
             if t["name"] == activity:
                 task = t
-                duration = due
+                duration_iso = due
                 break
         else:
             return True
-        remaining = datetime.fromisoformat(duration) - datetime.now()
-        remaining_seconds = remaining.total_seconds()
-        minutes, seconds = divmod(remaining_seconds, 60)
-        percentage_completed = min(100, max((remaining_seconds//task["duration"])*100, 0))
-        blocks = int(percentage_completed//10)
-        percentage_bar = "▓" * blocks + "░" * (10 - blocks)
-        if activity == "sleeping":
-            return True 
-        elif activity == "working":
-            em = Embed(title="Currently Busy Working", description= f"Ayoo user you are currently **Working**. You cant perform that command now. Wait until your office hour ends to claim the Rewards.\n**Time Remaining**: {minutes:.0f}:{seconds:02.0f}", color = Color.orange())
-        elif activity == "studying":
-            em = Embed(title="Currently Studying", description= f"Ayoo user you are currently **Studying**. You cant perform that command now. Wait until you finish classes to claim the Rewards.\n**Time Remaining**: {minutes:.0f}:{seconds:02.0f}", color = Color.orange())
-        elif activity == "travelling":
-            em = Embed(title="Currently Traveling", description= f"Ayoo user you are currently **Travelling**. You cant perform that command now. Wait until you reach the destination .\n**Time Remaining**: {minutes:.0f}:{seconds:02.0f}", color = Color.orange())
-        elif activity == "exploring":
-            em = Embed(title="Currently Out Exploring", description= f"Ayoo user you are currently **Exploring**. You cant perform that command now. Wait until you finish to claim the Rewards.\n**Time Remaining**: {minutes:.0f}:{seconds:02.0f}", color = Color.orange())
-        em.set_footer(text = f"{task['name'].title()} - {percentage_bar}{percentage_completed}% Completed")
-        
-        view = View(timeout=45)
-        async def timeout():
-            nonlocal em, view, msg
-            em.color = Color.light_grey()
-            for children in view.children:
-                children.disabled = True
-            await msg.edit(embed=em, view=view)
-        view.on_timeout = timeout
 
-        cancel = Button(label="✖️ Cancel", custom_id = activity, style = ButtonStyle.secondary)
+        remaining = datetime.fromisoformat(duration_iso) - datetime.now()
+        remaining_seconds = max(0, remaining.total_seconds())
+
+        # Initialize embed
+        def get_embed():
+            minutes, seconds = divmod(remaining_seconds, 60)
+            percentage_completed = min(100, max(int((task["duration"] - remaining_seconds) / task["duration"] * 100), 0))
+            blocks = int(percentage_completed // 10)
+            percentage_bar = "▓" * blocks + "░" * (10 - blocks)
+
+            titles = {
+                "sleeping": "Currently Sleeping",
+                "working": "Currently Busy Working",
+                "studying": "Currently Studying",
+                "travelling": "Currently Traveling",
+                "exploring": "Currently Out Exploring"
+            }
+            desc = {
+                "sleeping": "You are resting. You can perform commands.",
+                "working": f"Ayoo user you are currently **Working**. Wait until office hours end.\nTime Remaining: {minutes:.0f}:{seconds:02.0f}",
+                "studying": f"Ayoo user you are currently **Studying**. Wait until classes finish.\nTime Remaining: {minutes:.0f}:{seconds:02.0f}",
+                "travelling": f"Ayoo user you are currently **Travelling**. Wait until you reach your destination.\nTime Remaining: {minutes:.0f}:{seconds:02.0f}",
+                "exploring": f"Ayoo user you are currently **Exploring**. Wait until finished to claim rewards.\nTime Remaining: {minutes:.0f}:{seconds:02.0f}"
+            }
+
+            em = Embed(title=titles.get(activity, "Busy"), description=desc.get(activity, ""), color=Color.orange())
+            em.set_footer(text=f"{task['name'].title()} - {percentage_bar} {percentage_completed}% Completed")
+            return em
+
+        if activity == "sleeping":
+            return True
+
+        # Create view with cancel button
+        view = View(timeout=None)
+        cancel = Button(label="✖️ Cancel", custom_id=activity, style=ButtonStyle.secondary)
+
         async def on_cancel(inter: Interaction):
             if inter.user.id != ctx.author.id:
-                await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
+                await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()), ephemeral=True)
                 return
-            nonlocal view, cancel 
+
             cancel.disabled = True
             cancel.label = "🚫 Cancelled"
-            view.timeout = None
-            for due, task in Profiles[uid]["tasks"].items():
-                if task["name"] == inter.data["custom_id"]:
+            view.timeout = 1  # stops the update loop
+
+            # Remove task
+            for due, t in list(Profiles[uid]["tasks"].items()):
+                if t["name"] == inter.data["custom_id"]:
                     del Profiles[uid]["tasks"][due]
                     Profiles[uid]["activity"] = "sleeping"
                     Profiles[uid]["location"] = "home"
-            await inter.response.edit_message(embed=em, view= view)
+
+            await inter.response.edit_message(embed=get_embed(), view=view)
+
         cancel.callback = on_cancel
         view.add_item(cancel)
-        msg = await ctx.reply(embed=em, view= view)
+
+        # Send initial message
+        msg = await ctx.reply(embed=get_embed(), view=view)
+
+        # Update loop every 10 seconds
+        while remaining_seconds > 0 and not cancel.disabled:
+            await sleep(10)
+            remaining = datetime.fromisoformat(duration_iso) - datetime.now()
+            remaining_seconds = max(0, remaining.total_seconds())
+            await msg.edit(embed=get_embed())
+
         return False
+
     return commands.check(predicate)
     
 def has_in_inventory(item, value = 0):
@@ -260,7 +290,15 @@ def has_in_inventory(item, value = 0):
         profile = GameProfile(ctx.author.id)
         if profile.inv_searcher(item, value):
             return True 
-        await ctx.send(embed=Embed(description=f"Ayoo You must need `{item.title()}` in your inventory to perform this.", color= Color.gold()))
+        em = Embed(description=f"Ayoo You must need `{GAME["id"][item]["emoji"]} {item.title()}` in your inventory to perform this.", color= Color.gold())
+        emoji = GAME["id"][item]["emoji"]
+        if emoji.startswith("<a"):
+            em.set_thumbnail(url=f"https://cdn.discordapp.com/emojis/{emoji.split(':')[1]}.gif")
+        elif emoji.startswith("<"):
+            em.set_thumbnail(url=f"https://cdn.discordapp.com/emojis/{emoji.split(':')[1]}.png")
+        else:
+            em.set_thumbnail(url="https://twemoji.maxcdn.com/v/latest/72x72/" + "-".join(f"{ord(c):x}" for c in emoji) + ".png")
+        await ctx.send(embed=em)
         return False
     return commands.check(predicate)
     
@@ -304,7 +342,7 @@ class GameProfile:
         return default
         
     def inv_searcher(self, item, amt):
-        category = ["foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes"]
+        category = ("eatables", "assets", "plants", "animals", "vehicles", "minerals", "weapons", "tools", "builds")
         for categ in category:
             inv = self._data[categ]
             if item in inv and inv[item] >= amt:
@@ -312,9 +350,9 @@ class GameProfile:
         return False 
 
     def inv_manager(self, item, amt):
-        category = ("foods", "tools", "assets", "plants", "animals", "vehicles", "weapons", "emotes")
+        category = ("eatables", "assets", "plants", "animals", "vehicles", "minerals", "weapons", "tools", "builds")
         for categ in category:
-            if any(item.lower() in DATA[categ.capitalize()][level] for level in ["Level1", "Level2", "Level3", "Level4", "Level5"]):
+            if item in GAME[categ]
                 category = categ
                 break    
         inv = self._data[category]
@@ -365,7 +403,7 @@ class GameProfile:
         self.reminders[due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
 
     def add_rewards(self, rewards):
-        for category, item, qty, level in rewards:
+        for item, qty in rewards:
             self.inv_manager(item, qty)
 
     def reward_player(self, drops, count_range=(3, 7)):
@@ -373,14 +411,15 @@ class GameProfile:
         Adds Rewards to player inventory and return the reward description"""
         rewards = []
         aura = self.aura
-        location= self.location
+        location = self.location
+        
         # weights per aura-band -> level keys
         levels_choice = {
-            200: {"Level1": 0.6, "Level2": 0.25, "Level3": 0.10, "Level4": 0.04, "Level5": 0.01},
-            400: {"Level1": 0.4, "Level2": 0.4, "Level3": 0.14, "Level4": 0.04, "Level5": 0.02},
-            600: {"Level1": 0.2, "Level2": 0.2, "Level3": 0.4, "Level4": 0.12, "Level5": 0.08},
-            800: {"Level1": 0.1, "Level2": 0.1, "Level3": 0.2, "Level4": 0.4, "Level5": 0.2},
-            1000: {"Level1": 0.05, "Level2": 0.05, "Level3": 0.1, "Level4": 0.3, "Level5": 0.5},
+            200: {1: 0.6, 2: 0.25, 3: 0.10, 4: 0.04, 5: 0.01},
+            400: {1: 0.4, 2: 0.4, 3: 0.14, 4: 0.04, 5: 0.02},
+            600: {1: 0.2, 2: 0.2, 3: 0.4, 4: 0.12, 5: 0.08},
+            800: {1: 0.1, 2: 0.1, 3: 0.2, 4: 0.4, 5: 0.2},
+            1000: {1: 0.05, 2: 0.05, 3: 0.1, 4: 0.3, 5: 0.5},
         }
         # count tweak for super-aura
         if aura > 999:
@@ -409,23 +448,19 @@ class GameProfile:
             category = weighted_choice(cat_weight_list)
             level = weighted_choice(level_weight_list)
 
-            # DATA["places"][location][category][level] is list of item-keys
-            if location not in DATA["places"]:
-                continue
-            if category not in DATA["places"][location]:
-                continue
-            if level not in DATA["places"][location][category]:
-                continue
+            category_obtainables = [item for item in GAME[category] if "places" in GAME["id"][item] and location in GAME["id"][item]["places"] ]
 
-            available = DATA["places"][location][category][level]
-            if not available:
-                continue
-
-            item_key = choice(available)
-            qty = randint(1, 3)
-            if aura > 999:
-                qty = randint(3, 5)
-
-            rewards.append((category, item_key, qty, level))
+            while level > 0:
+                available = [item for item in category_obtainables if level == GAME["id"][item]["level"] ]
+                if not available:
+                    level -= 1
+                    continue
+                else:
+                    item_key = choice(available)
+                    qty = randint(1, 3)
+                    if aura > 999:
+                        qty = randint(3, 5)
+                    rewards.append((item_key, qty))
+                    break
         self.add_rewards(rewards)
         return rewards_descrip(rewards)
