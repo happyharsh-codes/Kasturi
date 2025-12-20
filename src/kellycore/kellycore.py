@@ -234,7 +234,7 @@ class Kelly:
                 return
 
             # Setting up Prompt
-            prompt = f"""Roleplay Kelly — sassy, human-like Discord mod with moods and personality.\nMood: {self.mood.mood},Persona: {persona},Relation: {relation},User: {message.author.display_name} ({type})\nRules:\n• Reply in 10–30 words, 0–3 emojis\n• Tone must match your mood\nYou can perform user task, save for later or deny\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict\n• You may reference Giyu (Guard) or Ayaka (Assistant) naturally"""
+            prompt = f"""Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.mood.mood},Persona: {persona},Relation: {relation},User: {message.author.display_name} ({type})\nReply in 10–30 words, 0–3 emojis based on your mood\nYou can perform user task, save for later or deny\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict\n• You may reference Giyu (Guard) or Ayaka (Assistant) naturally"""
             usermessage = f"Name: {message.author.display_name}, Id: {message.author.id}, Type: {type}, Says: {message.content}"
             
             #------ 3. Kelly Reply------#
@@ -266,9 +266,15 @@ class Kelly:
                 result = {"respect_delta": 0, "mood_shift": "happy", "personality_shift": {}, "info": "", "command": None}
 
             #------5. Performing Task/Command Now------#
-            if "command" in result and result["command"] and result["command"] != "null":
-                prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {result["command"]}\nRequired parameters and types: {self.commands[result["command"]]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
-                raw_result = getResponse("", prompt)
+            if "command" in result and result["command"] and result["command"] != "null" and result["command"] != "none":
+                if not self.commands[result["command"]:
+                    if result["execution"] == "now":
+                        await self.runCommand(message, result["command"], {})
+                    elif result["execution"] == "later":
+                        await self.kelly.ayasakaQueueTask(message, result["command"], {})
+                else:
+                    prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {result["command"]}\nRequired parameters and types: {self.commands[result["command"]]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
+                    raw_result = getResponse("", prompt)
                 try:
                     raw_result = raw_result.strip().lower()
                     if raw_result.startswith("{"):
@@ -282,13 +288,14 @@ class Kelly:
                         await self.runCommand(message, result["command"], params)
                     elif result["execution"] == "later":
                         await self.kelly.ayasakaQueueTask(message, result["command"], params)
-                except Exception as parse_error:
+                except:
                     pass
                 
             #-----Updating Kelly Now-----#
             self.mood.modifyMood({"sleepy": randint(1,7)})
             if "mood_shift" in result:
-                self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
+                if result["mood_shift"] in ["lazy", "happy", "sad", "mischievous", "depressed", "annoyed", "angry"]
+                    self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
                 if result["mood_shift"] == "happy":
                     self.memory.modifyUserRelation(message.author.id, 2)
             if "personality_shift" in result and result["personality_shift"]:
