@@ -294,7 +294,7 @@ def has_in_inventory(item, value = 0):
         profile = GameProfile(ctx.author.id)
         if profile.inv_searcher(item, value):
             return True 
-        em = Embed(description=f"Ayoo You must need `{GAME["id"][item]["emoji"]} {item.title()}` in your inventory to perform this.", color= Color.gold())
+        em = Embed(description=f"Ayoo You must need `{GAME['id'][item]["emoji"]} {item.title()}` in your inventory to perform this.", color= Color.gold())
         emoji = GAME["id"][item]["emoji"]
         if emoji.startswith("<a"):
             em.set_thumbnail(url=f"https://cdn.discordapp.com/emojis/{emoji.split(':')[1]}.gif")
