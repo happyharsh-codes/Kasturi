@@ -989,6 +989,7 @@ class Moderation(commands.Cog):
                 add_btn.label = "Continue"
                 add_btn.disabled = False
                 await msg.edit(embed = em, view = view)
+                await inter.reponse.defer()
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
 
