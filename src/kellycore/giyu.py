@@ -182,7 +182,7 @@ class Giyu:
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
             self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
-            command = await self.kelly.search_commands(message)
+            command = await self.kelly.search_commands(f"User: {message.content}, Bot: {response}")
             if command:
                 await self.kelly.ayasaka.ayasakaQueueTask(message, command)
             return False
@@ -195,7 +195,7 @@ class Giyu:
         response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
         await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
-        command = await self.kelly.search_commands(message)
+        command = await self.kelly.search_commands(f"User: {message.content}, Bot: {response}")
         if command:
             await self.kelly.ayasaka.ayasakaQueueTask(message, command)
                 
