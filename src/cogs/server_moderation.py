@@ -953,6 +953,7 @@ class Moderation(commands.Cog):
         
         words = ""
         def save():
+          try:
             nonlocal words, feature, view, add_btn, msg, feature_select, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
             Server_Settings[str(ctx.guild.id)]["automod"] = {}
             selected_features = [x.value for x in feature_select.options if x.default]
@@ -972,7 +973,9 @@ class Moderation(commands.Cog):
                     Server_Settings[str(ctx.guild.id)]["automod"][_feature] = True
             for not_feature in non_features:
                 Server_Settings[str(ctx.guild.id)]["automod"][not_feature] = False
-                
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(e)
+              
         class AutomodModal(discord.ui.Modal):
             def __init__(self):
                 super().__init__(title="Set Automod Features")
