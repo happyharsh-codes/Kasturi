@@ -115,9 +115,12 @@ class Giyu:
         #Hidden treasures and rewards 
         if isinstance(message.channel, discord.DMChannel):
             if message.author.id in self.kelly.memory._memory["friends"]:
-                return True 
-            prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is not even on Kelly's friend list and still Dms Kelly.\nGenerate: Your Response in 20 words with emojis"
-            response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
+                return True
+            if randint(1,5) == 5:
+                prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is not even on Kelly's friend list and still Dms Kelly.\nGenerate: Your Response in 20 words with emojis"
+                response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
+            else:
+                response = choice(DATA["giyu_responses"]["kelly_dms"])
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             return False 
 
@@ -178,6 +181,10 @@ class Giyu:
                 return True
             if "Moderator" in type and randint (1,5) == 1:
                 return True
+            command = None
+            if not any(cmd in message.content for cmd in self.kelly.commands):
+                await self.giyusend(message.channel, self.giyuEmojify(choice(DATA["giyu_responses"]["kelly_sleeping"])), message.author.id)
+                return False
             prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is currently sleeping\nGenerate Your Response in 20 words with emojis. Inform user about Kelly's state. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule."
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
             self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
@@ -191,10 +198,12 @@ class Giyu:
         return True
 
     async def giyuTalk(self, message):
-        prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate Your Response in 20 words with emojis. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule. Keep stern face and provide user with all help function and rules and regulations and details."
+        prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate Your Response in 20 words with emojis. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule when user insists repeatedly. Keep stern face and provide user with all help function and rules and regulations and details."
         response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
         await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
+        if not any(cmd in message.content for cmd in self.kelly.commands):
+            return
         command = await self.kelly.search_commands(f"User: {message.content}, Bot: {response}")
         if command:
             await self.kelly.ayasaka.ayasakaQueueTask(message, command)
