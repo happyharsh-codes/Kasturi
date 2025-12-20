@@ -208,6 +208,15 @@ class Bot:
 
     @tasks.loop(minutes=2)
     async def mood_swings(self):
+        #sync all
+        Server_Settings.root._sync()
+        Profiles.root._sync()
+        Last.root._sync()
+        Invite_Cache.root._sync()
+        Guild_Invites.root._sync()
+        self.kelly.memory._memory.root._sync()
+        self.kelly.giyu._giyu.root._sync()
+        self.kelly.ayasaka._ayasaka.root._sync()
         try:
             mood = self.kelly.mood.moodSwing()
             action_text = None
