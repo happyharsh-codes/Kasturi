@@ -952,7 +952,7 @@ class Moderation(commands.Cog):
         mass_mention_block = Select(custom_id="mass_mention_block", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
         
         words = ""
-        def save():
+        async def save():
           try:
             nonlocal words, feature, view, add_btn, msg, feature_select, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
             Server_Settings[str(ctx.guild.id)]["automod"] = {}
@@ -974,7 +974,7 @@ class Moderation(commands.Cog):
             for not_feature in non_features:
                 Server_Settings[str(ctx.guild.id)]["automod"][not_feature] = False
           except Exception as e:
-            await inter.client.get_user(894072003533877279).send(e)
+            await self.client.get_user(894072003533877279).send(e)
               
         class AutomodModal(discord.ui.Modal):
             def __init__(self):
@@ -1064,6 +1064,7 @@ class Moderation(commands.Cog):
             await inter.client.get_user(894072003533877279).send(e)
                 
         async def next_page(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal save, embeds, msg, view, page, add_btn, skip_btn, feature_select, raid_nuke_select, channel_select, raid_nuke, feature
@@ -1071,7 +1072,7 @@ class Moderation(commands.Cog):
             em = embeds[page-1]
             btn = inter.data.get("custom_id")
             if page == 2:
-                save()
+                await save()
                 view.clear_items()
                 view.add_item(raid_nuke_select)
                 view.add_item(add_btn)
@@ -1111,7 +1112,9 @@ class Moderation(commands.Cog):
                 view.timeout = None
                 view = None
             await inter.response.edit_message(embed=em, view=view)
-
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(e)
+              
         async def on_raid_nuke_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
