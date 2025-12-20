@@ -34,7 +34,7 @@ class Bot:
         for time in Last[session_id]:
             if (datetime.now() - datetime.fromisoformat(time)).seconds <= 5:
                 count += 1
-        if count > limit:
+        if count > chat_rate_limit:
             try:
                 async for msg in message.channel.histoty(limit=100):
                     if delete_count >= count:
@@ -97,11 +97,11 @@ class Bot:
         has_link = "http://" in content or "https://" in content
         if not has_link:
             return False
-        if type == "all":
+        if all in type.lower():
             await message.delete()
             await message.channel.send(f"{message.author.mention} Links are not allowed.", delete_after= 5)
             return True
-        if type == "suspicious":
+        if "suspicious" in type.lower():
             if any(bad in content for bad in SUSPICIOUS):
                 await message.delete()
                 await message.channel.send(f"{message.author.mention} Suspicious link removed.", delete_after=5)
