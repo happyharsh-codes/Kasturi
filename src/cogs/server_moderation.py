@@ -960,24 +960,23 @@ class Moderation(commands.Cog):
             async def on_submit(self, inter: Interaction):
               try:
                 nonlocal feature, view, add_btn, msg, feature_select, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block
-                await inter.response.defer()
                 add_btn.disabled = False
                 Server_Settings[str(ctx.guild.id)]["automod"] = {}
                 selected_features = [x.value for x in feature_select.options if x.default]
-                non_features = [x for x in list(features.keys()) if x not in selected_features]
-                for feature in selected_features:
-                    if feature == "custom_words_block":
+                non_features = [x for x in list(feature.keys()) if x not in selected_features]
+                for _feature in selected_features:
+                    if _feature == "custom_words_block":
                         Server_Settings[str(ctx.guild.id)]["banned_words"] = map(lambda x: x.strip(), self.custom_words_block.value.split(","))
-                    elif feature == "chat_rate_limiter":
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = [x.value for x in chat_rate_limiter.options if x.default][0]
-                    elif feature == "emoji_spam":
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = [x.value for x in emoji_spam.options if x.default][0]
-                    elif feature == "link_filter":
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = [x.value for x in link_filter.options if x.default][0]
-                    elif feature == "mass_mention_block":
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = [x.value for x in mass_mention_block.options if x.default][0]
+                    elif _feature == "chat_rate_limiter":
+                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in chat_rate_limiter.options if x.default][0]
+                    elif _feature == "emoji_spam":
+                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in emoji_spam.options if x.default][0]
+                    elif _feature == "link_filter":
+                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in link_filter.options if x.default][0]
+                    elif _feature == "mass_mention_block":
+                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = [x.value for x in mass_mention_block.options if x.default][0]
                     else:
-                        Server_Settings[str(ctx.guild.id)]["automod"][feature] = True
+                        Server_Settings[str(ctx.guild.id)]["automod"][_feature] = True
                 for not_feature in non_features:
                     Server_Settings[str(ctx.guild.id)]["automod"][not_feature] = False
                 em = msg.embeds[0]
@@ -1010,7 +1009,7 @@ class Moderation(commands.Cog):
                     descrip += f"\n• {raid_heading.title()}"
                 em.description = f"Select Protection to Enable:\nPlease enable all services for the best.\n```{descrip}```"
             elif i == 2:
-                em.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n•Punishment Triggered\n• Kelly Updates```"
+                em.description = "Select Moderation Logging Channel\nSelect the logging channel in which Kelly will send all updates and all logging and auto action reports.\n```• AutoMod action\n• Server / User Modify details\n• Punishment Triggered\n• Kelly Updates```"
             elif i == 3:  
                 em.description = "**Punishment Method**\nPunishment method automatically handles when trigger is hit and punishment gradually increase on more infringement. Each automod trigger leads to 1 chat misbehave. 5 chat misbehaves lead to 1 warn. Warn leads to automated actions. You can set Punishments via ```k warn_action``` later on."
             elif i == 4:
@@ -1023,7 +1022,7 @@ class Moderation(commands.Cog):
         async def features_adder(inter, select):
           try:
             nonlocal selected_features, view, chat_rate_limiter, emoji_spam, link_filter, mass_mention_block, add_btn
-            if "chat_rate_limit" in selected_features:
+            if "chat_rate_limiter" in selected_features:
                 selected_features.remove("chat_rate_limiter")
                 view.add_item(chat_rate_limiter)
                 await inter.response.edit_message(view=view)
@@ -1035,7 +1034,7 @@ class Moderation(commands.Cog):
                 return
             elif "link_filter" in selected_features:
                 selected_features.remove("link_filter")
-                view.add_item(link_feature)
+                view.add_item(link_filter)
                 await inter.response.edit_message(view=view)
                 return
             elif "mass_mention_block" in selected_features:
@@ -1092,8 +1091,7 @@ class Moderation(commands.Cog):
                 view.add_item(add_btn)
                 if btn == "skip":
                     return await inter.response.edit_message(embed=em, view=view)
-                selected_features = []
-                for option in feature_select.options:
+                for option in channel_select.options:
                     if option.default:
                         Server_Settings[str(ctx.guild.id)]["logging"] = int(option.value)
                         break
