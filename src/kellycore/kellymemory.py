@@ -54,19 +54,22 @@ class KellyMemory:
             user["chats"].append(line)
             if len(user["chats"]) > 8:
                 user["chats"].pop(0)
+        self._memory._sync()
 
     def addFriend(self, uid):
         """Add user to friend list."""
         uid = int(uid)
         if uid not in self._memory["friends"]:
             self._memory["friends"].append(uid)
-
+            self._memory._sync()
+  
     def removeFriend(self, uid):
         """Removes User from friend list."""
         uid = int(uid)
         if uid in self._memory["friends"]:
             self._memory["friends"].remove(uid)
-
+            self._memory._sync()
+            
     def _ensure_user(self, uid):
         """Internal helper to create a blank user record if missing."""
         if uid not in self._memory["users"]:
@@ -83,12 +86,14 @@ class KellyMemory:
         """Adds item to users liked items in memory"""
         user = self._ensure_user(uid)
         user["likes"].append(like_item)
-
+        self._memory._sync()
+        
     def addDislikes(self, uid, dislike_item):
         """Adds item to users disliked items in memory"""
         user = self._ensure_user(uid)
         user["dislikes"].append(dislike_item)
-
+        self._memory._sync()
+        
     def getUserLikes(self, uid):
         """Provides users liked items from the memory"""
         user = self._memory["users"].get(uid)
@@ -112,7 +117,8 @@ class KellyMemory:
         user["behaviours"] = (user.get("behaviours", "") + " " + behave).strip()
         if len(user["behaviours"]) > 1024:
             user["behaviours"] = self.summarizeBehaviour(user["behaviours"])
-
+        self._memory._sync()
+        
     def summarizeBehaviour(self, long_behaviour: str) -> str:
         prompt = (
             "Summarize user behaviour and shorten it. "
@@ -136,6 +142,7 @@ class KellyMemory:
     def modifyUserRelation(self, uid, value: int):
         user = self._ensure_user(uid)
         user["relations"] = user.get("relations", 0) + value
+        self._memory._sync()
         if user["relations"] > 80 and uid not in self._memory["friends"]:
             return "friend"
         elif user["relations"] < -20:
@@ -149,3 +156,4 @@ class KellyMemory:
         self._memory["personality"][persona] = (
             self._memory["personality"].get(persona, 0) + value
         )
+        self._memory._sync()
