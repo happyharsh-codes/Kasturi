@@ -272,12 +272,16 @@ def not_busy():
         # Send initial message
         msg = await ctx.reply(embed=get_embed(), view=view)
 
-        # Update loop every 10 seconds
+        # Update loop every 1 seconds for 10 sec max
+        sec_count = 0
         while remaining_seconds > 0 and not cancel.disabled:
-            await sleep(10)
+            await asyncio.sleep(1)
             remaining = datetime.fromisoformat(duration_iso) - datetime.now()
             remaining_seconds = max(0, remaining.total_seconds())
             await msg.edit(embed=get_embed())
+            sec_count += 1
+            if sec_count > 10:
+                return False
 
         return False
 
