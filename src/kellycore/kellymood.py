@@ -11,7 +11,7 @@ class KellyMood:
     
     '''
     _MOODS = ["depressed", "sleepy", "annoyed", "angry", "lazy", "sad", "mischievous", "happy"]
-    _OPPOSITE_TRAIT_CHART = {"happy": {"sad", "angry", "annoyed", "depressed"}, "angry": {"happy"}, "sleepy": {"angry", "annoyed", "depressed"}, "lazy": {"depressed"}, "annoyed": {"happy"}, "mischievous": {"sad", "annoyed", "angry"}, "sad": {"happy"}, "depressed": {"happy", "sleepy", "mischievous"} }
+    _OPPOSITE_TRAIT_CHART = {"happy": "sad", "angry": "annoyed", "sleepy": "depressed", "lazy": "mischievous", "annoyed": "angry", "mischievous": "lazy", "sad": "happy", "depressed": "sleepy" }
     
     def __init__(self, bot, kelly):
         self.mood = self.generateRandomMood()
@@ -24,28 +24,18 @@ class KellyMood:
     def generateRandomMood(self):
         from random import randint
         mood = {}
-        mood["happy"] = 100
-        mood["sleepy"] = 0
-        mood["lazy"] = 0
-        mood["sad"] = 0
+        mood["happy"] = randint(1,100)
+        mood["sleepy"] = randint(1,100
+        mood["lazy"] = randint(1,100)
+        mood["sad"] = 100 - mood["happy"]
         mood["angry"] = 0 # triggered by chatting
         mood["annoyed"] = 0 # triggerede by chatting
-        mood["depressed"] = 0
-        mood["mischievous"] = 0
+        mood["depressed"] = 100 - mood["depressed"]
+        mood["mischievous"] = 100 - mood["lazy"]
         print(mood)
         return mood
-    
-    def modifyMood(self, mood_change):
-        for mood in mood_change:
-            self.mood[mood] += mood_change[mood]
-            if self.mood[mood] > 100:
-                self.mood[mood] = 100
-            elif self.mood[mood] < 0:
-                self.mood[mood] = 0
-            for trait in self._OPPOSITE_TRAIT_CHART[mood]:
-                self.mood[trait] -= mood_change[mood]
-                if self.mood[trait] < 0:
-                    self.mood[trait] = 0
+
+    def setStatus(self):
         if self.mood["sleepy"] > 90:
             self.kelly.status = "sleeping"
         elif self.mood["lazy"] > 90:
@@ -54,7 +44,22 @@ class KellyMood:
             self.kelly.status = "mischievous"
         else:
             self.kelly.status = "active"
-
+    
+    def modifyMood(self, mood_change):
+        for mood in mood_change:
+            self.mood[mood] += mood_change[mood]
+            if self.mood[mood] > 100:
+                self.mood[mood] = 100
+            elif self.mood[mood] < 0:
+                self.mood[mood] = 0
+            trait = self._OPPOSITE_TRAIT_CHART[mood]
+            self.mood[trait] -= mood_change[mood]
+            if self.mood[trait] < 0:
+                self.mood[trait] = 0
+            if self.mood[trait] > 100:
+                self.mood[trait] = 100
+        self.setStatus()
+        
     def moodSwing(self):
         initial_mood = self.getMood()
         for mood in self.mood:
@@ -62,6 +67,7 @@ class KellyMood:
             if self.mood[mood] < 0:
                 self.mood[mood] = randint(91,100)
         final_mood = self.getMood()
+        self.setStatus()
         return final_mood, initial_mood
     
     def moodToDoTasks(self):
