@@ -64,7 +64,7 @@ class KellyMood:
     def moodSwing(self):
         initial_mood = self.getMood()
         for mood in self.mood:
-            if mood in ["mischievous", "lazy", "sad", "depressed", "angry", "annoyed"] and randint(1,3) != 3:
+            if mood in ["mischievous", "lazy", "sad", "depressed", "angry", "annoyed"] and randint(1,2) != 3:
                 continue
             self.mood[mood] -= randint(1, 7)
             if self.mood[mood] < 0:
@@ -74,6 +74,7 @@ class KellyMood:
                     self.mood[mood] = randint(91,100)
         final_mood = self.getMood()
         self.setStatus()
+        print(f"===== MOOD SWING =====\n{self.mood}, {self.kelly.status}")
         return final_mood, initial_mood
     
     def moodToDoTasks(self):
