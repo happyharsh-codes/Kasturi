@@ -1116,7 +1116,7 @@ class Moderation(commands.Cog):
         async def on_feature_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal selected_features, feature_select, chat_rate_limiter, emoji_spam, mass_mention_block, link_filter
+            nonlocal add_btn, skip_btn, view, selected_features, feature_select, chat_rate_limiter, emoji_spam, mass_mention_block, link_filter
             selected_values = inter.data.get("values",[])
             if inter.data.get("custom_id") == "feature":
                 selected = feature_select
@@ -1133,6 +1133,9 @@ class Moderation(commands.Cog):
                     option.default = True
             if inter.data.get("custom_id", "") == "feature":
                 selected_features = selected_values
+                view.clear_items()
+                view.add_item(add_btn)
+                view.add_item(skip_btn)
             await features_adder(inter, selected)
             
         async def on_channel_select(inter: Interaction):
