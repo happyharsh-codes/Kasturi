@@ -92,7 +92,7 @@ class Games(commands.Cog):
         view.on_timeout = on_timeout
         view.add_item(category_select)
         category_select.callback = on_select
-        update("foods")
+        update("eatables")
         msg = await ctx.send(embed=em, view=view)
 
     # ========= SIMPLE ECONOMY =========
