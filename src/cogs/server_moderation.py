@@ -946,7 +946,7 @@ class Moderation(commands.Cog):
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"#{channel.name}",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
 
         selected_features = []
-        chat_rate_limiter = Select(custom_id="chat_rate_limit", placeholder="Chat Rate every 5s", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(1,11)])
+        chat_rate_limiter = Select(custom_id="chat_rate_limiter", placeholder="Chat Rate every 5s", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(1,11)])
         emoji_spam = Select(custom_id="emoji_spam", placeholder="Select Emoji Limit per message", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,11)])
         link_filter = Select(custom_id="link_filter", placeholder="Select Link filter type", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in ["All Links", "Suspicious Links"]])
         mass_mention_block = Select(custom_id="mass_mention", placeholder="Set Mass mention Limit", required= True, min_values=1, max_values=1, options = [SelectOption(label=str(i), value=str(i)) for i in range(3,8)])
