@@ -132,7 +132,7 @@ class Kelly:
             await self.reportError(e)
             
     async def performTasks(self):
-        if self.status != "active":
+        if self.status not in ["active", "busy"]:
             return
         schedules = self.memory.getSchedules()
         for due_str, task in schedules.items():
@@ -143,18 +143,21 @@ class Kelly:
                         channel = await self.client.fetch_channel(task["channel"])
                     except:
                         del schedules[due_str]
+                        self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                         return
                 try:
                     message = await channel.fetch_message(task["message"])
                 except:
                     del schedules[due_str]
+                    self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                     return
                 self.runCommand(message, task["command"], task["params"])
                 del schedules[due_str]
+                self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                 return
 
     async def performReminders(self):
-        if self.status != "active":
+        if self.status not in ["active", "busy"]:
             return
         reminders = self.memory._memory["reminders"]
         for due_str, task in reminders.items():
@@ -264,7 +267,7 @@ class Kelly:
 
             #------5. Performing Task/Command Now------#
             if "command" in result and result["command"] and result["command"] != "null":
-                prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {result["command"]}\nRequired parameters and types: {self.command[result["command"]]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
+                prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {result["command"]}\nRequired parameters and types: {self.commands[result["command"]]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
                 raw_result = getResponse("", prompt)
                 try:
                     raw_result = raw_result.strip().lower()
