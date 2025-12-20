@@ -2,72 +2,6 @@ from __init__ import *
 from functions.game_functions import *
 from typing import Optional
 
-"""
-Inventory Items:-
-Foods: [🍻🍖🌭🍨🌮..]
-Plants: [💐🍂🌵🌴🌳🌲🪵..]
-Tools: [🗜️🪛🪚🔧🔨🛠️⚒️⛏️..]
-Assets: [🏛️🕌🕋🛕⛪💒🏩🏯🏰🏗️🏢🏭🏬🏪🏟️🏦🏫🏨🏣🏤🏥🏚️🏠🏡🏘️🛖⛺🏕️🌃..]
-Animals: [🐎🐯🦁🐼🐨🐷🫎🐲🦮🐈‍⬛🐈🪽🦇🐤🦂🦀🪱🐾🪰🦋..]
-Vehicles: [🛴🦽🦼🚲🛵🏍️🚙🚗🛻🚚🚐🚜🏎️🚒🚑🚓🚕🛺🚌🚈🚝🚅🚄🚂🚃🚋🚎🚊🚉..]
-Emotes:  [kellycute, kellyhappy..]
-Weapons: [🔫⚔️🏹💣🔪🗡️🛡️🤺..]
-
-#Game Checks
-has_profile()
-not_busy()
-at_the_location(loc)
-has_in_inventory(item, val=0)
-
-#Game functions
-inv_searcher()
-inv_manager()
-location_searcher()
-skill_searcher()
-skills_manager()
-place_manager()
-
-# =====Rarity Based Chances: ====
-----Level 1 (Aura 1 - 200)----
-common: 60%
-unique: 25%
-rare: 10%
-epic: 4%
-legendary: 1%
-
-----Level 2 (Aura 200 - 400)----
-common: 40%
-unique: 40%
-rare: 14%
-epic: 4%
-legendary: 2%
-
-----Level 3 (Aura 400 - 600)----
-common: 20%
-unique: 20%
-rare: 40%
-epic: 12%
-legendary: 8%
-
-----Level 4 (Aura 600 - 800)----
-common: 10%
-uniqie: 10%
-rare: 20%
-epic: 40%
-legendary: 20%
-
-----Level 5 (Aura 800 - 999+)----
-common: 5%
-unique: 5%
-rare: 10%
-epic: 30%
-legendary: 50%
-
----- Places ----
-river, mountain, ocean, forest, desert
-"""
-
-
 def action_embed(title, description, color, footer=None, avatar=None):
     em = Embed(title=title, description=description, color=color)
     if footer:
@@ -77,9 +11,7 @@ def action_embed(title, description, color, footer=None, avatar=None):
 class Games(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        # Optional: master rarity map if you keep it centrally
-        # self.master = DATA["places_master"]
-    
+        
     # ========= PROFILE & WALLET =========
 
     @commands.hybrid_command(aliases=[])
@@ -88,7 +20,10 @@ class Games(commands.Cog):
     async def profile(self, ctx, user: Optional[discord.Member] = None):
         if not user:
             user = ctx.author
-        profile = GameProfile(ctx.author.id)
+        try:
+            profile = GameProfile(user.id)
+        except:
+            return await ctx.reply(embed=Embed(description="That user dont even have a game profile!!", color=Color.red()))
         descrip = (
             f"Wallet:\n"
             f"**Cash**: {profile.assets.get('cash', 0)}\n"
@@ -119,27 +54,24 @@ class Games(commands.Cog):
     @has_profile()
     async def inv(self, ctx):
         """View categorized inventory."""
-        categories = ["Foods", "Animals", "Plants", "Assets", "Tools", "Weapons", "Vehicles", "Emotes"]
+        categories = ["eatables", "animals", "plants", "asets", "tools", "weapons", "vehicles", "minerals", "builds"]
         profile = GameProfile(ctx.author.id)
 
-        em = action_embed(f"{ctx.author.display_name}'s Inventory","",Color.green(),f"Inv by {ctx.author.name}",ctx.author.avatar,)
+        em = action_embed(f"{ctx.author.display_name}'s Inventory","",Color.green(),f"Inv by {ctx.author.name}",ctx.author.avatar)
 
         def update(selected_category):
             nonlocal em, profile
             descrip = ""
-            items = profile.get(selected_category.lower(), {})
-            break_line = 0
+            items = profile.get(selected_category, {})
+    
             for item_key, val in items.items():
-                emoji = DATA["id"].get(item_key, item_key)
-                descrip += f"{emoji} x {val} "
-                break_line += 1
-                if break_line == 3:
-                    break_line = 0
-                    descrip += "\n"
+                emoji = GAME["id"][item_key]["emoji"]
+                descrip += f"`{emoji} {val}` "
+                
             if not descrip:
-                descrip = "No items in this category"
-            em.description = f"```{descrip}```"
-        category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i) for i in categories],max_values=1,min_values=1)
+                descrip = "`No items in this category`"
+            em.description = descrip
+        category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i.title(), value=i) for i in categories],max_values=1,min_values=1)
         
         async def on_select(inter: Interaction):
             nonlocal update, em, view
@@ -159,7 +91,8 @@ class Games(commands.Cog):
         view = View(timeout=45)
         view.on_timeout = on_timeout
         view.add_item(category_select)
-        update("Foods")
+        category_select.callback = on_select
+        update("foods")
         msg = await ctx.send(embed=em, view=view)
 
     # ========= SIMPLE ECONOMY =========
@@ -227,7 +160,7 @@ class Games(commands.Cog):
             if not option:
                 em.description = "Select a profession from the menu."
                 return
-            needed_skills = DATA["jobs"].get(option.value, [])
+            needed_skills = GAME["jobs"].get(option.value, [])
             descrip = (
                 f"**{option.label}** {option.emoji}\n"
                 f"{option.description}\n"
@@ -250,7 +183,7 @@ class Games(commands.Cog):
                     selected = opt
 
             profile_skills = profile.skills
-            required = DATA["jobs"].get(selected.value, [])
+            required = GAME["jobs"].get(selected.value, [])
             if all(skill in profile_skills and profile_skills.get(skill,0) > 0 for skill in required):
                 work_btn.disabled = False
                 work_btn.label = "Work"
@@ -353,7 +286,7 @@ class Games(commands.Cog):
             if not option:
                 em.description = "Select a skill from the menu."
                 return
-            jobs = [x for x in DATA["jobs"] if option.value in DATA["jobs"][x]]
+            jobs = [x for x in GAME["jobs"] if option.value in DATA["jobs"][x]]
             descrip = (
                 f"**{option.label}** {option.emoji}\n"
                 f"{option.description}\n"
@@ -415,22 +348,17 @@ class Games(commands.Cog):
     async def hunt(self, ctx):
         profile = GameProfile(ctx.author.id)
         loc = profile.location
-        if loc not in ["forest", "mountain", "desert"]:
-            for i in ["forest", "mountain", "desert"]:
-                if profile.places[i]:
-                    destination = i
-                    break
-            else:
-                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for hunting! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-            await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
-            
         drops = {
-            "Animals": 3,
-            "Foods": 1,
-            "Plants": 1,
+            "animals": 3,
+            "eatables": 1,
+            "plants": 1,
+            "minerals": 0.1
         }
 
         rewards = profile.reward_player(drops)
+        if not rewards:
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
+            
         em = Embed(title="Hunt",description=f"You went hunting in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
@@ -443,22 +371,16 @@ class Games(commands.Cog):
         """Goes chopping in the woods."""
         profile = GameProfile(ctx.author.id)
         loc = profile.location
-    
-        if loc not in ["forest", "mountain", "desert"]:
-            for i in ["forest", "mountain", "desert"]:
-                if profile.places[i]:
-                    destination = i
-                    break
-            else:
-                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for chopping 🪵! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-            await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
-            
         drops = {
-            "Foods": 0.1,
-            "Plants": 0.9
+            "eatables": 0.1,
+            "plants": 0.9,
+            "animals": 0.1
         }
 
         rewards = profile.reward_player(drops)
+        if not rewards:
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
+            
         em = Embed(title="Chopping",description=f"You went chopping in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Chop by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
@@ -466,18 +388,21 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
-    @at_the_location("home")
+    @at_the_location(["home", "farm"])
     @not_busy()
     async def farm(self, ctx):
         """Goes for cropping and harvesting the farmland."""
         profile = GameProfile(ctx.author.id)
         loc = profile.location
-
         drops = {
-            "Crops": 2
+            "crops": 2,
+            "eatables": 0.4
         }
 
         rewards = profile.reward_player(drops)
+        if not rewards:
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
+            
         em = Embed(title="Farm",description=f"You worked on the farm in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Farm by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar,)
         await ctx.reply(embed=em)
@@ -489,23 +414,17 @@ class Games(commands.Cog):
     async def mine(self, ctx):
         """Go for mining rare items in the caves."""
         profile = GameProfile(ctx.author.id)
-        loc = profile.location
-        
-        if loc not in ["forest", "mountain", "desert"]:
-            for i in ["forest", "mountain", "desert"]:
-                if profile.places[i]:
-                    destination = i
-                    break
-            else:
-                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for Mining ⛏️! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-            await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
-            
+        loc = profile.location   
         drops = {
-            "Weapons": 0.02,
-            "Minerals": 0.98
+            "weapons": 0.02,
+            "minerals": 0.98,
+            "assets": 0.03
         }
 
         rewards = profile.reward_player(drops)
+        if not rewards:
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
+            
         em = Embed(title="Mine",description=f"You went mining in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Mine by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
@@ -519,24 +438,17 @@ class Games(commands.Cog):
         """Catch fish directly from the river."""
         profile = GameProfile(ctx.author.id)
         loc = profile.location
-        
-        if loc not in ["river", "ocean"]:
-            for i in ["river", "ocean"]:
-                if profile.places[i]:
-                    destination = i
-                    break
-            else:
-                return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no places to go for Fishing 🎣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
-            await ctx.invoke(ctx.bot.get_command('travel'), place=destination)
-            
         drops = {
-            "Fish": 10,
-            "Tools": 1,
-            "Plants": 1,
-            "Weapons": 1,
+            "fish": 10,
+            "tools": 1,
+            "plants": 1,
+            "weapons": 1,
         }
 
         rewards = profile.reward_player(drops)
+        if not rewards:
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
+            
         em = Embed(title="Fish",description=f"You went fishing in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Fish by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar,)
         await ctx.reply(embed=em)
@@ -548,25 +460,20 @@ class Games(commands.Cog):
         """Adventure or find new places, results in exciting rewards."""
         profile = GameProfile(ctx.author.id)
         loc = profile.location
-        
-        new_loc = choice(["ocean","river","desert","mountain","forest"])
-
-        await profile.place_manager(ctx, new_loc)
-        if new_loc != loc:
-            await ctx.invoke(ctx.bot.get_command('travel'), place=new_loc)
-        
         drops = {
-            "Foods": 2,
-            "Plants": 1,
-            "Animals": 2,
-            "Tools": 1,
-            "Weapons": 0.5,
-            "Assets": 1,
-            "Vehicles": 0.2,
-            "Emotes": 0.1,
+            "eatables": 2,
+            "plants": 1,
+            "animals": 2,
+            "tools": 1,
+            "weapons": 0.5,
+            "assets": 1,
+            "vehicles": 0.2
         }
 
         rewards = profile.reward_player(drops)
+        if not rewards:
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
+            
         em = Embed(title="Adventure",description=f"You went on adventuring in the {new_loc.capitalize()} and got:\n{rewards}",color=Color.green())
         em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
         await ctx.reply(embed=em)
@@ -586,13 +493,13 @@ class Games(commands.Cog):
             await ctx.invoke(ctx.bot.get_command('travel'), place=new_loc)
         
         drops = {
-            "Foods": 1,
-            "Plants": 1,
-            "Animals": 1,
-            "Tools": 0.3,
-            "Weapons": 0.5,
-            "Assets": 0.2,
-            "Vehicles": 0.1,
+            "eatables": 1,
+            "plants": 1,
+            "animals": 1,
+            "tools": 0.3,
+            "weapons": 0.5,
+            "assets": 0.2,
+            "vehicles": 0.1,
         }
         
         msg = await ctx.reply("You started exploring in the woods for new locations. Wait until you discover something new")
@@ -710,10 +617,7 @@ class Games(commands.Cog):
         if item and item.lower() not in DATA["eatables"]:
             await ctx.send("Specify a food item to eat.")
             return
-        eatables = []
-        for food, amt in profile.foods.items():
-            if food in DATA["Eatables"]:
-                eatables[food] = amt
+        eatables = profile.eatables
         em = Embed(title="Eat Foods", description= f"Health: **{profile.health}** Hunger: **{profile.hunger}**", color = Color.green())
         em.set_footer(text=f"Eat by {ctx.author.display_name} {timestamp(ctx)}")
         view = View(timeout=45)
@@ -723,15 +627,14 @@ class Games(commands.Cog):
                 child.disabled = True
             await msg.edit(embed=em, view=view)
         view.on_timeout = timeout
-        eatables= eatables[:25]
         def update():
             nonlocal em, view, on_eat
             em.description = f"Health: **{profile.health}** Hunger: **{profile.hunger}**"
             view.clear_items()
             if not eatables:
                 em.description += "\nYou have nothing to eat"
-            for food, amt in eatables.items():
-                btn = Button(label= f"{DATA['id'][food]} x {amt}", style=ButtonStyle.blurple, custom_id= f"{food}_{amt}") 
+            for food in list(eatables.keys())[:25]:
+                btn = Button(label= f"{GAME['id'][food]['emoji']} x {eatables[food]}", style=ButtonStyle.blurple, custom_id= f"{food}_{eatables[food]}") 
                 btn.callback = on_eat
                 view.add_item(btn)
         
