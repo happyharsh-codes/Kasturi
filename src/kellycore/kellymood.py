@@ -63,7 +63,7 @@ class KellyMood:
     def moodSwing(self):
         initial_mood = self.getMood()
         for mood in self.mood:
-            self.mood[mood] -= randint(1, 8)
+            self.mood[mood] -= randint(1, 7)
             if self.mood[mood] < 0:
                 self.mood[mood] = randint(91,100)
         final_mood = self.getMood()
