@@ -47,7 +47,7 @@ class Kelly:
         if not self.commands:
             self.commands = {command.name: list(command.clean_params.keys()) for command in self.client.commands}
         prompt_command = f"""You are a Discord command classifier. Return ONLY JSON: {{ "command": "<name or null>" }}\nPick COMMAND from: {list(self.commands.keys())}\nReturn null unless the bot clearly agrees to perform or schedule an action. No params. No text. No guessing."""
-        raw_result = getResponse(message.content, prompt_command)
+        raw_result = getResponse(message, prompt_command)
         try:
             raw_result = raw_result.strip().lower()
             if raw_result.startswith("{"):
@@ -65,7 +65,7 @@ class Kelly:
         if not self.commands[command_name]:
             return command_name, {}
         prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {command_name}\nRequired parameters and types: {self.commands[command_name]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
-        raw_result = getResponse(message.content, prompt)
+        raw_result = getResponse(message, prompt)
         try:
             raw_result = raw_result.strip().lower()
             if raw_result.startswith("{"):
