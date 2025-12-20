@@ -79,13 +79,13 @@ class Ayasaka:
             self.busy.addSchedules(user_id=message.author.id, command_name=command[0], params=command[1], message_id=message.id, channel_id=message.channel.id, priority=1)
             
     async def ayasakaQueueTask(self, message, command):
+        if not command:
+            return
         prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot with lively attitude and sass. Ayasaka is gorgeous, flirting, sexy assistant. Generate small Response with emojis. Inform User that you have added task in Kelly's schedules. Chat with user, flirt or simp and drive user away as its your only chance to make a move if needed or stay unamused."
         response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
         await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
-        command = await self.kelly.search_commands(message)
-        if command:
-            self.busy.addSchedules(user_id=message.author.id, command_name=command[0], params=command[1], message_id=message.id, channel_id=message.channel.id, priority=1)
+        self.busy.addSchedules(user_id=message.author.id, command_name=command[0], params=command[1], message_id=message.id, channel_id=message.channel.id, priority=1)
             
     def ayasakaEmojify(self, message):
         return message
