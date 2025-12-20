@@ -64,7 +64,7 @@ class KellyMood:
     def moodSwing(self):
         initial_mood = self.getMood()
         for mood in self.mood:
-            if mood in ["mischievous", "lazy", "sad", "depressed", "angry", "annoyed"] and randint(1,2) != 3:
+            if mood in ["sad", "depressed", "angry", "annoyed"] and randint(1,2) != 2:
                 continue
             self.mood[mood] -= randint(1, 7)
             if self.mood[mood] < 0:
