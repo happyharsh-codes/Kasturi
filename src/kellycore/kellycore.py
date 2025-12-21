@@ -45,7 +45,7 @@ class Kelly:
             pass
         print("".join(traceback.format_exception(etype, value, tb)))
 
-    def get_command_params(command, message):
+    def get_command_params(self, command, message):
         params = {}
         content = message.content
         if "member" in command.clean_params or "user" in command.clean_params:
