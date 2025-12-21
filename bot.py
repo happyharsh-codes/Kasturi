@@ -228,46 +228,39 @@ class Bot:
             mood = self.kelly.mood.moodSwing()
 
             #Timer Message
+            reply = None
             if randint(1,7) == 3:
                 text = "Kelly got to revive the ded chat"
                 prompt = "Roleplay Kelly, a cute Discord Mod (human like with mood and sass). Generate response activating ded chat in 20 words with 1-4 emojis"
                 loop = asyncio.get_event_loop()
                 response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
                 reply = self.kelly.kellyEmojify(response)
-                
-                for gid, settings in Server_Settings:
-                    if not settings["timer_messages"]:
-                        continue
-                    for channel_id in settings["activated_channels"]:
-                        channel = self.client.get_channel(channel_id)
-                        if not channel:
-                            try:
-                                channel = self.client.fetch_channel(channel_id)
-                            except:
-                                continue
-                        await channel.send(reply)
-            
+
+            mood_shift = None
+            action = {"happy": "-# Kelly is so haply now 😃","sleepy": "-# Kelly is sleeping 😴","depressed": "-# Kelly is depressed 😔","angry": "-# Kelly is angry 😡","annoyed": "-# Kelly is very annoyed right now 😣","lazy": "-# Kelly is too lazy to respond now 😪","sad": "-# Kelly is so sad right now 😭","mischievous": "-# Kelly is feeling a little mischievous 😉", "woke_up": "-# Kelly just woke up 🤤", "went_to_sleep": "-# Kelly is sleeping now 🛏️"} 
             if mood[0] != mood[1]:
                 prev_mood = mood[1]
                 new_mood = mood[0]
-                action = {"happy": "-# Kelly is so haply now 😃","sleepy": "-# Kelly is sleeping 😴","depressed": "-# Kelly is depressed 😔","angry": "-# Kelly is angry 😡","annoyed": "-# Kelly is very annoyed right now 😣","lazy": "-# Kelly is too lazy to respond now 😪","sad": "-# Kelly is so sad right now 😭","mischievous": "-# Kelly is feeling a little mischievous 😉"}
                 if prev_mood == "sleepy":
                     mood_shift = "woke_up"
                 elif new_mood == "sleepy":
                     mood_shift = "went_to_sleep"
                 else:
                     mood_shift = new_mood
-                for channel_id in Kelly_Last:
-                    channel = self.client.get_channel(channel_id)
-                    if not channel:
-                        try:
-                            channel = self.client.fetch_channel(channel_id)
-                        except:
-                            continue
-                    await channel.send(action[new_mood], delete_after=150)
+                mood_shift = action[mood_shift]
+            for gid, settings in Server_Settings:
+                channel = self.client.get_channel(settings["last_channel"])
+                if not channel:
+                    try:
+                        channel = self.client.fetch_channel(settings["last_channel"])
+                    except:
+                        continue
+                if settings["timer_messages"] and reply:
+                    await channel.send(reply)
+                if mood_shift:
+                    await channe.send(f"-# {action[mood_shift]}")
                     await channel.send(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150)
-            
-                
+        
         except Exception as e:
             etype, value, tb = sys.exc_info()
             full_error = ''.join(traceback.format_exception(etype, value, tb))
@@ -554,7 +547,7 @@ class Bot:
         for member in guild.members:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
                 moderators.append(member.id)
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"last_message": 0, "social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
         if invite:
             Guild_Invites[str(guild.id)] = invite.code
     
@@ -900,6 +893,8 @@ class Bot:
     async def on_member_unban(self, guild, user):
         try:
             invite_link = Server_Settings[str(guild.id)]["invite_link"]
+            if invite_link != "N\A":
+                invite_link = f"https://discord.gg/{invite_link}"
         except Exception:
             invite_link = None
         em = Embed(
@@ -1012,6 +1007,7 @@ class Bot:
             if word in content:
                 try:
                     await message.delete()
+                    await message.channel.send(f"{message.author.mention} Watch your language. {kemoji()}", delete_after=5)
                 except:
                     print("No delete message perms")
                 break
@@ -1082,13 +1078,15 @@ class Bot:
                     if original.embeds:
                         return #Only reply to chats not to system messages
                     await self.kelly.kellyQuery(message)
+                    Server_Settings[str(guild.id)]["last_message"] = channel.id
                     return
             except discord.NotFound:
                 return # original message not found (maybe deleted)
                  
         # Otherwise, only handle messages with valid prefixes
         if content.startswith(("kasturi ", "kelly ", "k ")):
-            
+            Server_Settings[str(guild.id)]["last_message"] = channel.id
+                    
             #Cheking for Administrator Permission given or not
             bot_member = message.guild.me
             if not Server_Settings[str(message.guild.id)]["premium"] and not bot_member.guild_permissions.administrator:
@@ -1106,10 +1104,13 @@ class Bot:
             await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
             await self.kelly.kellyQuery(message)
+            Server_Settings[str(guild.id)]["last_message"] = channel.id
         elif "giyu" in content:
             await self.kelly.giyu.giyuTalk(message)
+            Server_Settings[str(guild.id)]["last_message"] = channel.id
         elif "ayasaka" in content:
             await self.kelly.ayasaka.ayasakaTalk(message)
+            Server_Settings[str(guild.id)]["last_message"] = channel.id
         if randint(1,100) == 51:
             await message.channel.send(f"-# Latency:  {(time.time() - start)} {kemoji()}")
         return
