@@ -324,7 +324,7 @@ def timestamp(ctx):
         tz = pytz.utc
 
     now = datetime.now(tz)
-    formatted = now.strftime("%d %B %Y — %I:%M %p")
+    formatted = now.strftime("%d %b %H:%M")
 
     return formatted
     
