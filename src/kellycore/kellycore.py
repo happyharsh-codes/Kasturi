@@ -562,7 +562,7 @@ class Kelly:
 
     async def thinkBanAction(self, message):
         """Bot thinks of punishing the user when respect is low."""
-        roll = random.randint(1, 100)
+        roll = randint(1, 100)
         if message.author.id in Database["friends"]:
             self.memory.removeFriend(message.author.id)
             
