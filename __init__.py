@@ -36,7 +36,8 @@ from pymongo import MongoClient
 from collections.abc import MutableMapping
 
 from PIL import Image, ImageDraw, ImageFont
-import imageio
+from io import BytesIO
+import imageio.v2 as imageio
 import subprocess
 import hashlib
 
@@ -442,6 +443,7 @@ def generate_travel_gif(
         output_name="travel.gif"
     ):
 
+    gif_buffer = BytesIO()
     # --- UI Canvas & Style --- #
     WIDTH, HEIGHT = 820, 260
     FPS = 10  # default smoothness
@@ -460,7 +462,7 @@ def generate_travel_gif(
         total_frames = int(travel_seconds * FPS)
 
     # ================= GIF WRITER ================= #
-    writer = imageio.get_writer(output_name, fps=FPS)
+    writer = imageio.get_writer(gif_buffer, format="GIF", mode="I", fps=FPS)
 
     # ================= FRAME GENERATION ================= #
     for frame in range(total_frames):
@@ -516,11 +518,11 @@ def generate_travel_gif(
                       fill=(r, g, b), width=3)
 
         # ---------- MOVING DOT MARKER ---------- #
-        dot_x = fill_x
+        '''dot_x = fill_x
         draw.ellipse((dot_x - 32, bar_y - 32, dot_x + 32, bar_y + 32),fill="#00E3FF")
         draw.text((WIDTH//2, bar_y-bar_height*1.5),
               f"{int((covered/distance_km)*100)}%",
-              font=load_font(32), fill="#9EB4CC")
+              font=load_font(32), fill="#9EB4CC")'''
 
         # ---------- TEXT BELOW BAR ---------- #
         
@@ -529,6 +531,7 @@ def generate_travel_gif(
         writer.append_data(img)
 
     writer.close()
-    print(f"\n🎉 Travel GIF Created Successfully → {output_name}\n")
-
+    gif_buffer.seek(0)
+    return gif_buffer
+    
 print("__init__ was runned")
