@@ -519,7 +519,7 @@ class Bot:
         em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
 
-        invite = "N/A"
+        invite = None
         for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
             if any(x in channel.name.lower() for x in ("general","chat","chill")):
                 await channel.send("@everyone", embed= em, view=view)
@@ -536,16 +536,15 @@ class Bot:
                     break
         except:
             pass
-        if invite == "N\A":
+        if not invite:
             for channel in guild.text_channels:
                 try:
                     invite = await channel.create_invite(max_age=0, max_uses=0)
-                    invite = f"https://discord.gg/{str(invite.code)}"
                     break
                 except:
                     continue
-                
-        msg = discord.Embed(title=f"Kelly Joined {guild.name}",description=guild.description if guild.description else "No description", color=discord.Color.green(),url=invite)
+        invite_link = f"https://discord.gg/{str(invite.code)}" if invite else None                
+        msg = discord.Embed(title=f"Kelly Joined {guild.name}",description=guild.description if guild.description else "No description", color=discord.Color.green(),url=invite_link)
         if guild.icon:
             msg.set_thumbnail(url=guild.icon.url)
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M')}", icon_url= self.client.user.avatar)
@@ -555,9 +554,9 @@ class Bot:
         for member in guild.members:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
                 moderators.append(member.id)
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite,"owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
-        if invite != "N/A":
-            Guild_Invites[str(guild.id)] = invite 
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
+        if invite:
+            Guild_Invites[str(guild.id)] = invite.code
     
     async def on_guild_remove(self, guild: discord.Guild):
         banned_by = None
@@ -572,21 +571,20 @@ class Bot:
             pass
         me = self.client.get_user(894072003533877279)
         invite = Server_Settings[str(guild.id)]["invite_link"]
-        if invite == "N/A" and Guild_Invites[str(guild.id)]:
-            invite = Guild_Invites[str(guild.id)]
-            invite = f"https://discord.gg/{invite}"
-            del Guild_Invites[str(guild.id)]
         em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}")
         if banned_by:
             em.add_field(name="Banned By", value=f"{banned_by} ({banned_by.id})")
         else:
             em.add_field(name="Reason", value="Bot was kicked or server deleted")
-        em.add_field(name="Invite Link", value=invite)
-        em.set_thumbnail(url=guild.icon)
-        if invite != "N/A":
-            await me.send(invite, embed=em)
+        if invite == "N/A" and Guild_Invites[str(guild.id)]:
+            invite = Guild_Invites[str(guild.id)]
+            invite = f"https://discord.gg/{invite}"
+            del Guild_Invites[str(guild.id)]
+            em.add_field(name="Invite Link", value=invite)
         else:
-            await me.send(embed=em)
+            em.add_fielf(name="Invite Link", value="N\A")
+        em.set_thumbnail(url=guild.icon)
+        await me.send(embed=em)
         del Server_Settings[str(guild.id)]
         
     async def on_guild_update(self, before, after):
