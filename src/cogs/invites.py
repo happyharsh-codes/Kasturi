@@ -17,7 +17,7 @@ class Invites_Tracker(commands.Cog):
         invited_ids = []
         for invite in await ctx.guild.invites():
             if invite.inviter.id == ctx.author.id:
-                invited_ids.extend(invites.get(str(invite.code)), [])
+                invited_ids.extend(invites.get(str(invite.code), []))
         
         if not invited_ids:
             em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: 0\n**Invitees**: N\A", color = Color.purple())
