@@ -54,14 +54,14 @@ class Games(commands.Cog):
     @has_profile()
     async def inv(self, ctx):
         """View categorized inventory."""
-        categories = ["eatables", "animals", "plants", "asets", "tools", "weapons", "vehicles", "minerals", "builds"]
+        categories = ["eatables", "animals", "plants", "assets", "tools", "weapons", "vehicles", "minerals", "builds"]
         profile = GameProfile(ctx.author.id)
 
         em = action_embed(f"{ctx.author.display_name}'s Inventory","",Color.green(),f"Inv by {ctx.author.name}",ctx.author.avatar)
 
         def update(selected_category):
             nonlocal em, profile
-            descrip = ""
+            descrip = f"**{selected_category.title()}**"
             items = profile.get(selected_category, {})
     
             for item_key, val in items.items():
@@ -69,7 +69,7 @@ class Games(commands.Cog):
                 descrip += f"`{emoji} {val}` "
                 
             if not descrip:
-                descrip = "`No items in this category`"
+                descrip += "`No items in this category`"
             em.description = descrip
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i.title(), value=i) for i in categories],max_values=1,min_values=1)
         
@@ -562,8 +562,6 @@ class Games(commands.Cog):
         #return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
 
         place_select = Select(custom_id="places",placeholder="Select Location to go",options=[SelectOption(label=i.replace('_', ' ').title(), value=i) for i in places],max_values=1,min_values=1,)
-        if profile.location != "home":
-            place_select.options.append(SelectOption(label="Home", value="home"))
         em = Embed(title="Travel",description="Select the location in menu where you want to go then confirm.",color=Color.green())
         view = View(timeout=45)
         async def timeout():
