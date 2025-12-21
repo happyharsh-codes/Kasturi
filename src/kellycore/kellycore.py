@@ -48,8 +48,10 @@ class Kelly:
     def get_command_params(self, command, message):
         params = {}
         content = message.content
-        if "member" in command.clean_params or "user" in command.clean_params:
+        if "member" in command.clean_params:
             params["member"] = message.mentions[0] if message.mentions else message.author
+        if "user" in command.clean_params:
+            params["user"] = message.mentions[0] if message.mentions else message.author
         if "channel" in command.clean_params:
             params["channel"] = message.channel_mentions[0] if message.channel_mentions else message.channel
         if "role" in command.clean_params:
@@ -299,7 +301,7 @@ class Kelly:
             #------5. Performing Task/Command Now------#
             command = None
             for cmd in self.client.commands:
-                if cmd.name in message.content or any(alias in message.content for alias in cmd.aliases):
+                if cmd.name in message.content:
                     command = cmd.name
                     params = self.get_command_params(cmd, message)
                     if "execution" in result and result["execution"] == "now":
