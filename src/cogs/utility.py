@@ -849,8 +849,7 @@ class Utility(commands.Cog):
             selected_values = interaction.data.get("values",[])
             for val in selected_values:
                 for option in channel_select.options:
-                  if option.value == val:
-                    option.default = True
+                    option.default = option.value in selected_values
             await interaction.response.edit_message(view=view)
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
@@ -862,8 +861,7 @@ class Utility(commands.Cog):
             selected_values = interaction.data["values"]
             for val in selected_values:
                 for option in channel_select2.options:
-                    if option.value == val:
-                        option.default = True
+                    option.default = option.val in selected_values
             await interaction.response.defer()
         
         go_left.callback = go_callback
