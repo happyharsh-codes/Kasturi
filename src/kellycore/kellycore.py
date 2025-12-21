@@ -42,6 +42,23 @@ class Kelly:
             pass
         print("".join(traceback.format_exception(etype, value, tb)))
 
+    def get_command_params(command, message):
+        params = {}
+        for param, parameter in command.clean_params.items():
+            if param == "member" or param == "user":
+                params[param] = message.mentions[0] if message.mentions else message.author
+            elif param == "channel":
+                params[param] = message.channel_mentions[0] if message.channel_mentions else message.channel
+            elif param == "role":
+                params[param] = message.role_mentions[0]
+            elif param == "reason":
+                pass
+            elif param in ["minutes", "amount", "seconds"]:
+                params[param] = int(list(filter( str.isdigit ,message.content.split()))[0])
+            else:
+                pass
+        return params
+                
     async def search_commands(self, message):
         start = time.time()
         if not self.commands:
@@ -251,7 +268,7 @@ class Kelly:
             current_status = {"respect": relation,"mood": mood, "persona": persona}
             if not self.commands:
                 self.commands = {command.name: list(command.clean_params.keys()) for command in self.client.commands}
-            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nAvailable commands:{list(self.commands.keys())}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-10 to +10)\nmood_shift: happy|sad|depressed|angry|annoyed|lazy|sleepy|mischievous|none\npersonality_shift: {{trait:int}} or {{}}\ninfo: one line about user behaviour\ncommand: command_name or null\nexecution: now|later|deny (extract from chat)"""
+            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-10 to +10)\nmood_shift: happy|sad|depressed|angry|annoyed|lazy|sleepy|mischievous|none\npersonality_shift: {{trait:int}} or {{}}\ninfo: one line about user behaviour\ncommand: command_name or null\nexecution: now|later|deny (extract from chat)"""
             raw_result = getResponse(f"{usermessage}\nKelly: {kelly_reply}", prompt2)
             try:
                 raw_result = raw_result.strip().lower()
@@ -267,30 +284,16 @@ class Kelly:
                 result = {"respect_delta": 0, "mood_shift": "happy", "personality_shift": {}, "info": "", "command": None}
 
             #------5. Performing Task/Command Now------#
-            if "command" in result and result["command"] and result["command"] != "null" and result["command"] != "none":
-                if not self.commands[result["command"]]:
-                    if result["execution"] == "now":
-                        await self.runCommand(message, result["command"], {})
-                    elif result["execution"] == "later":
-                        await self.kelly.ayasakaQueueTask(message, result["command"], {})
-                else:
-                    prompt = f"""You are extracting parameters for a Discord command.\nCommand name: {result["command"]}\nRequired parameters and types: {self.commands[result["command"]]}\nRules:\n- Output ONLY valid JSON\n- Use ONLY the listed parameters\n- Do NOT invent parameters\n- If a value is missing or unknown, set it to null\n- Do NOT guess Discord IDs\n- Do NOT add explanations\nOutput format:\n{{ "<param1>": <value1 or null> }}"""
-                    raw_result = getResponse("", prompt)
-                try:
-                    raw_result = raw_result.strip().lower()
-                    if raw_result.startswith("{"):
-                        params = loads(raw_result)
-                    elif raw_result.startswith("```"):
-                        block = raw_result.split("```")[1]
-                        params = loads(block.replace("json",""))
-                    else:
-                        params = loads(raw_result)
-                    if result["execution"] == "now":
-                        await self.runCommand(message, result["command"], params)
-                    elif result["execution"] == "later":
+            command = None
+            for cmd in self.client.commands:
+                if cmd.name in messgae.content or any(alias in message.content for alias in cmd.aliases):
+                    command = cmd.name
+                    params = self.kelly.get_command_params(cmd, message)
+                    if "execution" in result and result["execution"] == "now":
+                        await self.runCommand(message, result["command"], self.get_command_params()
+                    elif "execution" in result and result["execution"] == "later":
                         await self.kelly.ayasakaQueueTask(message, result["command"], params)
-                except:
-                    pass
+                    break
                 
             #-----Updating Kelly Now-----#
             self.mood.modifyMood({"sleepy": randint(1,7)})
