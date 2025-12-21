@@ -13,7 +13,7 @@ class Bot:
         self.me = None
     # ------------- INTERNAL HELPERS -------------
 
-    async def send_log(self, guild: Guild, embed: discord.Embed):
+    async def send_log(self, guild: Guild, embed: discord.Embed, delete_after=None):
         """Send an embed to the guild's log channel if logging is enabled."""
         channel_id = Server_Settings[str(guild.id)]["logging"]
         if not channel_id:
@@ -25,7 +25,7 @@ class Bot:
             except:
                 return
         try:
-            await channel.send(embed=embed)
+            await channel.send(embed=embed, delete_after=delete_after)
         except Exception:
             pass
 
@@ -1131,7 +1131,14 @@ class Bot:
         em.add_field(name="Before", value=before.content[:1024] or "*(empty)*", inline=False)
         em.add_field(name="After", value=after.content[:1024] or "*(empty)*", inline=False)
         await self.send_log(guild, em)
-
+        automod = Server_Settings[str(guild.id)]["automod"]
+        if automod.get("emoji_spam"): await self.emoji_spam(message, automod.get("emoji_spam"))
+        if automod.get("mass_mention_block"): await self.mass_mention_block(message, automod.get("mass_mention_block"))
+        if automod.get("caps_block"): await self.caps_block(message)
+        if automod.get("link_filter"): await self.link_filter(message, automod.get("link_filter"))
+        if automod.get("nsfw_filter"): await self.nsfw_filter(message)
+        await self.kelly.giyu.giyuFilter(message)
+            
     async def on_message_delete(self, message):
         if message.author.bot:
             return
@@ -1144,7 +1151,7 @@ class Bot:
             color=Color.red()
         )
         em.add_field(name="Content", value=message.content[:1024] or "*(empty)*", inline=False)
-        await self.send_log(guild, em)
+        await self.send_log(guild, em, delete_after=100)
 
     async def on_bulk_message_delete(self, messages):
         if not messages:
@@ -1157,7 +1164,7 @@ class Bot:
             description=f"{len(messages)} messages were deleted in {messages[0].channel.mention}.",
             color=Color.red()
         )
-        await self.send_log(guild, em)
+        await self.send_log(guild, em, delete_after=100)
 
     async def on_poll_vote_add(self, user, answer):
         guild = answer.poll.message.guild
@@ -1166,7 +1173,7 @@ class Bot:
             description=f"{user.mention} voted on poll `{answer.poll.question}`.",
             color=Color.green()
         )
-        await self.send_log(guild, em)
+        await self.send_log(guild, em, delete_after=100)
         
     async def on_poll_vote_remove(self, user, answer):
         guild = answer.poll.message.guild
@@ -1175,7 +1182,7 @@ class Bot:
             description=f"{user.mention} removed vote on poll `{answer.poll.question}`.",
             color=Color.yellow()
         )
-        await self.send_log(guild, em)
+        await self.send_log(guild, em, delete_after=100)
 
     async def on_reaction_add(self, reaction, user):
         if user.bot:
@@ -1188,7 +1195,7 @@ class Bot:
             description=f"User: {user.mention}\nEmoji: {reaction.emoji}\nChannel: {reaction.message.channel.mention}",
             color=Color.green()
         )
-        await self.send_log(guild, em)
+        await self.send_log(guild, em, delete_after=100)
 
     async def on_reaction_remove(self, reaction, user):
         if user.bot:
@@ -1201,7 +1208,7 @@ class Bot:
             description=f"User: {user.mention}\nEmoji: {reaction.emoji}\nChannel: {reaction.message.channel.mention}",
             color=Color.yellow()
         )
-        await self.send_log(guild, em)
+        await self.send_log(guild, em, delete_after=100)
 
     async def on_guild_role_create(self, role):
         guild = role.guild
