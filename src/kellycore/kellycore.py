@@ -322,9 +322,9 @@ class Kelly:
             if "respect_delta" in result:
                 rel = self.memory.modifyUserRelation(message.author.id, result["respect_delta"])
                 if rel == "friend":
-                    await self.thinkFriendAction(message, prompt)
+                    await self.thinkFriendAction(message)
                 elif rel == "ban":
-                    await self.thinkBanAction(message, prompt)
+                    await self.thinkBanAction(message)
             
         except Exception as error:
             await self.reportError(error)
