@@ -247,8 +247,8 @@ class Bot:
                     mood_shift = "went_to_sleep"
                 else:
                     mood_shift = new_mood
-                mood_shift = action[mood_shift]
-            for gid, settings in Server_Settings:
+    
+            for gid, settings in Server_Settings.items():
                 channel = self.client.get_channel(settings["last_channel"])
                 if not channel:
                     try:
@@ -258,7 +258,7 @@ class Bot:
                 if settings["timer_messages"] and reply:
                     await channel.send(reply)
                 if mood_shift:
-                    await channe.send(f"-# {action[mood_shift]}")
+                    await channel.send(action[mood_shift])
                     await channel.send(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150)
         
         except Exception as e:
