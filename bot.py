@@ -763,7 +763,7 @@ class Bot:
                 await channel.send(embed=em)
             except:
                 print("No perms allowed")
-        for invite, people in Server_Setting[str(member.guild.id)]["invites"]:
+        for invite, people in Server_Settings[str(member.guild.id)]["invites"]:
             if member.id in people:
                 Server_Settings[str(member.guild.id)]["invites"][invite].remove(member.id)
                 break
