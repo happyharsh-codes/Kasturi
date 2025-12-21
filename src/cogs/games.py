@@ -486,12 +486,8 @@ class Games(commands.Cog):
         """Explores a new place each time. A bit dangerous, consumes more energy and food."""
         profile = GameProfile(ctx.author.id)
         loc = profile.location
-        new_loc = choice(["ocean","river","desert","mountain","forest"])
-
-        await profile.place_manager(ctx, new_loc)
-        if new_loc != loc:
-            await ctx.invoke(ctx.bot.get_command('travel'), place=new_loc)
-        
+        places = GAME["places"]
+        new_place = weighted_choice(list(places.items()))
         drops = {
             "eatables": 1,
             "plants": 1,
@@ -502,8 +498,29 @@ class Games(commands.Cog):
             "vehicles": 0.1,
         }
         
-        msg = await ctx.reply("You started exploring in the woods for new locations. Wait until you discover something new")
-        profile.add_task("exploring", randint(1200, 3600), msg.channel.id, msg.id, drops = drops, place = new_loc)
+        if not profile.places or new_place in profile.places:
+            explore_time = randint(1,20)
+            em = Embed(title="Exploration",description=f"You started your adventurous exploration. Wait until you find something amazing.", color = Color.green())
+            em.set_image(url="attachment://travel.gif")
+            gif = discord.File("travel.gif")
+            profile.location = "exploring"
+            profile.activity = "exploring"
+            await ctx.send(file=gif, embed=em)
+            await asyncio.sleep(explore_time)
+            profile.location = new_loc
+            profile.activity = "sleeping"
+            rewards = profile.reward_player(drops)  
+            em = Embed(title="Explore",description=f"You explored around {new_place.capitalize()} and got:\n{rewards}",color=Color.green())  
+            profile.place_manager(new_place)
+            em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)  
+            return await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`.", embed=em)
+            
+        explore_time = randint(1000,3000)
+        em = Embed(title="Exploration",description=f"You started your adventurous exploration. Wait until you find something amazing.", color = Color.green())
+        em.set_image(url="attachment://travel.gif")
+        gif = discord.File("travel.gif")
+        msg = await ctx.send(file=gif, embed=em)
+        profile.add_task("exploring", explore_time, msg.channel.id, msg.id, drops = drops, place = new_loc)
         profile.activity = "exploring"
         profile.location = "exploring"
 
@@ -521,13 +538,14 @@ class Games(commands.Cog):
         if location != "home":
             places.append("home")
         if not places:
-            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k adventure` & `k explore` first.",color=Color.blue()))
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have no place to go 🤣! Discover new locations using `k explore` first.",color=Color.blue()))
         if place:
-            loc = place.replace("_"," ").lower()
+            loc = place.replace(" ","_").lower()
             if loc not in places:
                 return await ctx.send("Invalid Place given")
             travel_time = randint(1,20)
-            em = Embed(title="Travel",description=f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination.", color = Color.green())
+            generate_travel_gif(profile.location.replace("_"," ").title(), place.title(), travel_time, 1, "km")
+            em = Embed(title="Travel",description=f"You started your journey to the {place.title()}. Wait until you reach the destination.", color = Color.green())
             em.set_image(url="attachment://travel.gif")
             gif = discord.File("travel.gif")
             
@@ -538,7 +556,7 @@ class Games(commands.Cog):
             await asyncio.sleep(travel_time)
             profile.location = loc
             profile.activity = "sleeping"
-            return await ctx.send(f"{ctx.author.mention} you have reached {loc.title()}")
+            return await ctx.send(f"{ctx.author.mention} you have reached {place.title()}")
                 
         go_btn = Button(style=ButtonStyle.green, custom_id="go", label="🏃 Go", disabled=True)
         #return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
