@@ -51,38 +51,29 @@ def weighted_choice(choices: list):
     return choices[-1][0]
 
 def rewards_descrip(rewards):
-    level1 = "<:common:> "
-    level2 = "<:unique:> "
-    level3 = "<:rare:> "
-    level4 = "<:epic:> "
-    level5 = "<:legendary:> "
-    random.shuffle(rewards)
-    for category, item_key, qty, level in rewards:
-        emoji = DATA["id"].get(item_key, "")
-        if level == "Level1":
-            level1 += emoji * qty
-        elif level == "Level2":
-            level2 += emoji * qty
-        elif level == "Level3":
-            level3 += emoji * qty
-        elif level == "Level4":
-            level4 += emoji * qty
-        elif level == "Level5":
-            level5 += emoji * qty
+    buckets = {1: [], 2: [], 3: [], 4: [], 5: []}
+    for item, qty in rewards:
+        data = GAME["id"][item]
+        emoji = data["emoji"]
+        level = data["level"]
+        buckets[level].extend([emoji] * qty)
+    for level in buckets:
+        random.shuffle(buckets[level])
 
-    description = ""
-    if level1 != "<:common:> ":
-        description += f"{level1}\n"
-    if level2 != "<:unique:> ":
-        description += f"{level2}\n"
-    if level3 != "<:rare:> ":
-        description += f"{level3}\n"
-    if level4 != "<:epic:> ":
-        description += f"{level4}\n"
-    if level5 != "<:legendary:> ":
-        description += f"{level5}"
-    return description.strip()
+    lines = []
+    if buckets[1]:
+        lines.append("<:common:>: " + "".join(buckets["Level1"]))
+    if buckets[2]:
+        lines.append("<:unique:>: " + "".join(buckets["Level2"]))
+    if buckets[3]:
+        lines.append("<:rare:>: " + "".join(buckets["Level3"]))
+    if buckets[4]:
+        lines.append("<:epic:>: " + "".join(buckets["Level4"]))
+    if buckets[5]:
+        lines.append("<:legendary:>: " + "".join(buckets["Level5"]))
 
+    return "\n".join(lines)
+    
 async def perform_task(task, uid, client):
     profile = GameProfile(uid)
     channel = client.get_channel(task["channel"])
