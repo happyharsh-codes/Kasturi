@@ -763,7 +763,7 @@ class Bot:
                 await channel.send(embed=em)
             except:
                 print("No perms allowed")
-        for invite, people in Server_Settings[str(member.guild.id)]["invites"]:
+        for invite, people in Server_Settings[str(member.guild.id)]["invites"].items():
             if member.id in people:
                 Server_Settings[str(member.guild.id)]["invites"][invite].remove(member.id)
                 break
@@ -852,7 +852,7 @@ class Bot:
                 member = self.member
                 msg = self.msg
                 last_words = self.input_box.value
-                owner = self.client.get_user(msg.guild.owner_id)
+                owner = interaction.client.get_user(msg.guild.owner_id)
                 em = Embed(title = f"{member.display_name} | {member.name} | {member.id} - \nSays their Last Words After getting Banned.", description= f"```{last_words}```", color = Color.blue())
                 em.set_thumbnail(url=member.avatar)
                 em.set_footer(text= "If you think this was a mistake then please ignore.")
