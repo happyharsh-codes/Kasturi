@@ -183,32 +183,42 @@ class Giyu:
             if "Moderator" in type and randint (1,5) == 1:
                 return True
             command = None
-            if not any(cmd in message.content or any(alias in message.content for alias in cmd.aliases) for cmd in self.kelly.commands):
+            for cmd in self.client.commands:
+                if cmd.name in messgae.content or any(alias in message.content for alias in cmd.aliases):
+                    command = cmd.name
+                    params = self.kelly.get_command_params(cmd, message)
+                    break
+            else:
                 await self.giyusend(message.channel, self.giyuEmojify(choice(DATA["giyu_responses"]["kelly_sleeping"])), message.author.id)
                 return False
-            prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is currently sleeping\nGenerate Your Response in 20 words with emojis. Inform user about Kelly's state. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule."
+            
+            prompt = f"""You are Giyu (Kelly's guard).Kelly is sleeping, shoo away incoming user. If user insists then only you schedule user task by asking Ayasaka(Kelly's assistant).Return response short, firm < 30 words with emojis."""
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
             self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
-            command = await self.kelly.search_commands(f"User: {message.content}, Bot: {response}")
-            if command:
-                await self.kelly.ayasaka.ayasakaQueueTask(message, command)
+            if "ayasaka" in response.lower() and command:
+              await self.kelly.ayasaka.ayasakaQueueTask(message, command, params)
             return False
 
         #Finally Let talk with Kelly 🤣 
         return True
 
     async def giyuTalk(self, message):
-        prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate Your Response in 20 words with emojis. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule when user insists repeatedly. Keep stern face and provide user with all help function and rules and regulations and details."
+        command = None
+        for cmd in self.client.commands:
+            if cmd.name in messgae.content or any(alias in message.content for alias in cmd.aliases):
+                command = cmd.name
+                params = self.kelly.get_command_params(cmd, message)
+                break
+            
+        prompt = f"""You are Giyu (Kelly's guard). User talks to you instead of Kelly, provide all details and info. If user insists then only you schedule user task by asking Ayasaka(Kelly's assistant). Return response short, firm < 30 words with emojis."""
         response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
         await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
-        if not any(cmd.name in message.content or any(alias in message.content for alias in cmd.aliases) for cmd in self.kelly.commands):
-            return
-        command = await self.kelly.search_commands(f"User: {message.content}, Bot: {response}")
-        if command:
-            await self.kelly.ayasaka.ayasakaQueueTask(message, command)
-                
+        if "ayasaka" in response.lower() and command:
+            await self.kelly.ayasaka.ayasakaQueueTask(message, command, params)
+        return False
+        
     def giyuEmojify(self, message):
         emoji_exchanger = {
             "😫": "giyutedio",
