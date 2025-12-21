@@ -60,7 +60,7 @@ class MongoNestedDict(MutableMapping):
         self.root = root if root else self
         self._data = data if data is not None else {}
         self.default = default
-        self._last_hast = None
+        self._last_hash = None
         self._last_sync = 0
         
     # ---------- Hash Database ----------
