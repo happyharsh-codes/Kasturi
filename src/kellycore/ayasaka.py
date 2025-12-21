@@ -97,7 +97,7 @@ class Ayasaka:
         # If schedule is overloaded assistant handles
         if self.kelly.status == "busy":
             command = None
-            for cmd in self.client.commands:
+            for cmd in self.kelly.client.commands:
                 if cmd.name in message.content:
                     command = cmd.name
                     params = self.kelly.get_command_params(cmd, message)
@@ -131,7 +131,7 @@ class Ayasaka:
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
         await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
         command = None
-        for cmd in self.client.commands:
+        for cmd in self.kelly.client.commands:
             if cmd.name in messagae.content:
                 command = cmd.name
                 params = self.kelly.get_command_params(cmd, message)
