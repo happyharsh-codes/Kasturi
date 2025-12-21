@@ -265,15 +265,15 @@ def has_in_inventory(item, value = 0):
         return False
     return commands.check(predicate)
     
-def at_the_location(loc):
+def at_the_location(locations):
     async def predicate(ctx):
         uid = str(ctx.author.id)
         if not Profiles[uid]:
             return
-        if Profiles[str(ctx.author.id)]["location"] in loc:
+        if Profiles[str(ctx.author.id)]["location"] in locations:
             return True
-        loc = map(lambda x: x.replace("_"," ").title(), loc)
-        await ctx.reply(f"You must be at `{','.join(loc)}` to run this command")
+        pretty = [ x.replace("_"," ").title() for x in locations
+        await ctx.reply(f"You must be at `{','.join(pretty)}` to run this command")
         return False
     return commands.check(predicate)
 
