@@ -272,7 +272,7 @@ def at_the_location(locations):
             return
         if Profiles[str(ctx.author.id)]["location"] in locations:
             return True
-        pretty = [ x.replace("_"," ").title() for x in locations
+        pretty = [ x.replace("_"," ").title() for x in locations]
         await ctx.reply(f"You must be at `{','.join(pretty)}` to run this command")
         return False
     return commands.check(predicate)
