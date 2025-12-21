@@ -177,6 +177,7 @@ class Bot:
 
     @tasks.loop(seconds=15)
     async def universal_loop(self):
+      try:
         #Unmuting users
         for muted_id in list(self.kelly.giyu._giyu["muted"].keys()):
             if datetime.fromisoformat(self.kelly.giyu._giyu["muted"][muted_id]) < datetime.now():
@@ -204,24 +205,27 @@ class Bot:
         #game tasks
         await run_all_tasks(self.client)
         await run_all_reminders(self.client)
-
+          
+      except:
+        etype, value, tb = sys.exc_info()
+        full_error = ''.join(traceback.format_exception(etype, value, tb))
+        em = Embed(title= f"⚠️ Error {event_method}", description= f"```{full_error[:1900]}```", color=Color.red())
+        await self.me.send(embed=em)
 
     @tasks.loop(minutes=2)
     async def mood_swings(self):
         try:
             #sync all
-            #Server_Settings.root._sync()
-            #Profiles.root._sync()
-            #Last.root._sync()
-            #Invite_Cache.root._sync()
-            #Guild_Invites.root._sync()
-            #self.kelly.memory._memory.root._sync()
-            #self.kelly.giyu._giyu.root._sync()
-            #self.kelly.ayasaka._ayasaka.root._sync()
+            Server_Settings.root._sync()
+            Profiles.root._sync()
+            Last.root._sync()
+            Invite_Cache.root._sync()
+            Guild_Invites.root._sync()
+            self.kelly.memory._memory.root._sync()
+            self.kelly.giyu._giyu.root._sync()
+            self.kelly.ayasaka._ayasaka.root._sync()
         
             mood = self.kelly.mood.moodSwing()
-            action_text = None
-            message = None
 
             #Timer Message
             if randint(1,7) == 3:
@@ -265,8 +269,10 @@ class Bot:
             
                 
         except Exception as e:
-            print("Error on Mood Change")
-            await self.me.send(f"Exception on Mood change: {str(e)}")
+            etype, value, tb = sys.exc_info()
+            full_error = ''.join(traceback.format_exception(etype, value, tb))
+            em = Embed(title= f"⚠️ Error {event_method}", description= f"```{full_error[:1900]}```", color=Color.red())
+            await self.me.send(embed=em)
         
     # ------------- EVENTS -------------
 
@@ -361,14 +367,14 @@ class Bot:
         if not Relation[str(user.id)]:
             return
         if randint(1,200) == 101: #Special reward
-            self.kelly.ayaka.addReminder("surprise", channel_id=channel.id, user_id= user.id, delay_minutes=20)     
-        if randint(1, 50) == 25:
+            self.kelly.ayasaka.addReminder("surprise", channel_id=channel.id, user_id= user.id, delay_minutes=20)     
+        if randint(1, 100) == 25:
             try:
                 prompt = (
                     "Roleplay Kelly, a cute Discord Mod (human like with mood and sass)."
                     "Generate response for new user mentioning them when they show up typing something in 20 words with 1-4 emojis"
                 )
-                await channel.send(self.kelly.getEmoji(getResponse(f"{user.mention} is typing", prompt)))
+                await channel.send(self.kelly.kellyEmojify(getResponse(f"{user.mention} is typing", prompt)))
             except:
                 pass
 
@@ -522,13 +528,22 @@ class Bot:
             for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
                 await channel.send("@everyone", embed= em, view=view)
                 break
-        for channel in guild.text_channels:
-            try:
-                invite = await channel.create_invite(max_age=0, max_uses=0)
-                invite = f"https://discord.gg/{str(invite.code)}"
-                break
-            except:
-                continue
+        
+        try:
+            for open_invites in await guild.invites():
+                if open_invites.max_age == 0 and open_invites.max_uses == 0:
+                    invite = open_invite
+                    break
+        except:
+            pass
+        if invite == "N\A":
+            for channel in guild.text_channels:
+                try:
+                    invite = await channel.create_invite(max_age=0, max_uses=0)
+                    invite = f"https://discord.gg/{str(invite.code)}"
+                    break
+                except:
+                    continue
                 
         msg = discord.Embed(title=f"Kelly Joined {guild.name}",description=guild.description if guild.description else "No description", color=discord.Color.green(),url=invite)
         if guild.icon:
@@ -1525,8 +1540,6 @@ class Bot:
         elif isinstance(error, commands.CheckFailure):
             pass
         else:
-            etype, value, tb = sys.exc_info()
-            full_error = ''.join(traceback.format_exception(etype, value, tb))
             await ctx.send(embed=Embed(description="Unknown error happened :/"))
-            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{full_error[:1900]}``` \n```{error}```"))
+            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{error}```", color=Color.red()))
                 
