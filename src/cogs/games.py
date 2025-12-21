@@ -513,7 +513,7 @@ class Games(commands.Cog):
             em = Embed(title="Explore",description=f"You explored around {new_place.capitalize()} and got:\n{rewards}",color=Color.green())  
             profile.place_manager(new_place)
             em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)  
-            return await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`.", embed=em)
+            return await ctx.send(f"{ctx.author.mention} Exploration Finished: You found a {new_place}! You can adventure here now using `k adventure`.", embed=em)
             
         explore_time = randint(1000,3000)
         em = Embed(title="Exploration",description=f"You started your adventurous exploration. Wait until you find something amazing.", color = Color.green())
