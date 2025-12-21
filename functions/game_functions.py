@@ -2,36 +2,6 @@ import random
 import discord
 from discord.ext import commands
 from __init__ import*
-
-'''
-default_profiles = {
-    "name": "No name noob",
-    "activity": "sleeping",
-    "health": 100,
-    "hunger": 100,
-    "location": "home",
-    "aura":0,
-    "skills": {},
-    "eatables": {},
-    "plants": {},
-    "animals": {},
-    "minerals": {},
-    "builds": {},
-    "assets": {
-        "cash": 100,
-        "gem": 50,
-        "orb": 1
-    },
-    "tools": {},
-    "weapons": {},
-    "vehicles": {},
-    "quests": {},
-    "places": {},
-    "tasks": {},
-    "reminders": {}
-}
-'''
-
 import random
 
 def weighted_choice(choices: list):
@@ -62,15 +32,15 @@ def rewards_descrip(rewards):
 
     lines = []
     if buckets[1]:
-        lines.append("<:common:>: " + "".join(buckets["Level1"]))
+        lines.append("<:common:>: " + "".join(buckets[1]))
     if buckets[2]:
-        lines.append("<:unique:>: " + "".join(buckets["Level2"]))
+        lines.append("<:unique:>: " + "".join(buckets[2]))
     if buckets[3]:
-        lines.append("<:rare:>: " + "".join(buckets["Level3"]))
+        lines.append("<:rare:>: " + "".join(buckets[3]))
     if buckets[4]:
-        lines.append("<:epic:>: " + "".join(buckets["Level4"]))
+        lines.append("<:epic:>: " + "".join(buckets[4]))
     if buckets[5]:
-        lines.append("<:legendary:>: " + "".join(buckets["Level5"]))
+        lines.append("<:legendary:>: " + "".join(buckets[5]))
 
     return "\n".join(lines)
     
