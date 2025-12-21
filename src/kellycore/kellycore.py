@@ -70,7 +70,7 @@ class Kelly:
                 reason = reason.strip()
             params["reason"] = reason if reason else "No reason provided"
 
-    return params
+        return params
                 
     async def search_commands(self, message):
         start = time.time()
