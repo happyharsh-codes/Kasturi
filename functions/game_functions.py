@@ -2,7 +2,6 @@ import random
 import discord
 from discord.ext import commands
 from __init__ import*
-import random
 
 def weighted_choice(choices: list):
     if not choices:
@@ -32,15 +31,15 @@ def rewards_descrip(rewards):
 
     lines = []
     if buckets[1]:
-        lines.append("<:common:>: " + "".join(buckets[1]))
+        lines.append("<:common:1452256899654357135>: " + "".join(buckets[1]))
     if buckets[2]:
-        lines.append("<:unique:>: " + "".join(buckets[2]))
+        lines.append("<:unique:1452256904397983897>: " + "".join(buckets[2]))
     if buckets[3]:
-        lines.append("<:rare:>: " + "".join(buckets[3]))
+        lines.append("<:rare:1452256908558729307>: " + "".join(buckets[3]))
     if buckets[4]:
-        lines.append("<:epic:>: " + "".join(buckets[4]))
+        lines.append("<:epic:1452256912316825612>: " + "".join(buckets[4]))
     if buckets[5]:
-        lines.append("<:legendary:>: " + "".join(buckets[5]))
+        lines.append("<:legendary:1452256916360269854>: " + "".join(buckets[5]))
 
     return "\n".join(lines)
     
@@ -271,9 +270,10 @@ def at_the_location(loc):
         uid = str(ctx.author.id)
         if not Profiles[uid]:
             return
-        if Profiles[str(ctx.author.id)]["location"] == loc:
+        if Profiles[str(ctx.author.id)]["location"] in loc:
             return True
-        await ctx.reply(f"You must be at `{loc.title()}` to run this command")
+        loc = map(lambda x: x.replace("_"," ").title(), loc)
+        await ctx.reply(f"You must be at `{','.join(loc)}` to run this command")
         return False
     return commands.check(predicate)
 
