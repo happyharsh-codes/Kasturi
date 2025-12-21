@@ -290,7 +290,7 @@ class Kelly:
                     command = cmd.name
                     params = self.kelly.get_command_params(cmd, message)
                     if "execution" in result and result["execution"] == "now":
-                        await self.runCommand(message, result["command"], self.get_command_params()
+                        await self.runCommand(message, result["command"], self.get_command_params())
                     elif "execution" in result and result["execution"] == "later":
                         await self.kelly.ayasakaQueueTask(message, result["command"], params)
                     break
