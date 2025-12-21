@@ -119,18 +119,17 @@ async def perform_task(task, uid, client):
         await channel.send(f"<@{uid}> You have crafted {DATA['id'][item]} {item} x {amt} successfully")
 
     elif task["name"] == "exploring":
-        place = task["destination"]
+        place = task["place"]
         profile.location = place
         rewards = profile.reward_player(task["drops"])  
-        em = Embed(title="Explore",description=f"You explored around {task['destination'].capitalize()} and got:\n{rewards}",color=Color.green())  
+        em = Embed(title="Explore",description=f"You explored around {place.capitalize()} and got:\n{rewards}",color=Color.green())  
         try:
             msg = await channel.fetch_message(task["message"])
-            ctx = client.get_context(msg)
-            await profile.place_manager(ctx, place)
+            profile.place_manager(place)
             em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)  
         except:
             profile.places[place] = min((profile.place.get(place, 0) + randint(1,6)), 100)
-        await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`", embed=em)
+        await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`.", embed=em)
         
     else:
         rewards = profile.reward_player(task["rewards"])
@@ -385,14 +384,13 @@ class GameProfile:
             return True
         return False
 
-    async def place_manager(self, ctx, place):
+    def place_manager(self, place):
         places = self.places
         if place in places:
             self.places[place] += randint(1, 6)
         else:
             self.places[place] = randint(1,6)
-            await ctx.send(f"{ctx.author.mention} you found a new location: ft. **{place.replace('_','').title()}**")
-        
+            
         if places[place] > 100:
             self.places[place] = 100
     
