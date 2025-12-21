@@ -4,6 +4,9 @@ from src.kellycore.kellymemory import KellyMemory
 from src.kellycore.giyu import Giyu
 from src.kellycore.ayasaka import Ayasaka 
 
+NUMBER_REGEX = re.compile(r"\b(\d+)\b")
+REASON_REGEX = re.compile(r"(?:for|because|due to|reason[:\-]?)\s*(.+)",re.IGNORECASE)
+
 class Kelly:
     """Main Kelly Core(Brain) - kellycore.py  
     Governs all activities:
@@ -44,20 +47,30 @@ class Kelly:
 
     def get_command_params(command, message):
         params = {}
-        for param, parameter in command.clean_params.items():
-            if param == "member" or param == "user":
-                params[param] = message.mentions[0] if message.mentions else message.author
-            elif param == "channel":
-                params[param] = message.channel_mentions[0] if message.channel_mentions else message.channel
-            elif param == "role":
-                params[param] = message.role_mentions[0]
-            elif param == "reason":
-                pass
-            elif param in ["minutes", "amount", "seconds"]:
-                params[param] = int(list(filter( str.isdigit ,message.content.split()))[0])
+        content = message.content
+        if "member" in command.clean_params or "user" in command.clean_params:
+            params["member"] = message.mentions[0] if message.mentions else message.author
+        if "channel" in command.clean_params:
+            params["channel"] = message.channel_mentions[0] if message.channel_mentions else message.channel
+        if "role" in command.clean_params:
+            params["role"] = message.role_mentions[0] if message.role_mentions else None
+        for time_param in ("minutes", "seconds", "amount"):
+            if time_param in command.clean_params:
+                match = NUMBER_REGEX.search(content)
+                params[time_param] = int(match.group(1)) if match else 5  # default
+        if "reason" in command.clean_params:
+            match = REASON_REGEX.search(content)
+            if match:
+                reason = match.group(1).strip()
             else:
-                pass
-        return params
+                # fallback: strip mentions, numbers, command words
+                reason = re.sub(r"<@!?\d+>", "", content)
+                reason = re.sub(r"\b\d+\b", "", reason)
+                reason = re.sub(r"\b(kelly|k|mute|ban|warn|kick|timeout)\b", "", reason, flags=re.I)
+                reason = reason.strip()
+            params["reason"] = reason if reason else "No reason provided"
+
+    return params
                 
     async def search_commands(self, message):
         start = time.time()
@@ -286,7 +299,7 @@ class Kelly:
             #------5. Performing Task/Command Now------#
             command = None
             for cmd in self.client.commands:
-                if cmd.name in messagae.content or any(alias in message.content for alias in cmd.aliases):
+                if cmd.name in message.content or any(alias in message.content for alias in cmd.aliases):
                     command = cmd.name
                     params = self.kelly.get_command_params(cmd, message)
                     if "execution" in result and result["execution"] == "now":
