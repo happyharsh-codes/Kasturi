@@ -184,7 +184,7 @@ class Giyu:
                 return True
             command = None
             for cmd in self.client.commands:
-                if cmd.name in messgae.content or any(alias in message.content for alias in cmd.aliases):
+                if cmd.name in messagae.content or any(alias in message.content for alias in cmd.aliases):
                     command = cmd.name
                     params = self.kelly.get_command_params(cmd, message)
                     break
@@ -206,7 +206,7 @@ class Giyu:
     async def giyuTalk(self, message):
         command = None
         for cmd in self.client.commands:
-            if cmd.name in messgae.content or any(alias in message.content for alias in cmd.aliases):
+            if cmd.name in messagae.content or any(alias in message.content for alias in cmd.aliases):
                 command = cmd.name
                 params = self.kelly.get_command_params(cmd, message)
                 break
