@@ -133,10 +133,10 @@ class Dev_Tech_Tools(commands.Cog):
 
     @commands.hybrid_command(name="code", description="Enter Code to compile", aliases=["codesnippet"])
     @commands.cooldown(1, 60, type=commands.BucketType.user)
-    async def code(self, ctx, language: str = "python", *, code: str = None):
+    async def code(self, ctx, *, code: str = None):
         """Runs your code in any language"""
         if not code:
-            await ctx.send("❌ Please provide a code snippet.")
+            await ctx.send(embed=Embed(title="❌ Please provide a code snippet.",color=Color.red()))
             return
             
         lang = ""
