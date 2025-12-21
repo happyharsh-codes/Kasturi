@@ -444,7 +444,6 @@ class Games(commands.Cog):
             "plants": 1,
             "weapons": 1,
         }
-
         rewards = profile.reward_player(drops)
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
