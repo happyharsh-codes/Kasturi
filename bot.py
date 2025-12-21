@@ -97,7 +97,7 @@ class Bot:
         has_link = "http://" in content or "https://" in content
         if not has_link:
             return False
-        if all in type.lower():
+        if "all" in type.lower():
             await message.delete()
             await message.channel.send(f"{message.author.mention} Links are not allowed.", delete_after= 5)
             return True
