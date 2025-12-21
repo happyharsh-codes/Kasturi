@@ -43,7 +43,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @commands.has_permissions(moderate_members=True)
     @commands.bot_has_permissions(moderate_members=True)
-    async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, minutes, *, reason: str):
+    async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, minutes: int, *, reason: str):
         """Temporarily prevents a user from chatting with Kelly, not server-wide."""
         until = (datetime.now(UTC) + timedelta(minutes=minutes)).isoformat()
         giyu = load_mongo_dict("giyu", "kellymemory")
@@ -804,8 +804,7 @@ class Moderation(commands.Cog):
             selected_values = interaction.data.get("values",[])
             for val in selected_values:
                 for option in channel_select.options:
-                  if option.value == val:
-                    option.default = True
+                    option.default = option.value in selected_values
             await interaction.response.edit_message(view=view)
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
@@ -818,8 +817,7 @@ class Moderation(commands.Cog):
             selected_values = interaction.data["values"]
             for val in selected_values:
                 for option in channel_select2.options:
-                    if option.value == val:
-                        option.default = True
+                    option.default = option.value in selected_values
             await interaction.response.defer()
         
         go_left.callback = go_callback
@@ -904,6 +902,8 @@ class Moderation(commands.Cog):
                   if option.value == val:
                     option.default = True
                     social_channel = int(val)
+                  else:
+                    option.default = False
             await interaction.response.edit_message(view=view)
 
         view.on_timeout = timeout
@@ -1121,8 +1121,7 @@ class Moderation(commands.Cog):
             nonlocal view, msg, add_btn, raid_nuke_select
             selected_values = inter.data.get("values",[])
             for option in raid_nuke_select.options:
-                if option.value in selected_values:
-                    option.default = True
+                option.default = option.value in selected_values
             add_btn.disabled = False
             await inter.response.edit_message(view=view)            
             
@@ -1341,6 +1340,8 @@ class Moderation(commands.Cog):
                 if option.value in selected_reward:
                     option.default = True
                     break
+                else:
+                    option.default = False
             add_btn.disabled = False
             if "Role" in selected_reward:
                 view.clear_items()
@@ -1363,6 +1364,8 @@ class Moderation(commands.Cog):
                 if option.value in selected_reward:
                     option.default = True
                     break
+                else:
+                    option.default = False
             add_btn.disabled = False
             await inter.response.edit_message(view=view)
         
