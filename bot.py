@@ -860,7 +860,7 @@ class Bot:
                         for mod in moderators:
                             if int(mod) == member.id:
                                 continue 
-                            user = self.client.get_user(int(mod))
+                            user = interaction.client.get_user(int(mod))
                             if not user:
                                 continue 
                             await safe_dm(user, em)
@@ -886,7 +886,7 @@ class Bot:
         
         button.callback = last_words
         view.add_item(button)
-        view.add_item(button2)
+        #view.add_item(button2)
         msg = await safe_dm(member, embed= em, view = view)
         
         # Log in guild
