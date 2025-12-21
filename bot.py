@@ -1096,7 +1096,7 @@ class Bot:
                 await message.channel.send(embed=em)
                 return
             #Passing Through Giyu Guard
-            if await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood, type):
+            if await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
                 if content.startswith("k "):
                     message.content = content.replace("k ", "???", 1)
                 elif content.startswith("kelly "):
