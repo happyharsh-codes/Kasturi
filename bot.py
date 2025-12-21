@@ -467,7 +467,7 @@ class Bot:
             
             #tracking invites
             try:
-                Invite_Cache[guild.id] = {
+                Invite_Cache[str(guild.id)] = {
                     invite.code: invite.uses for invite in await guild.invites()
                 }
             except:
@@ -550,7 +550,13 @@ class Bot:
         Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"last_message": 0, "social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
         if invite:
             Guild_Invites[str(guild.id)] = invite.code
-    
+        try:
+            Invite_Cache[str(guild.id)] = {
+                invite.code: invite.uses for invite in await guild.invites()
+                }
+        except:
+            pass
+            
     async def on_guild_remove(self, guild: discord.Guild):
         banned_by = None
         try:
@@ -579,7 +585,8 @@ class Bot:
         em.set_thumbnail(url=guild.icon)
         await me.send(embed=em)
         del Server_Settings[str(guild.id)]
-        
+        del Invite_Cache[str(guild.id)]
+    
     async def on_guild_update(self, before, after):
         """When guild updates: Name, AFK channels, afk timeout, etc"""
         changes = []
@@ -716,7 +723,7 @@ class Bot:
 
         
         #setting invites
-        invites_before = Invite_Cache[member.guild.id]
+        invites_before = Invite_Cache[str(member.guild.id)]
         if not invites_before:
             return
         used_invite = None
@@ -727,7 +734,7 @@ class Bot:
                 if after > before:
                     used_invite = inv
                     break
-            Invite_Cache[member.guild.id] = {invite.code: invite.uses for invite in await member.guild.invites()}
+            Invite_Cache[str(member.guild.id)] = {invite.code: invite.uses for invite in await member.guild.invites()}
             if used_invite:
                 inviter = used_invite.inviter
                 if str(used_invite.code) in Server_Settings[str(member.guild.id)]["invites"]:
@@ -756,7 +763,10 @@ class Bot:
                 await channel.send(embed=em)
             except:
                 print("No perms allowed")
-        
+        for invite, people in Server_Setting[str(member.guild.id)]["invites"]:
+            if member.id in people:
+                Server_Settings[str(member.guild.id)]["invites"][invite].remove(member.id)
+                break
         em = Embed(
             title="👤 Member Left",
             description=f"{member.mention} (`{member.id}`) left.",
