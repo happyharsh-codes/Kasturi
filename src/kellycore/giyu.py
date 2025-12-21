@@ -183,7 +183,7 @@ class Giyu:
             if "Moderator" in type and randint (1,5) == 1:
                 return True
             command = None
-            if not any(cmd in message.content for cmd in self.kelly.commands):
+            if not any(cmd in message.content or any(alias in message.content for alias in cmd.aliases) for cmd in self.kelly.commands):
                 await self.giyusend(message.channel, self.giyuEmojify(choice(DATA["giyu_responses"]["kelly_sleeping"])), message.author.id)
                 return False
             prompt = f"You are Giyu, Kelly's Chief Guard\nKelly is currently sleeping\nGenerate Your Response in 20 words with emojis. Inform user about Kelly's state. Chat with user and keep convo active. If task send by user Tell Ayasaka(Kelly's assistant) to add it in Kelly's schedule."
@@ -203,7 +203,7 @@ class Giyu:
         response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Giyu")
         await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
-        if not any(cmd in message.content for cmd in self.kelly.commands):
+        if not any(cmd.name in message.content or any(alias in message.content for alias in cmd.aliases) for cmd in self.kelly.commands):
             return
         command = await self.kelly.search_commands(f"User: {message.content}, Bot: {response}")
         if command:
