@@ -1095,14 +1095,15 @@ class Bot:
                 em = Embed(title= "Kelly requires Administrator permission to function properly.", description = "Kelly requires Administrator permission to function properly.Kelly is a multipurpose bot that manages roles, channels, moderation, logging, and automation. Instead of requesting 15+ separate permissions, Administrator ensures everything works smoothly without extra setup. Still unsure? [Learn more](https://discord.gg/y56na8kN9e)", color = Color.red())
                 await message.channel.send(embed=em)
                 return
-            if await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
+            #Passing Through Giyu Guard
+            if await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood, type):
                 if content.startswith("k "):
                     message.content = content.replace("k ", "???", 1)
                 elif content.startswith("kelly "):
                     message.content = content.replace("kelly ", "???", 1)
                 elif content.startswith("kasturi "):
                     message.content = content.replace("kasturi ", "???", 1)          
-                await self.client.process_commands(message)
+            await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
             await self.kelly.kellyQuery(message)
         elif "giyu" in content:
@@ -1110,7 +1111,7 @@ class Bot:
         elif "ayasaka" in content:
             await self.kelly.ayasaka.ayasakaTalk(message)
         if randint(1,100) == 51:
-            await message.channel.send(f"Latency:  {(time.time() - start)} {kemoji()}")
+            await message.channel.send(f"-# Latency:  {(time.time() - start)} {kemoji()}")
         return
         
     async def on_message_edit(self, before, after):
