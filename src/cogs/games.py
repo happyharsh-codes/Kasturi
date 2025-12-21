@@ -507,7 +507,7 @@ class Games(commands.Cog):
             profile.activity = "exploring"
             await ctx.send(file=gif, embed=em)
             await asyncio.sleep(explore_time)
-            profile.location = new_loc
+            profile.location = new_place
             profile.activity = "sleeping"
             rewards = profile.reward_player(drops)  
             em = Embed(title="Explore",description=f"You explored around {new_place.capitalize()} and got:\n{rewards}",color=Color.green())  
@@ -520,7 +520,7 @@ class Games(commands.Cog):
         em.set_image(url="attachment://travel.gif")
         gif = discord.File("travel.gif")
         msg = await ctx.send(file=gif, embed=em)
-        profile.add_task("exploring", explore_time, msg.channel.id, msg.id, drops = drops, place = new_loc)
+        profile.add_task("exploring", explore_time, msg.channel.id, msg.id, drops = drops, place = new_place)
         profile.activity = "exploring"
         profile.location = "exploring"
 
