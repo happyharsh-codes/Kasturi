@@ -37,6 +37,8 @@ from collections.abc import MutableMapping
 
 from PIL import Image, ImageDraw, ImageFont
 import imageio
+import subprocess
+import hashlib
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -58,15 +60,29 @@ class MongoNestedDict(MutableMapping):
         self.root = root if root else self
         self._data = data if data is not None else {}
         self.default = default
+        self._last_hast = None
+        self._last_sync = 0
+        
+    # ---------- Hash Database ----------
+    def _hash(self):
+        return hashlib.md5(json.dumps(self.data, sort_keys=True, default=str).encode()).hexdigest()
 
     # ---------- Sync database ----------
-    def _sync(self):
+    def _sync(self, force=False):
+        current_hash = self._hash()
+        
+        if not force and current_hash == self._last_hash:
+            return False
+
         if self.root is self:  # only root writes
             self.collection.update_one(
                 {"_id": self.doc_id},
                 {"$set": {"data": self._data}},
                 upsert=True
             )
+            self._last_hash = current_hash
+            self._last_sync = time.time()
+            return True
 
     # ---------- Get ----------
     def __getitem__(self, key):
