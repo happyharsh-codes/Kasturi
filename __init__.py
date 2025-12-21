@@ -12,7 +12,7 @@ import threading
 import typing
 import http.server
 from datetime import datetime, UTC, timedelta, timezone
-from json import load, dump, loads
+from json import load, loads, dump, dumps
 from random import choice, randint, choices
 
 import discord
@@ -65,7 +65,7 @@ class MongoNestedDict(MutableMapping):
         
     # ---------- Hash Database ----------
     def _hash(self):
-        return hashlib.md5(json.dumps(self.data, sort_keys=True, default=str).encode()).hexdigest()
+        return hashlib.md5(dumps(self.data, sort_keys=True, default=str).encode()).hexdigest()
 
     # ---------- Sync database ----------
     def _sync(self, force=False):
