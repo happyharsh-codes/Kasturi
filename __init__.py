@@ -65,7 +65,7 @@ class MongoNestedDict(MutableMapping):
         
     # ---------- Hash Database ----------
     def _hash(self):
-        return hashlib.md5(dumps(self.data, sort_keys=True, default=str).encode()).hexdigest()
+        return hashlib.md5(dumps(self._data, sort_keys=True, default=str).encode()).hexdigest()
 
     # ---------- Sync database ----------
     def _sync(self, force=False):
