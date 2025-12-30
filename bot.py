@@ -1487,13 +1487,16 @@ class Bot:
             em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
             await ctx.send(embed= em)
             await ctx.invoke(ctx.bot.get_command("help"), ctx.command.name)
+            ctx.command.reset_cooldown(ctx)
         elif isinstance(error, commands.BotMissingPermissions):
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
             em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have:\n```{perms}```",color=Color.red())
             await ctx.reply(embed=em)
+            ctx.command.reset_cooldown(ctx)
         elif isinstance(error, discord.Forbidden):
             em = Embed(title="⚠️ Missing Permissions",description=f"I don’t have enough permissions to perform this action.{choice (list(EMOJI.values()))}\nPlease ensure I have `Attach Files`,`Ban Members`, `Connect`, `Create Instant Invite`, `Deafen Members`, `Embed Links`, `Kick Members`, `Manage Channels`, `Manage Messages`, `Manage Roles`, `Manage Server`, `Mention Everyone`, `Moderate Members`, `Mute Members`, `Read Message History`, `Send Messages`, `Speak`, `Use Embedded Activities`, `Use External Emojis`, `Use External Sounds`, `Use Slash Commands` Permissions Enabled.",color=Color.red())
             await ctx.reply(embed=em)
+            ctx.command.reset_cooldown(ctx)
         elif isinstance(error,commands.CommandOnCooldown):
             await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
         elif isinstance(error,commands.MaxConcurrencyReached):
@@ -1515,8 +1518,9 @@ class Bot:
             see_usage.callback = helper
             view.add_item(see_usage)
             msg = await ctx.send(view = view, embed = Embed(title="Missing Arguments 📛", description=f"You are missing some required argumemt.{choice(list(EMOJI.values()))}\nUse `k help <command>` to see full details on how to use the command.", color= Color.red()))
-
+            ctx.command.reset_cooldown(ctx)
         elif isinstance(error, commands.MissingPermissions):
+            ctx.command.reset_cooldown(ctx)
             if ctx.author.id == 894072003533877279:
                 await ctx.reinvoke()
                 return
@@ -1529,4 +1533,5 @@ class Bot:
         else:
             await ctx.send(embed=Embed(description="Unknown error happened :/"))
             await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{error}```", color=Color.red()))
+            ctx.command.reset_cooldown(ctx)
                 
