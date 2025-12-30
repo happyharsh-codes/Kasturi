@@ -1054,7 +1054,10 @@ class Bot:
                     #checking for embeds
                     if original.embeds:
                         return #Only reply to chats not to system messages
-                    await self.kelly.kellyQuery(message)
+                    if self.kelly.status == "sleepy":
+                        await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood)
+                    else:
+                        await self.kelly.kellyQuery(message)
                     Server_Settings[str(guild.id)]["last_message"] = channel.id
                     return
             except discord.NotFound:
@@ -1075,7 +1078,7 @@ class Bot:
             elif content.startswith("kelly "): message.content = content.replace("kelly ", "???", 1)
             elif content.startswith("kasturi "): message.content = content.replace("kasturi ", "???", 1)          
             
-            if self.kelly.status == "sleeping":
+            if self.kelly.status == "sleepy":
                 await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood)
             else:
                 await self.client.process_commands(message)
