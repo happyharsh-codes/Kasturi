@@ -135,8 +135,10 @@ class MongoNestedDict(MutableMapping):
         return value
         
     def items(self):
-        return ((key, self._data[key]) for key in self._data)
-        
+        for key in list(self._data.keys()):
+            value = self._data.get(key)
+            yield key, value
+            
     def setdefault(self, key, default):
         if key not in self._data:
             self._data[key] = default
