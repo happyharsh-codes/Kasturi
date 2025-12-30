@@ -122,7 +122,7 @@ async def run_all_reminders(client):
     """Runs all reminders from all user that hit the limit. Reminders are usually for very long tasks.
     Reminders includes - quests, marriage wishes, tips, build, etc"""
     for id, profile in Profiles.items():
-        to_run = [ (due, reminder) for due, reminder in profile["reminder"].items() if datetime.now() > datetime.fromisoformat(due) ]
+        to_run = [ (due, reminder) for due, reminder in profile["reminders"].items() if datetime.now() > datetime.fromisoformat(due) ]
         for due, reminder in to_run:
             await perform_reminder(reminder, id, client)
             del profile["reminder"][due]
