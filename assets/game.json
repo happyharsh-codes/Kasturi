@@ -354,7 +354,7 @@
     "newspaper": {"emoji":"🗞️","level":1,"category":"assets","places":["village_inn","town_tavern"],"use":"Read for news","info":"Old daily newspaper, slightly torn"},
     "crate_box": {"emoji":"📦","level":1,"category":"assets","places":["farm","warehouse"],"use":"Store items","info":"Wooden crate, useful for storage"},
     "toolkit": {"emoji":"🧰","level":2,"category":"assets","places":["village_inn","garage"],"use":"Repair tools","info":"Contains basic repair tools"},
-    "crystall_ball": {"emoji":"🔮","level":3,"category":"assets","places":["ancient_cave","deep_mine","dragon_spire","desert"],"info":"Very useful crafting item"},
+    "crystal_ball": {"emoji":"🔮","level":3,"category":"assets","places":["ancient_cave","deep_mine","dragon_spire","desert"],"info":"Very useful crafting item"},
     "scroll": {"emoji":"📜","level":2,"category":"assets","places":["ancient_cave","library"],"use":"Read spells","info":"Ancient scroll with cryptic writings"},
     "cash": {"emoji":"<:cash:1433171762668896388>","level":1,"category":"assets","info":"Very useful handy currency. Can be used to purchase items in the shop."},
     "gem": {"emoji":"<a:gem:1433171777017610260>", "level":4,"category":"assets","info":"Rich currency. An alternative for cash, high value in shop."},
