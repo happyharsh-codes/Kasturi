@@ -1111,7 +1111,7 @@ class Bot:
             elif content.startswith("kasturi "): message.content = content.replace("kasturi ", "???", 1)          
             
             if self.kelly.status == "sleeping":
-                await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
+                await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood)
             else:
                 await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
