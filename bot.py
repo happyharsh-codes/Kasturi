@@ -249,6 +249,8 @@ class Bot:
                     mood_shift = new_mood
     
             for gid, settings in Server_Settings.items():
+                if not settings["last_channel"]:
+                    continue
                 channel = self.client.get_channel(settings["last_channel"])
                 if not channel:
                     try:
@@ -258,8 +260,8 @@ class Bot:
                 if settings["timer_messages"] and reply:
                     await channel.send(reply)
                 if mood_shift:
-                    await channel.send(action[mood_shift])
-                    await channel.send(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150)
+                    await channel.send(self.kelly.kellyEmojify(action[mood_shift]))
+                    await channel.send(self.kelly.kellyEmojify(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150))
         
         except Exception as e:
             etype, value, tb = sys.exc_info()
@@ -581,7 +583,7 @@ class Bot:
             del Guild_Invites[str(guild.id)]
             em.add_field(name="Invite Link", value=invite)
         else:
-            em.add_fielf(name="Invite Link", value="N\A")
+            em.add_field(name="Invite Link", value="N\A")
         em.set_thumbnail(url=guild.icon)
         await me.send(embed=em)
         del Server_Settings[str(guild.id)]
