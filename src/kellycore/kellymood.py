@@ -51,7 +51,7 @@ class KellyMood:
             mood_shift = new_mood
         
         for gid, settings in Server_Settings.items():
-            if not settings["last_channel"]:
+            if not settings["last_message"]:
                 continue
             channel = self.client.get_channel(settings["last_channel"])
             if not channel:
