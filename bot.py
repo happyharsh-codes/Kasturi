@@ -1106,14 +1106,14 @@ class Bot:
                 await message.channel.send(embed=em)
                 return
             #Passing Through Giyu Guard
-            if await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
-                if content.startswith("k "):
-                    message.content = content.replace("k ", "???", 1)
-                elif content.startswith("kelly "):
-                    message.content = content.replace("kelly ", "???", 1)
-                elif content.startswith("kasturi "):
-                    message.content = content.replace("kasturi ", "???", 1)          
-            await self.client.process_commands(message)
+            if content.startswith("k "): message.content = content.replace("k ", "???", 1)
+            elif content.startswith("kelly "): message.content = content.replace("kelly ", "???", 1)
+            elif content.startswith("kasturi "): message.content = content.replace("kasturi ", "???", 1)          
+            
+            if self.kelly.status == "sleeping":
+                await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
+            else:
+                await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
             await self.kelly.kellyQuery(message)
             Server_Settings[str(guild.id)]["last_message"] = channel.id
