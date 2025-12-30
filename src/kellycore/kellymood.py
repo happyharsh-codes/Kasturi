@@ -71,7 +71,7 @@ class KellyMood:
                     await channel.send(reply)
             if mood_shift:
                 await channel.send(self.kelly.kellyEmojify(action[mood_shift]), delete_after=120)
-                await channel.send(self.kelly.kellyEmojify(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150))
+                await channel.send(self.kelly.kellyEmojify(DATA["kelly_responses"]["mood_flex"][mood_shift]), delete_after=150)
     
     async def modifyMood(self, mood_change):
         for mood in mood_change:
