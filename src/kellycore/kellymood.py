@@ -35,7 +35,7 @@ class KellyMood:
         print(mood)
         return mood
 
-    def setStatus(self):
+    async def setStatus(self):
         prev_mood = self.kelly.status
         self.kelly.status = self.getMood()
         new_mood = self.kelly.status
@@ -73,7 +73,7 @@ class KellyMood:
                 await channel.send(self.kelly.kellyEmojify(action[mood_shift]), delete_after=120)
                 await channel.send(self.kelly.kellyEmojify(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150))
     
-    def modifyMood(self, mood_change):
+    async def modifyMood(self, mood_change):
         for mood in mood_change:
             self.mood[mood] += mood_change[mood]
             if self.mood[mood] > 100:
@@ -87,9 +87,9 @@ class KellyMood:
                     self.mood[trait] = 0
                 if self.mood[trait] > 100:
                     self.mood[trait] = 100
-        self.setStatus()
+        await self.setStatus()
         
-    def moodSwing(self):
+    async def moodSwing(self):
         for mood in self.mood:
             if mood in ["sad", "depressed", "angry", "annoyed"] and randint(1,2) != 2:
                 continue
@@ -99,7 +99,7 @@ class KellyMood:
                     self.mood[mood] = 0
                 else:
                     self.mood[mood] = randint(91,100)
-        self.setStatus()
+        await self.setStatus()
         print(f"===== MOOD SWING =====\n{self.mood}, {self.kelly.status}")
     
     def moodToDoTasks(self):
