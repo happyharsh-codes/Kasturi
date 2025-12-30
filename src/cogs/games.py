@@ -61,7 +61,7 @@ class Games(commands.Cog):
 
         def update(selected_category):
             nonlocal em, profile
-            descrip = f"**{selected_category.title()}**"
+            descrip = f"**{selected_category.title()}**\n"
             items = profile.get(selected_category, {})
     
             for item_key, val in items.items():
@@ -109,7 +109,7 @@ class Games(commands.Cog):
     # ========= WORK / JOBS =========
 
     @commands.hybrid_command(aliases=["job"])
-    @commands.cooldown(1, 3600, type=commands.BucketType.user)
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     @not_busy()
     async def work(self, ctx):
@@ -234,7 +234,7 @@ class Games(commands.Cog):
     # ========= SCHOOL / SKILLS =========
 
     @commands.hybrid_command(aliases=["skills"])
-    @commands.cooldown(1, 3600, type=commands.BucketType.user)
+    @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     @not_busy()
     async def school(self, ctx):
@@ -359,9 +359,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
             
-        em = Embed(title="Hunt",description=f"You went hunting in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
-        em.set_footer(text=f"Hunt by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
+        await ctx.reply(embed= Embed(title=f"Hunting in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -381,9 +379,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
             
-        em = Embed(title="Chopping",description=f"You went chopping in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
-        em.set_footer(text=f"Chop by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
+        await ctx.reply(embed= Embed(title=f"Chopping in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
@@ -403,9 +399,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
             
-        em = Embed(title="Farm",description=f"You worked on the farm in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
-        em.set_footer(text=f"Farm by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar,)
-        await ctx.reply(embed=em)
+        await ctx.reply(embed= Embed(title=f"Farming in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
@@ -425,9 +419,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
             
-        em = Embed(title="Mine",description=f"You went mining in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
-        em.set_footer(text=f"Mine by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
+        await ctx.reply(embed= Embed(title=f"Mining in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -448,9 +440,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
             
-        em = Embed(title="Fish",description=f"You went fishing in the {loc.capitalize()} and got:\n{rewards}",color=Color.green())
-        em.set_footer(text=f"Fish by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar,)
-        await ctx.reply(embed=em)
+        await ctx.reply(embed= Embed(title=f"Fishing in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=["adv"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -473,9 +463,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
             
-        em = Embed(title="Adventure",description=f"You went on adventuring in the {new_loc.capitalize()} and got:\n{rewards}",color=Color.green())
-        em.set_footer(text=f"Adventure by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)
-        await ctx.reply(embed=em)
+        await ctx.reply(embed= Embed(title=f"Adventure in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=["exp"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -653,7 +641,7 @@ class Games(commands.Cog):
                 btn.callback = on_eat
                 view.add_item(btn)
         
-        async def on_eat(inter: interaction):
+        async def on_eat(inter: Interaction):
           try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
