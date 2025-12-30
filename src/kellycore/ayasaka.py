@@ -141,7 +141,7 @@ class Ayasaka:
             return False
         
     async def ayasakaQueueTask(self, message, command, params):
-        prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot. Ayasaka is gorgeous, flirting, sexy assistant. Generate small Response in <30 words with emojis. Add task in Kelly's Schedules."
+        prompt = f"You are Ayasaka, Kelly's Assistant. Kelly is cute discord mod bot. Ayasaka is gorgeous, flirting, sexy assistant. Generate small Response in <30 words with emojis. Add task in Kelly's Schedules. Task: {command}, details: {params}"
         response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
         self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
         await self.ayasakasend(message.channel, self.ayasakaEmojify(response), message.author.id)
