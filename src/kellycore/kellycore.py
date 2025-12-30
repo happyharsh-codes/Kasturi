@@ -268,10 +268,10 @@ class Kelly:
                         await self.kelly.ayasakaQueueTask(message, command, params)
                 
             #-----Updating Kelly Now-----#
-            self.mood.modifyMood({"sleepy": randint(1,8)})
+            await self.mood.modifyMood({"sleepy": randint(1,8)})
             if "mood_shift" in result:
                 if result["mood_shift"] != "sleepy":
-                    self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
+                    await self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
                 if result["mood_shift"] == "happy":
                     self.memory.modifyUserRelation(message.author.id, 2)
             if "personality_shift" in result and result["personality_shift"]:
