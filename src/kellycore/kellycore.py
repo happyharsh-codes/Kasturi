@@ -23,7 +23,7 @@ class Kelly:
     def __init__(self, name, bot):
         self.name = name
         self.client = bot #discord bot
-        self.status = "active"
+        self.status = "happy"
         self.mood = KellyMood(bot, self)
         self.memory = KellyMemory()
         self.giyu = Giyu(bot, self)
@@ -123,7 +123,7 @@ class Kelly:
             await self.reportError(e)
             
     async def performTasks(self):
-        if self.status not in ("active", "busy"):
+        if self.status in ("lazy", "sleepy", "mischievous", "sad"):
             return
         schedules = self.memory.getSchedules()
         for due_str, task in schedules.items():
@@ -148,7 +148,7 @@ class Kelly:
                 return
 
     async def performReminders(self):
-        if self.status not in ["active", "busy"]:
+        if self.status in ("sleepy", "lazy", "mischievous"):
             return
         reminders = self.memory._memory["reminders"]
         for due_str, task in reminders.items():
@@ -268,9 +268,9 @@ class Kelly:
                         await self.kelly.ayasakaQueueTask(message, command, params)
                 
             #-----Updating Kelly Now-----#
-            self.mood.modifyMood({"sleepy": randint(1,7)})
+            self.mood.modifyMood({"sleepy": randint(1,8)})
             if "mood_shift" in result:
-                if result["mood_shift"] in ["lazy", "happy", "sad", "mischievous", "depressed", "annoyed", "angry"]:
+                if result["mood_shift"] != "sleepy":
                     self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
                 if result["mood_shift"] == "happy":
                     self.memory.modifyUserRelation(message.author.id, 2)
