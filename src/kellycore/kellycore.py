@@ -114,57 +114,16 @@ class Kelly:
     
     async def runCommand(self, message: discord.Message, cmd_name, params):
         try:
-            if not cmd_name:
-                await message.channel.send("I’m not seeing any command here. 🙄")
-                return
-
-            # Find the command object
             cmd = self.client.get_command(cmd_name)
-            if not cmd:
-                await message.channel.send(f"Ughhh, I don’t even *have* a `{cmd_name}` command. 🙃")
-                return
-
-            # Get ctx
             ctx = await self.client.get_context(message)
-            final_params = {}
-
-            for item, val in params.items():
-                if val == "" or val == [] or val == {}:
-                    await message.channel.send(f"You are missing this : {item}")
-                    return
-                if isinstance(val,str) and val.startswith("<"):
-                    try:
-                        if "@&" in val:
-                            final_params[item] = await message.guild.fetch_role(int(val[3:-1]))
-                        elif "@" in val:
-                            user_id = int(val[2:-1].lstrip("!"))  # handle <@!id>
-                            final_params[item] = await message.guild.fetch_member(int(val[2:-1]))
-                        elif "#" in val:
-                            final_params[item] = await message.guild.fetch_channel(int(val[2:-1]))
-                    except Exception as e:
-                        await message.channel.send(f"Invalid Channel/Role/User provided for {item}:{val}\nError:{e}")
-                        return
-                elif isinstance(val,str) and val.isdigit():
-                    try:
-                        final_params[item] = await message.guild.fetch_member(int(val))
-                    except:
-                        try:
-                            final_params[item] = await message.guild.fetch_channel(int(val))
-                        except:
-                            try:
-                                final_params[item] = await message.guild.fetch_role(int(val))
-                            except Exception as e:
-                                await message.channel.send(f"Invalid Role/Channel/User Provided for {item}:{val}\nError:{e}")
-                                return          
-                else: final_params[item] = val
-            print(f"### Running command {cmd_name} with {final_params}")
-            await ctx.invoke(cmd, **final_params)
+            print(f"### Running command {cmd_name} with {params}")
+            await ctx.invoke(cmd, **params)
 
         except Exception as e:
             await self.reportError(e)
             
     async def performTasks(self):
-        if self.status not in ["active", "busy"]:
+        if self.status not in ("active", "busy"):
             return
         schedules = self.memory.getSchedules()
         for due_str, task in schedules.items():
@@ -258,13 +217,12 @@ class Kelly:
             if not type:
                 type = "Member"
 
-            if relation != 0:
-                #------- 1. Giyu the bodyguard handles the message before getting to kelly -------#
-                if not await self.giyu.giyuQuery(message, self.mood.mood, type):#if giyu already sent msg so here will not send so here we'll simply return
-                    return
-                #------- 2. Ayasaka the assistant handles the message before getting to kelly -------#
-                if not await self.ayasaka.ayasakaQuery(message, self.mood.mood, type):
-                    return
+            #------- 1. Giyu the bodyguard handles the message before getting to kelly -------#
+            if not await self.giyu.giyuQuery(message, self.mood.mood, type):#if giyu already sent msg so here will not send so here we'll simply return
+                return
+            #------- 2. Ayasaka the assistant handles the message before getting to kelly -------#
+            if not await self.ayasaka.ayasakaQuery(message, self.mood.mood, type):
+                return
 
             # Setting up Prompt
             prompt = f"""Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.mood.mood},Persona: {persona},Relation: {relation},User: {message.author.display_name} ({type})\nReply in 10–30 words, 0–3 emojis based on your mood\nYou can perform user task, save for later or deny\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict\n• You may reference Giyu (Guard) or Ayaka (Assistant) naturally"""
@@ -283,7 +241,7 @@ class Kelly:
             current_status = {"respect": relation,"mood": mood, "persona": persona}
             if not self.commands:
                 self.commands = {command.name: list(command.clean_params.keys()) for command in self.client.commands}
-            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-10 to +10)\nmood_shift: happy|sad|depressed|angry|annoyed|lazy|sleepy|mischievous|none\npersonality_shift: {{trait:int}} or {{}}\ninfo: one line about user behaviour\ncommand: command_name or null\nexecution: now|later|deny (extract from chat)"""
+            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-10 to +10)\nmood_shift: happy|sad|depressed|angry|annoyed|lazy|sleepy|mischievous|none\npersonality_shift: {{trait:int}} or {{}}\ninfo: one line about user behaviour\ncommand: command_name or null (from chat only)\nexecution: now|later|deny (extract from chat)"""
             raw_result = getResponse(f"{usermessage}\nKelly: {kelly_reply}", prompt2)
             try:
                 raw_result = raw_result.strip().lower()
@@ -299,16 +257,15 @@ class Kelly:
                 result = {"respect_delta": 0, "mood_shift": "happy", "personality_shift": {}, "info": "", "command": None}
 
             #------5. Performing Task/Command Now------#
-            command = None
-            for cmd in self.client.commands:
-                if cmd.name in message.content:
-                    command = cmd.name
+            if result["command"] and result["command"] not in ("none", "null"):
+                command = result["command"]
+                cmd = self.client.get_command(command)
+                if cmd:
                     params = self.get_command_params(cmd, message)
                     if "execution" in result and result["execution"] == "now":
                         await self.runCommand(message, command, params)
                     elif "execution" in result and result["execution"] == "later":
                         await self.kelly.ayasakaQueueTask(message, command, params)
-                    break
                 
             #-----Updating Kelly Now-----#
             self.mood.modifyMood({"sleepy": randint(1,7)})
