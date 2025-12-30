@@ -36,14 +36,42 @@ class KellyMood:
         return mood
 
     def setStatus(self):
-        if self.mood["sleepy"] > 90:
-            self.kelly.status = "sleeping"
-        elif self.mood["lazy"] > 90:
-            self.kelly.status = "lazy"
-        elif self.mood["mischievous"] > 90:
-            self.kelly.status = "mischievous"
+        prev_mood = self.kelly.status
+        self.kelly.status = self.getMood()
+        new_mood = self.kelly.status
+        mood_shift = None
+        action = {"happy": "-# Kelly is so haply now 😃","sleepy": "-# Kelly is sleeping 😴","depressed": "-# Kelly is depressed 😔","angry": "-# Kelly is angry 😡","annoyed": "-# Kelly is very annoyed right now 😣","lazy": "-# Kelly is too lazy to respond now 😪","sad": "-# Kelly is so sad right now 😭","mischievous": "-# Kelly is feeling a little mischievous 😉", "woke_up": "-# Kelly just woke up 🤤", "went_to_sleep": "-# Kelly is sleeping now 🛏️"} 
+        if new_mood == prev_mood:
+            return
+        if prev_mood == "sleepy":
+            mood_shift = "woke_up"
+        elif new_mood == "sleepy":
+            mood_shift = "went_to_sleep"
         else:
-            self.kelly.status = "active"
+            mood_shift = new_mood
+        
+        for gid, settings in Server_Settings.items():
+            if not settings["last_channel"]:
+                continue
+            channel = self.client.get_channel(settings["last_channel"])
+            if not channel:
+                try:
+                    channel = self.client.fetch_channel(settings["last_channel"])
+                except:
+                    continue
+            if settings["timer_messages"]:
+                reply = None
+                if randint(1,25) == 3:
+                    text = "Kelly got to revive the ded chat"
+                    prompt = "Roleplay Kelly, a cute Discord Mod (human like with mood and sass). Generate response activating ded chat in 20 words with 1-4 emojis"
+                    loop = asyncio.get_event_loop()
+                    response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
+                    reply = self.kelly.kellyEmojify(response)
+                if reply:
+                    await channel.send(reply)
+            if mood_shift:
+                await channel.send(self.kelly.kellyEmojify(action[mood_shift]), delete_after=120)
+                await channel.send(self.kelly.kellyEmojify(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150))
     
     def modifyMood(self, mood_change):
         for mood in mood_change:
@@ -62,7 +90,6 @@ class KellyMood:
         self.setStatus()
         
     def moodSwing(self):
-        initial_mood = self.getMood()
         for mood in self.mood:
             if mood in ["sad", "depressed", "angry", "annoyed"] and randint(1,2) != 2:
                 continue
@@ -72,10 +99,8 @@ class KellyMood:
                     self.mood[mood] = 0
                 else:
                     self.mood[mood] = randint(91,100)
-        final_mood = self.getMood()
         self.setStatus()
         print(f"===== MOOD SWING =====\n{self.mood}, {self.kelly.status}")
-        return final_mood, initial_mood
     
     def moodToDoTasks(self):
         mood = self.mood
