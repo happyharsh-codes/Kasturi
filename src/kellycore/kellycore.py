@@ -125,7 +125,7 @@ class Kelly:
     async def performTasks(self):
         if self.status in ("lazy", "sleepy", "mischievous", "sad"):
             return
-        schedules = self.memory.getSchedules()
+        schedules = self.ayasaka.busy.getSchedules()
         for due_str, task in schedules.items():
             if datetime.fromisoformat(due_str) < datetime.now():
                 channel = self.client.get_channel(task["channel"])
