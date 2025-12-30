@@ -176,7 +176,7 @@ class Giyu:
             return False
 
         #Sleeping
-        elif self.kelly.status == "sleeping":
+        elif self.kelly.status == "sleepy":
             command = None
             for cmd in self.client.commands:
                 if cmd.name in message.content:
