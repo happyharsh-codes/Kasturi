@@ -241,7 +241,7 @@ class Kelly:
             current_status = {"respect": relation,"mood": mood, "persona": persona}
             if not self.commands:
                 self.commands = {command.name: list(command.clean_params.keys()) for command in self.client.commands}
-            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-10 to +10)\nmood_shift: happy|sad|depressed|angry|annoyed|lazy|sleepy|mischievous|none\npersonality_shift: {{trait:int}} or {{}}\ninfo: one line about user behaviour\ncommand: command_name or null (from chat only)\nexecution: now|later|deny (extract from chat)"""
+            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-10 to +10)\nmood_shift: one from (happy,sad,depressed,angry,annoyed,lazy,sleepy,mischievous,none)\npersonality_shift: {{trait:int}} or {{}}\ninfo: one line about user behaviour\ncommand: command_name or null (from chat only)\nexecution: now|later|deny (extract from chat)"""
             raw_result = getResponse(f"{usermessage}\nKelly: {kelly_reply}", prompt2)
             try:
                 raw_result = raw_result.strip().lower()
@@ -269,7 +269,7 @@ class Kelly:
                 
             #-----Updating Kelly Now-----#
             await self.mood.modifyMood({"sleepy": randint(1,8)})
-            if "mood_shift" in result:
+            if "mood_shift" in result and result["mood_shift"] in ("sleepy", "happy", "sad", "depressed", "mischievous", "lazy", "annoyed", "angry"):
                 if result["mood_shift"] != "sleepy":
                     await self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
                 if result["mood_shift"] == "happy":
