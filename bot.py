@@ -224,45 +224,10 @@ class Bot:
             self.kelly.memory._memory.root._sync()
             self.kelly.giyu._giyu.root._sync()
             self.kelly.ayasaka._ayasaka.root._sync()
-        
-            mood = self.kelly.mood.moodSwing()
 
-            #Timer Message
-            reply = None
-            if randint(1,7) == 3:
-                text = "Kelly got to revive the ded chat"
-                prompt = "Roleplay Kelly, a cute Discord Mod (human like with mood and sass). Generate response activating ded chat in 20 words with 1-4 emojis"
-                loop = asyncio.get_event_loop()
-                response = await loop.run_in_executor(None, getResponse, text, prompt, "", 0)
-                reply = self.kelly.kellyEmojify(response)
-
-            mood_shift = None
-            action = {"happy": "-# Kelly is so haply now 😃","sleepy": "-# Kelly is sleeping 😴","depressed": "-# Kelly is depressed 😔","angry": "-# Kelly is angry 😡","annoyed": "-# Kelly is very annoyed right now 😣","lazy": "-# Kelly is too lazy to respond now 😪","sad": "-# Kelly is so sad right now 😭","mischievous": "-# Kelly is feeling a little mischievous 😉", "woke_up": "-# Kelly just woke up 🤤", "went_to_sleep": "-# Kelly is sleeping now 🛏️"} 
-            if mood[0] != mood[1]:
-                prev_mood = mood[1]
-                new_mood = mood[0]
-                if prev_mood == "sleepy":
-                    mood_shift = "woke_up"
-                elif new_mood == "sleepy":
-                    mood_shift = "went_to_sleep"
-                else:
-                    mood_shift = new_mood
-    
-            for gid, settings in Server_Settings.items():
-                if not settings["last_channel"]:
-                    continue
-                channel = self.client.get_channel(settings["last_channel"])
-                if not channel:
-                    try:
-                        channel = self.client.fetch_channel(settings["last_channel"])
-                    except:
-                        continue
-                if settings["timer_messages"] and reply:
-                    await channel.send(reply)
-                if mood_shift:
-                    await channel.send(self.kelly.kellyEmojify(action[mood_shift]))
-                    await channel.send(self.kelly.kellyEmojify(DATA["kelly_responses"]["mood_flex"][mood_shift], delete_after=150))
-        
+            #mood swing
+            self.kelly.mood.moodSwing()
+            
         except Exception as e:
             etype, value, tb = sys.exc_info()
             full_error = ''.join(traceback.format_exception(etype, value, tb))
