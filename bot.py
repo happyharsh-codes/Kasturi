@@ -209,7 +209,7 @@ class Bot:
       except:
         etype, value, tb = sys.exc_info()
         full_error = ''.join(traceback.format_exception(etype, value, tb))
-        em = Embed(title= f"⚠️ Error {event_method}", description= f"```{full_error[:1900]}```", color=Color.red())
+        em = Embed(title= f"⚠️ Error on Universal Loop", description= f"```{full_error[:1900]}```", color=Color.red())
         await self.me.send(embed=em)
 
     @tasks.loop(minutes=2)
@@ -231,7 +231,7 @@ class Bot:
         except Exception as e:
             etype, value, tb = sys.exc_info()
             full_error = ''.join(traceback.format_exception(etype, value, tb))
-            em = Embed(title= f"⚠️ Error {event_method}", description= f"```{full_error[:1900]}```", color=Color.red())
+            em = Embed(title= f"⚠️ Error Mood Swings", description= f"```{full_error[:1900]}```", color=Color.red())
             await self.me.send(embed=em)
         
     # ------------- EVENTS -------------
