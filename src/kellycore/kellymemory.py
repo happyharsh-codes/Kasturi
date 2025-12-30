@@ -21,12 +21,7 @@ class KellyMemory:
 
     def __init__(self):
         self._memory = load_mongo_dict("memory", "kellymemory")
-        self._memory.setdefault("schedules", {})
-        self._memory.setdefault("users", {})
-        self._memory.setdefault("friends", [])
-        self._memory.setdefault("reminders", {})
-        self._memory.setdefault("personality", {})
-
+        
     def getUserChats(self, user_id, limit: int = 4):
         if not self._memory["users"][str(user_id)]:
             return ""
