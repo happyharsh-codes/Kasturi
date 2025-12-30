@@ -226,7 +226,7 @@ class Bot:
             self.kelly.ayasaka._ayasaka.root._sync()
 
             #mood swing
-            self.kelly.mood.moodSwing()
+            await self.kelly.mood.moodSwing()
             
         except Exception as e:
             etype, value, tb = sys.exc_info()
