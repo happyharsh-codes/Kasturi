@@ -540,7 +540,7 @@ class Kelly:
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
                 self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
-                await self.runCommand(message, "mute_from_kelly", {"member": message.author, "minutes":ranint(1,15), "reason": "Very Bad Relations with Kelly"}})
+                await self.runCommand(message, "mute_from_kelly", {"member": message.author, "minutes":ranint(1,15), "reason": "Very Bad Relations with Kelly"})
         # 15% actual ban
         else:
             prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}.You are Kelly sassy lively Discord Mod Bot, You already replied to user. You think user is very rude and you are angry and you ban him finally no mercy. Reply in 10-30 words with 0-3 emojis."
@@ -549,7 +549,7 @@ class Kelly:
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
                 self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))      
-                await self.runCommand(message, {"ban_from_kelly": {"member": message.author, "reason": self.getEmoji(kelly_reply)}})
+                await self.runCommand(message, "ban_from_kelly": {"member": message.author, "reason": "Bad Relationship"})
         
     async def remind(self, task):
         prompt = f"Roleplay Kelly, a Discord Mod (human like with mood and sass). You have to {task['task']} user. Keep chat alive fun and interesting.\nGenerate response in 20 words with 0-4 emojiy."
