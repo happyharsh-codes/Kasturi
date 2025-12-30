@@ -18,8 +18,7 @@ class Giyu:
             - Checks if Kelly is Lazy:
                 - If lazy only special person can talk to kelly.
             - Check if Kelly is sleeping:
-                - If sleeping does not let anyone 
-            - (A small percentage of chance server owner and moderator can bypass this )
+                - If sleeping does not let anyone
         - Chek if someone touches kelly or does kelly pat:
             - if not good relation: not allowed 
             
@@ -178,10 +177,6 @@ class Giyu:
 
         #Sleeping
         elif self.kelly.status == "sleeping":
-            if "Server owner" in type:
-                return True
-            if "Moderator" in type and randint (1,5) == 1:
-                return True
             command = None
             for cmd in self.client.commands:
                 if cmd.name in message.content:
