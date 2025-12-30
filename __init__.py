@@ -133,7 +133,10 @@ class MongoNestedDict(MutableMapping):
                 root=self.root
             )
         return value
-
+        
+    def items(self):
+        return ((key, self._data[key]) for key in self._data)
+        
     def setdefault(self, key, default):
         if key not in self._data:
             self._data[key] = default
