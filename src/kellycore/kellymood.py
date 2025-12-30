@@ -53,10 +53,10 @@ class KellyMood:
         for gid, settings in Server_Settings.items():
             if not settings["last_message"]:
                 continue
-            channel = self.client.get_channel(settings["last_channel"])
+            channel = self.client.get_channel(settings["last_message"])
             if not channel:
                 try:
-                    channel = self.client.fetch_channel(settings["last_channel"])
+                    channel = self.client.fetch_channel(settings["last_message"])
                 except:
                     continue
             if settings["timer_messages"]:
