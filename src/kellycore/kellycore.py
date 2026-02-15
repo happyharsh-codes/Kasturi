@@ -498,7 +498,7 @@ class Kelly:
         if roll <= 60:
             prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\n You already replied to user. You think of making user friend but havent made him friend yet. Reply in 10-30 words with 0-4 emojis."
             async with message.channel.typing():
-                assist = self.memory.getUserChatData(message.author.id)
+                assist = self.memory.getUserChats(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
                 self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
