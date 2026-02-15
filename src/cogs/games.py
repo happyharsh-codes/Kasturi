@@ -43,13 +43,13 @@ class Games(commands.Cog):
             f"<:wallet:1472453144863572032> Wallet:\n"
             f"<:cash:1433171762668896388> **Cash**: {profile.assets.get('cash', 0)} {choice(['<a:lowonmoney:1433171892365168700>','<:broke:1472453147665371267>'])}\n"
             f"<a:gem:1433171777017610260> **Gems**: {profile.assets.get('gem', 0)}\n"
-            f"🔮 **Orbs**: {profile.assets.get('orb', 0)}"
+            f"<:orb:1472550711551201300> **Orbs**: {profile.assets.get('orb', 0)}"
             )
         descrip = (
             f"<:wallet:1472453144863572032> Wallet:\n"
             f"<:cash:1433171762668896388> **Cash**: {profile.assets.get('cash', 0)}\n"
             f"<a:gem:1433171777017610260> **Gems**: {profile.assets.get('gem', 0)}\n"
-            f"🔮 **Orbs**: {profile.assets.get('orb', 0)}"
+            f"<:orb:1472550711551201300> **Orbs**: {profile.assets.get('orb', 0)}"
         )
         em = action_embed(f"{ctx.author.display_name}'s Wallet",descrip,Color.green(),f"Bal used by {ctx.author.name}",ctx.author.avatar)
         await ctx.send(embed=em)
