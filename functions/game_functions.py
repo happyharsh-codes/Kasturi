@@ -432,7 +432,7 @@ class GameProfile:
 def health_string(health_points):
     full_health = health_points//10
     half_health = (health_points-full_health*10)//5
-    empty_heath = 10 - half_health - full_health
+    empty_health = 10 - half_health - full_health
 
     full_heart = "<:heart_full:1472463967715856599>" 
     half_heart = "<:heart_half:1472463960732078204>"
