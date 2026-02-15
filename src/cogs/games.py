@@ -41,7 +41,7 @@ class Games(commands.Cog):
         if profile.assets.get('cash', 0) < 100:
             descrip = (
             f"<:wallet:1472453144863572032> Wallet:\n"
-            f"<:cash:1433171762668896388> **Cash**: {profile.assets.get('cash', 0)} {choice(["<a:lowonmoney:1433171892365168700>","<:broke:1472453147665371267>"])}\n"
+            f"<:cash:1433171762668896388> **Cash**: {profile.assets.get('cash', 0)} {choice(['<a:lowonmoney:1433171892365168700>','<:broke:1472453147665371267>'])}\n"
             f"<a:gem:1433171777017610260> **Gems**: {profile.assets.get('gem', 0)}\n"
             f"🔮 **Orbs**: {profile.assets.get('orb', 0)}"
             )
