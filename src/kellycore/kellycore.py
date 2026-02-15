@@ -507,7 +507,7 @@ class Kelly:
         elif roll <= 85:
             prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}.\nReply in 10–30 words, 0–3 emojis based on your mood. You are Kelly sassy lively Discord Mod Bot, You already replied to user. You have finally made user as your friend. Also inform user that dms are open now."
             async with message.channel.typing():
-                assist = self.memory.getUserChatData(message.author.id)
+                assist = self.memory.getUserChats(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant=assist)
                 self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
                 return await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
