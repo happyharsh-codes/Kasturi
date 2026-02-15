@@ -483,7 +483,7 @@ class Kelly:
         """Bot thinks of making user a friend when respect is high."""
         # Think message
         if message.author.id in self.memory._memory["friends"]:
-            if ranint(1,6) == 5:
+            if randint(1,6) == 5:
                 #------ Sending message------#
                 prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\nReply in 10–30 words, 0–3 emojis based on your mood\nYou already replied to user, send one more continuation message, as you are friends now.\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict"""
                 async with message.channel.typing():
@@ -493,7 +493,7 @@ class Kelly:
                     return await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
                     
         # Action chance
-        roll = random.randint(1, 100)
+        roll = randint(1, 100)
         # 60% think only
         if roll <= 60:
             prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\n You already replied to user. You think of making user friend but havent made him friend yet. Reply in 10-30 words with 0-4 emojis."
