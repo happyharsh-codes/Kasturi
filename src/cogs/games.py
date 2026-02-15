@@ -38,11 +38,18 @@ class Games(commands.Cog):
     @has_profile()
     async def balance(self, ctx):
         profile = GameProfile(ctx.author.id)
+        if profile.assets.get('cash', 0) < 100:
+            descrip = (
+            f"<:wallet:1472453144863572032> Wallet:\n"
+            f"<:cash:1433171762668896388> **Cash**: {profile.assets.get('cash', 0)} {choice(["<a:lowonmoney:1433171892365168700>","<:broke:1472453147665371267>"])}\n"
+            f"<a:gem:1433171777017610260> **Gems**: {profile.assets.get('gem', 0)}\n"
+            f"🔮 **Orbs**: {profile.assets.get('orb', 0)}"
+            )
         descrip = (
-            f"Wallet:\n"
-            f"**Cash**: {profile.assets.get('cash', 0)}\n"
-            f"**Gems**: {profile.assets.get('gem', 0)}\n"
-            f"**Orbs**: {profile.assets.get('orb', 0)}"
+            f"<:wallet:1472453144863572032> Wallet:\n"
+            f"<:cash:1433171762668896388> **Cash**: {profile.assets.get('cash', 0)}\n"
+            f"<a:gem:1433171777017610260> **Gems**: {profile.assets.get('gem', 0)}\n"
+            f"🔮 **Orbs**: {profile.assets.get('orb', 0)}"
         )
         em = action_embed(f"{ctx.author.display_name}'s Wallet",descrip,Color.green(),f"Bal used by {ctx.author.name}",ctx.author.avatar)
         await ctx.send(embed=em)
@@ -56,9 +63,13 @@ class Games(commands.Cog):
         """View categorized inventory."""
         categories = ["eatables", "animals", "plants", "assets", "tools", "weapons", "vehicles", "minerals", "builds"]
         profile = GameProfile(ctx.author.id)
-
+        page = 0
         em = action_embed(f"{ctx.author.display_name}'s Inventory","",Color.green(),f"Inv by {ctx.author.name}",ctx.author.avatar)
-
+        #buttons
+        left_btn = Button(emoji="<:leftarrow:1427527800533024839>", custom_id="left", style=ButtonStyle.blurple, disabled=True)
+        expand_btn = Button(label="Work", custom_id="expand", style=ButtonStyle.blurple)
+        right_btn = Button(label="<:rightarrow:1427527709403119646>", custom_id="right", style=ButtonStyle.blurple)
+        
         def update(selected_category):
             nonlocal em, profile
             descrip = f"**{selected_category.title()}**\n"
@@ -74,13 +85,40 @@ class Games(commands.Cog):
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i.title(), value=i) for i in categories],max_values=1,min_values=1)
         
         async def on_select(inter: Interaction):
-            nonlocal update, em, view
+            nonlocal update, em, view, categories, page
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
-                    
+            page = categories.index(inter.data["values"][0])
             update(inter.data["values"][0])
             await inter.response.edit_message(embed=em, view=view)
 
+        async def on_click(inter: Interaction):
+            nonlocal left_btn, expand_btn, right_btn, update, em, view, categories, page
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
+            left_btn.disabled = page == 0
+            right_btn.disabled = page == len(categories)-1
+            
+            if inter.data["custom_id"] == "left":
+                page -= 1
+                update(categories[page])
+            elif inter.data["custom_id"] == "right":
+                page +=1
+                update(categories[page])
+            else:
+                nonlocal em, profile
+                selected_category = categories[page]
+                descrip = f"**{selected_category.title()}**\n"
+                items = profile.get(selected_category, {})
+                
+                for item_key, val in items.items():
+                    emoji = GAME["id"][item_key]["emoji"]
+                    descrip += f"`{item_key}` {emoji} x {val}\n"
+                if not descrip:
+                    descrip += "`No items in this category`"
+                em.description = descrip 
+            await inter.response.edit_message(embed=em, view=view)
+            
         async def on_timeout():
             nonlocal msg, view, em
             em.color = Color.light_grey()
@@ -91,7 +129,13 @@ class Games(commands.Cog):
         view = View(timeout=45)
         view.on_timeout = on_timeout
         view.add_item(category_select)
+        view.add_item(left_btn)
+        view.add_item(expand_btn)
+        view.add_item(right_btn)
         category_select.callback = on_select
+        left.btn.callback = on_click
+        expand_btn.callback = on_click
+        right_btn.callback = on_click
         update("eatables")
         msg = await ctx.send(embed=em, view=view)
 
@@ -1047,10 +1091,14 @@ class Games(commands.Cog):
     async def daily(self, ctx):
         """Claim daily reward."""
         reward = randint(100, 500)
+        gems = choice([0,0,0,0,0,0,0,1])
         profile = GameProfile(ctx.author.id)
         profile.inv_manager("cash", reward)
-        await ctx.send(f"You claimed your daily reward of {reward} cash.")
-
+        if not gems:
+            await ctx.send(f"You claimed your daily reward of {reward} cash.")
+        else:
+            await ctx.send(f"You claimed your daily reward of {reward} cash.")
+        
     # ========= BATTLE / KILL / MARRY =========
 
     @commands.hybrid_command(aliases=["b"])
