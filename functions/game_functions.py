@@ -427,3 +427,27 @@ class GameProfile:
                     break
         self.add_rewards(rewards)
         return rewards_descrip(rewards)
+
+
+def health_string(health_points):
+    full_health = health_points//10
+    half_health = (health_points-full_health*10)//5
+    empty_heath = 10 - half_health - full_health
+
+    full_heart = "<:heart_full:1472463967715856599>" 
+    half_heart = "<:heart_half:1472463960732078204>"
+    empty_heart = "<:heart_empty:1472463958169358480>"
+
+    return full_heart * full_health + half_heart * half_health + empty_heart * empty_health
+
+def hunger_string(hunger_points):
+    full_hunger = hunger_points//10
+    half_hunger = (hunger_points-full_hunger*10)//5
+    empty_hunger = 10 - half_hunger - full_hunger
+
+    full_food = "<:hunger_full:1472463969733312524>" 
+    half_food = "<:hunger_half:1472463963160838144>"
+    empty_food = "<:hunger_empty:1472463965559853097>"
+
+    return full_food * full_hunger + half_food * half_hunger + empty_food * empty_hunger
+    
