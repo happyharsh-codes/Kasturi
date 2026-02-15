@@ -665,7 +665,7 @@ class Games(commands.Cog):
             await ctx.send("Specify a food item to eat.")
             return
         eatables = profile.eatables
-        em = Embed(title="Eat Foods", description= f"Health: **{profile.health}** Hunger: **{profile.hunger}**", color = Color.green())
+        em = Embed(title="Eat Foods", description= f"Health: \n**{health_string(profile.health)}**\nHunger: \n**{hunger_string(profile.hunger)}**", color = Color.green())
         em.set_footer(text=f"Eat by {ctx.author.display_name} {timestamp(ctx)}")
         view = View(timeout=45)
         async def timeout():
@@ -676,7 +676,7 @@ class Games(commands.Cog):
         view.on_timeout = timeout
         def update():
             nonlocal em, view, on_eat
-            em.description = f"Health: **{profile.health}** Hunger: **{profile.hunger}**"
+            em.description= f"Health: \n**{health_string(profile.health)}**\nHunger: \n**{hunger_string(profile.hunger)}**"
             view.clear_items()
             if not eatables:
                 em.description += "\nYou have nothing to eat"
