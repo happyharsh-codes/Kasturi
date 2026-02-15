@@ -133,7 +133,7 @@ class Games(commands.Cog):
         view.add_item(expand_btn)
         view.add_item(right_btn)
         category_select.callback = on_select
-        left_btn.btn.callback = on_click
+        left_btn.callback = on_click
         expand_btn.callback = on_click
         right_btn.callback = on_click
         update("eatables")
