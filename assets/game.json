@@ -358,7 +358,7 @@
     "scroll": {"emoji":"📜","level":2,"category":"assets","places":["ancient_cave","library"],"use":"Read spells","info":"Ancient scroll with cryptic writings"},
     "cash": {"emoji":"<:cash:1433171762668896388>","level":1,"category":"assets","info":"Very useful handy currency. Can be used to purchase items in the shop."},
     "gem": {"emoji":"<a:gem:1433171777017610260>", "level":4,"category":"assets","info":"Rich currency. An alternative for cash, high value in shop."},
-    "orb": {"emoji":"🔮","level":5,"category":"assets","info":"Black Magic Orb - The currency for the black market."},
+    "orb": {"emoji":"<:orb:1472550711551201300>","level":5,"category":"assets","info":"Black Magic Orb - The currency for the black market."},
     "key": {"emoji":"🔑","buy":30,"sell":15,"level":1,"category":"assets","places":["village_inn","forest"],"use":"Unlock doors","info":"Small iron key"},
     "master_key": {"emoji":"🗝️","level":3,"category":"assets","places":["dragon_spire","ancient_cave"],"use":"Unlock any door","info":"Rare master key with magical powers"},
     "ancient_vase": {"emoji":"🏺","level":3,"category":"assets","places":["ancient_cave","desert_ruins"],"use":"Decorative","info":"Old vase with intricate carvings"},
