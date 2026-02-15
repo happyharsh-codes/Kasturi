@@ -133,7 +133,7 @@ class Games(commands.Cog):
         view.add_item(expand_btn)
         view.add_item(right_btn)
         category_select.callback = on_select
-        left.btn.callback = on_click
+        left_btn.btn.callback = on_click
         expand_btn.callback = on_click
         right_btn.callback = on_click
         update("eatables")
@@ -147,7 +147,7 @@ class Games(commands.Cog):
     async def beg(self, ctx):
         profile = GameProfile(ctx.author.id)
         beg_amt = randint(1, 100)
-        await ctx.send(f"{ctx.author.mention} You got {beg_amt} in your bowl!! {kemoji()}")
+        await ctx.send(f"{ctx.author.mention} You got {beg_amt} <:cash:1433171762668896388> in your bowl!! {kemoji()}")
         profile.inv_manager("cash", beg_amt)
 
     # ========= WORK / JOBS =========
@@ -1095,9 +1095,9 @@ class Games(commands.Cog):
         profile = GameProfile(ctx.author.id)
         profile.inv_manager("cash", reward)
         if not gems:
-            await ctx.send(f"You claimed your daily reward of {reward} cash.")
+            await ctx.send(f"You claimed your daily reward of {reward} <:cash:1433171762668896388>.")
         else:
-            await ctx.send(f"You claimed your daily reward of {reward} cash.")
+            await ctx.send(f"You claimed your daily reward of {reward} <:cash:1433171762668896388>.")
         
     # ========= BATTLE / KILL / MARRY =========
 
