@@ -985,7 +985,7 @@ class Moderation(commands.Cog):
             async def on_submit(self, inter: Interaction):
               try:
                 nonlocal em, view, words, feature_select, feature
-                words = map(lambda x: x.strip(), self.custom_words_block.value.split(","))
+                words = [x.strip() for x in self.custom_words_block.value.split(",")]
                 em = msg.embeds[0]
                 em.description = "Features succesfully Set"
                 selected_features = [x.value for x in feature_select.options if x.default]
