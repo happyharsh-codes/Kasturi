@@ -1085,7 +1085,7 @@ class Games(commands.Cog):
                     select = category_select
                     level_select.disabled = False
                 for option in select.options:
-                    option.default = option.val == selected
+                    option.default = option.value == selected
                 await inter.response.edit_messgae(embed = em, view=view)
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
@@ -1205,7 +1205,7 @@ class Games(commands.Cog):
                     select = category_select
                     level_select.disabled = False
                 for option in select.options:
-                    option.default = option.val == selected
+                    option.default = option.value == selected
                 await inter.response.edit_messgae(embed = em, view=view)
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
