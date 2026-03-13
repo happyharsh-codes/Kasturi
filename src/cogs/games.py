@@ -1044,7 +1044,7 @@ class Games(commands.Cog):
                 em.set_thumbnail(url=emoji_url(GAME["id"][list(buy_items.keys())[page]]))
                 amount = item["buy"] * qty
                 buy.label = f"Buy for ₹{amount}"
-                em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page+1} of {len(buy_items)", icon_url=ctx.author.avatar)
+                em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page+1} of {len(buy_items)}", icon_url=ctx.author.avatar)
                 
             async def on_select(inter: Interaction):
               try:
