@@ -64,7 +64,10 @@ async def perform_task(task, uid, client):
         gain = randint(1, 5)
         profile.skills_manager(subject, gain)
         progress = profile.skills.get(subject, 0)
-        em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task['emoji']} and gained {gain}%. Progress: {progress}%.", color = Color.green())
+        blocks = int(progress // 10)
+        progress_bar = "▓" * blocks + "░" * (10 - blocks)
+        
+        em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task['emoji']} and gained {gain}%. Progress: {progress_bar} {progress}%.", color = Color.green())
         em.set_footer(text= f"Class ▓▓▓▓▓▓▓▓▓▓100% Completed | Skill++")
         await channel.send(f"<@{uid}>", embed= em)
 
@@ -83,12 +86,13 @@ async def perform_task(task, uid, client):
         profile.location = place
         rewards = profile.reward_player(task["drops"])  
         em = Embed(title="Explore",description=f"You explored around {place.capitalize()} and got:\n{rewards}",color=Color.green())  
+        profile.place_manager(place)
         try:
             msg = await channel.fetch_message(task["message"])
-            profile.place_manager(place)
+            ctx = await client.get_context(msg)
             em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)  
         except:
-            profile.places[place] = min((profile.place.get(place, 0) + randint(1,6)), 100)
+            return
         await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`.", embed=em)
         
     else:
