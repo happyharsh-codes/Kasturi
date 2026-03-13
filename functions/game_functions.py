@@ -1,4 +1,4 @@
-import random
+import random, re
 import discord
 from discord.ext import commands
 from __init__ import*
@@ -280,6 +280,18 @@ def at_the_location(locations):
         await ctx.reply(f"You must be at `{','.join(pretty)}` to run this command")
         return False
     return commands.check(predicate)
+    
+def get_emoji_url(text):
+    match = re.search(r'<(a?):(\w+):(\d+)>', text)
+    if match:
+        animated, name, emoji_id = match.groups()
+        ext = "gif" if animated else "png"
+        return f"https://cdn.discordapp.com/emojis/{emoji_id}.{ext}"
+    if text:
+        codepoints = "-".join(f"{ord(c):x}" for c in text)
+        return f"https://twemoji.maxcdn.com/v/latest/72x72/{codepoints}.png"
+    return None
+
 
 class GameProfile:
 
