@@ -68,7 +68,7 @@ class Games(commands.Cog):
         
         #buttons
         left_btn = Button(emoji="<:leftarrow:1427527800533024839>", custom_id="left", style=ButtonStyle.blurple, disabled=True)
-        expand_btn = Button(label="Show", custom_id="expand", style=ButtonStyle.blurple)
+        expand_btn = Button(label="Expand", custom_id="expand", style=ButtonStyle.blurple)
         right_btn = Button(emoji="<:rightarrow:1427527709403119646>", custom_id="right", style=ButtonStyle.blurple)
         
         def update(selected_category):
@@ -639,7 +639,7 @@ class Games(commands.Cog):
             profile.location = "travelling"
             profile.activity = "travelling"
             view.timeout = None
-            await inter.response.edit_message(file=gif, embed=em, view=None)
+            await inter.response.edit_message(embed=em, view=None)
             profile.add_task("travelling", travel_time, msg.channel.id, msg.id, destination = loc)
             return
               
@@ -1014,31 +1014,144 @@ class Games(commands.Cog):
     @has_profile()
     async def buy(self, ctx, item: Optional[str] = None, amount: int = 1):
         """Welcome to the Shop: Buy anything using cash or gems."""
+        profile = GameProfile(ctx.author.id)
         if not item:
-            await ctx.send("Specify an item to buy.")
-            return
-        item = item.lower()
-        if item not in DATA.get("shop", {}):
-            await ctx.send("That item is not sold here.")
-            return
-        if amount <= 0:
-            await ctx.send("Invalid amount.")
-            return
-        price = DATA["shop"][item] * amount
-        if Profiles[str(ctx.author.id)]["assets"].get("cash", 0) < price:
-            await ctx.send("You do not have enough cash.")
-            return
-        inv_manager(str(ctx.author.id), "cash", -price)
-        inv_manager(str(ctx.author.id), item, amount)
-        await ctx.send(f"You bought {DATA['id'].get(item, item)} x{amount} for {price} cash.")
+            categories = ["Eatables", "Animals", "Plants", "Assets", "Tools", "Weapons", "Vehicles", "Minerals", "Builds"]
+            category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
+            levels = ["Common", "Unique", "Rare", "Epic", "Legendary"]
+            level_select = Select(custom_id="level", disabled=True,placeholder="Select Level",options=[SelectOption(label=i, value=i.lower()) for i in levels],max_values=1,min_values=1)
+            buy = Button(label = "Buy for ₹", custom_id="buy", style= ButtonStyle.green)
+            left_btn = Button(emoji="<:leftarrow:1427527800533024839>", custom_id="left", style=ButtonStyle.blurple, disabled=True)
+            right_btn = Button(emoji="<:rightarrow:1427527709403119646>", custom_id="right", style=ButtonStyle.blurple)
+            remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.blurple, disabled=True)
+            add_btn = Button(emoji="➕", custom_id="add", style=ButtonStyle.blurple)
+            
+            page = 0
+            qty = 1
+            buy_items = {}
+            
+            em = Embed(title="Shop", description="Select item category and level you want to buy", color = Color.green())
+            em.set_footer(text=f"Buy by {ctx.author.display_name}", icon_url= ctx.author.avatar)
 
+            view = View(timeout = 40)
+            view.add_item(category_select)
+            view.add_item(level_select)
+
+            def update():
+                nonlocal em, page, buy_items, qty, buy,
+                item = GAME["id"][list(buy_items.keys())[page]]
+                em.description = f"**{list(buy_items.keys())[page]}**\nCategory: {item['category']\nLevel: {item['level']}"
+                em.set_thumbnail(url=emoji_url(GAME["id"][list(buy_items.keys())[page]]))
+                amount = item["buy"] * qty
+                buy.label = f"Buy for ₹{amount}"
+                em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page+1} of {len(buy_items)", icon_url=ctx.author.avatar)
+                
+            async def on_select(inter: Interaction):
+              try:
+                if inter.user.id != ctx.author.id:
+                    return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+                nonlocal category_select, buy, level_select, em, view, profile, buy_items, left_btn, right_btn, add_btn, remove_btn, page
+                selected = inter.data["values"][0]
+                if inter.data["custom_id"] == "level":
+                    select = level_select
+                    view.clear_items()
+                    view.add_item(category_select)
+                    view.add_item(level_select)
+                    view.add_item(left_btn)
+                    view.add_item(remove_btn)
+                    view.add_item(buy)
+                    view.add_item(add_btn)
+                    view.add_item(right_btn)
+
+                    for option in category_select.options:
+                        if option.default:
+                            category = option.val
+                            break
+                    if selected.split()[0] == "common": level = 1
+                    elif selected.split()[0] == "unique": level = 2
+                    elif selected.split()[0] == "rare": level = 3
+                    elif selected.split()[0] == "epic": level = 4
+                    else: level = 5
+
+                    buy_items = {}
+                    page = 0
+                    for i in GAME["id"]:
+                        if i["category"] == category and i["level"] == level:
+                            if not "buy" in i:
+                                continue
+                            buy_items[i] = i["buy"]
+                    update()
+                else:
+                    select = category_select
+                    level_select.disabled = False
+                for option in select.options:
+                    option.default = option.val == selected
+                await inter.response.edit_messgae(embed = em, view=view)
+              except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
+        
+            async def on_buy(inter: Interaction):
+              try:
+                if inter.user.id != ctx.author.id:
+                    return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+                nonlocal em, view, msg, qty, buy_items, page
+                profile.inv_manager('cash', -qty*buy_items[page])
+                profile.inv_manager(list(buy_items.keys())[page], +qty)
+                em.description = f"Buying Successful."
+                await inter.response.edit_message(embed = em, view=None)
+              except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
+        
+            async def on_qty(inter: Interaction):
+                if inter.user.id != ctx.author.id:
+                    return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+                nonlocal em, view, msg, buy, remove_btn, profile, buy_items, qty, page
+                if inter.data["custom_id"] == "add":
+                    qty += 1
+                else:
+                    qty -= 1
+                remove_btn.disabled = qty == 1
+                buy.disabled = qty*buy_items[page] > profile.get("assets", {"cash":0}).get("cash", 0)        
+                await inter.response.edit_message(embed = em, view = view)
+            
+            async def on_move(inter: Interaction):
+                if inter.user.id != ctx.author.id:
+                    return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+                nonlocal em, view, msg, buy, remove_btn, profile, buy_items, qty, page
+                if inter.data["custom_id"] == "left":
+                    page -= 1
+                else:
+                    page += 1
+                left_btn.disabled = page == 0
+                right_btn.disabled = page == len(buy_items) - 1
+                update()
+                await inter.response.edit_message(embed = em, view = view)
+                
+            async def on_timeout():
+                nonlocal em, view, msg
+                for children in view.children:
+                    children.disabled = True
+                await msg.edit(embed=em, view=view)
+
+            category_select.callback = on_select
+            level_select.callback = on_select
+            buy.callback = on_buy
+            left_btn.callback = on_move
+            right_btn.callback = on_move
+            add_btn.callback = on_qty
+            remove_btn.callback = on_qty
+            view.on_timeout = on_timeout
+            
+            msg = await ctx.send(embed=em, view=view)
+            return
+            
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
-    async def sell(self, ctx, item: Optional[str] = None, amount: int = 1):
+    async def sell(self, ctx, item: Optional[str] = None, amount=1):
         """Welcome to the Shop: Sell anything for estimated cash value."""
         profile = GameProfile(ctx.author.id)
-        if not item:
+        if not item:   
             categories = ["Eatables", "Animals", "Plants", "Assets", "Tools", "Weapons", "Vehicles", "Minerals", "Builds"]
             category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
             levels = ["Common", "Unique and Below", "Rare and Below", "Epic and Below", "Legendary and Below"]
@@ -1055,6 +1168,7 @@ class Games(commands.Cog):
             view.add_item(level_select)
 
             async def on_select(inter: Interaction):
+              try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
                 nonlocal category_select, sell, level_select, em, view, profile, amount
@@ -1093,16 +1207,22 @@ class Games(commands.Cog):
                 for option in select.options:
                     option.default = option.val == selected
                 await inter.response.edit_messgae(embed = em, view=view)
-            
+              except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
+        
             async def on_sell():
+              try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
                 nonlocal em, view, msg, amount
-                profie.inv_manager('cash', amount)
+                profile.inv_manager('cash', amount)
                 em.description = f"Selling Successful\nYou successfully sold all your items for ₹{amount}."
                 await inter.response.edit_message(embed = em, view=None)
-            
+              except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
+        
             async def on_expand():
+              try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
                 nonlocal em, view, msg, amount, profile, category_select, level_select
@@ -1130,7 +1250,9 @@ class Games(commands.Cog):
                     em.description += f"{i} {GAME['id'][i]['emoji']} x {filtered_inv_items[i]} = ₹{GAME['id'][i]['sell']} * {filtered_inv_items[i]}"
                     amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
                 await inter.response.edit_message(embed = em, view = view)
-                
+              except Exception as e:
+                await self.client.get_user(894072003533877279).send(e)
+        
             async def on_timeout():
                 nonlocal em, view, msg
                 for children in view.children:
