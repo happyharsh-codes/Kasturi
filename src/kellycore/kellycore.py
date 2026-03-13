@@ -265,7 +265,7 @@ class Kelly:
                     if "execution" in result and result["execution"] == "now":
                         await self.runCommand(message, command, params)
                     elif "execution" in result and result["execution"] == "later":
-                        await self.kelly.ayasakaQueueTask(message, command, params)
+                        await self.ayasaka.ayasakaQueueTask(message, command, params)
                 
             #-----Updating Kelly Now-----#
             await self.mood.modifyMood({"sleepy": randint(1,8)})
@@ -483,9 +483,9 @@ class Kelly:
         """Bot thinks of making user a friend when respect is high."""
         # Think message
         if message.author.id in self.memory._memory["friends"]:
-            if randint(1,6) == 5:
+            if randint(1,10) == 5:
                 #------ Sending message------#
-                prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\nReply in 10–30 words, 0–3 emojis based on your mood\nYou already replied to user, send one more continuation message, as you are friends now.\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict"""
+                prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\nReply in 10–30 words, 0–3 emojis based on your mood\nYou already replied to user, send one more message continuing the chat.\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict"""
                 async with message.channel.typing():
                     assist = self.memory.getUserChatData(message.author.id) #getting previous chats
                     kelly_reply = getResponse(message.content, prompt, assistant= assist)
