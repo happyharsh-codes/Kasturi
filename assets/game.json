@@ -1,5 +1,5 @@
 {
-  "job": {
+  "jobs": {
     "doctor": ["science"],
     "engineer": ["science", "mechanics", "math"],
     "teacher": ["teaching"],
