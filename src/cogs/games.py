@@ -1038,7 +1038,7 @@ class Games(commands.Cog):
             view.add_item(level_select)
 
             def update():
-                nonlocal em, page, buy_items, qty, buy,
+                nonlocal em, page, buy_items, qty, buy
                 item = GAME["id"][list(buy_items.keys())[page]]
                 em.description = f"**{list(buy_items.keys())[page]}**\nCategory: {item['category']\nLevel: {item['level']}"
                 em.set_thumbnail(url=emoji_url(GAME["id"][list(buy_items.keys())[page]]))
