@@ -1127,7 +1127,7 @@ class Games(commands.Cog):
                         filtered_inv_item[i] = inv_items[i]
                 em.decription = f"**{category}**\n"
                 for i in filtered_inv_item:
-                    em.description += f"{i} {GAME['id'][i]['emoji'] x {filtered_inv_items[i]} = ₹{GAME['id'][i]['sell'] * filtered_inv_items[i]}"
+                    em.description += f"{i} {GAME['id'][i]['emoji']} x {filtered_inv_items[i]} = ₹{GAME['id'][i]['sell']} * {filtered_inv_items[i]}"
                     amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
                 await inter.response.edit_message(embed = em, view = view)
                 
