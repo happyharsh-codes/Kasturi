@@ -933,7 +933,7 @@ class Games(commands.Cog):
             amount = int(item)
             item = "cash"
         item = item.lower().replace(" ","_")
-        if item not in DATA["id"]:
+        if item not in GAME["id"]:
             await ctx.send("Invalid item.")
             return
         if amount <= 0 or amount > 100000:
@@ -967,10 +967,10 @@ class Games(commands.Cog):
             profile.inv_manager(item, -amount)
             profile2 = GameProfile(user.id)
             profile2.inv_manager(item, amount)
-            em.description = f"{kemoji()} Successfully sent {DATA['id'][item]} {item} x {amount} to {user.mention}."
+            em.description = f"{kemoji()} Successfully sent {GAME['id'][item]['emoji']} {item} x {amount} to {user.mention}."
             view = None
             await inter.response.edit_message(embed=em, view=None)
-            await ctx.send(f"{user.mention} You received a gift",embed=Embed(description=f"You have received an item from {ctx.author.mention}\n{DATA['id'][item]} {item} x {amount}",color=Color.green()))
+            await ctx.send(f"{user.mention} You received a gift",embed=Embed(description=f"You have received an item from {ctx.author.mention}\n{GAME['id'][item]['emoji']} {item} x {amount}",color=Color.green()))
 
         async def on_discard(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -1088,7 +1088,7 @@ class Games(commands.Cog):
                     level_select.disabled = False
                 for option in select.options:
                     option.default = option.value == selected
-                await inter.response.edit_messgae(embed = em, view=view)
+                await inter.response.edit_message(embed = em, view=view)
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
         
@@ -1208,7 +1208,7 @@ class Games(commands.Cog):
                     level_select.disabled = False
                 for option in select.options:
                     option.default = option.value == selected
-                await inter.response.edit_messgae(embed = em, view=view)
+                await inter.response.edit_message(embed = em, view=view)
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
         
