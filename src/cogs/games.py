@@ -205,12 +205,12 @@ class Games(commands.Cog):
                 em.description = "Select a profession from the menu."
                 return
             needed_skills = GAME["jobs"].get(option.value, [])
-            progress = (sum(profile_skills.get(i,0) for i in needed_skills)) / len(needed_skills)
+            progress = (sum(profile.skills.get(i,0) for i in needed_skills)) / len(needed_skills)
             descrip = (
                 f"**{option.label}** {option.emoji}\n"
                 f"{option.description}\n"
                 f"**Skills Required**: {', '.join(needed_skills) if needed_skills else 'None'}\n"
-                f"**Skills Mastered**: {progress}%
+                f"**Skills Mastered**: {progress}%"
                 f"**Salary**: {salary[option.value]}"
             )
             em.description = descrip
@@ -285,7 +285,7 @@ class Games(commands.Cog):
 
     # ========= SCHOOL / SKILLS =========
 
-    @commands.hybrid_command(aliases=["skills"])
+    @commands.hybrid_command(aliases=["skills", "study"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     @not_busy()
@@ -338,7 +338,7 @@ class Games(commands.Cog):
             if not option:
                 em.description = "Select a skill from the menu."
                 return
-            jobs = [x for x in GAME["jobs"] if option.value in DATA["jobs"][x]]
+            jobs = [x for x in GAME["jobs"] if option.value in GAME["jobs"][x]]
             descrip = (
                 f"**{option.label}** {option.emoji}\n"
                 f"{option.description}\n"
