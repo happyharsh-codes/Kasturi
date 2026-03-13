@@ -205,10 +205,12 @@ class Games(commands.Cog):
                 em.description = "Select a profession from the menu."
                 return
             needed_skills = GAME["jobs"].get(option.value, [])
+            progress = (sum(profile_skills.get(i,0) for i in needed_skills)) / len(needed_skills)
             descrip = (
                 f"**{option.label}** {option.emoji}\n"
                 f"{option.description}\n"
                 f"**Skills Required**: {', '.join(needed_skills) if needed_skills else 'None'}\n"
+                f"**Skills Mastered**: {progress}%
                 f"**Salary**: {salary[option.value]}"
             )
             em.description = descrip
@@ -229,12 +231,12 @@ class Games(commands.Cog):
 
             profile_skills = profile.skills
             required = GAME["jobs"].get(selected.value, [])
-            if all(skill in profile_skills and profile_skills.get(skill,0) > 0 for skill in required):
+            if all(skill in profile_skills and profile_skills.get(skill,0) > 10 for skill in required):
                 work_btn.disabled = False
                 work_btn.label = "Work"
             else:
                 work_btn.disabled = True
-                work_btn.label = "Job not available"
+                work_btn.label = "Skill Issue 🥀"
 
             view.clear_items()
             view.add_item(category_select)
