@@ -81,9 +81,9 @@ class Games(commands.Cog):
     
             for item_key, val in items.items():
                 emoji = GAME["id"][item_key]["emoji"]
-                descrip += f"`{emoji} {val}` "
+                descrip += f"{emoji} `{val}` "
                 
-            if not descrip:
+            if descrip == f"**{selected_category.title()}**\n":
                 descrip += "`No items in this category`"
             em.description = descrip
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i.title(), value=i) for i in categories],max_values=1,min_values=1)
@@ -124,9 +124,7 @@ class Games(commands.Cog):
         async def on_timeout():
             nonlocal msg, view, em
             em.color = Color.light_grey()
-            for child in view.children:
-                child.disabled = True
-            await msg.edit(embed=em, view=view)
+            await msg.edit(embed=em, view=None)
 
         view = View(timeout=45)
         view.on_timeout = on_timeout
@@ -218,6 +216,7 @@ class Games(commands.Cog):
         view = View(timeout=45)
 
         async def on_select(inter: Interaction):
+          try:
             nonlocal profile, selected, work_btn, category_select, em, view, update
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
@@ -242,8 +241,11 @@ class Games(commands.Cog):
             view.add_item(work_btn)
             update(selected)
             await inter.response.edit_message(embed=em, view=view)
-
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         async def on_work(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
@@ -263,7 +265,9 @@ class Games(commands.Cog):
             profile.add_task("working", randint(3600,7200), inter.channel_id, inter.message.id, salary = sal, profession = selected.value)
             profile.activity = "working"
             view.timeout = None
-            
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         async def timeout():
             em.color = Color.light_grey()
             for child in view.children:
@@ -344,6 +348,7 @@ class Games(commands.Cog):
         view = View(timeout=45)
 
         async def on_select(inter: Interaction):
+          try:
             nonlocal selected, view, em, study_btn
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
@@ -359,8 +364,11 @@ class Games(commands.Cog):
             view.add_item(study_btn)
             update(selected)
             await inter.response.edit_message(embed=em, view=view)
-
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         async def on_study(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed=Embed(description="This interaction is not for you", color=Color.red()),ephemeral=True)
                 return
@@ -371,7 +379,9 @@ class Games(commands.Cog):
             view.timeout = None
             profile.add_task("studying", due, inter.channel_id, inter.message.id, subject = selected.value)
             profile.activity = "studying"
-            
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         async def timeout():
             em.color = Color.light_grey()
             for child in view.children:
@@ -403,8 +413,7 @@ class Games(commands.Cog):
 
         rewards = profile.reward_player(drops)
         if not rewards:
-            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
-            
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))    
         await ctx.reply(embed= Embed(title=f"Hunting in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=[])
@@ -424,7 +433,6 @@ class Games(commands.Cog):
         rewards = profile.reward_player(drops)
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
-            
         await ctx.reply(embed= Embed(title=f"Chopping in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=[])
@@ -443,8 +451,7 @@ class Games(commands.Cog):
 
         rewards = profile.reward_player(drops)
         if not rewards:
-            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
-            
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))  
         await ctx.reply(embed= Embed(title=f"Farming in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=[])
@@ -464,7 +471,6 @@ class Games(commands.Cog):
         rewards = profile.reward_player(drops)
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
-            
         await ctx.reply(embed= Embed(title=f"Mining in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=[])
@@ -507,8 +513,7 @@ class Games(commands.Cog):
 
         rewards = profile.reward_player(drops)
         if not rewards:
-            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
-            
+            return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))  
         await ctx.reply(embed= Embed(title=f"Adventure in the {loc.capitalize()}", description=rewards,color=Color.green()))
 
     @commands.hybrid_command(aliases=["exp"])
@@ -577,20 +582,17 @@ class Games(commands.Cog):
             if loc not in places:
                 return await ctx.send("Invalid Place given")
             travel_time = randint(1,20)
-            generate_travel_gif(profile.location.replace("_"," ").title(), place.title(), travel_time, 1, "km")
+            #generate_travel_gif(profile.location.replace("_"," ").title(), place.title(), travel_time, 1, "km")
             em = Embed(title="Travel",description=f"You started your journey to the {place.title()}. Wait until you reach the destination.", color = Color.green())
             em.set_image(url="attachment://travel.gif")
             gif = discord.File("travel.gif")
             
             profile.location = "travelling"
             profile.activity = "travelling"
-           
-            await ctx.send(file=gif, embed=em)
-            await asyncio.sleep(travel_time)
-            profile.location = loc
-            profile.activity = "sleeping"
-            return await ctx.send(f"{ctx.author.mention} you have reached {place.title()}")
-                
+            msg = await ctx.send(file=gif, embed=em)
+            profile.add_task("travelling", travel_time, msg.channel.id, msg.id, destination=loc)
+            return
+            
         go_btn = Button(style=ButtonStyle.green, custom_id="go", label="🏃 Go", disabled=True)
         #return_btn = Button(style=ButtonStyle.secondary, custom_id="return", label="↩️ Return", disabled=True)
 
@@ -609,6 +611,7 @@ class Games(commands.Cog):
         #view.add_item(return_btn)
 
         async def on_select(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal go_btn, place_select, view
@@ -616,7 +619,9 @@ class Games(commands.Cog):
             for option in place_select.options:
                 option.default = (option.value == inter.data["values"][0])
             await inter.response.edit_message(view=view)
-
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         async def on_go(inter: Interaction):
           try:
             if inter.user.id != ctx.author.id:
@@ -627,7 +632,7 @@ class Games(commands.Cog):
                     loc = option.value
                     break
             travel_time = randint(1,20)
-            generate_travel_gif(profile.location.title(), loc.title(), travel_time, 1, "km")
+            #generate_travel_gif(profile.location.title(), loc.title(), travel_time, 1, "km")
             gif = discord.File("travel.gif")
             em.description = f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination."
             em.set_image(url="attachment://travel.gif")
@@ -635,10 +640,9 @@ class Games(commands.Cog):
             protile.activity = "travelling"
             view.timeout = None
             await inter.response.edit_message(file=gif, embed=em, view=None)
-            await asyncio.sleep(travel_time)
-            profile.location = loc
-            profile.activity = "sleeping"
-            return await ctx.send(f"{ctx.author.mention} you have reached {loc.title()}")
+            profile.add_task("travelling", travel_time, msg.channel.id, msg.id, destination = loc)
+            return
+              
           except Exception as e:
               await inter.client.get_user(894072003533877279).send(str(e))
         async def on_return(inter: Interaction):
@@ -693,7 +697,7 @@ class Games(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal eatables, em, view, update
             food = inter.data["custom_id"].split("_")[0]
-            profile.inv_manager(food, 1)
+            profile.inv_manager(food, -1)
             eatables[food] -= 1
             if eatables[food] == 0:
                 del eatables[food]
@@ -1033,8 +1037,113 @@ class Games(commands.Cog):
     @has_profile()
     async def sell(self, ctx, item: Optional[str] = None, amount: int = 1):
         """Welcome to the Shop: Sell anything for estimated cash value."""
+        profile = GameProfile(ctx.author.id)
         if not item:
-            await ctx.send("Specify an item to sell.")
+            categories = ["Eatables", "Animals", "Plants", "Assets", "Tools", "Weapons", "Vehicles", "Minerals", "Builds"]
+            category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
+            levels = ["Common", "Unique and Below", "Rare and Below", "Epic and Below", "Legendary and Below"]
+            level_select = Select(custom_id="level", disabled=True,placeholder="Select Level",options=[SelectOption(label=i, value=i.lower()) for i in levels],max_values=1,min_values=1)
+            sell = Button(label = "Sell for ₹", custom_id="sell", style= ButtonStyle.green)
+            expand = Button(label = "Expand", custom_id="expand", style= ButtonStyle.blurple)
+            amount = 0
+            
+            em = Embed(title="Shop", description="Select item category and level you want to sell", color = Color.green())
+            em.set_footer(text=f"Sell by {ctx.author.display_name}", icon_url= ctx.author.avatar)
+
+            view = View(timeout = 40)
+            view.add_item(category_select)
+            view.add_item(level_select)
+
+            async def on_select(inter: Interaction):
+                if inter.user.id != ctx.author.id:
+                    return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+                nonlocal category_select, sell, level_select, em, view, profile, amount
+                selected = inter.data["values"][0]
+                if inter.data["custom_id"] == "level":
+                    select = level_select
+                    view.clear_items()
+                    view.add_item(category_select)
+                    view.add_item(level_select)
+                    view.add_item(sell)
+                    view.add_item(expand)
+                    
+                    for option in category_select.options:
+                        if option.default:
+                            category = option.val
+                            break
+                    if selected.split()[0] == "common": level = 1
+                    elif selected.split()[0] == "unique": level = 2
+                    elif selected.split()[0] == "rare": level = 3
+                    elif selected.split()[0] == "epic": level = 4
+                    else: level = 5
+    
+                    inv_items = profile.get(category, {})
+                    filtered_inv_items = []
+                    for i in inv_items:
+                        if GAME["id"][i]["level"] <= level:
+                            filtered_inv_item[i] = inv_items[i]
+                    em.decription = f"**{category}**\n"
+                    for i in filtered_inv_item:
+                        em.description += GAME["id"][i]["emoji"]
+                        amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
+                    sell.label = f"Sell for ₹{amount}"
+                else:
+                    select = category_select
+                    level_select.disabled = False
+                for option in select.options:
+                    option.default = option.val == selected
+                await inter.response.edit_messgae(embed = em, view=view)
+            
+            async def on_sell():
+                if inter.user.id != ctx.author.id:
+                    return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+                nonlocal em, view, msg, amount
+                profie.inv_manager('cash', amount)
+                em.description = f"Selling Successful\nYou successfully sold all your items for ₹{amount}."
+                await inter.response.edit_message(embed = em, view=None)
+            
+            async def on_expand():
+                if inter.user.id != ctx.author.id:
+                    return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+                nonlocal em, view, msg, amount, profile, category_select, level_select
+                for option in category_select.options:
+                    if option.default:
+                        category = option.val
+                        break
+                for option in level_select.options:
+                    if option.default:
+                        levels = option.val
+                        break
+                if levels.split()[0] == "common": level = 1
+                elif levels.split()[0] == "unique": level = 2
+                elif levels.split()[0] == "rare": level = 3
+                elif levels.split()[0] == "epic": level = 4
+                else: level = 5
+    
+                inv_items = profile.get(category, {})
+                filtered_inv_items = []
+                for i in inv_items:
+                    if GAME["id"][i]["level"] <= level:
+                        filtered_inv_item[i] = inv_items[i]
+                em.decription = f"**{category}**\n"
+                for i in filtered_inv_item:
+                    em.description += f"{i} {GAME['id'][i]['emoji'] x {filtered_inv_items[i]} = ₹{GAME['id'][i]['sell'] * filtered_inv_items[i]}"
+                    amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
+                await inter.response.edit_message(embed = em, view = view)
+                
+            async def on_timeout():
+                nonlocal em, view, msg
+                for children in view.children:
+                    children.disabled = True
+                await msg.edit(embed=em, view=view)
+
+            category_select.callback = on_select
+            level_select.callback = on_select
+            sell.callback = on_sell
+            expand.callback = on_expand
+            view.on_timeout = on_timeout
+            
+            msg = await ctx.send(embed=em, view=view)
             return
         item = item.lower()
         if amount <= 0:
