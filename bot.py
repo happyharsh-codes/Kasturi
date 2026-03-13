@@ -1020,7 +1020,7 @@ class Bot:
                         rank_channel = await message.guild.fetch_channel(metadata["rank_channel"])
                         await rank_channel.send(f"{author.mention} has reached **Level {level+1}!** 🎉")
                         # Check for any Rank Rewards
-                        if metadat["rank_reward"]:
+                        if metadata["rank_reward"]:
                             await self.rankRewards(message, rank_channel, metadata["rank_reward"], level+1)
                     except:
                         await channel.send(embed=Embed(title="Rank Channel Missing", description="Server Rank Channel is missing either because channel is deleted or I don't have access to that channel. Please set your rank channel again using `k set_rank_channel`", color=Color.red()))
