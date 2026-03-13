@@ -637,7 +637,7 @@ class Games(commands.Cog):
             em.description = f"You started your journey to the {loc.replace('_', ' ').title()}. Wait until you reach the destination."
             em.set_image(url="attachment://travel.gif")
             profile.location = "travelling"
-            protile.activity = "travelling"
+            profile.activity = "travelling"
             view.timeout = None
             await inter.response.edit_message(file=gif, embed=em, view=None)
             profile.add_task("travelling", travel_time, msg.channel.id, msg.id, destination = loc)
