@@ -1354,8 +1354,11 @@ class Moderation(commands.Cog):
                     view.add_item(done_btn)
             
             await inter.response.edit_message(view=view)
-          
+          except Exception as e:
+            await interaction.client.get_user(894072003533877279).send(e)
+ 
         async def on_role_select(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
 
