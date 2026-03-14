@@ -724,7 +724,7 @@ class Games(commands.Cog):
         remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.blurple, disabled=True)
         add_btn = Button(emoji="➕", custom_id="add", style=ButtonStyle.blurple)
             
-        crafts = { {key: val['craft']} for key , val in GAME['id'].items() if val['category'] == 'builds'}
+        crafts = { key: val['craft'] for key , val in GAME['id'].items() if val['category'] == 'builds'}
         page = 0
         qty = 1
 
@@ -741,19 +741,19 @@ class Games(commands.Cog):
             item_name = list(crafts.keys())[page]
             item = GAME['id'][item_name]
             em.description = f"**{item_name.replace('_',' ').title()}**\n\nRequirements:"
-            craft_btn.disabled = False
+            build_btn.disabled = False
             em.color = Color.green()
-            for key, val in crafts[item_name]:
+            for key, val in crafts[item_name].items():
                 if profile.inv_searcher(key, val*qty):
                     em.description += f"✅ {key} {GAME['id'][key]['emoji']} x {val*qty}\n"
                 else: 
                     em.description += f"❌ {key} {GAME['id'][key]['emoji']} x {val*qty}\n"
-                    craft_btn.disabled = True
+                    build_btn.disabled = True
                     em.color = Color.red()
 
             em.description += f"Quantity: \n{qty}"
             em.set_thumbnail(url= get_emoji_url(item['emoji']))
-            em.set_footer(text= f"Craft by {ctx.author.display_name} | Page {page+1} of {len(crafts)-1}", icon_url=ctx.author.avatar)
+            em.set_footer(text= f"Craft by {ctx.author.display_name} | Page {page+1} of {len(crafts)}", icon_url=ctx.author.avatar)
             
         async def on_build(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -772,7 +772,7 @@ class Games(commands.Cog):
             profile.add_task("building", craft_time, msg.channel.id, msg.id, item = item_name, qty = qty)
             return
             
-        async def on_go(inter: interaction):
+        async def on_go(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal page, crafts, update, go_left, go_right, view, craft_btn
@@ -806,7 +806,7 @@ class Games(commands.Cog):
         view.on_timeout = timeout
         view.add_item(go_left)
         view.add_item(remove_btn)
-        view.add_iten(craft_btn)
+        view.add_item(build_btn)
         view.add_item(add_btn)
         view.add_item(go_right)
         
@@ -814,10 +814,10 @@ class Games(commands.Cog):
         go_right.callback = on_go
         add_btn.callback = on_qty
         remove_btn.callback = on_qty
-        craft_btn.callback = on_craft
+        craft_btn.callback = on_build
     
         update()
-        msg = await ctx.send(embed=cards[page-1], view=view)
+        msg = await ctx.send(embed=em, view=view)
         
                 
     # ========= CRAFT / TRADE / GIVE / USE =========
@@ -849,10 +849,10 @@ class Games(commands.Cog):
                 return await ctx.reply("Invalid Item")
             item = GAME['id'][item]
             category = item['category']
-            for key, val in GAME['id']:
+            for key, val in GAME['id'].items():
                 if val['category'] == category and 'craft' in val:
                     crafts[key] = val['craft']
-            for options in category_select.options
+            for option in category_select.options:
                 option.default = option.value == category 
 
         em = Embed(title= "Craft Recipes", description="Choose your item to craft", colour= Color.green())
@@ -864,7 +864,7 @@ class Games(commands.Cog):
             em.description = f"**{item_name.replace('_',' ').title()}**\n\nRequirements:"
             craft_btn.disabled = False
             em.color = Color.green()
-            for key, val in crafts[item_name]:
+            for key, val in crafts[item_name].items():
                 if profile.inv_searcher(key, val*qty):
                     em.description += f"✅ {key} {GAME['id'][key]['emoji']} x {val*qty}\n"
                 else: 
@@ -874,7 +874,7 @@ class Games(commands.Cog):
 
             em.description += f"Quantity: \n{qty}"
             em.set_thumbnail(url= get_emoji_url(item['emoji']))
-            em.set_footer(text= f"Craft by {ctx.author.display_name} | Page {page+1} of {len(crafts)-1}", icon_url=ctx.author.avatar)
+            em.set_footer(text= f"Craft by {ctx.author.display_name} | Page {page+1} of {len(crafts)}", icon_url=ctx.author.avatar)
 
         async def on_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -889,7 +889,7 @@ class Games(commands.Cog):
             
             view.add_item(go_left)
             view.add_item(remove_btn)
-            view.add_iten(craft_btn)
+            view.add_item(craft_btn)
             view.add_item(add_btn)
             view.add_item(go_right)
             update()
@@ -901,7 +901,7 @@ class Games(commands.Cog):
             nonlocal crafts, page, view, em, profile, msg, qty
             item_name = list(crafts.keys())[page]
             item = GAME['id'][item_name]
-
+            craft_time = random(100, 300)
             for key, val in item['craft']:
                 profile.inv_manager(key, -val*qty)
             em.description = f"You have started crafting {item_name.replace('_',' ').title()} x {qty}.\nEstimated time: {craft_time}\nWait until the crafting is completed, other command may be unavailable during this process."
@@ -911,7 +911,7 @@ class Games(commands.Cog):
             profile.add_task("crafting", craft_time, msg.channel.id, msg.id, item = item_name, qty = qty)
             return
             
-        async def on_go(inter: interaction):
+        async def on_go(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal page, crafts, update, go_left, go_right, view, craft_btn
