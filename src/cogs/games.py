@@ -1045,7 +1045,7 @@ class Games(commands.Cog):
             em.description = f"**{item_name.replace('_',' ').title()}**\nCategory: {item['category']}\nLevel: {item['level']}\nPrice: {item['buy']}\nQuantity: {qty}"
             em.set_thumbnail(url=get_emoji_url(item['emoji']))
             amount = item["buy"] * qty
-            buy.label = f"Buy for ₹{amount}"
+            buy.label = f"₹{amount}"
             buy.disabled = not profile.inv_searcher('cash' , amount)
             em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page+1} of {len(buy_items)}", icon_url=ctx.author.avatar)
                 
@@ -1174,6 +1174,9 @@ class Games(commands.Cog):
         profile = GameProfile(ctx.author.id)
         if not item:   
             categories = ["Eatables", "Animals", "Plants", "Assets", "Tools", "Weapons", "Vehicles", "Minerals", "Builds"]
+            for categ in categories:
+                if not categ:
+                    categories.remove(categ)
             category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
             levels = ["Common", "Unique and Below", "Rare and Below", "Epic and Below", "Legendary and Below"]
             level_select = Select(custom_id="level", disabled=True,placeholder="Select Level",options=[SelectOption(label=i, value=i.lower()) for i in levels],max_values=1,min_values=1)
@@ -1224,6 +1227,7 @@ class Games(commands.Cog):
                         em.description += GAME["id"][i]["emoji"]
                         amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
                     sell.label = f"Sell for ₹{amount}"
+                    
                 else:
                     select = category_select
                     level_select.disabled = False
