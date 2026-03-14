@@ -1094,7 +1094,7 @@ class Games(commands.Cog):
             await self.client.get_user(894072003533877279).send(e)
         
         async def on_buy(inter: Interaction):
-            try:
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal em, view, msg, qty, buy_items, page
