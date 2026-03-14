@@ -884,7 +884,7 @@ class Games(commands.Cog):
             for key, val in GAME['id']:
                 if val['category'] == category and 'craft' in val:
                     crafts[key] = val['craft']
-            for options in category_select.options
+            for options in category_select.options:
                 option.default = option.value == category 
             
             view.add_item(go_left)
