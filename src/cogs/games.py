@@ -1044,7 +1044,7 @@ class Games(commands.Cog):
                 item_name = list(buy_items.keys())[page]
                 item = GAME["id"][item_name]
                 em.description = f"**{item_name.replace('_',' ').title()}**\nCategory: {item['category']}\nLevel: {item['level']}"
-                em.set_thumbnail(url=emoji_url(item['emoji'))
+                em.set_thumbnail(url=emoji_url(item['emoji']))
                 amount = item["buy"] * qty
                 buy.label = f"Buy for ₹{amount}"
                 em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page+1} of {len(buy_items)}", icon_url=ctx.author.avatar)
