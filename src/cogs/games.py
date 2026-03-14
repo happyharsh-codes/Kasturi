@@ -1040,13 +1040,14 @@ class Games(commands.Cog):
             view.add_item(level_select)
 
             def update():
-                nonlocal em, page, buy_items, qty, buy
+                nonlocal em, page, buy_items, qty, buy, profile
                 item_name = list(buy_items.keys())[page]
                 item = GAME["id"][item_name]
                 em.description = f"**{item_name.replace('_',' ').title()}**\nCategory: {item['category']}\nLevel: {item['level']}\nPrice: {item['buy']}\nQuantity: {qty}"
                 em.set_thumbnail(url=get_emoji_url(item['emoji']))
                 amount = item["buy"] * qty
                 buy.label = f"Buy for ₹{amount}"
+                buy.diabled = not profile.inv_searcher('cash' , amount)
                 em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page+1} of {len(buy_items)}", icon_url=ctx.author.avatar)
                 
             async def on_select(inter: Interaction):
@@ -1103,6 +1104,8 @@ class Games(commands.Cog):
                 profile.inv_manager('cash', -qty*buy_items[item_name])
                 profile.inv_manager(item_name, +qty)
                 em.description = f"Buying Successful. You successfully bought {item_name.replace('_',' ').title()} {emoji} x {qty} for ₹{qty*buy_items[item_name]}"
+                view.on_timeout = None
+                view = None
                 await inter.response.edit_message(embed = em, view=None)
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
@@ -1116,7 +1119,9 @@ class Games(commands.Cog):
                 else:
                     qty -= 1
                 remove_btn.disabled = qty == 1
-                buy.disabled = (qty*(list(buy_items.values())[page])) > (profile.get("assets", {"cash":0}).get("cash", 0) )     
+                item = GAME['id'][list(buy_items.keys())[page]]
+                amount = qty * item['buy']
+                buy.diabled = not profile.inv_searcher('cash' , amount)
                 update()
                 await inter.response.edit_message(embed = em, view = view)
             
