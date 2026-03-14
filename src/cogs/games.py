@@ -932,7 +932,7 @@ class Games(commands.Cog):
         if item.isdigit():
             amount = int(item)
             item = "cash"
-        item = item.lower().replace(" ","_")
+        item = item.lower().strip().replace(" ","_")
         if item not in GAME["id"]:
             await ctx.send("Invalid item.")
             return
@@ -943,7 +943,7 @@ class Games(commands.Cog):
             await ctx.send("That item is not in your inventory in that amount.")
             return
 
-        em = Embed(title="💳 Transfer 💱",description=f"Are you sure you want to give {user.mention} {item} x {amount}?",color=Color.gold(),)
+        em = Embed(title="💳 Transfer 💱",description=f"Are you sure you want to give {user.mention} {GAME['id'][item]['emoji']} {item} x {amount}?",color=Color.gold(),)
         confirm_btn = Button(style=ButtonStyle.green, custom_id="confirm", label="✅")
         discard_btn = Button(style=ButtonStyle.secondary, custom_id="discard", label="❌")
 
@@ -1067,7 +1067,7 @@ class Games(commands.Cog):
 
                     for option in category_select.options:
                         if option.default:
-                            category = option.val
+                            category = option.value
                             break
                     if selected.split()[0] == "common": level = 1
                     elif selected.split()[0] == "unique": level = 2
@@ -1185,7 +1185,7 @@ class Games(commands.Cog):
                     
                     for option in category_select.options:
                         if option.default:
-                            category = option.val
+                            category = option.value
                             break
                     if selected.split()[0] == "common": level = 1
                     elif selected.split()[0] == "unique": level = 2
