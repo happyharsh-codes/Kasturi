@@ -1161,6 +1161,7 @@ class Games(commands.Cog):
             sell = Button(label = "Sell for ₹", custom_id="sell", style= ButtonStyle.green)
             expand = Button(label = "Expand", custom_id="expand", style= ButtonStyle.blurple)
             amount = 0
+            filtered_inv_items = {}
             
             em = Embed(title="Shop", description="Select item category and level you want to sell", color = Color.green())
             em.set_footer(text=f"Sell by {ctx.author.display_name}", icon_url= ctx.author.avatar)
@@ -1173,7 +1174,7 @@ class Games(commands.Cog):
               try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-                nonlocal category_select, sell, level_select, em, view, profile, amount
+                nonlocal category_select, sell, level_select, em, view, profile, amount, filtered_inv_items
                 selected = inter.data["values"][0]
                 if inter.data["custom_id"] == "level":
                     select = level_select
@@ -1194,7 +1195,6 @@ class Games(commands.Cog):
                     else: level = 5
     
                     inv_items = profile.get(category, {})
-                    filtered_inv_items = []
                     for i in inv_items:
                         if GAME["id"][i]["level"] <= level:
                             filtered_inv_items[i] = inv_items[i]
