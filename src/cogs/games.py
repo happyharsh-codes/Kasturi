@@ -1197,9 +1197,9 @@ class Games(commands.Cog):
                     filtered_inv_items = []
                     for i in inv_items:
                         if GAME["id"][i]["level"] <= level:
-                            filtered_inv_item[i] = inv_items[i]
+                            filtered_inv_items[i] = inv_items[i]
                     em.decription = f"**{category}**\n"
-                    for i in filtered_inv_item:
+                    for i in filtered_inv_items:
                         em.description += GAME["id"][i]["emoji"]
                         amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
                     sell.label = f"Sell for ₹{amount}"
