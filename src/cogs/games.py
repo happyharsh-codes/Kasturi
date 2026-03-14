@@ -1078,7 +1078,7 @@ class Games(commands.Cog):
 
                     buy_items = {}
                     page = 0
-                    for key, val in GAME["id"].items(}:
+                    for key, val in GAME["id"].items():
                         if val["category"] == category and val["level"] == level:
                             if not "buy" in val:
                                 continue
