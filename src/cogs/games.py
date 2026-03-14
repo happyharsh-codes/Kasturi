@@ -775,7 +775,7 @@ class Games(commands.Cog):
         async def on_go(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal page, crafts, update, go_left, go_right, view, craft_btn
+            nonlocal page, crafts, update, go_left, go_right, view, build_btn
             if inter.data["custom_id"] == "go_left":
                 page -= 1
             else: page += 1
