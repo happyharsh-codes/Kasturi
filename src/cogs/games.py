@@ -828,9 +828,6 @@ class Games(commands.Cog):
     async def craft(self, ctx, item: Optional[str], qty: int = 1):
         """Craft a new item from inventory."""
         profile = GameProfile(ctx.author.id)
-        cards = []
-        crafts = []
-        page = 1
         categories = ["Tools", "Weapons", "Vehicles"]
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
         craft_btn = Button(label = "craft", custom_id="craft", style=ButtonStyle.green)
@@ -957,7 +954,7 @@ class Games(commands.Cog):
         
         if item:
             update()
-        msg = await ctx.send(embed=cards[page-1], view=view)
+        msg = await ctx.send(embed=em, view=view)
         
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 100, type=commands.BucketType.user)
@@ -1264,6 +1261,8 @@ class Games(commands.Cog):
 
                     filtered_inv_items = {}
                     amount= 0
+                    sell.disabled = True
+                    expand.disabled = True
                     inv_items = profile.get(category, {})
                     for i in inv_items:
                         if GAME["id"][i]["level"] <= level:
@@ -1272,6 +1271,10 @@ class Games(commands.Cog):
                     for i in filtered_inv_items:
                         em.description += GAME["id"][i]["emoji"]
                         amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
+                    if not filtered_inv_items:
+                        em.description += "`No items to sell`"
+                        sell.disabled = True
+                        expand.disabled = True
                     sell.label = f"Sell for ₹{amount}"
                     
                 else:
