@@ -1025,8 +1025,8 @@ class Games(commands.Cog):
             buy = Button(label = "Buy for ₹", custom_id="buy", style= ButtonStyle.green)
             left_btn = Button(emoji="<:leftarrow:1427527800533024839>", custom_id="left", style=ButtonStyle.blurple, disabled=True)
             right_btn = Button(emoji="<:rightarrow:1427527709403119646>", custom_id="right", style=ButtonStyle.blurple)
-            remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.blurple, disabled=True)
-            add_btn = Button(emoji="➕", custom_id="add", style=ButtonStyle.blurple)
+            remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.secondary, disabled=True)
+            add_btn = Button(emoji="➕", custom_id="add", style=ButtonStyle.secondary)
             
             page = 0
             qty = 1
@@ -1041,9 +1041,10 @@ class Games(commands.Cog):
 
             def update():
                 nonlocal em, page, buy_items, qty, buy
-                item = GAME["id"][list(buy_items.keys())[page]]
-                em.description = f"**{list(buy_items.keys())[page]}**\nCategory: {item['category']}\nLevel: {item['level']}"
-                em.set_thumbnail(url=emoji_url(GAME["id"][list(buy_items.keys())[page]]))
+                item_name = list(buy_items.keys())[page]
+                item = GAME["id"][item_name]
+                em.description = f"**{item_name.replace('_',' ').title()}**\nCategory: {item['category']}\nLevel: {item['level']}"
+                em.set_thumbnail(url=emoji_url(item['emoji'))
                 amount = item["buy"] * qty
                 buy.label = f"Buy for ₹{amount}"
                 em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page+1} of {len(buy_items)}", icon_url=ctx.author.avatar)
@@ -1077,7 +1078,7 @@ class Games(commands.Cog):
 
                     buy_items = {}
                     page = 0
-                    for key, val in GAME["id"]:
+                    for key, val in GAME["id"].items(}:
                         if val["category"] == category and val["level"] == level:
                             if not "buy" in val:
                                 continue
@@ -1193,12 +1194,14 @@ class Games(commands.Cog):
                     elif selected.split()[0] == "rare": level = 3
                     elif selected.split()[0] == "epic": level = 4
                     else: level = 5
-    
+
+                    filtered_inv_items = {}
+                    amount= 0
                     inv_items = profile.get(category, {})
                     for i in inv_items:
                         if GAME["id"][i]["level"] <= level:
                             filtered_inv_items[i] = inv_items[i]
-                    em.decription = f"**{category}**\n"
+                    em.description = f"**{category}**\n"
                     for i in filtered_inv_items:
                         em.description += GAME["id"][i]["emoji"]
                         amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
@@ -1212,7 +1215,7 @@ class Games(commands.Cog):
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
         
-            async def on_sell():
+            async def on_sell(inter: Interaction):
               try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
