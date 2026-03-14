@@ -1255,7 +1255,7 @@ class Games(commands.Cog):
                 elif levels.split()[0] == "epic": level = 4
                 else: level = 5
     
-                em.decription = f"**{category}**\n"
+                em.description = f"**{category}**\n"
                 for i in filtered_inv_items:
                     em.description += f"{i} {GAME['id'][i]['emoji']} x {filtered_inv_items[i]} = ₹{GAME['id'][i]['sell'] * filtered_inv_items[i]}"
                     amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
