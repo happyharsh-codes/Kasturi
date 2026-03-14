@@ -1025,8 +1025,8 @@ class Games(commands.Cog):
             buy = Button(label = "Buy for ₹", custom_id="buy", style= ButtonStyle.green)
             left_btn = Button(emoji="<:leftarrow:1427527800533024839>", custom_id="left", style=ButtonStyle.blurple, disabled=True)
             right_btn = Button(emoji="<:rightarrow:1427527709403119646>", custom_id="right", style=ButtonStyle.blurple)
-            remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.secondary, disabled=True)
-            add_btn = Button(emoji="➕", custom_id="add", style=ButtonStyle.secondary)
+            remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.blurple, disabled=True)
+            add_btn = Button(emoji="➕", custom_id="add", style=ButtonStyle.blurple)
             
             page = 0
             qty = 1
@@ -1043,7 +1043,7 @@ class Games(commands.Cog):
                 nonlocal em, page, buy_items, qty, buy
                 item_name = list(buy_items.keys())[page]
                 item = GAME["id"][item_name]
-                em.description = f"**{item_name.replace('_',' ').title()}**\nCategory: {item['category']}\nLevel: {item['level']}"
+                em.description = f"**{item_name.replace('_',' ').title()}**\nCategory: {item['category']}\nLevel: {item['level']}\nPrice: {item['buy']}\nQuantity: {qty}"
                 em.set_thumbnail(url=get_emoji_url(item['emoji']))
                 amount = item["buy"] * qty
                 buy.label = f"Buy for ₹{amount}"
@@ -1098,9 +1098,11 @@ class Games(commands.Cog):
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
                 nonlocal em, view, msg, qty, buy_items, page
-                profile.inv_manager('cash', -qty*buy_items[page])
-                profile.inv_manager(list(buy_items.keys())[page], +qty)
-                em.description = f"Buying Successful."
+                item_name = list(buy_items.keys())[page]
+                emoji = GAME['id'][item_name]['emoji']
+                profile.inv_manager('cash', -qty*buy_items[item_name])
+                profile.inv_manager(item_name, +qty)
+                em.description = f"Buying Successful. You successfully bought {item_name.replace('_',' ').title()} {emoji} x {qty} for ₹{qty*buy_items[item_name]}"
                 await inter.response.edit_message(embed = em, view=None)
               except Exception as e:
                 await self.client.get_user(894072003533877279).send(e)
@@ -1114,7 +1116,8 @@ class Games(commands.Cog):
                 else:
                     qty -= 1
                 remove_btn.disabled = qty == 1
-                buy.disabled = qty*buy_items[page] > profile.get("assets", {"cash":0}).get("cash", 0)        
+                buy.disabled = (qty*(list(buy_items.values())[page])) > (profile.get("assets", {"cash":0}).get("cash", 0) )     
+                update()
                 await inter.response.edit_message(embed = em, view = view)
             
             async def on_move(inter: Interaction):
@@ -1235,11 +1238,11 @@ class Games(commands.Cog):
                 nonlocal em, view, msg, amount, profile, category_select, level_select, filtered_inv_items
                 for option in category_select.options:
                     if option.default:
-                        category = option.val
+                        category = option.value
                         break
                 for option in level_select.options:
                     if option.default:
-                        levels = option.val
+                        levels = option.value
                         break
                 if levels.split()[0] == "common": level = 1
                 elif levels.split()[0] == "unique": level = 2
