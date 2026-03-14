@@ -1077,11 +1077,11 @@ class Games(commands.Cog):
 
                     buy_items = {}
                     page = 0
-                    for i in GAME["id"]:
-                        if i["category"] == category and i["level"] == level:
-                            if not "buy" in i:
+                    for key, val in GAME["id"]:
+                        if val["category"] == category and val["level"] == level:
+                            if not "buy" in val:
                                 continue
-                            buy_items[i] = i["buy"]
+                            buy_items[key] = val["buy"]
                     update()
                 else:
                     select = category_select
@@ -1216,8 +1216,10 @@ class Games(commands.Cog):
               try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-                nonlocal em, view, msg, amount
-                profile.inv_manager('cash', amount)
+                nonlocal em, view, msg, amount, profile, filtered_inv_items
+                profile.inv_manager('cash', +amount)
+                for item, val in filtered_inv_items.items():
+                    profile.inv_manager(item, -val)
                 em.description = f"Selling Successful\nYou successfully sold all your items for ₹{amount}."
                 await inter.response.edit_message(embed = em, view=None)
               except Exception as e:
@@ -1227,7 +1229,7 @@ class Games(commands.Cog):
               try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-                nonlocal em, view, msg, amount, profile, category_select, level_select
+                nonlocal em, view, msg, amount, profile, category_select, level_select, filtered_inv_items
                 for option in category_select.options:
                     if option.default:
                         category = option.val
@@ -1246,9 +1248,9 @@ class Games(commands.Cog):
                 filtered_inv_items = []
                 for i in inv_items:
                     if GAME["id"][i]["level"] <= level:
-                        filtered_inv_item[i] = inv_items[i]
+                        filtered_inv_items[i] = inv_items[i]
                 em.decription = f"**{category}**\n"
-                for i in filtered_inv_item:
+                for i in filtered_inv_items:
                     em.description += f"{i} {GAME['id'][i]['emoji']} x {filtered_inv_items[i]} = ₹{GAME['id'][i]['sell']} * {filtered_inv_items[i]}"
                     amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
                 await inter.response.edit_message(embed = em, view = view)
