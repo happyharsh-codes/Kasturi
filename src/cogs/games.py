@@ -715,7 +715,7 @@ class Games(commands.Cog):
     @commands.cooldown(1, 200, type=commands.BucketType.user)
     @has_profile()
     @at_the_location("home")
-    async def build(self, ctx, *, item: str):
+    async def build(self, ctx, item: Optional[str], qty: int = 1):
         """Build your favourite structures."""
         profile = GameProfile(ctx.author.id)
         build_btn = Button(label = "Build", custom_id="build", style=ButtonStyle.green)
@@ -769,7 +769,7 @@ class Games(commands.Cog):
             view.on_timeout = None
             view = None
             await inter.response.edit_message(embed=em, view=None)
-            profile.add_task("building", craft_time, msg.channel.id, msg.id, item = item_name, qty = qty)
+            profile.add_task("building", build_time, msg.channel.id, msg.id, item = item_name, qty = qty)
             return
             
         async def on_go(inter: Interaction):
@@ -814,7 +814,7 @@ class Games(commands.Cog):
         go_right.callback = on_go
         add_btn.callback = on_qty
         remove_btn.callback = on_qty
-        craft_btn.callback = on_build
+        build_btn.callback = on_build
     
         update()
         msg = await ctx.send(embed=em, view=view)
@@ -859,6 +859,9 @@ class Games(commands.Cog):
 
         def update():
             nonlocal em, page, profile, crafts, craft_btn, qty
+            if not crafts:
+                em = Embed(title= "Craft Recipes", description="Choose your item to craft", colour= Color.green())
+                return
             item_name = list(crafts.keys())[page]
             item = GAME['id'][item_name]
             em.description = f"**{item_name.replace('_',' ').title()}**\n\nRequirements:"
