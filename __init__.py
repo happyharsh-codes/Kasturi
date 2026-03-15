@@ -307,39 +307,13 @@ def getResponse(usermessage, prompt, assistant="", client=0):
     print(f"#==========Response==========#\nModel: {model}\n\nINPUT: {messages}\nOUTPUT: {response.choices[0].message.content}\n#============================#")
     return response.choices[0].message.content
         
-def timestamp(ctx):
-    tz = None
-    if not ctx.author:
-        return "Aura++"
-    locale = getattr(ctx.author, "locale", None)
-    if locale:
-        locale = ctx.author.locale.lower()
-        tz_map = {
-            "en-us": "America/New_York",
-            "en-gb": "Europe/London",
-            "en-in": "Asia/Kolkata",
-            "hi": "Asia/Kolkata",
-            "fr": "Europe/Paris",
-            "de": "Europe/Berlin"
-        }
-        if locale in tz_map:
-            tz = pytz.timezone(tz_map[locale])
-
-    if not tz:
-        tz = pytz.utc
-
-    now = datetime.now(tz)
-    formatted = now.strftime("%d %b %H:%M")
-
-    return formatted
-
 # ===== Wavelink =====
-async def connect_nodes():
+async def connect_nodes(bot):
     node = wavelink.Node(
         uri="http://127.0.0.1:2333",
         password="kellyMusic"
     )
-    await wavelink.Pool.connect(client=self.bot, nodes=[node])
+    await wavelink.Pool.connect(client=bot, nodes=[node])
 
 # ===== Utility Functions =====
 
