@@ -309,11 +309,21 @@ def getResponse(usermessage, prompt, assistant="", client=0):
         
 # ===== Wavelink =====
 async def connect_nodes(bot):
-    node = wavelink.Node(
-        uri="http://127.0.0.1:2333",
-        password="kellyMusic"
+  try:
+    node: wavelink.Node = wavelink.Node(
+    uri=f"ws://127.0.0.1:2333",
+    password= "kellyMusic"
     )
-    await wavelink.Pool.connect(client=bot, nodes=[node])
+    await wavelink.Pool.connect(nodes=[node], client=bot)
+    print(f"Connected success to Lavalink in{node.uri}")
+  except Exception as e:
+    print(f"Error: {e}")
+    return
+    #node = wavelink.Node(
+        #uri="http://127.0.0.1:2333",
+        #password="kellyMusic"
+   # )
+    #await wavelink.Pool.connect(client=bot, nodes=[node])
 
 # ===== Utility Functions =====
 
