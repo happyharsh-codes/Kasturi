@@ -427,7 +427,7 @@ class Moderation(commands.Cog):
         async for entry in ctx.guild.bans():
             if entry.user.name.lower() == user_tag.lower() or entry.user.id == int(user_tag):
                 await ctx.guild.unban(entry.user, reason= reason)
-                em = Embed(title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
+                em = Embedding (title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
                 em.set_footer(text=f"Unbanned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
                 return
@@ -614,9 +614,9 @@ class Moderation(commands.Cog):
         if overwrite.send_messages is False:
             return await ctx.send(embed=Embed(description="🔒 This channel is already locked."))
 
-        overwrite.send_messages = False
-        await channel.set_permissions(ctx.guild.default_role, overwrite=overwrite)
-
+        await channel.set_permissions(ctx.guild.default_role, send_messages=False)
+        await channel.set_permissions(ctx.guild.me, send_messages=True)
+        
         em = Embed(
             title="Channel Locked 🔒",
             description=f"{channel.mention} has been locked by {ctx.author.mention}.",
