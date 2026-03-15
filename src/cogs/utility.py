@@ -20,7 +20,10 @@ class Utility(commands.Cog):
         if rank_channel == 0 or rank_channel is None:
             return await ctx.send("Rank channel isn't configured. Use `k set_rank_channel <#channel>` to set it.", delete_after=6)
         if not ctx.channel.id == rank_channel:
-            return await ctx.send(f"This command only works in the rank channel: <#{rank_channel}>", delete_after=5)
+            await ctx.send(f"This command only works in the rank channel: <#{rank_channel}>", delete_after=5)
+            try: await ctx.message.delete()
+            except: pass
+            return
         rank_list = Server_Settings[str(ctx.guild.id)]["rank"]
         total_xp = rank_list.get(str(user.id))
         level = (math.sqrt(1+8*(total_xp//15))-1)//2
@@ -565,7 +568,7 @@ class Utility(commands.Cog):
         
     @commands.hybrid_command(aliases=[], with_app_command = True)
     @commands.has_permissions(manage_channels=True)
-    @commands.bot_has_permissions()
+    @commands.bot_has_permissions(send_messages=True, embed_links=True, manage_channels=True)
     async def activate(self, ctx):
         """Server activate command - Moderators only
         - Sets up all settings for your guild.
@@ -577,6 +580,7 @@ class Utility(commands.Cog):
 
         client = self.client
         view = View(timeout=60)
+        linking_channels = []
         process_no = 0
         welcome_theme_no = 1
         welcome_message = Server_Settings[str(ctx.guild.id)]["welcome_message"]
@@ -651,8 +655,9 @@ class Utility(commands.Cog):
                 view.add_item(channel_select)
                 proceed_button.label = "Set Social Media Updates Channel"
                 view.add_item(proceed_button)
-                await msg.edit(embed=em, view=view)
                 await interaction.response.defer()
+                await msg.edit(embed=em, view=view)
+                
               except Exception as e:
                 await interaction.client.get_user(894072003533877279).send(e)
         async def process_buttons(interaction: discord.Interaction):
@@ -660,7 +665,7 @@ class Utility(commands.Cog):
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
             nonlocal welcome_theme_no, process_no, proceed_button, skip_button, go_left, go_right, view, em
-            nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages
+            nonlocal welcome_message, welcome_channel, social_channel, rank_channel, activated_channels, timer_messages, linking_channels
             nonlocal WelcomeModal, SocialModal, channel_select, channel_select2, client
             global Server_Settings
             process_no += 1
@@ -700,7 +705,7 @@ class Utility(commands.Cog):
               if process_no == 3:
                 temp = welcome_message.split("\n")[1:]
                 welcome_message = welcome_message.split("\n")[0]
-                values = [option.value for option in channel_select2.options if option.default]
+                values = linking_channels
                 for index, i in enumerate(temp):
                     if index < len(values):
                         welcome_message += f"\n{i.split()[0]} [**{i[2:]}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
@@ -857,11 +862,16 @@ class Utility(commands.Cog):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
-            nonlocal channel_select2
+            nonlocal channel_select2, linking_channels
             selected_values = interaction.data["values"]
             for val in selected_values:
                 for option in channel_select2.options:
-                    option.default = option.val in selected_values
+                    if val == option.value:
+                        option.default = True
+                        linking_channels.append(val)
+                    else:
+                        option.default = False
+                    
             await interaction.response.defer()
         
         go_left.callback = go_callback
