@@ -20,9 +20,9 @@ class Invites_Tracker(commands.Cog):
                 invited_ids.extend(invites.get(str(invite.code), []))
         
         if not invited_ids:
-            em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: 0\n**Invitees**: N\A", color = Color.purple())
+            em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: 0\n**Invitees**: N\A", color = Color.purple(), timestamp=discord.utils.utcnow())
             em.set_thumbnail(url= ctx.author.avatar)
-            em.set_footer(text=f"Requested by {ctx.author.name} at {timestamp(ctx)} Aura++", icon_url= ctx.author.avatar)
+            em.set_footer(text=f"Requested by {ctx.author.name} | Aura++", icon_url= ctx.author.avatar)
             await ctx.send(embed=em)
             return
             
