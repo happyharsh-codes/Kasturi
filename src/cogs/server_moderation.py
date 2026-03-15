@@ -240,8 +240,8 @@ class Moderation(commands.Cog):
         else:
             warn_action_text = "No action set"
         
-        em = Embed(title="Set Warn Action", description= f"Set automated actions that will excey when user exeeds warn limit. You can set more than one action.\n**Warn Actions:**\n```{warn_action_text}```", color = Color.pink())
-        em.set_footer(text= f"Warn Action setup by {ctx.author.name} | {timestamp(ctx)}", icon_url = ctx.author.avatar)
+        em = Embed(title="Set Warn Action", description= f"Set automated actions that will excey when user exeeds warn limit. You can set more than one action.\n**Warn Actions:**\n```{warn_action_text}```", color = Color.pink(), timestamp=discord.utils.utcnow())
+        em.set_footer(text= f"Warn Action setup by {ctx.author.name}", icon_url = ctx.author.avatar)
         
         async def on_warn_no_select(interaction: Interaction):
             if interaction.user.id != ctx.author.id:
@@ -404,15 +404,15 @@ class Moderation(commands.Cog):
         if not await hierarchy_check(ctx, member):
             return
             
-        embed = Embed(title = f"You have been Banned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
-        embed.set_footer(text=f"Kelly Ban by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed = Embed(title = f"You have been Banned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red(), timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Kelly Ban by {ctx.author.name}", icon_url=ctx.author.avatar)
         
         await safe_dm(member, embed)
 
         giyu = load_mongo_dict("giyu", "kellymemory")
         giyu["block_list"].append(member.id)
-        em = Embed(title="Member Banned From Kelly Talkings", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink())
-        em.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em = Embed(title="Member Banned From Kelly Talkings", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink(), timestamp=discord.utils.utcnow())
+        em.set_footer(text=f"Banned by {ctx.author.name}", icon_url=ctx.author.avatar)
         em.set_author(name=member.name, icon_url=member.avatar)
         await ctx.send(embed=em)
         
@@ -427,8 +427,8 @@ class Moderation(commands.Cog):
         async for entry in ctx.guild.bans():
             if entry.user.name.lower() == user_tag.lower() or entry.user.id == int(user_tag):
                 await ctx.guild.unban(entry.user, reason= reason)
-                em = Embedding (title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red())
-                em.set_footer(text=f"Unbanned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+                em = Embedding (title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red(), timestamp=discord.utils.utcnow())
+                em.set_footer(text=f"Unbanned by {ctx.author.name}", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
                 return
                 
@@ -442,8 +442,8 @@ class Moderation(commands.Cog):
         """Unbans a user by name or ID 🔓 from Kelly. 
         Now they can start chatting with Kelly again.
         This is not related with server."""
-        embed = Embed(title = f"You have been Unbanned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red())
-        embed.set_footer(text=f"Kelly Umban by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed = Embed(title = f"You have been Unbanned from Kelly Chat", description = f"**Reason**: {reason}\n**Please refrain from sending messages like this.**", color = Color.red(), timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Kelly Umban by {ctx.author.name}", icon_url=ctx.author.avatar)
         
         await safe_dm(member, embed)
 
@@ -452,9 +452,10 @@ class Moderation(commands.Cog):
         em = Embed(
             title="Member Unbanned from Kelly Talk",
             description=f"{member.mention} was unbanned from kelly talking.\n**Reason: ** {reason}\nYou can Chat with Kelly using `kelly hi`.\nPlease be respectful this time.",
-            color=Color.orange()
+            color=Color.orange(),
+            timestamp=discord.utils.utcnow()
         )
-        em.set_footer(text=f"Unbanned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Unbanned by {ctx.author.name}", icon_url=ctx.author.avatar)
         em.set_author(name=member.name,icon_url=member.avatar)
         await ctx.send(embed=em)
     
@@ -474,14 +475,14 @@ class Moderation(commands.Cog):
         if role > ctx.guild.me.top_role:
             return await ctx.reply(embed = Embed(title="❌ I cannot add this role due to role hierarchy.", color = Color.red()))
             
-        embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: **{role.name}**", color = role.color)
-        embed.set_footer(text=f"Assigned Role by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed = Embed(title = f"You have been Awared a role in {ctx.guild.name}", description = f"**Role**: **{role.name}**", color = role.color, timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Assigned Role by {ctx.author.name}", icon_url=ctx.author.avatar)
         
         await safe_dm(member, embed)
         
         await member.add_roles(role)
-        em = Embed(title="Role Assigned", description=f"{role.mention} assigned to {member.mention}", color=Color.green())
-        em.set_footer(text=f"Role Assigned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em = Embed(title="Role Assigned", description=f"{role.mention} assigned to {member.mention}", color=Color.green(), timestamp=discord.utils.utcnow())
+        em.set_footer(text=f"Role Assigned by {ctx.author.name}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
         
     @commands.hybrid_command()
@@ -498,14 +499,14 @@ class Moderation(commands.Cog):
         if role >= ctx.guild.me.top_role:
             return await ctx.reply(embed = Embed(title="❌ I cannot add this role due to role hierarchy.", color = Color.red()))
             
-        embed = Embed(title = f"You have been detained from your Role in {ctx.guild.name}", description = f"**Role**: **{role.name}**", color = role.color)
-        embed.set_footer(text=f"Role Removed by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed = Embed(title = f"You have been detained from your Role in {ctx.guild.name}", description = f"**Role**: **{role.name}**", color = role.color, timestamp=discord.utils.utcnow())
+        embed.set_footer(text=f"Role Removed by {ctx.author.name}", icon_url=ctx.author.avatar)
         
         await safe_dm(member, embed)
         
         await member.remove_roles(role)
-        em = Embed(title="Role Removed", description=f"{role.mention} removed from {member.mention}", color=Color.green())
-        em.set_footer(text=f"Role Removed by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em = Embed(title="Role Removed", description=f"{role.mention} removed from {member.mention}", color=Color.green(), timestamp=discord.utils.utcnow())
+        em.set_footer(text=f"Role Removed by {ctx.author.name}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
 
     # ===== DEAFEN / UNDEAFEN =====
@@ -538,7 +539,8 @@ class Moderation(commands.Cog):
         em = Embed(
             title="Member Deafened 🔇",
             description=f"{member.mention} has been deafened by {ctx.author.mention}.",
-            color=Color.dark_gray()
+            color=Color.dark_gray(),
+            timestamp=discord.utils.utcnow()
         )
         if minutes > 0:
             em.add_field(name="Duration", value=f"{minutes} minutes")
@@ -546,7 +548,7 @@ class Moderation(commands.Cog):
         if channel:
             em.add_field(name="Voice Channel", value=channel.mention)
   
-        em.set_footer(text=f"Deafened by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Deafened by {ctx.author.name}", icon_url=ctx.author.avatar)
     
         await ctx.send(embed=em)
 
@@ -563,9 +565,10 @@ class Moderation(commands.Cog):
         em = Embed(
             title="Member Undeafened 📢",
             description=f"{member.mention} has been undeafened by {ctx.author.mention}.",
-            color=Color.green()
+            color=Color.green(),
+            timestamp=discord.utils.utcnow()
         )
-        em.set_footer(text=f"Undeafened by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Undeafened by {ctx.author.name}", icon_url=ctx.author.avatar)
 
         await ctx.send(embed=em)
     
@@ -620,7 +623,8 @@ class Moderation(commands.Cog):
         em = Embed(
             title="Channel Locked 🔒",
             description=f"{channel.mention} has been locked by {ctx.author.mention}.",
-            color=Color.red()
+            color=Color.red(),
+            timestamp=discord.utils.utcnow()
         )
 
         if minutes > 0:
@@ -658,7 +662,8 @@ class Moderation(commands.Cog):
         em = Embed(
             title="Channel Unlocked 🔓",
             description=f"{channel.mention} has been unlocked by {ctx.author.mention}.",
-            color=Color.green()
+            color=Color.green(),
+            timestamp=discord.utils.utcnow()
         )
 
         await ctx.send(embed=em)
@@ -673,7 +678,7 @@ class Moderation(commands.Cog):
         """Sets the rank update channel 📊  
         Displays level-up and XP progress here."""
         Server_Settings[str(ctx.guild.id)]["rank_channel"] = channel.id
-        em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor Automatic Rank rewards use `k rank_reward`", color= Color.green())
+        em = Embed(title="Rank Channel Set :white_check_mark:", description="Rank channel set successfully.\nNow everyone can start gaining xp point on every message, voice and activities.\nFor Automatic Rank rewards use `k rank_reward`", color= Color.green(), timestamp=discord.utils.utcnow())
         await ctx.send(embed=em)
 
     @commands.hybrid_command()
@@ -762,11 +767,11 @@ class Moderation(commands.Cog):
             em.description= "Welcome channel set up perfectly.\nYou can have a preview here:"
             em.set_image(url=None)
             part1 = welcome_message.split("\n")[0]
-            em2 = Embed(title= f"<:heeriye:1428773558062153768> **{part1}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray())
+            em2 = Embed(title= f"<:heeriye:1428773558062153768> **{part1}**", description="\n".join(welcome_message.split("\n")[1:]), color = Color.dark_gray(), timestamp=discord.utils.utcnow())
             em2.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)
             em2.set_thumbnail(url= ctx.author.avatar)
             em2.set_image(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_{welcome_theme_no}.gif")
-            em2.set_footer(text=f"﹒ ﹒ ⟡ {ctx.guild.member_count} Members Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
+            em2.set_footer(text=f"﹒ ﹒ ⟡ {ctx.guild.member_count} Members Strong 💪🏻")
             Server_Settings[str(ctx.guild.id)]["welcome_channel"] = welcome_channel
             Server_Settings[str(ctx.guild.id)]["welcome_image"] = welcome_theme_no
             Server_Settings[str(ctx.guild.id)]["welcome_message"] = welcome_message
@@ -827,7 +832,7 @@ class Moderation(commands.Cog):
         channel_select2.callback = select_channels2
         view.on_timeout = timeout
         
-        em = Embed(color = Color.green())
+        em = Embed(color = Color.green(), timestamp=discord.utils.utcnow())
         em.title="Set Welcome message"
         em.description="Set your beautiful welcome message Kelly will send whenever a new user joins the guild.\nSelect your theme from here."
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_message_1.gif")
@@ -867,7 +872,7 @@ class Moderation(commands.Cog):
               except Exception as e:
                 await interaction.client.get_user(894072003533877279).send(e)
  
-        em = Embed(color = Color.green())
+        em = Embed(color = Color.green(), timestamp=discord.utils.utcnow())
         em.title="Set up Social Media Notification"
         em.description="Set up your Social Media whose updates you'll get right here on your selected channel.Enter your correct Id and then select the channel in which you want to get updates."
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/social.png")
@@ -1004,8 +1009,8 @@ class Moderation(commands.Cog):
         page = 1
         embeds = []
         for i in range(6):
-            em = Embed(title= f"Automod Setup {i+1}/5",color = Color.pink())
-            em.set_footer(text=f"Automod used by {ctx.author.name} | {timestamp(ctx)} | Aura++", icon_url = ctx.author.avatar)
+            em = Embed(title= f"Automod Setup {i+1}/5",color = Color.pink(), timestamp=discord.utils.utcnow())
+            em.set_footer(text=f"Automod used by {ctx.author.name} | Aura++", icon_url = ctx.author.avatar)
             if i == 0:
                 descrip = ""
                 em.description = "Select Features to enable:\nFor better functioning enable all our features."
@@ -1328,7 +1333,7 @@ class Moderation(commands.Cog):
             await msg.edit(embed=em, view=view)
         view.on_timeout = timeout
 
-        em = Embed(title="Set Rank Level-Up Rewards",description="Select a Reward that will be automatically given when users reaches a level.",color=Color.pink())
+        em = Embed(title="Set Rank Level-Up Rewards",description="Select a Reward that will be automatically given when users reaches a level.",color=Color.pink(), timestamp=discord.utils.utcnow())
 
         def update_embed():
             nonlocal em, view, guild_id
