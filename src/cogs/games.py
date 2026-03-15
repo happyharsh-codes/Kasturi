@@ -769,7 +769,7 @@ class Games(commands.Cog):
             nonlocal em, page, profile, crafts, build_btn, qty
             item_name = list(crafts.keys())[page]
             item = GAME['id'][item_name]
-            em.description = f"**{item_name.replace('_',' ').title()}**\n\nRequirements:"
+            em.description = f"**{item_name.replace('_',' ').title()}**\n\n**Requirements:**\n"
             build_btn.disabled = False
             em.color = Color.green()
             for key, val in crafts[item_name].items():
@@ -780,7 +780,7 @@ class Games(commands.Cog):
                     build_btn.disabled = True
                     em.color = Color.red()
 
-            em.description += f"Quantity: \n{qty}"
+            em.description += f"**Quantity: **\n{qty}"
             em.set_thumbnail(url= get_emoji_url(item['emoji']))
             em.set_footer(text= f"Craft by {ctx.author.display_name} | Page {page+1} of {len(crafts)}", icon_url=ctx.author.avatar)
             
@@ -918,7 +918,8 @@ class Games(commands.Cog):
                     crafts[key] = val['craft']
             for option in category_select.options:
                 option.default = option.value == category 
-            
+            view.clear()
+            view.add_item(category_select)
             view.add_item(go_left)
             view.add_item(remove_btn)
             view.add_item(craft_btn)
