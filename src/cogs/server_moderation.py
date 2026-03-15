@@ -1324,16 +1324,29 @@ class Moderation(commands.Cog):
             if rank_reward:
                 txt = ""
                 for level, reward in rank_reward.items():
-                    if reward[0] == "Role":
-                        try:
-                            role = ctx.guild.get_role(int(reward[1]))
+                    txt += f"• Level {level} → "
+                    for reward_type, value in reward.items():
+                        if reward_type in ["assignrole", "removerole", "rolechoice"]:
+                          try:
+                            role = ctx.guild.get_role(value)
                             role_name = role.name if role else "Deleted Role"
-                            txt += f"• Level {level} → Role: {role_name}\n"
-                        except:
-                            txt += f"• Level {level} → Role: {reward[1]}\n"
-                    else:
-                        txt += f"• Level {level} → {reward[0]}: {reward[1]}\n"
-            else:
+                            txt += f"{reward_type}: {role_name} "
+                          except:
+                            txt += f"• {reward_type} {value}\n"
+                        elif reward_type == "rolechoice":
+                            value = value[:10]
+                            text += f"{reward_type}: "
+                            for i in value:
+                                try:
+                                  role = ctx.guild.get_role(i)
+                                  role_name = role.name if role else "Deleted Role"
+                                  txt += f"{role_name} "
+                                except:
+                                  txt += f"Deleted "
+                            
+                        else:
+                            txt += f"{reward_type}: {value}\n"
+            else:   txt += "\n"
                 txt = "No rewards set yet."
 
             em.add_field(name="Current Rewards", value=f"```{txt}```", inline=False)
@@ -1391,7 +1404,7 @@ class Moderation(commands.Cog):
         async def on_submit(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-            nonlocal em, view, update_embed, add_btn, done_btn, rewards, level
+            nonlocal em, view, update_embed, add_btn, done_btn, reward, level
             update_embed()
             add_btn.label = "Add More"
             view.clear_items()
@@ -1417,13 +1430,13 @@ class Moderation(commands.Cog):
             custom_id = inter.data["custom_id"]
             if custom_id == "assign_role":
                 select = assign_role_select
-                rewards["assignrole"] = values[0]
+                reward["assignrole"] = values[0]
             if custom_id == "remove_role":
                 select = remove_role_select
-                rewards["removerole"] = values[0]
+                reward["removerole"] = values[0]
             else:
                 select = role_choice_select
-                rewards["rolechoice"] = values
+                reward["rolechoice"] = values
             for option in select.options:
                 option.default = option.value in values
             await inter.response.edit_message(embed=em, view=view)
