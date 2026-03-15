@@ -194,17 +194,28 @@ def not_busy():
                 "working": "Currently Busy Working",
                 "studying": "Currently Studying",
                 "travelling": "Currently Traveling",
-                "exploring": "Currently Out Exploring"
+                "exploring": "Currently Out Exploring",
+                "crafting": "Currently busy Crafting",
+                "building": "Currently busy Building Monuments"
             }
-            desc = {
-                "sleeping": "You are resting. You can perform commands.",
-                "working": f"Ayoo user you are currently **Working**. Wait until office hours end.\nTime Remaining: {minutes:.0f}:{seconds:02.0f}",
-                "studying": f"Ayoo user you are currently **Studying**. Wait until classes finish.\nTime Remaining: {minutes:.0f}:{seconds:02.0f}",
-                "travelling": f"Ayoo user you are currently **Travelling**. Wait until you reach your destination.\nTime Remaining: {minutes:.0f}:{seconds:02.0f}",
-                "exploring": f"Ayoo user you are currently **Exploring**. Wait until finished to claim rewards.\nTime Remaining: {minutes:.0f}:{seconds:02.0f}"
-            }
+            em = Embed(title=titles.get(activity, "Busy"), color=Color.orange())
+            if activity == "crafting":
+                item = GAME['id'][task["item"]]
+                em.description = f"You are busy crafting {item.replace('_',' ').title()} {item['emoji']} x {task['qty']}. Please wait till crafting is completed."
+                em.set_thumbnail(url=get_emoji_link(item['emoji']))
+            elif activity == "building":
+                item = GAME['id'][task["item"]]
+                em.description = f"You are busy building {item.replace('_',' ').title()} {item['emoji']} x {task['qty']}. Please wait till building is completed."
+                em.set_thumbnail(url=get_emoji_link(item['emoji']))
+            elif activity == "studying":
+                subject = task["subject"]
+                em.description = f"You are having {subject.title()} Class. Please maintain focus till class is over."
+            elif activity == "working":
+                profession = task["profession"]
+                em.description = f"You are working as {profession.title()} rgiht now. Please work honestly or you'll be paid less."
+            else:
+                em.description = "You are resting. You can perform commands.",
 
-            em = Embed(title=titles.get(activity, "Busy"), description=desc.get(activity, ""), color=Color.orange())
             em.set_footer(text=f"{task['name'].title()} - {percentage_bar} {percentage_completed}% Completed")
             return em
 
