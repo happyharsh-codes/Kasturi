@@ -24,8 +24,40 @@ class Games(commands.Cog):
             profile = GameProfile(user.id)
         except:
             return await ctx.reply(embed=Embed(description="That user dont even have a game profile!!", color=Color.red()))
+        skills_text = "Skills: "
+        no_skills = True
+        for skill in profile.skills:
+            if profile.skills[skill] > 50:
+                no_skills = False
+                skills_text += f"{skill} "
+        if no_skills:
+            skills_text += "None"
+
+        tasks_dict = profile.get("tasks", {})
+        task = None
+        duration_iso = None
+        for due, t in tasks_dict.items():
+            if t["name"] == profile.activity:
+                task = t
+                duration_iso = due
+                remaining = datetime.fromisoformat(duration_iso) - datetime.now()
+                remaining_seconds = max(0, remaining.total_seconds())
+        
+                minutes, seconds = divmod(remaining_seconds, 60)
+                percentage_completed = min(100, max(int((task["duration"] - remaining_seconds) / task["duration"] * 100), 0))
+                activity_text = f"{percentage_completed}%"
+                break
+        else:
+            activity_text = ""
+            
         descrip = (
-            f"Wallet:\n"
+            f"Name: {profile.name}\n"
+            f"Health: **{health_string(profile.health)}**\nHunger: **{hunger_string(profile.hunger)}**"
+            f"Activity: {profile.activity} {activity_text}\n"
+            f"Location: {profile.location}\n"
+            f"{skills_text}"
+            f"<:wallet:1472453144863572032> Wallet:\n"
+            f"<:cash:1433171762668896388> {profile.assets.get('cash', 0)} <a:gem:1433171777017610260> {profile.assets.get('gem', 0)} <:orb:1472550711551201300> {profile.assets.get('orb', 0)}\n"
             f"**Cash**: {profile.assets.get('cash', 0)}\n"
             f"**Gems**: {profile.assets.get('gem', 0)}\n"
             f"**Orbs**: {profile.assets.get('orb', 0)}"
@@ -770,6 +802,7 @@ class Games(commands.Cog):
             view = None
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("building", build_time, msg.channel.id, msg.id, item = item_name, qty = qty)
+            profile.activity = "building"
             return
             
         async def on_go(inter: Interaction):
@@ -914,6 +947,7 @@ class Games(commands.Cog):
             view = None
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("crafting", craft_time, msg.channel.id, msg.id, item = item_name, qty = qty)
+            profile.activity = "crafting"
             return
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
