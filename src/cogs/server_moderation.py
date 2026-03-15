@@ -1419,14 +1419,6 @@ class Moderation(commands.Cog):
           except Exception as e:
             await inter.client.get_user(894072003533877279).send(e)
               
-        async def on_modal_btn(inter: Interaction):
-            if inter.user.id != ctx.author.id:
-                return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-            custom_id = inter.data["custom_id"]
-            nonlocal RankModal
-            modal = RankModal(custom_id)
-            await inter.response.send_modal(modal)
-
         async def on_submit(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
@@ -1472,11 +1464,6 @@ class Moderation(commands.Cog):
                 submit_btn.disabled = False
             await inter.response.edit_message(embed=em, view=view)
 
-        custom_modal_btn.callback = on_modal_btn
-        cash_modal_btn.callback = on_modal_btn
-        gem_modal_btn.callback = on_modal_btn
-        aura_modal_btn.callback = on_modal_btn
-        nitro_modal_btn.callback = on_modal_btn
         reward_select.callback = on_reward_select
         assign_role_select.callback = on_select
         remove_role_select.callback = on_select
