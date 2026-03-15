@@ -1312,7 +1312,7 @@ class Moderation(commands.Cog):
                     elif box.custom_id == "nitro":
                         reward["nitro"] = value
                         rewards_completed += 1
-                submit_btn.disabled = rewards_completed != rewards_selected:
+                submit_btn.disabled = rewards_completed != rewards_selected
                 await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
