@@ -515,7 +515,7 @@ class Bot:
         for member in guild.members:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
                 moderators.append(member.id)
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"last_message": 0, "social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"last_message": 0, "social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
         if invite:
             Guild_Invites[str(guild.id)] = invite.code
         try:
@@ -549,7 +549,7 @@ class Bot:
             del Guild_Invites[str(guild.id)]
             em.add_field(name="Invite Link", value=invite)
         else:
-            em.add_field(name="Invite Link", value="N\A")
+            em.add_field(name="Invite Link", value="N\\A")
         em.set_thumbnail(url=guild.icon)
         await me.send(embed=em)
         del Server_Settings[str(guild.id)]
@@ -871,7 +871,7 @@ class Bot:
     async def on_member_unban(self, guild, user):
         try:
             invite_link = Server_Settings[str(guild.id)]["invite_link"]
-            if invite_link != "N\A":
+            if invite_link != "N\\A":
                 invite_link = f"https://discord.gg/{invite_link}"
         except Exception:
             invite_link = None
