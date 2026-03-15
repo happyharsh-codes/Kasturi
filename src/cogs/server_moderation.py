@@ -1307,7 +1307,7 @@ class Moderation(commands.Cog):
                 index = None
                 for i, child in enumerate(view.children):
                     if child.custom_id == reward_type:
-                        view.children[i] = Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=f"{reward_type.split()[0].title()}: {value}", value=value, default = True)], max_values=1, min_values=1))
+                        view.children[i] = Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=f"{reward_type.split()[0].title()}: {value}", value=value, default = True)], max_values=1, min_values=1)
                         break
                 await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
