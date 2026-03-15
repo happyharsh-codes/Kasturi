@@ -1305,7 +1305,7 @@ class Moderation(commands.Cog):
                     value = value[:8]
                     rewards_completed += 1
                 index = None
-                childrens = [i for i in view.children]
+                children = [i for i in view.children]
                 view.clear_items()
                 for i in children:
                     if i.custom_id == reward_type:
