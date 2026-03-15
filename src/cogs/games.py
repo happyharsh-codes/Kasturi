@@ -864,8 +864,8 @@ class Games(commands.Cog):
         categories = ["Tools", "Weapons", "Vehicles"]
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
         craft_btn = Button(label = "craft", custom_id="craft", style=ButtonStyle.green)
-        go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
-        go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.blurple, disabled=True)
         add_btn = Button(emoji="➕", custom_id="add", style=ButtonStyle.blurple)
             
