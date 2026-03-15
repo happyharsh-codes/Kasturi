@@ -67,7 +67,7 @@ async def perform_task(task, uid, client):
         blocks = int(progress // 10)
         progress_bar = "▓" * blocks + "░" * (10 - blocks)
         
-        em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} {task['emoji']} and gained {gain}%. Progress: {progress_bar} {progress}%.", color = Color.green())
+        em = Embed(title = f"{subject.title()} Class Completed", description= f"You studied {subject} and gained {gain}%. Progress: {progress_bar} {progress}%.", color = Color.green())
         em.set_footer(text= f"Class ▓▓▓▓▓▓▓▓▓▓100% Completed | Skill++")
         await channel.send(f"<@{uid}>", embed= em)
 
