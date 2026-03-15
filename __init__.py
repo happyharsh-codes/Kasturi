@@ -9,6 +9,7 @@ import builtins
 import traceback
 import flask
 import threading
+import wavelink
 import typing
 import http.server
 from datetime import datetime, UTC, timedelta, timezone
@@ -331,7 +332,15 @@ def timestamp(ctx):
     formatted = now.strftime("%d %b %H:%M")
 
     return formatted
-    
+
+# ===== Wavelink =====
+async def connect_nodes():
+    node = wavelink.Node(
+        uri="http://127.0.0.1:2333",
+        password="kellyMusic"
+    )
+    await wavelink.Pool.connect(client=self.bot, nodes=[node])
+await connect_nodes()
 # ===== Utility Functions =====
 
 async def safe_dm(member: discord.Member, embed: discord.Embed = None, message = None, view = None):
