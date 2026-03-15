@@ -1240,7 +1240,7 @@ class Moderation(commands.Cog):
         aura_modal_btn = Button(style=ButtonStyle.green, label="Add Aura", custom_id="aura_modal_btn")
         nitro_modal_btn = Button(style=ButtonStyle.green, label="Add Nitro", custom_id="nitro_modal_btn")
         
-        add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add", disabled=True)
+        add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add")
         submit_btn = Button(style=ButtonStyle.green, label="Add", custom_id="Submit", disabled=True)
         done_btn = Button(style=ButtonStyle.secondary, label="Done", custom_id="done")
 
