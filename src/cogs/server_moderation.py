@@ -1354,7 +1354,7 @@ class Moderation(commands.Cog):
           try:   
               if inter.user.id != ctx.author.id:
                   return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-              nonlocal em, view, submit_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_button, cash_modal_button, gem_modal_button, aura_modal_button, nitro_modal_button
+              nonlocal em, view, submit_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_btn, cash_modal_btn, gem_modal_btn, aura_modal_btn, nitro_modal_btn
               view.clear_items()
               selected = inter.data["values"]
               for i in selected:
