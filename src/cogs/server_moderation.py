@@ -1318,7 +1318,7 @@ class Moderation(commands.Cog):
                     else:
                          view.add_item(i)
                 if rewards_completed == rewards_selected:
-                    sumbit_btn.disabled = False
+                    submit_btn.disabled = False
                 await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
