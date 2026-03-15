@@ -579,13 +579,13 @@ class Games(commands.Cog):
             profile.location = new_place
             profile.activity = "sleeping"
             rewards = profile.reward_player(drops)  
-            em = Embed(title="Explore",description=f"You explored around {new_place.capitalize()} and got:\n{rewards}",color=Color.green())  
+            em = Embed(title="Explore",description=f"You explored around {new_place.capitalize()} and got:\n{rewards}",color=Color.green(), timestamp=discord.utils.utcnow())  
             profile.place_manager(new_place)
-            em.set_footer(text=f"Explore by {ctx.author.display_name} | At {timestamp(ctx)}",icon_url=ctx.author.avatar)  
+            em.set_footer(text=f"Explore by {ctx.author.display_name}",icon_url=ctx.author.avatar)  
             return await ctx.send(f"{ctx.author.mention} Exploration Finished: You found a {new_place}! You can adventure here now using `k adventure`.", embed=em)
             
         explore_time = randint(1000,3000)
-        em = Embed(title="Exploration",description=f"You started your adventurous exploration. Wait until you find something amazing.", color = Color.green())
+        em = Embed(title="Exploration",description=f"You started your adventurous exploration. Wait until you find something amazing.", color = Color.green(), timestamp=discord.utils.utcnow())
         em.set_image(url="attachment://travel.gif")
         gif = discord.File("travel.gif")
         msg = await ctx.send(file=gif, embed=em)
@@ -702,8 +702,8 @@ class Games(commands.Cog):
             await ctx.send("Specify a food item to eat.")
             return
         eatables = profile.eatables
-        em = Embed(title="Eat Foods", description= f"Health: \n**{health_string(profile.health)}**\nHunger: \n**{hunger_string(profile.hunger)}**", color = Color.green())
-        em.set_footer(text=f"Eat by {ctx.author.display_name} {timestamp(ctx)}")
+        em = Embed(title="Eat Foods", description= f"Health: \n**{health_string(profile.health)}**\nHunger: \n**{hunger_string(profile.hunger)}**", color = Color.green(), timestamp=discord.utils.utcnow())
+        em.set_footer(text=f"Eat by {ctx.author.display_name}")
         view = View(timeout=45)
         async def timeout():
             em.color = Color.light_grey()
@@ -1499,9 +1499,10 @@ class Games(commands.Cog):
             title="Kill",
             description=f"You killed **{mob}** in the {loc.capitalize()} and got:\n{self.rewards_descrip(rewards)}",
             color=Color.green(),
+            timestamp=discord.utils.utcnow()
         )
         em.set_footer(
-            text=f"Kill by {ctx.author.display_name} | At {timestamp(ctx)}",
+            text=f"Kill by {ctx.author.display_name}",
             icon_url=ctx.author.avatar,
         )
         await ctx.reply(embed=em)
@@ -1520,9 +1521,10 @@ class Games(commands.Cog):
             title=f"🤵 {ctx.author.display_name} Weds {spouse.display_name} 👰",
             description=f"{ctx.author.display_name}, do you want to marry {spouse.mention}? Please confirm your decision.",
             color=Color.purple(),
+            timestamp=discord.utils.utcnow()
         )
         em.set_footer(
-            text=f"Marriage attended by {randint(1, 8192)} discordians | {timestamp(ctx)} | Aura++",
+            text=f"Marriage attended by {randint(1, 8192)} discordians | Aura++",
             icon_url=ctx.author.avatar,
         )
 
