@@ -1499,7 +1499,7 @@ class Bot:
             await ctx.reply(embed=em)
             ctx.command.reset_cooldown(ctx)
         elif isinstance(error,commands.CommandOnCooldown):
-            await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red()).set_footer(text=f"Cooldown Hit by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar))
+            await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red(), timestamp=discord.utils.utcnow()).set_footer(text=f"Cooldown Hit by {ctx.author.name}", icon_url=ctx.author.avatar))
         elif isinstance(error,commands.MaxConcurrencyReached):
             return await ctx.send("Too many command usage", delete_after = 4)
         elif isinstance(error,commands.NotOwner):
@@ -1537,6 +1537,6 @@ class Bot:
             pass
         else:
             await ctx.send(embed=Embed(description="Unknown error happened :/"))
-            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{error}```", color=Color.red()))
+            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{error}```", color=Color.red()), timestamp=discord.utils.utcnow())
             ctx.command.reset_cooldown(ctx)
                 
