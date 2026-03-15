@@ -1038,7 +1038,7 @@ class Bot:
                         await rank_channel.send(f"{author.mention} has reached **Level {level+1}!** 🎉")
                         # Check for any Rank Rewards
                         if metadata["rank_reward"] and str(level+1) in metadata["rank_reward"]:
-                            await self.rankRewards(message, rank_channel, metadata["rank_reward"][str(level+1)])
+                            await self.rankRewards(message, rank_channel, metadata["rank_reward"][str(level+1)], level+1)
                     except:
                         Server_Settings[str(guild.id)]["rank_chanel"] = 0
                         Server_Settings[str(guild.id)]["rank_reward"] = {}
