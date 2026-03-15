@@ -78,7 +78,7 @@ async def perform_task(task, uid, client):
     elif task["name"] == "crafting" or task["name"] == "building":
         item = task["item"]
         qty = task["qty"]
-        profile.inv_manager(item, amt)
+        profile.inv_manager(item, qty)
         em = Embed(title="Crafting Complete", description= f"{item} x {amt} successfull added in your inventory.", color = Color.green())
         if task["name"] == "building":
             em.title = "Building Complete"
