@@ -1461,7 +1461,7 @@ class Bot:
     async def after_any_command(self, ctx):
         try:
             await ctx._typing.__aexit__(None, None, None)
-            if randint(1,100) == 1:
+            if randint(1,100) == 51:
                 self.kelly.ayasaka.addReminder("surprise", message_id=ctx.message.id, channel_id=ctx.message.channel.id, user_id= ctx.author.id, delay_minutes=10)
         except Exception:
             pass
@@ -1526,7 +1526,11 @@ class Bot:
                 return
             perms = '\n'.join([perms.replace('_', ' ').title() for perms in error.missing_permissions])
             em = Embed(title="❌ Permission Denied", description=f"You don’t have permission to use this command. {choice(list(EMOJI.values()))}\n**Required:**\n```{perms}```",color=Color.red())
-            return await ctx.send(embed=em)
+            await ctx.send(embed=em, delete_after=8)
+            try:
+                await ctx.message.delete()
+            except: pass
+            return
 
         elif isinstance(error, commands.CheckFailure):
             pass
