@@ -142,37 +142,53 @@ class Bot:
         return True
 
     async def rankReward(self, message, rank_channel, rewards, level):
-        prize = rewards.get(int(level), None)
-        if not prize:
-            return
-        amount = prize[1]
-        prize = prize[0]
+        ctx = await self.client.get_context(message)
+        profile = GameProfile(message.author.id)
+        em = Embed(title=f"You reached Level {level} in {message.guild.name}", color= Color.green(), timestamp=discord.utils.utcnow())
+        prize = ""
+        x = {1:"1️⃣",2:"2️⃣",3:"3️⃣",4:"4️⃣",5:"5️⃣",6:"6️⃣",7:"7️⃣",8:"8️⃣",9:"9️⃣"}
+        r = []
+        for type, reward in rewards.items():
+            if not reward:
+                continue
+            r.append(type)
+            if type == "custom":
+                em.description = reward
+            elif type == "cash":
+                profile.inv_manager('cash', reward)
+                prize += f"<:cash:1433171762668896388> {reward} "
+            elif type == "gem":
+                profile.inv_manager('gem', reward)
+                prize += f"<a:gem:1433171777017610260> {reward} "
+            elif type == "aura":
+                profile.aura += reward
+                prize += f"Aura: {reward} "
+            elif type == "Nitro":
+                em.add_field(name = "Nitro Gift Code 🎁", value = reward)
+            elif type == "assignrole":
+                role = await message.guild.get_role(int(rewards))
+                if role:
+                    await ctx.invoke("assignrole", member.author, role)
+            elif type == "removerole":
+                role = await message.guild.get_role(int(rewards))
+                if role:
+                    await ctx.invoke("removerole", member.author, role)
+            elif type == "rolechoice":
+                roles = []
+                for i in rewards
+                    role = await message.guild.get_role(int(i))
+                    if role:
+                        roles.append(role)
+                em.add_field(name = "Custom Role Choice", value = "\n".join([f"{x[i+1]}: {role.name}" for i, role in enumerate(roles)])
+        if "assignrole" in r and "removerole" in r and len(r) == 2:
+                return
+        if prize:
+            em.add_field(name="Prize", value = prize)
+        msg = await safe_dm(message.author, em)
+        if rewards["rolechoice"]:
+          for i in range(len(rewards["rolechoice"])):
+            await msg.add_reaction(x[i+1])
 
-        if prize == "Cash":
-            await rank_channel.send(f"{message.author.mention} You recived Cash prize {amount} on Leveling up!! Check your balance now")
-            profile = GameProfile(message.author.id)
-            profile.inv_manager("cash", amount)
-        if prize == "Aura":
-            await rank_channel.send(f"{message.author.mention} You recived Aura prize {amount} on Leveling up!! Check your balance now")
-            profile = GameProfile(message.author.id)
-            profile.inv_manager("aura", amount)
-        if prize == "Gem":
-            await rank_channel.send(f"{message.author.mention} You recived Gems prize {amount} on Leveling up!! Check your balance now")
-            profile = GameProfile(message.author.id)
-            profile.inv_manager("gem", amount)
-        if prize == "Role":
-            role = message.guild.get_role(amount)
-            if not role:
-                try:
-                    role = await message.guild.fetch_role(amount)
-                except:
-                    return
-            await rank_channel.send(f"{message.author.mention} You recived Role prize {role.mention} on Leveling up!! Check your balance now")
-            await client.get_context(message).invoke(client.get_command("assignrole"), message.author, role)
-        if prize == "Nitro":
-            await rank_channel.send(f"{message.author.mention} You recived Cash prize {amount} on Leveling up!! Check your balance now")
-            await safe_dm(message.author, message= f"You won Nitro gift code: {amount}")
-            
     # ------------- TASK LOOPS -------------
 
     @tasks.loop(seconds=15)
@@ -1021,10 +1037,11 @@ class Bot:
                         rank_channel = await message.guild.fetch_channel(metadata["rank_channel"])
                         await rank_channel.send(f"{author.mention} has reached **Level {level+1}!** 🎉")
                         # Check for any Rank Rewards
-                        if metadata["rank_reward"]:
-                            await self.rankRewards(message, rank_channel, metadata["rank_reward"], level+1)
+                        if metadata["rank_reward"] and str(level+1) in metadata["rank_reward"]:
+                            await self.rankRewards(message, rank_channel, metadata["rank_reward"][str(level+1)])
                     except:
-                        await channel.send(embed=Embed(title="Rank Channel Missing", description="Server Rank Channel is missing either because channel is deleted or I don't have access to that channel. Please set your rank channel again using `k set_rank_channel`", color=Color.red()))
+                        Server_Settings[str(guild.id)]["rank_chanel"] = 0
+                        Server_Settings[str(guild.id)]["rank_reward"] = {}
                 Server_Settings[str(guild.id)]["rank"][str(author.id)] += 2
             else: 
                 Server_Settings[str(guild.id)]["rank"][str(author.id)] = 2
@@ -1171,13 +1188,30 @@ class Bot:
         guild = reaction.message.guild
         if not guild:
             return
-        em = Embed(
-            title="➕ Reaction Added",
-            description=f"User: {user.mention}\nEmoji: {reaction.emoji}\nChannel: {reaction.message.channel.mention}",
-            color=Color.green()
-        )
-        await self.send_log(guild, em, delete_after=100)
-
+        if isinstance(message.channel, discord.DMChannel):
+            if reaction.emoji in "1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣":
+                level = 0
+                title = reaction.message.embeds[0].title.split()
+                for i in title:
+                    if i.isdigit():
+                        level = i
+                        break
+                role = Server_Settings[str(guild.id)]["rank_reward"][level]["rolechoice"]
+                roles = []
+                for r in role:
+                    try:
+                        ro = guild.get_role(r)
+                        if ro:
+                            roles.append(ro)
+                    except:
+                        continue
+                selected_role = roles["1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣".index(reaction.emoji)]
+                try:
+                    await message.author.remove_roles(roles - [selected_role])
+                    await message.author.add_roles(selected _role)
+                except:
+                    pass
+                    
     async def on_reaction_remove(self, reaction, user):
         if user.bot:
             return
