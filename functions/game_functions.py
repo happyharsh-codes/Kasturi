@@ -202,11 +202,11 @@ def not_busy():
             if activity == "crafting":
                 item = GAME['id'][task["item"]]
                 em.description = f"You are busy crafting {task["item"].replace('_',' ').title()} {item['emoji']} x {task['qty']}. Please wait till crafting is completed."
-                em.set_thumbnail(url=get_emoji_link(item['emoji']))
+                em.set_thumbnail(url=get_emoji_url(item['emoji']))
             elif activity == "building":
                 item = GAME['id'][task["item"]]
                 em.description = f"You are busy building {task["item"].replace('_',' ').title()} {item['emoji']} x {task['qty']}. Please wait till building is completed."
-                em.set_thumbnail(url=get_emoji_link(item['emoji']))
+                em.set_thumbnail(url=get_emoji_url(item['emoji']))
             elif activity == "studying":
                 subject = task["subject"]
                 em.description = f"You are having {subject.title()} Class. Please maintain focus till class is over."
