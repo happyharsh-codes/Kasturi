@@ -1305,10 +1305,15 @@ class Moderation(commands.Cog):
                     value = value[:8]
                     rewards_completed += 1
                 index = None
-                for i, child in enumerate(view.children):
-                    if child.custom_id == reward_type:
-                        view.children[i] = Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=f"{reward_type.split()[0].title()}: {value}", value=value, default = True)], max_values=1, min_values=1)
-                        break
+                childrens = [i for i in view.children]
+                view.clear_items()
+                for i in children:
+                    if i.custom_id == reward_type:
+                        view.add_item(Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=f"{reward_type.split()[0].title()}: {value}", value=value, default = True)], max_values=1, min_values=1))
+                    else:
+                         view.add_item(i)
+                if rewards_completed == rewards_selected:
+                    sumbit_btn.disabled = False
                 await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
