@@ -1344,7 +1344,7 @@ class Moderation(commands.Cog):
           try:   
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-            nonlocal Rankmodal
+            nonlocal RankModal
             modal = RankModal("level")
             await inter.response.send_modal(modal)
           except Exception as e:
