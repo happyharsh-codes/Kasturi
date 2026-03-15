@@ -1426,7 +1426,7 @@ class Moderation(commands.Cog):
         async def on_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-            nonlocal assign_role_select, remove_role_select, role_choice_select, rewards, em, view
+            nonlocal assign_role_select, remove_role_select, role_choice_select, reward, em, view
             values = inter.data["values"]
             custom_id = inter.data["custom_id"]
             if custom_id == "assign_role":
