@@ -1227,7 +1227,7 @@ class Moderation(commands.Cog):
         author_top = ctx.author.top_role
         bot_top = ctx.guild.me.top_role
 
-        for role in reversed(ctx.guild.roles):
+        for role in reversed(ctx.guild.roles)[:25]:
             if role.position == 0:  # everyone
                 continue
             if role.position < author_top.position and role.position < bot_top.position:
@@ -1253,23 +1253,23 @@ class Moderation(commands.Cog):
                     t = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
                     self.boxes.append(t)
                     self.add_item(t)
-                elif "custom" in reward_type:
+                if "custom" in reward_type:
                     t = TextInput(label="Custom Message", custom_id="custom", placeholder="Enter your custom message", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
                     self.boxes.append(t)
                     self.add_item(t)
-                elif "cash" in reward_type:
+                if "cash" in reward_type:
                     t = TextInput(label="Cash Amount", custom_id="cash", placeholder="Enter Cash Amount: 1-1000", required= True, min_length=1, max_length=4, style=TextStyle.short)
                     self.boxes.append(t)
                     self.add_item(t)
-                elif "gem" in reward_type:
+                if "gem" in reward_type:
                     t = TextInput(label="Gems Amount", custom_id="gem", placeholder="Enter Gem Amount: 1-50", required= True, min_length=1, max_length=2, style=TextStyle.short)
                     self.boxes.append(t)
                     self.add_item(t)
-                elif "aura" in reward_type:
+                if "aura" in reward_type:
                     t = TextInput(label="Aura Points", custom_id="aura", placeholder="Enter Aura Amount: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
                     self.boxes.append(t)
                     self.add_item(t)
-                elif "nitro" in reward_type:
+                if "nitro" in reward_type:
                     t = TextInput(label="Nitro Gift Code", custom_id="nitro", placeholder="Enter Nitro Gift code", required= True, min_length=1, max_length=50, style=TextStyle.short)
                     self.boxes.append(t)
                     self.add_item(t)
@@ -1288,6 +1288,7 @@ class Moderation(commands.Cog):
                         level = int(value)
                         view.clear_items()
                         view.add_item(reward_select)
+                        break
                     elif box.custom_id == "custom":
                         reward["custom"] = value
                         rewards_completed += 1
@@ -1315,7 +1316,7 @@ class Moderation(commands.Cog):
                 submit_btn.disabled = rewards_completed != rewards_selected
                 await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
-                await inter.client.get_user(894072003533877279).send(e)
+                await inter.client.get_user(894072003533877279).send(str(e))
  
         view = View(timeout=45)
         view.add_item(add_btn)
