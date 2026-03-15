@@ -52,15 +52,12 @@ class Games(commands.Cog):
             
         descrip = (
             f"Name: {profile.name}\n"
-            f"Health: **{health_string(profile.health)}**\nHunger: **{hunger_string(profile.hunger)}**"
+            f"Health: **{health_string(profile.health)}**\nHunger: **{hunger_string(profile.hunger)}**\n"
             f"Activity: {profile.activity} {activity_text}\n"
-            f"Location: {profile.location}\n"
-            f"{skills_text}"
+            f"Location: {profile.location.replace('_',' ').title()}\n"
+            f"{skills_text}\n"
             f"<:wallet:1472453144863572032> Wallet:\n"
             f"<:cash:1433171762668896388> {profile.assets.get('cash', 0)} <a:gem:1433171777017610260> {profile.assets.get('gem', 0)} <:orb:1472550711551201300> {profile.assets.get('orb', 0)}\n"
-            f"**Cash**: {profile.assets.get('cash', 0)}\n"
-            f"**Gems**: {profile.assets.get('gem', 0)}\n"
-            f"**Orbs**: {profile.assets.get('orb', 0)}"
         )
         em = action_embed(f"{user.display_name}'s Profile", descrip, Color.green(), f"Profile used by {ctx.author.name}", ctx.author.avatar)
         await ctx.send(embed=em)
@@ -863,7 +860,7 @@ class Games(commands.Cog):
         profile = GameProfile(ctx.author.id)
         categories = ["Tools", "Weapons", "Vehicles"]
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
-        craft_btn = Button(label = "craft", custom_id="craft", style=ButtonStyle.green)
+        craft_btn = Button(label = "Craft", custom_id="craft", style=ButtonStyle.green)
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.blurple, disabled=True)
@@ -894,7 +891,7 @@ class Games(commands.Cog):
                 return
             item_name = list(crafts.keys())[page]
             item = GAME['id'][item_name]
-            em.description = f"**{item_name.replace('_',' ').title()}**\n\nRequirements:"
+            em.description = f"**{item_name.replace('_',' ').title()}**\n\n**Requirements:**\n"
             craft_btn.disabled = False
             em.color = Color.green()
             for key, val in crafts[item_name].items():
@@ -905,7 +902,7 @@ class Games(commands.Cog):
                     craft_btn.disabled = True
                     em.color = Color.red()
 
-            em.description += f"Quantity: \n{qty}"
+            em.description += f"**Quantity: **\n{qty}"
             em.set_thumbnail(url= get_emoji_url(item['emoji']))
             em.set_footer(text= f"Craft by {ctx.author.display_name} | Page {page+1} of {len(crafts)}", icon_url=ctx.author.avatar)
 
