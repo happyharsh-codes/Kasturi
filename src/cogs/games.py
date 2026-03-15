@@ -763,7 +763,7 @@ class Games(commands.Cog):
             item = GAME['id'][item_name]
             build_time = randint(1000, 3000)
             
-            for key, val in item['craft']:
+            for key, val in item['craft'].items():
                 profile.inv_manager(key, -val*qty)
             em.description = f"You have started building {item_name.replace('_',' ').title()} x {qty}.\nEstimated time: {build_time}\nWait until the crafting is completed, other command may be unavailable during this process."
             view.on_timeout = None
@@ -881,10 +881,11 @@ class Games(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal crafts, category_select, em, view, go_left, go_right, add_btn, craft_btn, remove_btn
             category = inter.data['values'][0]
-            for key, val in GAME['id']:
+            crafts.clear()
+            for key, val in GAME['id'].items():
                 if val['category'] == category and 'craft' in val:
                     crafts[key] = val['craft']
-            for options in category_select.options:
+            for option in category_select.options:
                 option.default = option.value == category 
             
             view.add_item(go_left)
@@ -901,8 +902,8 @@ class Games(commands.Cog):
             nonlocal crafts, page, view, em, profile, msg, qty
             item_name = list(crafts.keys())[page]
             item = GAME['id'][item_name]
-            craft_time = random(100, 300)
-            for key, val in item['craft']:
+            craft_time = randint(100, 300)
+            for key, val in item['craft'].items():
                 profile.inv_manager(key, -val*qty)
             em.description = f"You have started crafting {item_name.replace('_',' ').title()} x {qty}.\nEstimated time: {craft_time}\nWait until the crafting is completed, other command may be unavailable during this process."
             view.on_timeout = None
@@ -1261,8 +1262,8 @@ class Games(commands.Cog):
 
                     filtered_inv_items = {}
                     amount= 0
-                    sell.disabled = True
-                    expand.disabled = True
+                    sell.disabled = False
+                    expand.disabled = False
                     inv_items = profile.get(category, {})
                     for i in inv_items:
                         if GAME["id"][i]["level"] <= level:
