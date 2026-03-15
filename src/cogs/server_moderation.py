@@ -1241,12 +1241,6 @@ class Moderation(commands.Cog):
             remove_role_select = Select(custom_id="remove_role", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
             role_choice_select = Select(custom_id="role_choice", placeholder="Select Roles to Add", options=roles, max_values=25, min_values=1)
             
-        custom_modal_btn = Button(style=ButtonStyle.green, label="Add Custom Message", custom_id="custom_modal_btn")
-        cash_modal_btn = Button(style=ButtonStyle.green, label="Add Cash", custom_id="cash_modal_btn")
-        gem_modal_btn = Button(style=ButtonStyle.green, label="Add Gems", custom_id="gem_modal_btn")
-        aura_modal_btn = Button(style=ButtonStyle.green, label="Add Aura", custom_id="aura_modal_btn")
-        nitro_modal_btn = Button(style=ButtonStyle.green, label="Add Nitro", custom_id="nitro_modal_btn")
-        
         add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add")
         submit_btn = Button(style=ButtonStyle.green, label="Add", custom_id="Submit", disabled=True)
         done_btn = Button(style=ButtonStyle.secondary, label="Done", custom_id="done")
@@ -1254,20 +1248,29 @@ class Moderation(commands.Cog):
         class RankModal(discord.ui.Modal):
             def __init__(self, reward_type):
                 super().__init__(title="Add Rank Reward")
-                if reward_type == "level":
-                    self.input_box = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
-                elif reward_type == "custom_modal_btn":
-                    self.input_box = TextInput(label="Custom Message", custom_id="custom_msg", placeholder="Enter your custom message", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
-                elif reward_type == "cash_modal_btn":
-                    self.input_box = TextInput(label="Cash Amount", custom_id="cash", placeholder="Enter Cash Amount: 1-1000", required= True, min_length=1, max_length=4, style=TextStyle.short)
-                elif reward_type == "gem_modal_btn":
-                    self.input_box = TextInput(label="Gems Amount", custom_id="gem", placeholder="Enter Gem Amount: 1-50", required= True, min_length=1, max_length=2, style=TextStyle.short)
-                elif reward_type == "aura_modal_btn":
-                    self.input_box = TextInput(label="Aura Points", custom_id="aura", placeholder="Enter Aura Amount: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
-                elif reward_type == "nitro_modal_btn":
-                    self.input_box = TextInput(label="Nitro Gift Code", custom_id="nitro", placeholder="Enter Nitro Gift code", required= True, min_length=1, max_length=50, style=TextStyle.short)
-                self.reward = reward_type
-                self.add_item(self.input_box)
+                self.boxes = []
+                if "level" in reward_type:
+                    t = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short))
+                    self.boxes.append(t)
+                    self.add_item(t)
+                elif "custom" in reward_type:
+                    t = TextInput(label="Custom Message", custom_id="custom", placeholder="Enter your custom message", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
+                elif "cash" in reward_type:
+                    t = TextInput(label="Cash Amount", custom_id="cash", placeholder="Enter Cash Amount: 1-1000", required= True, min_length=1, max_length=4, style=TextStyle.short)
+                    self.boxes.append(t)
+                    self.add_item(t)
+                elif "gem" in reward_type:
+                    t = TextInput(label="Gems Amount", custom_id="gem", placeholder="Enter Gem Amount: 1-50", required= True, min_length=1, max_length=2, style=TextStyle.short)
+                    self.boxes.append(t)
+                    self.add_item(t)
+                elif "aura" in reward_type:
+                    t = TextInput(label="Aura Points", custom_id="aura", placeholder="Enter Aura Amount: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                    self.boxes.append(t)
+                    self.add_item(t)
+                elif "nitro" in reward_type:
+                    t = TextInput(label="Nitro Gift Code", custom_id="nitro", placeholder="Enter Nitro Gift code", required= True, min_length=1, max_length=50, style=TextStyle.short)
+                    self.boxes.append(t)
+                    self.add_item(t)
                 
             async def on_submit(self, inter: Interaction):
               try:
@@ -1276,49 +1279,40 @@ class Moderation(commands.Cog):
                 value = self.input_box.value
                 async def exit():
                     await inter.response.edit_message(embed= Embed(description="❌ Invalid Arguments Provided.\n Please Try Again."), view = None)
-                if reward_type == "level":
-                    if not value.isdigit() or  not (0 < int(value) <=100):
-                        await exit()
-                        return
-                    level = int(value)
-                    view.clear_items()
-                    view.add_item(reward_select)
-                elif reward_type == "custom_modal_btn":
-                    reward["custom"] = value
-                    value = value[:10]
-                    rewards_completed += 1
-                elif reward_type == "cash_modal_btn":
-                    if not value.isdigit() or not (0 < int(value) <= 1000):
-                        await exit()
-                        return
-                    reward["cash"] = value
-                    rewards_completed += 1
-                elif reward_type == "gem_modal_btn":
-                    if not value.isdigit() or not (0 < int(value) <= 50):
-                        await exit()
-                        return
-                    reward["gem"] = value
-                    rewards_completed += 1
-                elif reward_type == "aura_modal_btn":
-                    if not value.isdigit() or not (0 < int(value) <= 100):
-                        await exit()
-                        return
-                    reward["aura"] = value
-                    rewards_completed += 1
-                elif reward_type == "nitro_modal_btn":
-                    reward["nitro"] = value
-                    value = value[:8]
-                    rewards_completed += 1
-                index = None
-                children = [i for i in view.children]
-                view.clear_items()
-                for i in children:
-                    if i.custom_id == reward_type:
-                        view.add_item(Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=f"{reward_type.split()[0].title()}: {value}", value=value, default = True)], max_values=1, min_values=1))
-                    else:
-                         view.add_item(i)
-                if rewards_completed == rewards_selected:
-                    submit_btn.disabled = False
+                for box in self.boxes:
+                    value = box.value
+                    if box.custom_id == "level":
+                        if not value.isdigit() or  not (0 < int(value) <=100):
+                            await exit()
+                            return
+                        level = int(value)
+                        view.clear_items()
+                        view.add_item(reward_select)
+                    elif box.custom_id == "custom":
+                        reward["custom"] = value
+                        rewards_completed += 1
+                    elif box.custom_id  == "cash":
+                        if not value.isdigit() or not (0 < int(value) <= 1000):
+                            await exit()
+                            return
+                        reward["cash"] = value
+                        rewards_completed += 1
+                    elif box.custom_id == "gem":
+                        if not value.isdigit() or not (0 < int(value) <= 50):
+                            await exit()
+                            return
+                        reward["gem"] = value
+                        rewards_completed += 1
+                    elif box.custom_id == "aura_modal_btn":
+                        if not value.isdigit() or not (0 < int(value) <= 100):
+                            await exit()
+                            return
+                        reward["aura"] = value
+                        rewards_completed += 1
+                    elif box.custom_id == "nitro":
+                        reward["nitro"] = value
+                        rewards_completed += 1
+                submit_btn.disabled = rewards_completed != rewards_selected:
                 await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
@@ -1378,7 +1372,7 @@ class Moderation(commands.Cog):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
             nonlocal RankModal
-            modal = RankModal("level")
+            modal = RankModal(["level"])
             await inter.response.send_modal(modal)
           except Exception as e:
             await inter.client.get_user(894072003533877279).send(e)
@@ -1387,10 +1381,11 @@ class Moderation(commands.Cog):
           try:   
               if inter.user.id != ctx.author.id:
                   return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-              nonlocal em, view, rewards_completed, rewards_selected, submit_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_btn, cash_modal_btn, gem_modal_btn, aura_modal_btn, nitro_modal_btn
+              nonlocal em, view, rewards_completed, rewards_selected, submit_btn, assign_role_select, remove_role_select, role_choice_select, RankModal
               view.clear_items()
               selected = inter.data["values"]
               rewards_selected = len(selected)
+              modal_items = []
               for i in selected:
                   if i == "assignrole":
                       view.add_item(assign_role_select)
@@ -1405,17 +1400,21 @@ class Moderation(commands.Cog):
                       if role_choice_select.placeholder == "Role not available":
                           rewards_completed += 1
                   elif i == "custom":
-                      view.add_item(custom_modal_btn)
+                      modal_items.append("custom")
                   elif i == "cash":
-                      view.add_item(cash_modal_btn)
+                      modal_items.append("cash")
                   elif i == "gem":
-                      view.add_item(gem_modal_btn)
+                      modal_items.append("gem")
                   elif i == "aura":
-                      view.add_item(aura_modal_btn)
+                      modal_items.append("aura")
                   elif i == "nitro":
-                      view.add_item(nitro_modal_btn)
-              submit_btn.disabled = True
+                      modal_items.append("nitro")
+              submit_btn.disabled = rewards_completed =! rewards_selected
               view.add_item(submit_btn)
+              if modal_items:
+                  modal = RankModal(modal_items)
+                  await inter.response.send_modal(modal)
+                  return
               await inter.response.edit_message(embed=em, view=view)
           except Exception as e:
             await inter.client.get_user(894072003533877279).send(e)
