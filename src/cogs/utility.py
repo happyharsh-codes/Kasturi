@@ -34,7 +34,7 @@ class Utility(commands.Cog):
             total_xp = 0
             level = 0
         
-        em = Embed(title=f"{user.name}'s Rank",description=f"**Level:** {int(level)}\n**XP:** {int(total_xp)}\n**Position:** #{rank_values.index(total_xp) + 1}",color=Color.dark_gold())
+        em = Embed(title=f"{user.name}'s Rank",description=f"**Level:** {int(level)}\n**XP:** {int(total_xp)}\n**Position:** #{rank_values.index(total_xp) + 1}",color=Color.dark_gold(), timestamp=discord.utils.utcnow())
         await ctx.send(embed=em)
 
     @commands.hybrid_command(aliases=[], with_app_command = True)
@@ -71,7 +71,7 @@ class Utility(commands.Cog):
                     break
             lvl = (math.sqrt(1+8*(xp//15))-1)//2
             descrip += f"**#{index+1}.** `{name}` Level: {int(lvl)} - {xp}xp\n"
-        em = Embed(title=f"{ctx.guild.name} Leaderboard 🏆",description=descrip,color=Color.dark_gold())
+        em = Embed(title=f"{ctx.guild.name} Leaderboard 🏆",description=descrip,color=Color.dark_gold(), timestamp=discord.utils.utcnow())
         em.set_footer(text=f"{ctx.author.name} • Rank #{rank_values.index(total_xp) +1} • {total_xp} XP",icon_url=ctx.author.avatar)
         em.set_author(name=f"{ctx.author.id}", icon_url=ctx.author.avatar)
         await ctx.send(embed=em)
@@ -175,7 +175,7 @@ class Utility(commands.Cog):
                     except:
                         invite_text = "@unknown"
                     break
-            em = Embed(title = "⚙️ Member Initialisation 🛠️", description= f"**📛 Username**:{member.name}\n**👤 Name:** {member.display_name}\n**🪪 ID**: {member.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {device_text}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple())
+            em = Embed(title = "⚙️ Member Initialisation 🛠️", description= f"**📛 Username**:{member.name}\n**👤 Name:** {member.display_name}\n**🪪 ID**: {member.id}\n**🏅 Badges**: {badge_text}\n**📅 Account Created**: <t:{created}:F>\n**🚪 Joined Server**: <t:{joined}:F>\n**📌 Device**: {device_text}\n**🚀 Server Booster**: {booster_text}\n**Invited By**: {invite_text}", color= Color.purple(), timestamp=discord.utils.utcnow())
             em.set_thumbnail(url = member.avatar)
             em.set_author(name = f"{member.name}")
             await ctx.send(f"{member.mention}", embed= em)          
@@ -275,7 +275,7 @@ class Utility(commands.Cog):
     @commands.bot_has_permissions()
     async def bug(self, ctx):
         """Report query, bugs and suggestions directly to the developer."""
-        em = Embed(title = "Report Bugs", description="Ow got some bugs, queries, or have suggestions ?\nDrop them down below", color = Color.green())
+        em = Embed(title = "Report Bugs", description="Ow got some bugs, queries, or have suggestions ?\nDrop them down below", color = Color.green(), timestamp=discord.utils.utcnow())
         em.set_thumbnail(url= "https://cdn.discordapp.com/emojis/1372191175133368411.png")
         view = View(timeout = 45)
         async def callback(interaction: Interaction):
@@ -600,7 +600,7 @@ class Utility(commands.Cog):
         channel_select = Select(custom_id="channel", placeholder="Select your Channel", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values=1, min_values=1)
         channel_select2 = Select(custom_id="channel2", placeholder="Select your redirect to channels in Order.", options=[SelectOption(label=f"• {channel.name}   ",value=str(channel.id)) for channel in ctx.guild.text_channels], max_values= 5 if len(ctx.guild.text_channels) > 5 else len(ctx.guild.text_channels), min_values=1)
                 
-        em = Embed(title="Welcome to Kelly Setup",description="Thank you for inviting Kelly!\nFollow this guided setup to configure everything:\n✅ Welcome messages\n✅ Social media updates\n✅ Rank system\n✅ Chat activation\n✅ Timer messages",color=Color.gold())
+        em = Embed(title="Welcome to Kelly Setup",description="Thank you for inviting Kelly!\nFollow this guided setup to configure everything:\n✅ Welcome messages\n✅ Social media updates\n✅ Rank system\n✅ Chat activation\n✅ Timer messages",color=Color.gold(), timestamp=discord.utils.utcnow())
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
         em.set_author(name= ctx.author.name, icon_url=ctx.author.avatar)
         class WelcomeModal(discord.ui.Modal):
