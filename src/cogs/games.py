@@ -877,6 +877,7 @@ class Games(commands.Cog):
             em.set_footer(text= f"Craft by {ctx.author.display_name} | Page {page+1} of {len(crafts)}", icon_url=ctx.author.avatar)
 
         async def on_select(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal crafts, category_select, em, view, go_left, go_right, add_btn, craft_btn, remove_btn
@@ -895,8 +896,11 @@ class Games(commands.Cog):
             view.add_item(go_right)
             update()
             await inter.response.edit_message(embed=em, view=view)
-            
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         async def on_craft(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal crafts, page, view, em, profile, msg, qty
@@ -911,8 +915,11 @@ class Games(commands.Cog):
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("crafting", craft_time, msg.channel.id, msg.id, item = item_name, qty = qty)
             return
-            
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         async def on_go(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal page, crafts, update, go_left, go_right, view, craft_btn
@@ -923,8 +930,11 @@ class Games(commands.Cog):
             go_right.disabled = page == len(crafts)-1
             update()
             await inter.response.edit_message(embed=em, view=view)
-
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         async def on_qty(inter: Interaction):
+          try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal em, view, remove_btn, qty, page
@@ -935,7 +945,9 @@ class Games(commands.Cog):
             remove_btn.disabled = qty == 1
             update()
             await inter.response.edit_message(embed = em, view = view)
-            
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
         view = View(timeout=45)
         async def timeout():
             em.color = Color.light_grey()
