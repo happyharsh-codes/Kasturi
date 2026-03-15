@@ -1227,7 +1227,7 @@ class Moderation(commands.Cog):
         author_top = ctx.author.top_role
         bot_top = ctx.guild.me.top_role
 
-        for role in reversed(ctx.guild.roles)[:25]:
+        for role in reversed(ctx.guild.roles[:25]):
             if role.position == 0:  # everyone
                 continue
             if role.position < author_top.position and role.position < bot_top.position:
