@@ -4,6 +4,6 @@ server:
 
 lavalink:
   server:
-    password: "youshallnotpass"
+    password: "kellyMusic"
 
 plugins: []
