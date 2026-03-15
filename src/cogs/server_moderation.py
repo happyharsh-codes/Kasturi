@@ -1217,6 +1217,8 @@ class Moderation(commands.Cog):
         roles = []
         reward = { "assignrole": None, "removerole": None, "rolechoice": None, "custom": None, "cash": None, "aura": None, "gem": None, "nitro": None}
         level = 0
+        rewards_selected = 0
+        rewards_completed = 0
         author_top = ctx.author.top_role
         bot_top = ctx.guild.me.top_role
 
@@ -1264,7 +1266,7 @@ class Moderation(commands.Cog):
                 
             async def on_submit(self, inter: Interaction):
               try:
-                nonlocal em, view, level, reward, add_btn, done_btn, msg, reward_select, update_embed
+                nonlocal em, view, level, rewards_selected, rewards_completed, reward, add_btn, done_btn, msg, reward_select, update_embed, submit_btn
                 reward_type = self.reward
                 value = self.input_box.value
                 async def exit():
@@ -1279,27 +1281,39 @@ class Moderation(commands.Cog):
                 elif reward_type == "custom_modal_btn":
                     reward["custom"] = value
                     value = value[:10]
+                    rewards_completed += 1
                 elif reward_type == "cash_modal_btn":
                     if not value.isdigit() or not (0 < int(value) <= 1000):
                         await exit()
                         return
                     reward["cash"] = value
+                    rewards_completed += 1
                 elif reward_type == "gem_modal_btn":
                     if not value.isdigit() or not (0 < int(value) <= 50):
                         await exit()
                         return
                     reward["gem"] = value
+                    rewards_completed += 1
                 elif reward_type == "aura_modal_btn":
                     if not value.isdigit() or not (0 < int(value) <= 100):
                         await exit()
                         return
                     reward["aura"] = value
+                    rewards_completed += 1
                 elif reward_type == "nitro_modal_btn":
                     reward["nitro"] = value
                     value = value[:8]
-                for children in view.children:
-                    if children.custom_id == reward_type:
-                        children = Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=value, value=value, default = True)], max_values=1, min_values=1)
+                    rewards_completed += 1
+                index = None
+                for i, child in enumerate(view.children):
+                    if child.custom_id == reward_type:
+                        index = i
+                        break
+                if index is not None:
+                    view.remove_item(view.children[index])
+                    view.insert_item(index,Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=value, value=value, default = True)], max_values=1, min_values=1))
+                if rewards_completed == rewards_selected:
+                    submit_btn.disabled = False
                 await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
@@ -1368,9 +1382,10 @@ class Moderation(commands.Cog):
           try:   
               if inter.user.id != ctx.author.id:
                   return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-              nonlocal em, view, submit_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_btn, cash_modal_btn, gem_modal_btn, aura_modal_btn, nitro_modal_btn
+              nonlocal em, view, rewards_selected, submit_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_btn, cash_modal_btn, gem_modal_btn, aura_modal_btn, nitro_modal_btn
               view.clear_items()
               selected = inter.data["values"]
+              rewards_selected = len(selected)
               for i in selected:
                   if i == "assignrole":
                       view.add_item(assign_role_select)
@@ -1426,20 +1441,25 @@ class Moderation(commands.Cog):
         async def on_select(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-            nonlocal assign_role_select, remove_role_select, role_choice_select, reward, em, view
+            nonlocal assign_role_select, rewards_completed, rewards_selected, remove_role_select, role_choice_select, reward, em, view, submit_btn
             values = inter.data["values"]
             custom_id = inter.data["custom_id"]
             if custom_id == "assign_role":
                 select = assign_role_select
                 reward["assignrole"] = values[0]
+                rewards_completed += 1
             if custom_id == "remove_role":
                 select = remove_role_select
                 reward["removerole"] = values[0]
+                rewards_completed += 1
             else:
                 select = role_choice_select
                 reward["rolechoice"] = values
+                rewards_completed += 1
             for option in select.options:
                 option.default = option.value in values
+            if rewards_completed == rewards_selected:
+                submit_btn.disabled = False
             await inter.response.edit_message(embed=em, view=view)
 
         custom_modal_btn.callback = on_modal_btn
