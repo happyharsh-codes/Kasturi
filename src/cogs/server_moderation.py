@@ -1307,13 +1307,8 @@ class Moderation(commands.Cog):
                 index = None
                 for i, child in enumerate(view.children):
                     if child.custom_id == reward_type:
-                        index = i
+                        view.children[i] = Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=f"{reward_type.split()[0].title()}: {value}", value=value, default = True)], max_values=1, min_values=1))
                         break
-                if index is not None:
-                    view.remove_item(view.children[index])
-                    view.insert_item(index,Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=value, value=value, default = True)], max_values=1, min_values=1))
-                if rewards_completed == rewards_selected:
-                    submit_btn.disabled = False
                 await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
@@ -1382,17 +1377,23 @@ class Moderation(commands.Cog):
           try:   
               if inter.user.id != ctx.author.id:
                   return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-              nonlocal em, view, rewards_selected, submit_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_btn, cash_modal_btn, gem_modal_btn, aura_modal_btn, nitro_modal_btn
+              nonlocal em, view, rewards_completed, rewards_selected, submit_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_btn, cash_modal_btn, gem_modal_btn, aura_modal_btn, nitro_modal_btn
               view.clear_items()
               selected = inter.data["values"]
               rewards_selected = len(selected)
               for i in selected:
                   if i == "assignrole":
                       view.add_item(assign_role_select)
+                      if assign_role_select.placeholder == "Role not available":
+                          rewards_completed += 1
                   elif i == "removerole":
                       view.add_item(remove_role_select)
+                      if remove_role_select.placeholder == "Role not available":
+                          rewards_completed += 1
                   elif i == "rolechoice":
                       view.add_item(role_choice_select)
+                      if role_choice_select.placeholder == "Role not available":
+                          rewards_completed += 1
                   elif i == "custom":
                       view.add_item(custom_modal_btn)
                   elif i == "cash":
