@@ -75,11 +75,15 @@ async def perform_task(task, uid, client):
         await channel.send(f"<@{uid}> You have reached {task['destination'].title()}")
         profile.location = task["destination"]
 
-    elif task["name"] == "crafting":
+    elif task["name"] == "crafting" or task["name"] == "building":
         item = task["item"]
-        amt = task["amount"]
+        qty = task["qty"]
         profile.inv_manager(item, amt)
-        await channel.send(f"<@{uid}> You have crafted {DATA['id'][item]} {item} x {amt} successfully")
+        em = Embed(title="Crafting Complete", description= f"{item} x {amt} successfull added in your inventory.", color = Color.green())
+        if task["name"] == "building":
+            em.title = "Building Complete"
+        em.set_thumbnail(url= get_emoji_url(GAME['id'][item]['emoji']))
+        await channel.send(embed = em)
 
     elif task["name"] == "exploring":
         place = task["place"]
@@ -276,8 +280,7 @@ def at_the_location(locations):
             return
         if Profiles[str(ctx.author.id)]["location"] in locations:
             return True
-        pretty = [ x.replace("_"," ").title() for x in locations]
-        await ctx.reply(f"You must be at `{','.join(pretty)}` to run this command")
+        await ctx.reply(f"You must be at one of `{','.join(locations)}` to run this command")
         return False
     return commands.check(predicate)
     
