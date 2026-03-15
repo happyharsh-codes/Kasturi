@@ -1202,8 +1202,22 @@ class Moderation(commands.Cog):
         if not Server_Settings[guild_id].get("rank_channel", 0):
             return await ctx.send(embed=Embed(description=":x: You must set a Rank Channel first.\nUse `k set_rank_channel`.",color=Color.red()))
 
-        reward_select = Select(custom_id="reward_type",placeholder="Select Reward Type",options=[SelectOption(label=i, value=i) for i in ["Role", "Cash", "Aura", "Gems", "Nitro"]],max_values=1,min_values=1,disabled=False)
+        
+        reward_select = Select(custom_id="reward_type",placeholder="Select Reward Type",
+        options=[
+            SelectOption(label="Assign Role", value = "assignrole", description="Gives user role when they hit the level"),
+            SelectOption(label="Remove Role", value = "removerole", description="Removes role when user hit the level"),
+            SelectOption(label="Role Choice", value = "rolechoice", description="Gives user choice to select role form give through dm."),
+            SelectOption(label="Custom Message", value = "custom", description="Gives user custom message in dm when they hit level"),
+            SelectOption(label="Cash", value = "cash", description="Gives user game cash amount."),
+            SelectOption(label="Gems", value = "gem", description= "Gives user game gems reward"),
+            SelectOption(label="Aura Points", value = "aura", description="Gives user game Aura Points"),
+            SelectOption(label="Discord Nitro", value = "nitro", description="Gives user nitro by dm. Encrypted and Secure")
+            ],
+            max_values=8,min_values=1,disabled=False)
         roles = []
+        reward = { "assignrole": None, "removerole": None, "rolechoice": None, "custom": None, "cash": None, "aura": None, "gem": None, "nitro": None}
+        level = 0
         author_top = ctx.author.top_role
         bot_top = ctx.guild.me.top_role
 
@@ -1213,10 +1227,22 @@ class Moderation(commands.Cog):
             if role.position < author_top.position and role.position < bot_top.position:
                 roles.append(SelectOption(label=f"@{role.name}", value=str(role.id)))
         if not roles:
-            role_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
+            assign_role_select = Select(custom_id="assign_role", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
+            remove_role_select = Select(custom_id="remove_role", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
+            role_choice_select = Select(custom_id="role_choice", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
-            role_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
+            assign_role_select = Select(custom_id="assign_role", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
+            remove_role_select = Select(custom_id="remove_role", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
+            role_choice_select = Select(custom_id="role_choice", placeholder="Select Roles to Add", options=roles, max_values=25, min_values=1)
+            
+        custom_modal_btn = Button(style=ButtonStyle.green, label="Add Custom Message", custom_id="custom_modal_btn")
+        cash_modal_btn = Button(style=ButtonStyle.green, label="Add Cash", custom_id="cash_modal_btn")
+        gem_modal_btn = Button(style=ButtonStyle.green, label="Add Gems", custom_id="gem_modal_btn")
+        aura_modal_btn = Button(style=ButtonStyle.green, label="Add Aura", custom_id="aura_modal_btn")
+        nitro_modal_btn = Button(style=ButtonStyle.green, label="Add Nitro", custom_id="nitro_modal_btn")
+        
         add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add", disabled=True)
+        submit_btn = Button(style=ButtonStyle.green, label="Add", custom_id="Submit", disabled=True)
         done_btn = Button(style=ButtonStyle.secondary, label="Done", custom_id="done")
 
         class RankModal(discord.ui.Modal):
@@ -1238,7 +1264,7 @@ class Moderation(commands.Cog):
                     self.select = TextInput(label="Nitro Code", custom_id="nitro", placeholder="Enter Valid Nitro Gift Code", required= True, min_length=1, max_length=50, style=TextStyle.short)
                     self.add_item(self.select)
                 
-            async def on_submit(self, interaction: Interaction):
+            async def on_submit(self, inter: Interaction):
               try:
                 nonlocal em, view, add_btn, done_btn, msg, reward_select, update_embed, role_select
                 invalid = False
@@ -1288,18 +1314,15 @@ class Moderation(commands.Cog):
                     view.add_item(add_btn)
                     view.add_item(done_btn)
                 await msg.edit(embed=em, view=view)
-                await interaction.response.defer()
+                await inter.response.defer()
               except Exception as e:
-                await interaction.client.get_user(894072003533877279).send(e)
+                await inter.client.get_user(894072003533877279).send(e)
  
         view = View(timeout=45)
-        view.add_item(reward_select)
         view.add_item(add_btn)
         async def timeout():
             nonlocal em, view, msg
-            fields = em.fields
             em.color = Color.light_grey()
-            em.fields = fields
             for children in view.children:
                 children.disabled = True
             await msg.edit(embed=em, view=view)
@@ -1318,11 +1341,12 @@ class Moderation(commands.Cog):
                     if reward[0] == "Role":
                         try:
                             role = ctx.guild.get_role(int(reward[1]))
-                            if role:
-                                reward[1] = role.name
+                            role_name = role.name if role else "Deleted Role"
+                            txt += f"• Level {level} → Role: {role_name}\n"
                         except:
-                            pass
-                    txt += f"• Level {level} → {reward[0]}: {reward[1]}\n"
+                            txt += f"• Level {level} → Role: {reward[1]}\n"
+                    else:
+                        txt += f"• Level {level} → {reward[0]}: {reward[1]}\n"
             else:
                 txt = "No rewards set yet."
 
@@ -1330,6 +1354,61 @@ class Moderation(commands.Cog):
 
         update_embed()
 
+        async def on_add(inter: Interaction):
+          try:   
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True )
+            nonlocal Rankmodal
+            modal = RankModal()
+            await inter.response.send_modal(modal)
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(e)
+
+        async def on_reward_select(inter: Interaction):
+          try:   
+              if inter.user.id != ctx.author.id:
+                  return await inter.response.send_message("This is not your interaction.", ephemeral=True )
+              nonlocal em, view, add_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_button, cash_modal_button, gem_modal_button, aura_modal_button, nitro_modal_button
+              view.clear_items()
+              selected = inter.data["values"]
+              for i in selected:
+                  if i == "assignrole":
+                      view.add_item(assign_role_select)
+                  elif i == "removerole":
+                      view.add_item(remove_role_select)
+                  elif i == "rolechoice":
+                      view.add_item(role_choice_select)
+                  elif i == "custom":
+                      view.add_item(custom_modal_button)
+                  elif i == "cash":
+                      view.add_item(cash_modal_button)
+                  elif i == "gem":
+                      view.add_item(gem_modal_button)
+                  elif i == "aura":
+                      view.add_item(aura_modal_button)
+                  elif i == "nitro":
+                      view.add_item(nitro_modal_button)
+              add_btn.disabled = True
+              view.add_item(add_btn)
+              await inter.response.edit_message(emed=em, view=view)
+          except Exception as e:
+            await inter.client.get_user(894072003533877279).send(e)
+              
+        async def on_modal_btn(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True )
+            custom_id = inter.data["custom_id"]
+            nonlocal RankModal
+            modal = RankModal(custom_id)
+            await inter.response.send_modal(modal)
+    
+
+
+
+       
+
+        
+        
         async def on_reward_select(inter: Interaction):
           try:   
             if inter.user.id != ctx.author.id:
@@ -1355,7 +1434,7 @@ class Moderation(commands.Cog):
             
             await inter.response.edit_message(view=view)
           except Exception as e:
-            await interaction.client.get_user(894072003533877279).send(e)
+            await inter.client.get_user(894072003533877279).send(e)
  
         async def on_role_select(inter: Interaction):
           try:
@@ -1365,15 +1444,12 @@ class Moderation(commands.Cog):
             selected_reward = inter.data["values"][0]
             nonlocal add_btn, view, role_select
             for option in role_select.options:
-                if option.value in selected_reward:
-                    option.default = True
-                    break
-                else:
-                    option.default = False
+                option.default = option.value == selected_reward
+                break
             add_btn.disabled = False
             await inter.response.edit_message(view=view)
           except Exception as e:
-            await interaction.client.get_user(894072003533877279).send(e)
+            await inter.client.get_user(894072003533877279).send(e)
  
         async def on_add(inter: Interaction):
           try:
@@ -1389,7 +1465,7 @@ class Moderation(commands.Cog):
             modal = RankModal(reward)
             await inter.response.send_modal(modal)
           except Exception as e:
-            await interaction.client.get_user(894072003533877279).send(e)
+            await inter.client.get_user(894072003533877279).send(e)
  
         async def on_done(inter: Interaction):
             if inter.user.id != ctx.author.id:
