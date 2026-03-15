@@ -340,7 +340,7 @@ async def connect_nodes():
         password="kellyMusic"
     )
     await wavelink.Pool.connect(client=self.bot, nodes=[node])
-await connect_nodes()
+
 # ===== Utility Functions =====
 
 async def safe_dm(member: discord.Member, embed: discord.Embed = None, message = None, view = None):
