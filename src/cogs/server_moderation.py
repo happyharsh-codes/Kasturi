@@ -1202,7 +1202,6 @@ class Moderation(commands.Cog):
         if not Server_Settings[guild_id].get("rank_channel", 0):
             return await ctx.send(embed=Embed(description=":x: You must set a Rank Channel first.\nUse `k set_rank_channel`.",color=Color.red()))
 
-        
         reward_select = Select(custom_id="reward_type",placeholder="Select Reward Type",
         options=[
             SelectOption(label="Assign Role", value = "assignrole", description="Gives user role when they hit the level"),
@@ -1248,73 +1247,60 @@ class Moderation(commands.Cog):
         class RankModal(discord.ui.Modal):
             def __init__(self, reward_type):
                 super().__init__(title="Add Rank Reward")
-                self.input_box = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                if reward_type == "level":
+                    self.input_box = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                elif reward_type == "custom_modal_btn":
+                    self.input_box = TextInput(label="Custom Message", custom_id="custom_msg", placeholder="Enter your custom message", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
+                elif reward_type == "cash_modal_btn":
+                    self.input_box = TextInput(label="Cash Amount", custom_id="cash", placeholder="Enter Cash Amount: 1-1000", required= True, min_length=1, max_length=4, style=TextStyle.short)
+                elif reward_type == "gem_modal_btn":
+                    self.input_box = TextInput(label="Gems Amount", custom_id="gem", placeholder="Enter Gem Amount: 1-50", required= True, min_length=1, max_length=2, style=TextStyle.short)
+                elif reward_type == "aura_modal_btn":
+                    self.input_box = TextInput(label="Aura Points", custom_id="aura", placeholder="Enter Aura Amount: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
+                elif reward_type == "nitro_modal_btn":
+                    self.input_box = TextInput(label="Nitro Gift Code", custom_id="nitro", placeholder="Enter Nitro Gift code", required= True, min_length=1, max_length=50, style=TextStyle.short)
                 self.reward = reward_type
                 self.add_item(self.input_box)
-                if reward_type == "Cash":
-                    self.select = TextInput(label="Cash Amount", custom_id="cash", placeholder="Enter Cash amount: (1-10000)", required= True, min_length=1, max_length=5, style=TextStyle.short)
-                    self.add_item(self.select)
-                elif reward_type == "Aura":
-                    self.select = TextInput(label="Aura Points", custom_id="aura", placeholder="Enter Aura Points: (1-999)", required= True, min_length=1, max_length=3, style=TextStyle.short)
-                    self.add_item(self.select)
-                elif reward_type == "Gems":
-                    self.select = TextInput(label="Gems Amount", custom_id="gems", placeholder="Enter Gems amount: (1-100)", required= True, min_length=1, max_length=3, style=TextStyle.short)
-                    self.add_item(self.select)
-                elif reward_type == "Nitro":
-                    self.select = TextInput(label="Nitro Code", custom_id="nitro", placeholder="Enter Valid Nitro Gift Code", required= True, min_length=1, max_length=50, style=TextStyle.short)
-                    self.add_item(self.select)
                 
             async def on_submit(self, inter: Interaction):
               try:
-                nonlocal em, view, add_btn, done_btn, msg, reward_select, update_embed, role_select
-                invalid = False
-                level = self.input_box.value
-                if level.isdigit() and int(level) < 101 and int(level) > 0:
-                    level = int(level)
-                else:
-                    invalid = True
-                if self.reward == "Role":
-                    for option in role_select.options:
-                        if option.default:
-                            value = option.value
-                            break
-                elif self.reward == "Cash":
-                    value = self.select.value
-                    if value.isdigit() and int(value) <= 10000 and int(value) > 0:
-                        value = int(value)
-                    else:
-                        invalid = True
-                elif self.reward == "Aura":
-                    value = self.select.value
-                    if value.isdigit() and int(value) <= 999 and int(value) > 0:
-                        value = int(value)
-                    else:
-                        invalid = True
-                elif self.reward == "Gems":
-                    value = self.select.value
-                    if value.isdigit() and int(value) <= 100 and int(value) > 0:
-                        value = int(value)
-                    else:
-                        invalid = True
-                elif self.reward == "Nitro":
-                    value = self.select.value
-                if invalid:
-                    for children in view.children:
-                        children.disabled = True
-                    await msg.edit(view=view)
-                    return await inter.response.send_message(f"{ctx.author.mention}", embed=Embed(description="**Invalid Values Given**", color=Color.red()))
-                
-                Server_Settings[str(ctx.guild.id)]["rank_reward"][level] = [self.reward, value]
-                update_embed()
-            
-                if add_btn.label == "Add":
-                    add_btn.label = "Add More"
+                nonlocal em, view, level, reward, add_btn, done_btn, msg, reward_select, update_embed, role_select
+                reward_type = self.reward
+                value = self.input_box.value
+                def exit():
+                    await inter.response.edit_message(embed= Embed(description="❌ Invalid Arguments Provided.\n Please Try Again."), view = None)
+                if reward_type == "level":
+                    if not value.isDigit() or 0 < int(value) <=100:
+                        exit()
+                        return
+                    level = int(value)
                     view.clear_items()
                     view.add_item(reward_select)
-                    view.add_item(add_btn)
-                    view.add_item(done_btn)
-                await msg.edit(embed=em, view=view)
-                await inter.response.defer()
+                elif reward_type == "custom_modal_btn":
+                    reward["custom"] = value
+                    value = value[:10]
+                elif reward_type == "cash_modal_btn":
+                    if not value.isDigit() or 0 < int(value) <= 1000:
+                        exit()
+                        return
+                    reward["cash"] = value
+                elif reward_type == "gem_modal_btn":
+                    if not value.isDigit() or 0 < int(value) <= 50:
+                        exit()
+                        return
+                    reward["gem"] = value
+                elif reward_type == "aura_modal_btn":
+                    if not value.isDigit() or 0 < int(value) <= 100:
+                        exit()
+                        return
+                    reward["aura"] = value
+                elif reward_type == "nitro_modal_btn":
+                    reward["nitro"] = value
+                    value = value[:8]
+                for children in view.children:
+                    if children.custom_id == reward_type:
+                        children = Select(custom_id=f"{reward_type}_fake", placeholder="Role not available", disabled= True, options= [SelectOption(label=value, value=value, default = True)], max_values=1, min_values=1)
+                await inter.response.edit_message(embed=em, view=view)
               except Exception as e:
                 await inter.client.get_user(894072003533877279).send(e)
  
@@ -1359,7 +1345,7 @@ class Moderation(commands.Cog):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
             nonlocal Rankmodal
-            modal = RankModal()
+            modal = RankModal("level")
             await inter.response.send_modal(modal)
           except Exception as e:
             await inter.client.get_user(894072003533877279).send(e)
@@ -1368,7 +1354,7 @@ class Moderation(commands.Cog):
           try:   
               if inter.user.id != ctx.author.id:
                   return await inter.response.send_message("This is not your interaction.", ephemeral=True )
-              nonlocal em, view, add_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_button, cash_modal_button, gem_modal_button, aura_modal_button, nitro_modal_button
+              nonlocal em, view, submit_btn, assign_role_select, remove_role_select, role_choice_select, custom_modal_button, cash_modal_button, gem_modal_button, aura_modal_button, nitro_modal_button
               view.clear_items()
               selected = inter.data["values"]
               for i in selected:
@@ -1388,8 +1374,8 @@ class Moderation(commands.Cog):
                       view.add_item(aura_modal_button)
                   elif i == "nitro":
                       view.add_item(nitro_modal_button)
-              add_btn.disabled = True
-              view.add_item(add_btn)
+              submit_btn.disabled = True
+              view.add_item(submit_btn)
               await inter.response.edit_message(emed=em, view=view)
           except Exception as e:
             await inter.client.get_user(894072003533877279).send(e)
@@ -1401,9 +1387,61 @@ class Moderation(commands.Cog):
             nonlocal RankModal
             modal = RankModal(custom_id)
             await inter.response.send_modal(modal)
-    
 
+        async def on_submit(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True )
+            nonlocal em, view, update_embed, add_btn, done_btn, rewards, level
+            update_embed()
+            add_btn.label = "Add More"
+            view.clear_items()
+            view.add_item(add_btn)
+            view.add_item(done_btn)
+            Server_Settings[guild_id]["rank_reward"][level] = rewards
+            reward = { "assignrole": None, "removerole": None, "rolechoice": None, "custom": None, "cash": None, "aura": None, "gem": None, "nitro": None}
+            await inter.response.edit_message(embed=em, view=view)
 
+        async def on_done(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True )
+            nonlocal view, em
+            view.on_timeout = None
+            view = None
+            await inter.response.edit_message(embed=em, view=view)
+
+        async def on_select(inter: interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True )
+            nonlocal assign_role_select, remove_role_select, role_choice_select, rewards, em, view
+            values = inter.data["values"]
+            custom_id = inter.data["custom_id"]
+            if custom_id == "assignrole":
+                select = assign_role_select
+                rewards["assignrole"] = values[0]
+            if custom_id == "removerole":
+                select = remove_role_select
+                rewards["removerole"] = values[0]
+            else:
+                select = role_channel_select
+                rewards["rolechoice"] = values
+            for option in select.options:
+                option.default = option.value in values
+            await inter.response.edit_message(embed=em, view=view)
+
+        custom_modal_btn.callback = on_modal_btn
+        cash_modal_btn.callback = on_modal_btn
+        gem_modal_btn.callback = on_modal_btn
+        aura_modal_btn.callback = on_modal_btn
+        nitro_modal_btn.callback = on_modal_btn
+        reward_select.callback = on_reward_select
+        assign_role_select.callback = on_select
+        remove_role_select.callback = on_select
+        role_choice_select.callback = on_select
+        add_btn.callback = on_add
+        submit_btn.callback = on_submit
+        done_btn.callback = on_done
+      
+        msg = await ctx.reply(embed = em, view = view)
 
        
 
