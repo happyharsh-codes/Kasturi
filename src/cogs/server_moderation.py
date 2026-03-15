@@ -1264,7 +1264,7 @@ class Moderation(commands.Cog):
                 
             async def on_submit(self, inter: Interaction):
               try:
-                nonlocal em, view, level, reward, add_btn, done_btn, msg, reward_select, update_embed, role_select
+                nonlocal em, view, level, reward, add_btn, done_btn, msg, reward_select, update_embed
                 reward_type = self.reward
                 value = self.input_box.value
                 async def exit():
