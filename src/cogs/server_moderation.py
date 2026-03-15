@@ -1227,7 +1227,7 @@ class Moderation(commands.Cog):
         author_top = ctx.author.top_role
         bot_top = ctx.guild.me.top_role
 
-        for role in ctx.guild.roles:
+        for role in reversed(ctx.guild.roles):
             if role.position == 0:  # everyone
                 continue
             if role.position < author_top.position and role.position < bot_top.position:
@@ -1250,11 +1250,13 @@ class Moderation(commands.Cog):
                 super().__init__(title="Add Rank Reward")
                 self.boxes = []
                 if "level" in reward_type:
-                    t = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short))
+                    t = TextInput(label="Level", custom_id="level", placeholder="Enter Reward Level: 1-100", required= True, min_length=1, max_length=3, style=TextStyle.short)
                     self.boxes.append(t)
                     self.add_item(t)
                 elif "custom" in reward_type:
                     t = TextInput(label="Custom Message", custom_id="custom", placeholder="Enter your custom message", required= True, min_length=1, max_length=512, style=TextStyle.paragraph)
+                    self.boxes.append(t)
+                    self.add_item(t)
                 elif "cash" in reward_type:
                     t = TextInput(label="Cash Amount", custom_id="cash", placeholder="Enter Cash Amount: 1-1000", required= True, min_length=1, max_length=4, style=TextStyle.short)
                     self.boxes.append(t)
@@ -1275,8 +1277,6 @@ class Moderation(commands.Cog):
             async def on_submit(self, inter: Interaction):
               try:
                 nonlocal em, view, level, rewards_selected, rewards_completed, reward, add_btn, done_btn, msg, reward_select, update_embed, submit_btn
-                reward_type = self.reward
-                value = self.input_box.value
                 async def exit():
                     await inter.response.edit_message(embed= Embed(description="❌ Invalid Arguments Provided.\n Please Try Again."), view = None)
                 for box in self.boxes:
@@ -1303,7 +1303,7 @@ class Moderation(commands.Cog):
                             return
                         reward["gem"] = value
                         rewards_completed += 1
-                    elif box.custom_id == "aura_modal_btn":
+                    elif box.custom_id == "aura":
                         if not value.isdigit() or not (0 < int(value) <= 100):
                             await exit()
                             return
@@ -1409,7 +1409,7 @@ class Moderation(commands.Cog):
                       modal_items.append("aura")
                   elif i == "nitro":
                       modal_items.append("nitro")
-              submit_btn.disabled = rewards_completed =! rewards_selected
+              submit_btn.disabled = rewards_completed != rewards_selected
               view.add_item(submit_btn)
               if modal_items:
                   modal = RankModal(modal_items)
@@ -1450,7 +1450,7 @@ class Moderation(commands.Cog):
                 select = assign_role_select
                 reward["assignrole"] = values[0]
                 rewards_completed += 1
-            if custom_id == "remove_role":
+            elif custom_id == "remove_role":
                 select = remove_role_select
                 reward["removerole"] = values[0]
                 rewards_completed += 1
