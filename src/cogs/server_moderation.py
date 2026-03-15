@@ -1296,19 +1296,19 @@ class Moderation(commands.Cog):
                         if not value.isdigit() or not (0 < int(value) <= 1000):
                             await exit()
                             return
-                        reward["cash"] = value
+                        reward["cash"] = int(value)
                         rewards_completed += 1
                     elif box.custom_id == "gem":
                         if not value.isdigit() or not (0 < int(value) <= 50):
                             await exit()
                             return
-                        reward["gem"] = value
+                        reward["gem"] = int(value)
                         rewards_completed += 1
                     elif box.custom_id == "aura":
                         if not value.isdigit() or not (0 < int(value) <= 100):
                             await exit()
                             return
-                        reward["aura"] = value
+                        reward["aura"] = int(value)
                         rewards_completed += 1
                     elif box.custom_id == "nitro":
                         reward["nitro"] = value
@@ -1429,7 +1429,7 @@ class Moderation(commands.Cog):
             view.clear_items()
             view.add_item(add_btn)
             view.add_item(done_btn)
-            Server_Settings[guild_id]["rank_reward"][level] = reward
+            Server_Settings[guild_id]["rank_reward"][str(level)] = reward.copy()
             reward = { "assignrole": None, "removerole": None, "rolechoice": None, "custom": None, "cash": None, "aura": None, "gem": None, "nitro": None}
             await inter.response.edit_message(embed=em, view=view)
 
@@ -1449,11 +1449,11 @@ class Moderation(commands.Cog):
             custom_id = inter.data["custom_id"]
             if custom_id == "assign_role":
                 select = assign_role_select
-                reward["assignrole"] = values[0]
+                reward["assignrole"] = int(values[0])
                 rewards_completed += 1
             elif custom_id == "remove_role":
                 select = remove_role_select
-                reward["removerole"] = values[0]
+                reward["removerole"] = int(values[0])
                 rewards_completed += 1
             else:
                 select = role_choice_select
