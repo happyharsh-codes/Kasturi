@@ -392,7 +392,7 @@ class Bot:
     async def on_ready(self):
         print(f"Bot is ready. Logged in as {self.client.user}")
         print("We are ready to go!")
-        await connect_nodes()
+        await connect_nodes(self.client)
         self.mood_swings.start()
         self.universal_loop.start()
         self.me = self.client.get_user(894072003533877279)
