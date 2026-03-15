@@ -16,6 +16,8 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
+RUN chmod +x start.sh
+
 EXPOSE 2333
 
-CMD java -jar Lavalink.jar & python3 -u main.py
+CMD ["./start.sh"]
