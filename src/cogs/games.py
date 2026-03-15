@@ -918,7 +918,7 @@ class Games(commands.Cog):
                     crafts[key] = val['craft']
             for option in category_select.options:
                 option.default = option.value == category 
-            view.clear()
+            view.clear_items()
             view.add_item(category_select)
             view.add_item(go_left)
             view.add_item(remove_btn)
