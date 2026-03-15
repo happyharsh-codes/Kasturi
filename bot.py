@@ -1537,6 +1537,6 @@ class Bot:
             pass
         else:
             await ctx.send(embed=Embed(description="Unknown error happened :/"))
-            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{error}```", color=Color.red()), timestamp=discord.utils.utcnow())
+            await self.me.send(embed=Embed(title= f"⚠️ Command {ctx.command.name} Crash Report", description = f"```{error}```", color=Color.red(), timestamp=discord.utils.utcnow()))
             ctx.command.reset_cooldown(ctx)
                 
