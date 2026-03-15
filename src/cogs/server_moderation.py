@@ -1346,7 +1346,8 @@ class Moderation(commands.Cog):
                             
                         else:
                             txt += f"{reward_type}: {value}\n"
-            else:   txt += "\n"
+                    txt += "\n"
+            else:
                 txt = "No rewards set yet."
 
             em.add_field(name="Current Rewards", value=f"```{txt}```", inline=False)
