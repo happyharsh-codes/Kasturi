@@ -8,8 +8,13 @@ RUN apt-get update && \
     opus-tools \
     python3-pycryptodome \
     libnss3 \
-    default-jre && \
+    default-jre \
+    curl && \
     apt-get clean
+
+# Download Lavalink automatically
+RUN curl -L -o Lavalink.jar \
+https://github.com/lavalink-devs/Lavalink/releases/latest/download/Lavalink.jar
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
