@@ -537,7 +537,7 @@ class Bot:
         try:
             for open_invites in await guild.invites():
                 if open_invites.max_age == 0 and open_invites.max_uses == 0:
-                    invite = open_invite
+                    invite = open_invites
                     break
         except:
             pass
@@ -1057,7 +1057,7 @@ class Bot:
                 await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{channel}> was succesfully deactivated !!", color= discord.Colour.green()))
                 return
             if message.content == self.client.user.mention:
-                em = discord.Embed(title= f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
+                em = discord.Embed(title= f"{kemoji()} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
                 em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
                 em.add_field(name= "Help", value="Get Help using `k help` command")
                 em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
@@ -1098,11 +1098,11 @@ class Bot:
         # ===== Checking for allowed channel ====
         if metadata["allowed_channels"] != [] and channel.id not in metadata["allowed_channels"] and content.startswith(("kasturi", "kelly")):
             channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
-            await channel.send(f"-# Tsk tsk~ {choice(list(EMOJI.values()))} I only chat in the activated channels: {channels_str}", delete_after = 8)
+            await channel.send(f"-# Tsk tsk~ {kemoji()} Kelly only chats in the activated channels: {channels_str}", delete_after = 8)
             return
         elif metadata["allowed_channels"] == [] and content.startswith(("k ", "kelly", "kasturi")) and not "activate" in content:
             if randint(1,3) == 3:
-                await channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho', 'Hello', 'Yoo'])} {choice(list(EMOJI.values()))} Activate your Server using `k activate`.", delete_after = 10)
+                await channel.send(f"-# {choice(['Heyyy', 'Oi', 'Ayoo', 'Abe', 'Oho', 'Hello', 'Yoo'])} {kemoji()} Activate your Server using `k activate`.", delete_after = 10)
 
         # ===== REPLIES ====
         if message.reference and message.reference.message_id:
