@@ -59,34 +59,43 @@ class Bot:
             await self.add_user_infringement(message)
             return True
         return False 
-        
-    async def emoji_spam(self, message, limit):
-        content = message.content
-        unicode_count = len(UNICODE_EMOJI_RE.findall(content))
-        discord_count = len(DISCORD_EMOJI_RE.findall(content))
-        total = unicode_count + discord_count
-        if total > limit:
+
+    async def chat_rate_limiter(self, message, session_id, chat_rate_limit):
+        count = 0 # no of messages in last 5 seconds
+        for time in Last[session_id]:
+            if (datetime.now() - datetime.fromisoformat(time)).seconds <= 5:
+                count += 1
+        if count > chat_rate_limit:
             try:
-                await message.delete()
+                async for msg in message.channel.histoty(limit=100):
+                    if delete_count >= count:
+                        break
+                    if msg.author == message.author:
+                        await msg.delete()
+                        delete_count += 1
             except:
                 pass
-            await message.channel.send(f"{message.author.mention} Too many emojis! ({total}/{limit})",delete_after= 5 )
+            await message.channel.send(f"{message.author.mention} You are sending messages too quickly")
             await self.add_user_infringement(message)
             return True
         return False
         
     async def mass_mention_block(self, message, limit):
+      try:
         if message.mention_everyone:
             await message.delete()
             await message.channel.send(f"{message.author.mention} Mass mention blocked.", delete_after=4)
             await self.add_user_infringement(message)
             return True
+              
             
         if len(message.mentions) > limit:
             await message.delete()
             await message.channel.send(f"{message.author.mention} Too many mentions!", delete_after=4)
             await self.add_user_infringement(message)
             return True  
+        return False
+      except:
         return False
 
     async def caps_block(self, message):
@@ -114,13 +123,15 @@ class Bot:
         if not has_link:
             return False
         if "all" in type.lower():
-            await message.delete()
+            try: await message.delete()
+            except: pass
             await message.channel.send(f"{message.author.mention} Links are not allowed.", delete_after= 5)
             await self.add_user_infringement(message)
             return True
         if "suspicious" in type.lower():
             if any(bad in content for bad in SUSPICIOUS):
-                await message.delete()
+                try: await message.delete()
+                except: pass
                 await message.channel.send(f"{message.author.mention} Suspicious link removed.", delete_after=5)
                 await self.add_user_infringement(message)
                 return True
@@ -130,7 +141,8 @@ class Bot:
         NSFW_WORDS = {"sex", "porn", "xnxx", "xvideos", "nude", "boobs", "dick"}
         content = message.content.lower()
         if any(word in content for word in NSFW_WORDS):
-            await message.delete()
+            try: await message.delete()
+            except: pass
             await message.channel.send(f"{message.author.mention} NSFW content detected.", delete_after=5)
             await self.add_user_infringement(message)
             return True
@@ -153,7 +165,8 @@ class Bot:
                 if delete_count >= 3:
                     break
                 if msg.author == message.author and msg.content in old_msg_contents:
-                    await msg.delete()
+                    try: await msg.delete()
+                    except: pass
                     delete_count += 1
         except:
             pass
@@ -549,9 +562,9 @@ class Bot:
         await me.send(embed=msg)
         moderators = []
         for member in guild.members:
-            if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles):
+            if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles) and member.id != guild.owner_id:
                 moderators.append(member.id)
-        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"last_message": 0, "social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0}
+        Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"last_message": 0, "social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0, "chat_infringement": {}}
         if invite:
             Guild_Invites[str(guild.id)] = invite.code
         try:
@@ -724,7 +737,20 @@ class Bot:
                 await channel.send(f"Welcome {member.mention} <:heart_draw:1428773561904140469>",embed=em)
             except:
                 print("No perms allowed")
+        #anti rapid join protection 
+        if Server_Settings[str(member.guild.id)]["protection"]["Anti Rapid Join"]:
+            Server_Settings[str(member.guild.id)]["join_cache"].append(datetime.now().isoformat())
+            Server_Settings[str(member.guild.id)]["join_cache"][:] = [t for t in Server_Settings[str(member.guild.id)]["join_cache"] if (datetime.now() - datetime.fromisoformat(t)) < 10]
+            if len(Server_Settings[str(member.guild.id)]["join_cache"]) > 5:
+                #Raid detected
+                pass
 
+        #anti unverified join
+        if Server_Settings[str(member.guild.id)]["protection"]["Auto Unverified Mass Kick/Ban"]:
+            age = datetime.utcnow() - member.created_at
+            if age < timedelta(days=1):
+                try: await member.kick(reason="Account too new (raid protection)")
+                except: pass
         
         #setting invites
         invites_before = Invite_Cache[str(member.guild.id)]
