@@ -451,32 +451,35 @@ class Bot:
         embed.timestamp = datetime.now(UTC)
             
         for guild in self.client.guilds:
-            invite = None
             for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
-                if any(x in channel.name.lower() for x in ("general","chat","chill")):
-                    await channel.send(embed= embed)
+                if any(x in channel.name.lower() for x in ("general","chat","chill", "lounge" ,"lobby")):
+                    await channel.send(embed=embed)
                     break
             else:
                 for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
                     await channel.send(embed=embed)
                     break
+            if Server_Settings[str(guild.id)]["invite_link"] != "N\\A":
+                continue
+            invite = None
             try:
                 for open_invites in await guild.invites():
                     if open_invites.max_age == 0 and open_invites.max_uses == 0:
-                        invite = open_invite
+                        invite = open_invites.code
                         break
             except:
                 pass
-            if not invite:
+            if not invites:
                 for channel in guild.text_channels:
                     try:
                         invite = await channel.create_invite(max_age=0, max_uses=0)
+                        invite = invite.code
                         break
                     except:
                         continue
             if invite:
-                Guild_Invites[str(guild.id)] = str(invite.code)
-            
+                Server_Settings[str(guild.id)]["invite_link"] = invite
+                
             #tracking invites
             try:
                 Invite_Cache[str(guild.id)] = {
@@ -519,7 +522,7 @@ class Bot:
         view = View()
         view.add_item(kelly)
         view.add_item(developer)
-        em = discord.Embed(title = f"{EMOJI[choice(list(EMOJI.keys()))]} **Kelly has Arrived!**", description=f"Thanks for adding me!\n• Say `kelly hi` to talk\n• Use `k activate` to enable chat\n• Use `k help` to view commands\n• Found a bug? Use `k bug`",color = discord.Colour.green())
+        em = discord.Embed(title = f"{kemoji()]} **Kelly has Arrived!**", description=f"Thanks for adding me!\n• Say `kelly hi` to talk\n• Use `k activate` to enable chat\n• Use `k help` to view commands\n• Found a bug? Use `k bug`",color = discord.Colour.green())
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
         em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
@@ -549,7 +552,7 @@ class Bot:
                 except:
                     continue
         invite_link = f"https://discord.gg/{str(invite.code)}" if invite else None                
-        msg = discord.Embed(title=f"Kelly Joined {guild.name}",description=guild.description if guild.description else "No description", color=discord.Color.green(),url=invite_link)
+        msg = Embed(title=f"Kelly Joined {guild.name}",description=guild.description if guild.description else "No description", color=discord.Color.green(),url=invite_link)
         if guild.icon:
             msg.set_thumbnail(url=guild.icon.url)
         msg.set_footer(text=f"joined at {datetime.now(UTC).strftime('%Y-%m-%d %H:%M')}", icon_url= self.client.user.avatar)
@@ -560,8 +563,6 @@ class Bot:
             if any(r.permissions.administrator or r.permissions.kick_members or r.permissions.ban_members or r.permissions.manage_roles or r.permissions.mute_members or r.permissions.deafen_members or r.permissions.manage_permissions or r.permissions.manage_channels for r in member.roles) and member.id != guild.owner_id:
                 moderators.append(member.id)
         Server_Settings[str(guild.id)] = {"name": guild.name,"allowed_channels": [],"premium": 100,"invite_link": invite.code if invite else "N\\A","owner": guild.owner_id,"moderators": moderators,"banned_words": [],"block_list": [],"muted": {},"invites": {},"rank": {},"rank_channel": 0,"rank_reward": {},"welcome_channel": 0,"welcome_message": "","welcome_image": 1,"last_message": 0, "social": {"yt": None,"insta": None,"twitter": None,"social_channel": 0},"timer_messages": False, "afk": [],"warn": {},"warn_action": {}, "automod": {}, "protections": {},"logging": 0, "chat_infringement": {}}
-        if invite:
-            Guild_Invites[str(guild.id)] = invite.code
         try:
             Invite_Cache[str(guild.id)] = {
                 invite.code: invite.uses for invite in await guild.invites()
@@ -582,18 +583,13 @@ class Bot:
             pass
         me = self.client.get_user(894072003533877279)
         invite = Server_Settings[str(guild.id)]["invite_link"]
-        em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}")
+        em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}", url = invite if invite != "N\\A" else None)
         if banned_by:
             em.add_field(name="Banned By", value=f"{banned_by} ({banned_by.id})")
         else:
             em.add_field(name="Reason", value="Bot was kicked or server deleted")
-        if invite == "N/A" and Guild_Invites[str(guild.id)]:
-            invite = Guild_Invites[str(guild.id)]
-            invite = f"https://discord.gg/{invite}"
-            del Guild_Invites[str(guild.id)]
-            em.add_field(name="Invite Link", value=invite)
-        else:
-            em.add_field(name="Invite Link", value="N\\A")
+        em.add_field(name="Invite Link", value=invite)
+        
         em.set_thumbnail(url=guild.icon)
         await me.send(embed=em)
         del Server_Settings[str(guild.id)]
