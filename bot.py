@@ -1121,21 +1121,17 @@ class Bot:
         guild = before.guild
         if not guild:
             return
-        em = Embed(
-            title="✏️ Message Edited",
-            description=f"Author: {before.author.mention}\nChannel: {before.channel.mention}",
-            color=Color.yellow()
-        )
+        em = Embed(title="✏️ Message Edited",description=f"Author: {before.author.mention}\nChannel: {before.channel.mention}",color=Color.yellow())
         em.add_field(name="Before", value=before.content[:1024] or "*(empty)*", inline=False)
         em.add_field(name="After", value=after.content[:1024] or "*(empty)*", inline=False)
         await self.send_log(guild, em)
         automod = Server_Settings[str(guild.id)]["automod"]
-        if automod.get("emoji_spam"): await self.emoji_spam(message, automod.get("emoji_spam"))
-        if automod.get("mass_mention_block"): await self.mass_mention_block(message, automod.get("mass_mention_block"))
-        if automod.get("caps_block"): await self.caps_block(message)
-        if automod.get("link_filter"): await self.link_filter(message, automod.get("link_filter"))
-        if automod.get("nsfw_filter"): await self.nsfw_filter(message)
-        await self.kelly.giyu.giyuFilter(message)
+        if automod.get("emoji_spam"): await self.emoji_spam(after, automod.get("emoji_spam"))
+        if automod.get("mass_mention_block"): await self.mass_mention_block(after, automod.get("mass_mention_block"))
+        if automod.get("caps_block"): await self.caps_block(after)
+        if automod.get("link_filter"): await self.link_filter(after, automod.get("link_filter"))
+        if automod.get("nsfw_filter"): await self.nsfw_filter(after)
+        await self.kelly.giyu.giyuFilter(after)
             
     async def on_message_delete(self, message):
         if message.author.bot:
