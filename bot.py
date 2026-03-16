@@ -175,7 +175,7 @@ class Bot:
                     await ctx.invoke("removerole", member.author, role)
             elif type == "rolechoice":
                 roles = []
-                for i in rewards
+                for i in rewards:
                     role = await message.guild.get_role(int(i))
                     if role:
                         roles.append(role)
