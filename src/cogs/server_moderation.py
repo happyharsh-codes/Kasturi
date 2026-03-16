@@ -203,7 +203,7 @@ class Moderation(commands.Cog):
         author_top = ctx.author.top_role
         bot_top = ctx.guild.me.top_role
 
-        for role in ctx.guild.roles:
+        for role in ctx.guild.role:
             if role.position == 0:  # everyone
                 continue
             if role.position < author_top.position and role.position < bot_top.position:
@@ -211,7 +211,7 @@ class Moderation(commands.Cog):
         if not roles:
             role_add_select = Select(custom_id="role_add", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
-            role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
+            role_add_select = Select(custom_id="role_add", placeholder="Select Role to Add", options=roles[:25], max_values=1, min_values=1)
         add = Button(style = ButtonStyle.green, label= "Add", custom_id="add", disabled = True)
         done = Button(style = ButtonStyle.secondary, label= "Done", custom_id="done")
        
@@ -1239,7 +1239,7 @@ class Moderation(commands.Cog):
         else:
             assign_role_select = Select(custom_id="assign_role", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
             remove_role_select = Select(custom_id="remove_role", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
-            role_choice_select = Select(custom_id="role_choice", placeholder="Select Roles to Add", options=roles, max_values=25, min_values=1)
+            role_choice_select = Select(custom_id="role_choice", placeholder="Select Roles to Add", options=roles, max_values= len(roles), min_values=1)
             
         add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add")
         submit_btn = Button(style=ButtonStyle.green, label="Add", custom_id="Submit", disabled=True)
