@@ -60,22 +60,17 @@ class Bot:
             return True
         return False 
 
-    async def chat_rate_limiter(self, message, session_id, chat_rate_limit):
-        count = 0 # no of messages in last 5 seconds
-        for time in Last[session_id]:
-            if (datetime.now() - datetime.fromisoformat(time)).seconds <= 5:
-                count += 1
-        if count > chat_rate_limit:
-            try:
-                async for msg in message.channel.histoty(limit=100):
-                    if delete_count >= count:
-                        break
-                    if msg.author == message.author:
-                        await msg.delete()
-                        delete_count += 1
+    async def emoji_spam(self, message, limit):
+        content = message.content
+        unicode_count = len(UNICODE_EMOJI_RE.findall(content))
+        discord_count = len(DISCORD_EMOJI_RE.findall(content))
+        total = unicode_count + discord_count
+        if total > limit:
+            try: 
+                await message.delete()
+                await message.channel.send(f"{message.author.mention} Too many emojis! ({total}/{limit})",delete_after= 5 )
             except:
                 pass
-            await message.channel.send(f"{message.author.mention} You are sending messages too quickly")
             await self.add_user_infringement(message)
             return True
         return False
