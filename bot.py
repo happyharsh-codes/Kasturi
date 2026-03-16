@@ -1250,7 +1250,7 @@ class Bot:
                 selected_role = roles["1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣".index(reaction.emoji)]
                 try:
                     await message.author.remove_roles(roles - [selected_role])
-                    await message.author.add_roles(selected _role)
+                    await message.author.add_roles(selected_role)
                 except:
                     pass
                     
