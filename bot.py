@@ -29,6 +29,17 @@ class Bot:
         except Exception:
             pass
 
+    async def add_user_infringement(self, message):
+        user_id = message.author.id
+        guild_id = message.guild.id
+        if str(user_id) in Server_Settings[str(guild_id)]["chat_infringement"]:
+            Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] += 1
+            if Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] > 5:
+                ctx = await self.client.get_context(message)
+                await ctx.invoke("warn", message.author, "Chat Rules Broken too many times")
+        else:
+            Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] += 1
+            
     async def chat_rate_limiter(self, message, session_id, chat_rate_limit):
         count = 0 # no of messages in last 5 seconds
         for time in Last[session_id]:
@@ -45,6 +56,7 @@ class Bot:
             except:
                 pass
             await message.channel.send(f"{message.author.mention} You are sending messages too quickly")
+            await self.add_user_infringement(message)
             return True
         return False 
         
@@ -59,6 +71,7 @@ class Bot:
             except:
                 pass
             await message.channel.send(f"{message.author.mention} Too many emojis! ({total}/{limit})",delete_after= 5 )
+            await self.add_user_infringement(message)
             return True
         return False
         
@@ -66,11 +79,13 @@ class Bot:
         if message.mention_everyone:
             await message.delete()
             await message.channel.send(f"{message.author.mention} Mass mention blocked.", delete_after=4)
+            await self.add_user_infringement(message)
             return True
             
         if len(message.mentions) > limit:
             await message.delete()
             await message.channel.send(f"{message.author.mention} Too many mentions!", delete_after=4)
+            await self.add_user_infringement(message)
             return True  
         return False
 
@@ -87,6 +102,7 @@ class Bot:
             try: await message.delete()
             except: pass
             await message.channel.send(f"{message.author.mention} Too many CAPS.", delete_after=4)
+            await self.add_user_infringement(message)
             return True
         return False
         
@@ -100,11 +116,13 @@ class Bot:
         if "all" in type.lower():
             await message.delete()
             await message.channel.send(f"{message.author.mention} Links are not allowed.", delete_after= 5)
+            await self.add_user_infringement(message)
             return True
         if "suspicious" in type.lower():
             if any(bad in content for bad in SUSPICIOUS):
                 await message.delete()
                 await message.channel.send(f"{message.author.mention} Suspicious link removed.", delete_after=5)
+                await self.add_user_infringement(message)
                 return True
         return False
         
@@ -114,6 +132,7 @@ class Bot:
         if any(word in content for word in NSFW_WORDS):
             await message.delete()
             await message.channel.send(f"{message.author.mention} NSFW content detected.", delete_after=5)
+            await self.add_user_infringement(message)
             return True
         return False 
 
@@ -138,7 +157,8 @@ class Bot:
                     delete_count += 1
         except:
             pass
-        await channel.send(f"{author.mention} Duplicate messages Blocked")
+        await message.channel.send(f"{author.mention} Duplicate messages Blocked")
+        await self.add_user_infringement(message)
         return True
 
     async def rankReward(self, message, rank_channel, rewards, level):
@@ -179,7 +199,7 @@ class Bot:
                     role = await message.guild.get_role(int(i))
                     if role:
                         roles.append(role)
-                em.add_field(name = "Custom Role Choice", value = "\n".join([f"{x[i+1]}: {role.name}" for i, role in enumerate(roles)])
+                em.add_field(name = "Custom Role Choice", value = "\n".join([f"{x[i+1]}: {role.name}" for i, role in enumerate(roles)]))
         if "assignrole" in r and "removerole" in r and len(r) == 2:
                 return
         if prize:
