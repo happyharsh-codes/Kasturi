@@ -156,6 +156,8 @@ class Kelly:
         for due, task in schedules.items():
             if isinstance(dict, task):
                 channel = self.client.get_channel(task["channel"])
+                if datetime.now() < datetime.fromisoformat(task["due"]) + timedelta(seconds=15):
+                    continue
                 if not channel:
                     try:
                         channel = await self.client.fetch_channel(task["channel"])
@@ -172,6 +174,7 @@ class Kelly:
                 due_time = datetime.fromisoformat(task) + timedelta(seconds=15)
                 if datetime.now() > due_time:
                     del schedules[due]
+                    return
 
     async def performReminders(self):
         if self.status in ("sleepy", "lazy", "mischievous"):
