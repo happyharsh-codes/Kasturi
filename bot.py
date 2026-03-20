@@ -860,19 +860,20 @@ class Bot:
         
         class LastWordsModal(discord.ui.Modal):
             
-            def __init__(self, member, msg):
+            def __init__(self, member, msg, guild):
                 super().__init__(title="Last Words Apology Form")
                 self.input_box = TextInput(label="Enter Your Last Words Here:", custom_id="last_words", required= True, min_length=5, max_length=1024, style=TextStyle.paragraph, default="I'm sorry")
                 self.add_item(self.input_box)
                 self.member = member
-                self.msg = msg 
+                self.msg = msg
+                self.guild = guild
                 
             async def on_submit(self, interaction: Interaction):
               try:
                 member = self.member
                 msg = self.msg
                 last_words = self.input_box.value
-                owner = interaction.client.get_user(msg.guild.owner_id)
+                owner = interaction.client.get_user(self.guild.owner_id)
                 em = Embed(title = f"{member.display_name} | {member.name} | {member.id} - \nSays their Last Words After getting Banned.", description= f"```{last_words}```", color = Color.blue())
                 em.set_thumbnail(url=member.avatar)
                 em.set_footer(text= "If you think this was a mistake then please ignore.")
