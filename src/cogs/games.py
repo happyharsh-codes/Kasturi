@@ -705,7 +705,7 @@ class Games(commands.Cog):
         if item and item.lower() not in GAME["eatables"]:
             await ctx.send("Specify a food item to eat.")
             return
-        eatables = profile.eatables.copy()
+        eatables = dict(profile.eatables)
         em = Embed(title="Eat Foods", description= f"Health: \n**{health_string(profile.health)}**\nHunger: \n**{hunger_string(profile.hunger)}**", color = Color.green(), timestamp=discord.utils.utcnow())
         em.set_footer(text=f"Eat by {ctx.author.display_name}")
         view = View(timeout=45)
@@ -735,9 +735,7 @@ class Games(commands.Cog):
             food = inter.data["custom_id"].split("_")[0]
             profile.inv_manager(food, -1)
             await profile.health_manager(GAME['id'][food]["Health"] ,ctx)
-            eatables[food] -= 1
-            if eatables[food] == 0:
-                del eatables[food]
+            eatables = dict(profile.eatables)
             update()
             await inter.response.edit_message(embed=em, view=view)
             if health_before == 100:
