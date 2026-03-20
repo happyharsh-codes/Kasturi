@@ -153,8 +153,8 @@ class Kelly:
         if self.status in ("lazy", "sleepy", "mischievous", "sad"):
             return
         schedules = self.ayasaka.busy.getSchedules()
-        for due_str, task in schedules.items():
-            if datetime.fromisoformat(due_str) < datetime.now():
+        for due, task in schedules.items():
+            if isinstance(dict, task):
                 channel = self.client.get_channel(task["channel"])
                 if not channel:
                     try:
@@ -163,16 +163,15 @@ class Kelly:
                         del schedules[due_str]
                         self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                         return
-                try:
-                    message = await channel.fetch_message(task["message"])
-                except:
-                    del schedules[due_str]
-                    self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
-                    return
-                self.runCommand(message, task["command"], task["params"])
+                msg = await channel.send(f"-#Processing {kemoji()}...", delete_after=10)
+                self.runCommand(msg, due, task["params"])
                 del schedules[due_str]
                 self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                 return
+            else:
+                due_time = datetime.fromisoformat(task) + timedelta(seconds=15)
+                if datetime.now() > due_time:
+                    del schedules[due]
 
     async def performReminders(self):
         if self.status in ("sleepy", "lazy", "mischievous"):
