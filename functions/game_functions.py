@@ -439,6 +439,8 @@ class GameProfile:
                 if task["name"] == "heal":
                     del self.tasks[due]
                     return
+        if self.health == 100:
+            return
         for due, task in self.tasks.copy().items():
                 if task["name"] == "starve":
                     break
