@@ -311,14 +311,7 @@ class Kelly:
                     await self.thinkBanAction(message)
 
             #making busy
-            schedules = self.ayasaka.busy.getSchedules()
-            for due, schedule in schedules.items():
-                if schedule["chatting"] == message.guild.name:
-                    del schedules[due]
-                    schedules[datetime.now().isoformat()] = schedule
-                    break
-            else:
-                self.ayasaka.busy.addSchedule(message.author.id, message.id, message.channel.id, chatting_in=message.guild.name)
+            self.ayasaka.busy.addSchedules(guild = message.guild.name)
             
         except Exception as error:
             await self.reportError(error)
