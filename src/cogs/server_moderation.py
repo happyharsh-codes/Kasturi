@@ -427,7 +427,7 @@ class Moderation(commands.Cog):
         async for entry in ctx.guild.bans():
             if entry.user.name.lower() == user_tag.lower() or entry.user.id == int(user_tag):
                 await ctx.guild.unban(entry.user, reason= reason)
-                em = Embedding (title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red(), timestamp=discord.utils.utcnow())
+                em = Embed(title="Member Unbanned", description=f"{entry.user.name} was unbanned by {ctx.author.mention}.\n**Ban Reason:** {entry.reason}\n**Unban Reason:** {reason}", color=Color.red(), timestamp=discord.utils.utcnow())
                 em.set_footer(text=f"Unbanned by {ctx.author.name}", icon_url=ctx.author.avatar)
                 await ctx.send(embed=em)
                 return
