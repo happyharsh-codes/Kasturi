@@ -35,6 +35,7 @@ class Utility(commands.Cog):
             level = 0
         
         em = Embed(title=f"{user.name}'s Rank",description=f"**Level:** {int(level)}\n**XP:** {int(total_xp)}\n**Position:** #{rank_values.index(total_xp) + 1}",color=Color.dark_gold(), timestamp=discord.utils.utcnow())
+        em.set_thumbnail(url=user.avatar)
         await ctx.send(embed=em)
 
     @commands.hybrid_command(aliases=[], with_app_command = True)
