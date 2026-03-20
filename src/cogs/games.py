@@ -282,9 +282,10 @@ class Games(commands.Cog):
                 return
             nonlocal profile, selected, em, salary, msg
             sal = salary[selected.value]
-            skill = profile.skills[selected.value]
+            required = GAME["jobs"].get(selected.value, [])
+            skill = sum(profile_skills.get(skill, 0) for skill in required)
             if skill < 20:
-                sal += randint(-10000,500)
+                sal += randint(-1000,500)
             elif skill < 60:
                 sal += randint(-2000, 2000)
             elif skill == 100:
@@ -698,6 +699,7 @@ class Games(commands.Cog):
     async def feed(self, ctx, item: Optional[str] = None, amount: int = 1):
         """Eat items from your inventory."""
         profile = GameProfile(ctx.author.id)
+        emoji = "🤢"
         if item and item.lower() not in GAME["eatables"]:
             await ctx.send("Specify a food item to eat.")
             return
@@ -712,7 +714,7 @@ class Games(commands.Cog):
             await msg.edit(embed=em, view=view)
         view.on_timeout = timeout
         def update():
-            nonlocal em, view, on_eat
+            nonlocal em, view, on_eat, eatables
             em.description= f"Health: \n**{health_string(profile.health)}**\nHunger: \n**{hunger_string(profile.hunger)}**"
             view.clear_items()
             if not eatables:
@@ -726,14 +728,20 @@ class Games(commands.Cog):
           try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal eatables, em, view, update
+            nonlocal eatables, em, view, update, profile
+            health_before = profile.health
             food = inter.data["custom_id"].split("_")[0]
             profile.inv_manager(food, -1)
+            await profile.health_manager(GAME['id'][food]["Health"] ,ctx)
             eatables[food] -= 1
             if eatables[food] == 0:
                 del eatables[food]
             update()
             await inter.response.edit_message(embed=em, view=view)
+            if health_before == 100:
+                nonlocal emoji
+                await msg.channel.send(f"You are already too full {emoji}")
+                emoji = "🤮"
           except Exception as e:
             await inter.client.get_user(894072003533877279).send(str(e))
               
@@ -743,7 +751,7 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 200, type=commands.BucketType.user)
     @has_profile()
-    @at_the_location("home")
+    @at_the_location(["home"])
     async def build(self, ctx, item: Optional[str], qty: int = 1):
         """Build your favourite structures."""
         profile = GameProfile(ctx.author.id)
@@ -860,6 +868,7 @@ class Games(commands.Cog):
         profile = GameProfile(ctx.author.id)
         categories = ["Tools", "Weapons", "Vehicles"]
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
+        craft_item_select = Select(custom_id="craft_item_select", placeholder="Select Craft Item", max_values=1, min_values=1)
         craft_btn = Button(label = "Craft", custom_id="craft", style=ButtonStyle.green)
         go_left = Button(style=ButtonStyle.secondary, custom_id= "go_left", disabled=True, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         go_right = Button(style=ButtonStyle.secondary, custom_id= "go_right", emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
@@ -910,16 +919,20 @@ class Games(commands.Cog):
           try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal crafts, category_select, em, view, go_left, go_right, add_btn, craft_btn, remove_btn
+            nonlocal crafts, category_select, em, view, go_left, go_right, add_btn, craft_btn, remove_btn, craft_item_select
+            options = []
             category = inter.data['values'][0]
             crafts.clear()
             for key, val in GAME['id'].items():
                 if val['category'] == category and 'craft' in val:
                     crafts[key] = val['craft']
+                    options.append(SelectOption(label= key.replace('_',' ').title.(), value=key, emoji = val['emoji']))
+            craft_item_select.options = options
             for option in category_select.options:
                 option.default = option.value == category 
             view.clear_items()
             view.add_item(category_select)
+            view.add_item(craft_item_select)
             view.add_item(go_left)
             view.add_item(remove_btn)
             view.add_item(craft_btn)
@@ -929,7 +942,16 @@ class Games(commands.Cog):
             await inter.response.edit_message(embed=em, view=view)
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
-        
+
+        async def on_craft_item_select(inter: Interaction):
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal page, view, em, update, crafts
+            val = inter.data["values"][0]
+            page = list(crafts.keys()).index(val)
+            update()
+            await inter.response.edit_message(embed=em, view=view)
+          
         async def on_craft(inter: Interaction):
           try:
             if inter.user.id != ctx.author.id:
@@ -991,6 +1013,7 @@ class Games(commands.Cog):
         view.add_item(category_select)
 
         category_select.callback = on_select
+        craft_item_select.callback = on_craft_item_select
         go_left.callback = on_go
         go_right.callback = on_go
         add_btn.callback = on_qty
