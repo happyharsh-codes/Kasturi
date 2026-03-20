@@ -154,7 +154,7 @@ class Kelly:
             return
         schedules = self.ayasaka.busy.getSchedules()
         for due, task in schedules.items():
-            if isinstance(dict, task):
+            if isinstance(task, dict):
                 channel = self.client.get_channel(task["channel"])
                 if datetime.now() < datetime.fromisoformat(task["due"]) + timedelta(seconds=15):
                     continue
