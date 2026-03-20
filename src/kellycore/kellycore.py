@@ -45,21 +45,46 @@ class Kelly:
             pass
         print("".join(traceback.format_exception(etype, value, tb)))
 
-    def get_command_params(self, command, message):
+    def get_command_params(self, command, message, author):
         params = {}
         content = message.content
         if "member" in command.clean_params:
-            params["member"] = message.mentions[0] if message.mentions else message.author
+            params["member"] = message.mentions[0] if message.mentions else author
         if "user" in command.clean_params:
-            params["user"] = message.mentions[0] if message.mentions else message.author
+            params["user"] = message.mentions[0] if message.mentions else author
         if "channel" in command.clean_params:
             params["channel"] = message.channel_mentions[0] if message.channel_mentions else message.channel
         if "role" in command.clean_params:
             params["role"] = message.role_mentions[0] if message.role_mentions else None
-        for time_param in ("minutes", "seconds", "amount"):
-            if time_param in command.clean_params:
-                match = NUMBER_REGEX.search(content)
-                params[time_param] = int(match.group(1)) if match else 5  # default
+        for time_param in ("minutes", "seconds", "hours", "days"):
+            if time_param not in command.clean_params:
+                continue
+            content = re.sub(r"<@!?\d+>", "", message.content)
+            def extract(pattern, content):
+                match = re.search(pattern, content, re.I)
+                return int(match.group(1)) if match else 0
+            days = extract(r"(\d+)\s*(d|day|days)", content)
+            hours = extract(r"(\d+)\s*(h|hr|hrs|hour|hours)", content)
+            minutes = extract(r"(\d+)\s*(m|min|mins|minute|minutes)", content)
+            seconds = extract(r"(\d+)\s*(s|sec|secs|second|seconds)", content)
+            total_seconds = seconds + (minutes*60) + (hours*3600) + (days*86400)
+            if total_seconds == 0:
+                num = re.search(r"\b(\d+)\b", content)
+                total_seconds = int(num.group(1)) * 60 if num else 300
+            total_minutes = total_seconds//60
+            total_hours = total_seconds//3600
+            total_days = total_seconds//86400
+            if time_param == "days":
+                params[time_param] = total_days
+            elif time_param == "hours":
+                params[time_param] = total_hours
+            elif time_param == "minutes":
+                params[time_param] = total_minutes
+            elif time_param == "seconds":
+                params[time_param] = total_seconds
+            else:
+                params[time_param] = 5
+        
         if "reason" in command.clean_params:
             match = REASON_REGEX.search(content)
             if match:
@@ -206,7 +231,8 @@ class Kelly:
             relation = self.memory.getUserRelation(message.author.id)
             behave = self.memory.getUserBehaviour(message.author.id)
             type = ""
-            if message.author.id == 894072003533877279:
+            author = message.author
+            if author.id == 894072003533877279:
                 type += "Creator "
             if isinstance(message.channel, discord.DMChannel):
                 type = "Dm channel "
@@ -256,9 +282,10 @@ class Kelly:
             #------5. Performing Task/Command Now------#
             if result["command"] and result["command"] not in ("none", "null"):
                 command = result["command"]
+                assist = self.memory.getUserChats(message.author.id, limit = 2)
                 cmd = self.client.get_command(command)
                 if cmd:
-                    params = self.get_command_params(cmd, message)
+                    params = self.get_command_params(cmd, message, author)
                     if "execution" in result and result["execution"] == "now":
                         await self.runCommand(message, command, params)
             
@@ -278,6 +305,16 @@ class Kelly:
                     await self.thinkFriendAction(message)
                 elif rel == "ban":
                     await self.thinkBanAction(message)
+
+            #making busy
+            schedules = self.ayasaka.getSchedules()
+            for due, schedule in schedules.items():
+                if schedule["chatting"] == message.guild.name:
+                    del schedules[due]
+                    schedules[datetime.now().isoformat()] = schedule
+                    break
+            else:
+                self.ayasaka.addSchedule(message.author.id, message.id, message.channel.id, chatting_in=message.guild.name)
             
         except Exception as error:
             await self.reportError(error)
