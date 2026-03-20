@@ -165,7 +165,7 @@ class Bot:
                     delete_count += 1
         except:
             pass
-        await message.channel.send(f"{author.mention} Duplicate messages Blocked")
+        await message.channel.send(f"{message.author.mention} Duplicate messages Blocked")
         await self.add_user_infringement(message)
         return True
 
@@ -522,7 +522,7 @@ class Bot:
         view = View()
         view.add_item(kelly)
         view.add_item(developer)
-        em = discord.Embed(title = f"{kemoji()]} **Kelly has Arrived!**", description=f"Thanks for adding me!\n• Say `kelly hi` to talk\n• Use `k activate` to enable chat\n• Use `k help` to view commands\n• Found a bug? Use `k bug`",color = discord.Colour.green())
+        em = discord.Embed(title = f"{kemoji()} **Kelly has Arrived!**", description=f"Thanks for adding me!\n• Say `kelly hi` to talk\n• Use `k activate` to enable chat\n• Use `k help` to view commands\n• Found a bug? Use `k bug`",color = discord.Colour.green())
         em.set_image(url="https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/welcome_setup.png")
         em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
         em.set_footer(text=f"⟡ {len(self.client.guilds)} Guilds Strong 💪🏻 | At {datetime.now(UTC).strftime('%m-%d %H:%M')}")
