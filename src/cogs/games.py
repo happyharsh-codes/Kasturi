@@ -722,7 +722,7 @@ class Games(commands.Cog):
             if not eatables:
                 em.description += "\nYou have nothing to eat"
             for food in list(eatables.keys())[:25]:
-                btn = Button(label= f"{GAME['id'][food]['emoji']} x {eatables[food]}", style=ButtonStyle.secondary, custom_id= f"{food}_{eatables[food]}") 
+                btn = Button(label= f"{GAME['id'][food]['emoji']} x {eatables[food]}", style=ButtonStyle.secondary, custom_id= f"{food}-{eatables[food]}") 
                 btn.callback = on_eat
                 view.add_item(btn)
         
@@ -732,7 +732,7 @@ class Games(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal eatables, em, view, update, profile
             health_before = profile.health
-            food = inter.data["custom_id"].split("_")[0]
+            food = inter.data["custom_id"].split("-")[0]
             profile.inv_manager(food, -1)
             await profile.health_manager(GAME['id'][food]["Health"] ,ctx)
             eatables = dict(profile.eatables)
