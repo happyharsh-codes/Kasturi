@@ -264,7 +264,6 @@ class Bot:
             Profiles.root._sync()
             Last.root._sync()
             Invite_Cache.root._sync()
-            Guild_Invites.root._sync()
             self.kelly.memory._memory.root._sync()
             self.kelly.giyu._giyu.root._sync()
             self.kelly.ayasaka._ayasaka.root._sync()
