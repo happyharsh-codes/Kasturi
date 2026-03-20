@@ -330,9 +330,9 @@ async def safe_dm(member: discord.Member, embed: discord.Embed = None, message =
 
 def action_embed(ctx: commands.Context, title: str = "", desc: str = "",  member=None, color=Color.pink(), text = None, thumbnail = None, url = None):
     """Creates a consistent embed style for actions."""
-    embed = Embed(title=title, description=desc, color=color)
+    embed = Embed(title=title, description=desc, color=color, timestamp=discord.utils.utcnow())
     if text:
-        embed.set_footer(text=f"{text} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        embed.set_footer(text=f"{text}", icon_url=ctx.author.avatar)
     if member:
         embed.set_author(name=member.name, icon_url=member.avatar)
     if thumbnail:
