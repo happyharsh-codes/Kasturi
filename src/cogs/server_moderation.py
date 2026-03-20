@@ -203,7 +203,7 @@ class Moderation(commands.Cog):
         author_top = ctx.author.top_role
         bot_top = ctx.guild.me.top_role
 
-        for role in ctx.guild.role:
+        for role in ctx.guild.roles:
             if role.position == 0:  # everyone
                 continue
             if role.position < author_top.position and role.position < bot_top.position:
@@ -388,7 +388,7 @@ class Moderation(commands.Cog):
             return
             
         em = action_embed(ctx, "Member Banned", f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}.",member, color=Color.pink(), text=f"Banned by {ctx.author.name}")
-        em.set_footer(text=f"Banned by {ctx.author.name} | {timestamp(ctx)}", icon_url=ctx.author.avatar)
+        em.set_footer(text=f"Banned by {ctx.author.name}", icon_url=ctx.author.avatar)
         
         await ctx.send(embed=em)
         
