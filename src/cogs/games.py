@@ -283,7 +283,7 @@ class Games(commands.Cog):
             nonlocal profile, selected, em, salary, msg
             sal = salary[selected.value]
             required = GAME["jobs"].get(selected.value, [])
-            skill = sum(profile_skills.get(skill, 0) for skill in required)
+            skill = sum(profile.skills.get(skill, 0) for skill in required)
             if skill < 20:
                 sal += randint(-1000,500)
             elif skill < 60:
@@ -470,7 +470,7 @@ class Games(commands.Cog):
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
-    @at_the_location(["home", "farm"])
+    @at_the_location(["field", "farm", "garden", "village_inn", "vineyard"])
     @not_busy()
     async def farm(self, ctx):
         """Goes for cropping and harvesting the farmland."""
@@ -490,6 +490,7 @@ class Games(commands.Cog):
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
     @not_busy()
+    @at_the_location(["forest", "mountain", "jungle", "snow_field", "cave", "deep_mine", "ancient_cave", "dragon_spire", "sky_peak", "volcano"])
     async def mine(self, ctx):
         """Go for mining rare items in the caves."""
         profile = GameProfile(ctx.author.id)
@@ -509,6 +510,7 @@ class Games(commands.Cog):
     @commands.cooldown(1, 10, type=commands.BucketType.user)
     @has_profile()
     @has_in_inventory("fishing_rod")
+    @at_the_location(["river", "swamp"])
     @not_busy()
     async def fish(self, ctx):
         """Catch fish directly from the river."""
@@ -703,7 +705,7 @@ class Games(commands.Cog):
         if item and item.lower() not in GAME["eatables"]:
             await ctx.send("Specify a food item to eat.")
             return
-        eatables = profile.eatables
+        eatables = profile.eatables.copy()
         em = Embed(title="Eat Foods", description= f"Health: \n**{health_string(profile.health)}**\nHunger: \n**{hunger_string(profile.hunger)}**", color = Color.green(), timestamp=discord.utils.utcnow())
         em.set_footer(text=f"Eat by {ctx.author.display_name}")
         view = View(timeout=45)
@@ -927,7 +929,7 @@ class Games(commands.Cog):
                 if val['category'] == category and 'craft' in val:
                     crafts[key] = val['craft']
                     options.append(SelectOption(label= key.replace('_',' ').title(), value=key, emoji = val['emoji']))
-            craft_item_select.options = options
+            craft_item_select.options = options[:25]
             for option in category_select.options:
                 option.default = option.value == category 
             view.clear_items()
