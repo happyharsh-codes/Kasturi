@@ -902,7 +902,7 @@ class Bot:
         async def last_words(interaction: Interaction):
           try: 
             nonlocal msg
-            modal = LastWordsModal(member, msg)
+            modal = LastWordsModal(member, msg, guild)
             await interaction.response.send_modal(modal)     
           except Exception as e:
             await  interaction.client.get_user(894072003533877279).send(str(e))
