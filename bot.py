@@ -729,7 +729,7 @@ class Bot:
             except:
                 print("No perms allowed")
         #anti rapid join protection 
-        if Server_Settings[str(member.guild.id)]["protection"]["Anti Rapid Join"]:
+        if Server_Settings[str(member.guild.id)]["protection"] and Server_Settings[str(member.guild.id)]["protection"]["Anti Rapid Join"]:
             Server_Settings[str(member.guild.id)]["join_cache"].append(datetime.now().isoformat())
             Server_Settings[str(member.guild.id)]["join_cache"][:] = [t for t in Server_Settings[str(member.guild.id)]["join_cache"] if (datetime.now() - datetime.fromisoformat(t)) < 10]
             if len(Server_Settings[str(member.guild.id)]["join_cache"]) > 5:
@@ -737,7 +737,7 @@ class Bot:
                 pass
 
         #anti unverified join
-        if Server_Settings[str(member.guild.id)]["protection"]["Auto Unverified Mass Kick/Ban"]:
+        if Server_Settings[str(member.guild.id)]["protection"] and Server_Settings[str(member.guild.id)]["protection"]["Auto Unverified Mass Kick/Ban"]:
             age = datetime.utcnow() - member.created_at
             if age < timedelta(days=1):
                 try: await member.kick(reason="Account too new (raid protection)")
