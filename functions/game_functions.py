@@ -112,6 +112,10 @@ async def perform_task(task, uid, client):
         await profile.health_manager(-randint(1,10), ctx)
     
     elif task["name"] == "heal":
+        try: message = await channel.fetch_message(task["message"])
+        except: return -1
+        ctx = await client.get_context(message)
+        await profile.health_manager(randint(3,9), ctx)
         
     else:
         rewards = profile.reward_player(task["rewards"])
@@ -227,8 +231,10 @@ def not_busy():
             elif activity == "working":
                 profession = task["profession"]
                 em.description = f"You are working as {profession.title()} rgiht now. Please work honestly or you'll be paid less."
+            elif activity == "travelling":
+                em.description = f"You are currently travelling to {task['destination'].replace('_',' ').title()}. Please wait until you reach there."
             else:
-                em.description = "You are resting. You can perform commands.",
+                em.description = "You are resting. You can perform commands."
 
             em.set_footer(text=f"{task['name'].title()} - {percentage_bar} {percentage_completed}% Completed")
             return em
@@ -402,9 +408,14 @@ class GameProfile:
     async def health_manager(self, health, ctx):
         self.health += health
         if self.health <= 0:
-            await self.kill(ctx)
+            if self.hunger == 0:
+                await self.kill("You starved to death", ctx)
+            else:
+                await self.kill("You died due to critical health loss", ctx)
         elif self.health <= 20:
             await ctx.send(f"{ctx.author.mention} Your heath is too low!!!")
+        elif self.health > 100:
+            self.health = 100
         if self.hunger == 0:
             await self._starve_to_death(ctx)
     
@@ -415,21 +426,38 @@ class GameProfile:
             await self._starve_to_death(ctx)
         elif self.hunger <= 20:
             await ctx.send(f"{ctx.author.mention} You are low on food!!!")
-        elif self.hunger <= 80:
+        elif self.hunger >= 100:
+            self.hunger = 100
+            await self.heal(ctx)
+            return
+        await self._internal_hunger_manager(ctx)
+
+    async def heal(self, ctx):
+        if self.hunger != 100:
+            for due, task in self.tasks.copy().items():
+                if task["name"] == "heal":
+                    del self.tasks[due]
+                    return
+        for due, task in self.tasks.copy().items():
+                if task["name"] == "starve":
+                    break
+        else:
+            self.add_task("heal", randint(1,15), ctx.channel.id, ctx.message.id)
+                          
+    async def _starve_to_death(self, ctx):
+        if self.hunger > 0:
             for due, task in self.tasks.copy().items():
                 if task["name"] == "starve":
                     del self.tasks[due]
-            await self._internal_health_manager(ctx)
-
-    async def _starve_to_death(self, ctx):
+                    return 
         for due, task in self.tasks.copy().items():
                 if task["name"] == "starve":
                     break
         else:
             self.add_task("starve", randint(1,10), ctx.channel.id, ctx.message.id)
         
-    async def _internal_health_manager(self, ctx):
-        if self.heath > 80:
+    async def _internal_hunger_manager(self, ctx):
+        if self.health > 80:
             for due, task in self.tasks.copy().items():
                 if task["name"] == "hunger":
                     del self.tasks[due]
