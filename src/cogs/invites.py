@@ -36,11 +36,35 @@ class Invites_Tracker(commands.Cog):
             if index > 9:
                 break
                 
-        em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: {len(invited_ids)}\n**Invitees**: {invited_text}", color = Color.purple())
+        em = Embed(title="Showing Invites Profile", description= f"**Total People Invited**: {len(invited_ids)}\n**Invitees**: {invited_text}", color = Color.purple(), timestamp=discord.utils.utcnow())
         em.set_thumbnail(url= ctx.author.avatar)
-        em.set_footer(text=f"Requested by {ctx.author.name} at {timestamp(ctx)} Aura++", icon_url= ctx.author.avatar)
+        em.set_footer(text=f"Requested by {ctx.author.name} Aura++", icon_url= ctx.author.avatar)
         await ctx.send(embed = em)
 
+    @commands.command(name="clearinvites")
+    @commands.has_permissions(manage_guild=True)
+    async def clear_invites(self, ctx):
+        try:
+            invites = await ctx.guild.invites()
+        
+            if not invites:
+                return await ctx.send("No invites found.")
+
+            deleted = 0
+            for invite in invites:
+                try:
+                    await invite.delete(reason=f"Cleared by {ctx.author}")
+                    deleted += 1
+                except:
+                    pass
+
+            await ctx.send(f"✅ Deleted {deleted} invites successfully.")
+
+        except discord.Forbidden:
+            await ctx.send("❌ I need **Manage Server** permission to do this.")
+        except Exception as e:
+            await ctx.send(f"⚠️ Error: {e}")
+            
 async def setup(bot):
     await bot.add_cog(Invites_Tracker(bot))
     print("Loaded cogs: Moderation")
