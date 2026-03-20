@@ -120,7 +120,7 @@ class Kelly:
             await ctx.invoke(cmd, **params)
 
         except Exception as e:
-            await self.reportError(e)
+            await self.reportError(str(e))
             
     async def performTasks(self):
         if self.status in ("lazy", "sleepy", "mischievous", "sad"):
@@ -207,7 +207,7 @@ class Kelly:
             behave = self.memory.getUserBehaviour(message.author.id)
             type = ""
             if message.author.id == 894072003533877279:
-                type += "God aka your creator "
+                type += "Creator "
             if isinstance(message.channel, discord.DMChannel):
                 type = "Dm channel "
             elif message.author.id == message.guild.owner_id:
@@ -225,8 +225,8 @@ class Kelly:
                 return
 
             # Setting up Prompt
-            prompt = f"""Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {mood},Persona: {persona},Relation: {relation},User: {message.author.display_name} ({type})\nReply in 10–30 words, 0–3 emojis based on your mood\nYou can perform user command, save for later or deny according to mood.\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict\n• You may reference Giyu (Guard) or Ayaka (Assistant) naturally"""
-            usermessage = f"Name: {message.author.display_name}, Id: {message.author.id}, Type: {type}, Says: {message.content}"
+            prompt = f"""Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {mood},Persona: {persona},Relation: {relation}\nReply in 10–30 words, 0–3 emojis based on Moods, Persona and Relation. You can perform user command, save for later or deny. Giyu (guard) and Ayasaka (Assistant) call only when need."""
+            usermessage = f"{message.author.display_name} ({type}): {message.content}"
             
             #------ 3. Kelly Reply------#
             async with message.channel.typing():
@@ -238,11 +238,8 @@ class Kelly:
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
 
             #------ 4. Getting Convo summary------#
-            current_status = {"respect": relation,"mood": mood, "persona": persona}
-            if not self.commands:
-                self.commands = {command.name: list(command.clean_params.keys()) for command in self.client.commands}
-            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-10 to +10)\nmood_shift: one from (happy,sad,depressed,angry,annoyed,lazy,sleepy,mischievous,none)\npersonality_shift: {{trait:int}} or {{}}\ninfo: one line about user behaviour\ncommand: command_name or null (from chat only)\nexecution: now|later|deny (extract from chat)"""
-            raw_result = getResponse(f"{usermessage}\nKelly: {kelly_reply}", prompt2)
+            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-5 to +5)\nmood_shift: one from (happy,sad,depressed,angry,annoyed,lazy,sleepy,mischievous,none)\ninfo: one line about user behaviour\ncommand: command_name or null (from chat only)\nexecution: now|later|deny (extract from chat)"""
+            raw_result = getResponse(f"Id={message.author.id} {usermessage}\nKelly: {kelly_reply}", prompt2)
             try:
                 raw_result = raw_result.strip().lower()
                 if raw_result.startswith("{"):
@@ -254,7 +251,7 @@ class Kelly:
                     result = loads(raw_result)
             except Exception as parse_error:
                 print("Could not parse Kelly AI response:", parse_error) 
-                result = {"respect_delta": 0, "mood_shift": "happy", "personality_shift": {}, "info": "", "command": None}
+                result = {"respect_delta": 0, "mood_shift": "happy", "info": "", "command": None}
 
             #------5. Performing Task/Command Now------#
             if result["command"] and result["command"] not in ("none", "null"):
@@ -264,6 +261,7 @@ class Kelly:
                     params = self.get_command_params(cmd, message)
                     if "execution" in result and result["execution"] == "now":
                         await self.runCommand(message, command, params)
+            
                     elif "execution" in result and result["execution"] == "later":
                         await self.ayasaka.ayasakaQueueTask(message, command, params)
                 
@@ -274,8 +272,6 @@ class Kelly:
                     await self.mood.modifyMood({result["mood_shift"]: randint(1,15)})
                 if result["mood_shift"] == "happy":
                     self.memory.modifyUserRelation(message.author.id, 2)
-            if "personality_shift" in result and result["personality_shift"]:
-                self.memory.modifyPersona(list(result['personality_shift'].keys())[0], list(result['personality_shift'].values())[0])
             if "respect_delta" in result:
                 rel = self.memory.modifyUserRelation(message.author.id, result["respect_delta"])
                 if rel == "friend":
@@ -286,7 +282,6 @@ class Kelly:
         except Exception as error:
             await self.reportError(error)
         print(f">==MOOD<\n{self.mood.mood}\n>==<")
-        print(f">==PERSONALITY<\n{self.memory._memory['personality']}\n>==<")
         print(f"KellyQuery Latency: {time.time() - start}s")
         if randint(1,100) == 100:
             await message.channel.send(f"-# Latency: {time.time() - start}s {kemoji()}", delete_after=8)
@@ -459,24 +454,9 @@ class Kelly:
             "😮": "kellyinteresting",
             "😯": "kellyinteresting"
         }
-        '''mood_map = {
-            "happy": {"kellypat", "kellylaugh", "kellygigle", "kellyowolove", "kellyenjoying", "kellyvibing"},
-            "sad": {"kellycry", "kellysob"},
-            "angry": {"kellywatching", "kellyfight", "kellyannoyed"},
-            "annoyed": {"kellyannoyed", "kellyidontcare", "kellybored", "kellywatching", "kellycheekspull"},
-            "depressed": {"kellydead", "kellycry"},
-            "mischievous": {"kellydaydreaming", "kellybweh", "kellyacting", "kellydumbfounded", "kellysimping",},
-            "sleepy": {"kellytired", "kellyyawn", "kellysleeping", "kellydrooling" },
-            "lazy": {"kellytired", "kellysleeping", "kellyyawn", "kellychips"}
-        }'''
         for emoji, kellyemoji in emoji_exchanger.items():
             if emoji in message:
                 message = message.replace(emoji, EMOJI[kellyemoji])
-
-            #for mood, triggers in mood_map.items():
-                #if kellyemoji in triggers:
-                    #self.mood.modifyMood({mood: randint(1, 8)})
-            
         return message
 
     async def thinkFriendAction(self, message):
