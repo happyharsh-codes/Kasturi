@@ -116,7 +116,8 @@ async def perform_task(task, uid, client):
         except: return -1
         ctx = await client.get_context(message)
         await profile.health_manager(randint(3,9), ctx)
-        
+        if self.health < 100 and self.hunger == 100:
+            await profile.heal(ctx)
     else:
         rewards = profile.reward_player(task["rewards"])
         em = Embed(title=f"{task['name']} Finished ❕", description= f"Ayoo user you finished your task and you recieved:\n{rewards}", color = Color.green())
