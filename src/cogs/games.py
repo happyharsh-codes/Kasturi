@@ -926,7 +926,7 @@ class Games(commands.Cog):
             for key, val in GAME['id'].items():
                 if val['category'] == category and 'craft' in val:
                     crafts[key] = val['craft']
-                    options.append(SelectOption(label= key.replace('_',' ').title.(), value=key, emoji = val['emoji']))
+                    options.append(SelectOption(label= key.replace('_',' ').title(), value=key, emoji = val['emoji']))
             craft_item_select.options = options
             for option in category_select.options:
                 option.default = option.value == category 
