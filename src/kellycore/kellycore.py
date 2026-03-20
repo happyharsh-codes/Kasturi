@@ -45,7 +45,9 @@ class Kelly:
             pass
         print("".join(traceback.format_exception(etype, value, tb)))
 
-    def get_command_params(self, command, message, author):
+    def get_command_params(self, command, message, author=None):
+        if not author:
+            author = message.author
         params = {}
         content = message.content
         if "member" in command.clean_params:
@@ -307,14 +309,14 @@ class Kelly:
                     await self.thinkBanAction(message)
 
             #making busy
-            schedules = self.ayasaka.getSchedules()
+            schedules = self.ayasaka.busy.getSchedules()
             for due, schedule in schedules.items():
                 if schedule["chatting"] == message.guild.name:
                     del schedules[due]
                     schedules[datetime.now().isoformat()] = schedule
                     break
             else:
-                self.ayasaka.addSchedule(message.author.id, message.id, message.channel.id, chatting_in=message.guild.name)
+                self.ayasaka.busy.addSchedule(message.author.id, message.id, message.channel.id, chatting_in=message.guild.name)
             
         except Exception as error:
             await self.reportError(error)
