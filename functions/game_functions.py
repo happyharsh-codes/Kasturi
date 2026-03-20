@@ -98,6 +98,20 @@ async def perform_task(task, uid, client):
         except:
             return
         await channel.send(f"<@{uid}> Exploration Finished: You found a {place}! You can adventure here now using `k adventure`.", embed=em)
+
+    elif task["name"] == "hunger":
+        try: message = await channel.fetch_message(task["message"])
+        except: return -1
+        ctx = await client.get_context(message)
+        await profile.hunger_manager(task["val"], ctx)
+
+    elif task["name"] == "starve":
+        try: message = await channel.fetch_message(task["message"])
+        except: return -1
+        ctx = await client.get_context(message)
+        await profile.health_manager(-randint(1,10), ctx)
+    
+    elif task["name"] == "heal":
         
     else:
         rewards = profile.reward_player(task["rewards"])
@@ -384,7 +398,52 @@ class GameProfile:
             
         if places[place] > 100:
             self.places[place] = 100
+            
+    async def health_manager(self, health, ctx):
+        self.health += health
+        if self.health <= 0:
+            await self.kill(ctx)
+        elif self.health <= 20:
+            await ctx.send(f"{ctx.author.mention} Your heath is too low!!!")
+        if self.hunger == 0:
+            await self._starve_to_death(ctx)
     
+    async def hunger_manager(self, hunger, ctx):
+        self.hunger += hunger
+        if self.hunger <= 0:
+            self.hunger = 0
+            await self._starve_to_death(ctx)
+        elif self.hunger <= 20:
+            await ctx.send(f"{ctx.author.mention} You are low on food!!!")
+        elif self.hunger <= 80:
+            for due, task in self.tasks.copy().items():
+                if task["name"] == "starve":
+                    del self.tasks[due]
+            await self._internal_health_manager(ctx)
+
+    async def _starve_to_death(self, ctx):
+        for due, task in self.tasks.copy().items():
+                if task["name"] == "starve":
+                    break
+        else:
+            self.add_task("starve", randint(1,10), ctx.channel.id, ctx.message.id)
+        
+    async def _internal_health_manager(self, ctx):
+        if self.heath > 80:
+            for due, task in self.tasks.copy().items():
+                if task["name"] == "hunger":
+                    del self.tasks[due]
+        else:
+            for due, task in self.tasks.copy().items():
+                if task["name"] == "hunger":
+                    break
+            else:
+                self.add_task("hunger", randint(1,200), ctx.channel.id, ctx.message.id, val = -randint(1,7))
+
+    async def kill(self, reason, ctx):
+        await ctx.send(f"{ctx.author.mention}", embed = Embed(title="You Died", description= reason, color = Color.red(), timestamp=discord.utils.utcnow()))
+        del Profiles[str(ctx.author.id)]
+        
     def add_task(self, name, duration, channel, message, **info):
         due = datetime.now() + timedelta(seconds=duration)
         due_str = due.isoformat()
@@ -393,7 +452,7 @@ class GameProfile:
     def add_reminder(self, name, duration, channel, message, **info):
         due = datetime.now() + timedelta(seconds=duration)
         due_str = due.isoformat()
-        self.reminders[due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info}
+        self.reminders[due_str] = {"name": name, "duration": duration, "channel": channel, "message": message, **info} 
 
     def add_rewards(self, rewards):
         for item, qty in rewards:
