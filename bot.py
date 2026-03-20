@@ -583,7 +583,7 @@ class Bot:
             pass
         me = self.client.get_user(894072003533877279)
         invite = Server_Settings[str(guild.id)]["invite_link"]
-        em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}", url = invite if invite != "N\\A" else None)
+        em = Embed(title="Kelly Left a Server",color=Color.red(),description=f"Server: **{guild.name}**\nMembers: {len(guild.members)}", url = f"https://discord.gg/{invite}" if invite != "N\\A" else None)
         if banned_by:
             em.add_field(name="Banned By", value=f"{banned_by} ({banned_by.id})")
         else:
