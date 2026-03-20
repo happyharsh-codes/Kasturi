@@ -27,20 +27,21 @@ class KellyBusy:
         last_time = max(datetime.fromisoformat(entry) for entry in self._schedules)
         return last_time
 
-    def addSchedules(self, user_id, command_name, params, message_id, channel_id, priority=1):
+    def addSchedules(self, user_id, message_id, channel_id, chatting_in = None, moderating_in = None, command = None, params = None):
         """Adds task on Kelly's schedules"""
         due = self.getNextFreeTime() + timedelta(seconds=randint(1,120))
         self._schedules[due.isoformat()] = {
             "uid": user_id,
-            "command": command_name,
+            "chatting": chatting_in,
+            "moderating": moderating_in,
+            "command": command,
             "params": params,
             "message": message_id,
-            "channel": channel_id,
-            "priority": priority
+            "channel": channel_id
         }
-        if self.isBusy():
+        if len(self._schedules) > 5:
             self.kelly.status = "busy"
-
+            
     def getSchedules(self):
         return self._schedules
             
