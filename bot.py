@@ -37,8 +37,9 @@ class Bot:
             if Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] > 5:
                 ctx = await self.client.get_context(message)
                 await ctx.invoke("warn", message.author, "Chat Rules Broken too many times")
+                Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 0
         else:
-            Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] += 1
+            Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 1
             
     async def chat_rate_limiter(self, message, session_id, chat_rate_limit):
         count = 0 # no of messages in last 5 seconds
@@ -55,7 +56,7 @@ class Bot:
                         delete_count += 1
             except:
                 pass
-            await message.channel.send(f"{message.author.mention} You are sending messages too quickly")
+            await message.channel.send(f"{message.author.mention} You are sending messages too quickly", delete_after=5)
             await self.add_user_infringement(message)
             return True
         return False 
@@ -165,7 +166,7 @@ class Bot:
                     delete_count += 1
         except:
             pass
-        await message.channel.send(f"{message.author.mention} Duplicate messages Blocked")
+        await message.channel.send(f"{message.author.mention} Duplicate messages Blocked", delete_after=5)
         await self.add_user_infringement(message)
         return True
 
@@ -194,17 +195,17 @@ class Bot:
             elif type == "Nitro":
                 em.add_field(name = "Nitro Gift Code 🎁", value = reward)
             elif type == "assignrole":
-                role = await message.guild.get_role(int(rewards))
+                role = message.guild.get_role(int(rewards))
                 if role:
-                    await ctx.invoke("assignrole", member.author, role)
+                    await ctx.invoke(self.client.get_command("assignrole"), member.author, role)
             elif type == "removerole":
-                role = await message.guild.get_role(int(rewards))
+                role = message.guild.get_role(int(reward))
                 if role:
-                    await ctx.invoke("removerole", member.author, role)
+                    await ctx.invoke(self.client.get_command("removerole"), member.author, role)
             elif type == "rolechoice":
                 roles = []
                 for i in rewards:
-                    role = await message.guild.get_role(int(i))
+                    role = message.guild.get_role(int(i))
                     if role:
                         roles.append(role)
                 em.add_field(name = "Custom Role Choice", value = "\n".join([f"{x[i+1]}: {role.name}" for i, role in enumerate(roles)]))
