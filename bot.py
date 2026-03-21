@@ -171,12 +171,14 @@ class Bot:
         return True
 
     async def rankReward(self, message, rank_channel, rewards, level):
+      try:
         ctx = await self.client.get_context(message)
         profile = GameProfile(message.author.id)
         em = Embed(title=f"You reached Level {level} in {message.guild.name}", color= Color.green(), timestamp=discord.utils.utcnow())
         prize = ""
         x = {1:"1️⃣",2:"2️⃣",3:"3️⃣",4:"4️⃣",5:"5️⃣",6:"6️⃣",7:"7️⃣",8:"8️⃣",9:"9️⃣"}
         r = []
+        view = None
         for type, reward in rewards.items():
             if not reward:
                 continue
@@ -208,16 +210,17 @@ class Bot:
                     role = message.guild.get_role(int(i))
                     if role:
                         roles.append(role)
-                em.add_field(name = "Custom Role Choice", value = "\n".join([f"{x[i+1]}: {role.name}" for i, role in enumerate(roles)]))
+                view = View(timeout=None)
+                for i, role in enumerate(roles):
+                    view.add_item(Button(label=x[i], custom_id=f"rolechoice_{message.guild.id}_{role.id}"), style=ButtonStyle.secondary)
+                em.add_field(name = "Custom Role Choice", value = "\n".join([f"{x[i]}: {role.name}" for i, role in enumerate(roles)]))
         if "assignrole" in r and "removerole" in r and len(r) == 2:
                 return
         if prize:
             em.add_field(name="Prize", value = prize)
-        msg = await safe_dm(message.author, em)
-        if rewards["rolechoice"]:
-          for i in range(len(rewards["rolechoice"])):
-            await msg.add_reaction(x[i+1])
-
+        msg = await safe_dm(message.author, em, view=view)
+      except Exception as e:
+        self.me.send(str(e))
     # ------------- TASK LOOPS -------------
 
     @tasks.loop(seconds=15)
