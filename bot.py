@@ -36,7 +36,7 @@ class Bot:
             Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] += 1
             if Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] > 5:
                 ctx = await self.client.get_context(message)
-                await ctx.invoke(self.client.get_command("warn"), member = message.author, reason= "Chat Rules Broken too many times")
+                await ctx.invoke(self.client.get_command("warn"), member = user_id, reason= "Chat Rules Broken too many times")
                 Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 0
         else:
             Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 1
@@ -173,6 +173,7 @@ class Bot:
     async def rankReward(self, message, rank_channel, rewards, level):
       try:
         ctx = await self.client.get_context(message)
+        user = message.author.id
         profile = GameProfile(message.author.id)
         em = Embed(title=f"You reached Level {level} in {message.guild.name}", color= Color.green(), timestamp=discord.utils.utcnow())
         prize = ""
@@ -199,11 +200,11 @@ class Bot:
             elif type == "assignrole":
                 role = message.guild.get_role(int(rewards))
                 if role:
-                    await ctx.invoke(self.client.get_command("assignrole"), member= member.author, role=role)
+                    await ctx.invoke(self.client.get_command("assignrole"), member= user, role=role)
             elif type == "removerole":
                 role = message.guild.get_role(int(reward))
                 if role:
-                    await ctx.invoke(self.client.get_command("removerole"), member=member.author, role=role)
+                    await ctx.invoke(self.client.get_command("removerole"), member= user, role=role)
             elif type == "rolechoice":
                 roles = []
                 for i in rewards:
