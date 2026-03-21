@@ -1238,9 +1238,9 @@ class Moderation(commands.Cog):
             remove_role_select = Select(custom_id="remove_role", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
             role_choice_select = Select(custom_id="role_choice", placeholder="Role not available", disabled= True, options= [SelectOption(label="No role", value="no val")], max_values=1, min_values=1)
         else:
-            assign_role_select = Select(custom_id="assign_role", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
-            remove_role_select = Select(custom_id="remove_role", placeholder="Select Role to Add", options=roles, max_values=1, min_values=1)
-            role_choice_select = Select(custom_id="role_choice", placeholder="Select Roles to Add", options=roles, max_values= len(roles), min_values=1)
+            assign_role_select = Select(custom_id="assign_role", placeholder="Select Assign Role", options=roles, max_values=1, min_values=1)
+            remove_role_select = Select(custom_id="remove_role", placeholder="Select Remove Role", options=roles, max_values=1, min_values=1)
+            role_choice_select = Select(custom_id="role_choice", placeholder="Select Role Choices", options=roles, max_values= 9, min_values=1)
             
         add_btn = Button(style=ButtonStyle.green, label="Add", custom_id="add")
         submit_btn = Button(style=ButtonStyle.green, label="Add", custom_id="Submit", disabled=True)
