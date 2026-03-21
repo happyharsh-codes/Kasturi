@@ -692,6 +692,7 @@ class Moderation(commands.Cog):
         welcome_theme_no = 1
         welcome_message = ""
         welcome_channel = channel.id if channel else None
+        values = []
         
         class WelcomeModal(discord.ui.Modal):
             def __init__(self):
@@ -750,10 +751,9 @@ class Moderation(commands.Cog):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
-            nonlocal welcome_message, channel_select, channel_select2, welcome_theme_no, em, welcome_channel
+            nonlocal values, welcome_message, channel_select, channel_select2, welcome_theme_no, em, welcome_channel
             temp = welcome_message.split("\n")[1:]
             welcome_message = welcome_message.split("\n")[0]
-            values = [option.value for option in channel_select2.options if option.default]
             for index, i in enumerate(temp):
                 if index < len(values):
                     welcome_message += f"\n{i.split()[0]} [**{i[2:]}**](https://discord.com/channels/{ctx.guild.id}/{values[index]})"
@@ -818,11 +818,12 @@ class Moderation(commands.Cog):
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return 
-            nonlocal channel_select2
+            nonlocal channel_select2, values
             selected_values = interaction.data["values"]
             for val in selected_values:
                 for option in channel_select2.options:
                     option.default = option.value in selected_values
+                    values.append(val)
             await interaction.response.defer()
         
         go_left.callback = go_callback
