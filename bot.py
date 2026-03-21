@@ -36,7 +36,7 @@ class Bot:
             Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] += 1
             if Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] > 5:
                 ctx = await self.client.get_context(message)
-                await ctx.invoke(self.client.get_command("warn"), message.author, "Chat Rules Broken too many times")
+                await ctx.invoke(self.client.get_command("warn"), member = message.author, reason= "Chat Rules Broken too many times")
                 Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 0
         else:
             Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 1
@@ -199,11 +199,11 @@ class Bot:
             elif type == "assignrole":
                 role = message.guild.get_role(int(rewards))
                 if role:
-                    await ctx.invoke(self.client.get_command("assignrole"), member.author, role)
+                    await ctx.invoke(self.client.get_command("assignrole"), member= member.author, role=role)
             elif type == "removerole":
                 role = message.guild.get_role(int(reward))
                 if role:
-                    await ctx.invoke(self.client.get_command("removerole"), member.author, role)
+                    await ctx.invoke(self.client.get_command("removerole"), member=member.author, role=role)
             elif type == "rolechoice":
                 roles = []
                 for i in rewards:
