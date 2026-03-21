@@ -46,7 +46,7 @@ class Moderation(commands.Cog):
     async def mute_from_kelly(self, ctx: commands.Context, member: discord.Member, minutes: int, *, reason: str):
         """Temporarily prevents a user from chatting with Kelly, not server-wide."""
         until = (datetime.now(UTC) + timedelta(minutes=minutes)).isoformat()
-        giyu = load_mongo_dict("giyu", "kellymemory")
+        giyu = load_mongo_dict("Giyu", "kellymemory")
         giyu["muted"][str(member.id)] = until
 
         embed = action_embed(ctx,
@@ -86,7 +86,7 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(moderate_members=True)
     async def unmute_from_kelly(self, ctx: commands.Context, member: discord.Member, *, reason: str = "No reason provided"):
         """Removes Kelly-only chat mute."""
-        giyu = load_mongo_dict("giyu", "kellymemory")
+        giyu = load_mongo_dict("Giyu", "kellymemory")
         muted = giyu["muted"]
         if str(member.id) not in muted:
             return await ctx.send("⚠️ That user is not muted from Kelly.")
@@ -409,7 +409,7 @@ class Moderation(commands.Cog):
         
         await safe_dm(member, embed)
 
-        giyu = load_mongo_dict("giyu", "kellymemory")
+        giyu = load_mongo_dict("Giyu", "kellymemory")
         giyu["block_list"].append(member.id)
         em = Embed(title="Member Banned From Kelly Talkings", description=f"{member.name} was banned by {ctx.author.mention}.\n**Reason:** {reason}", color=Color.pink(), timestamp=discord.utils.utcnow())
         em.set_footer(text=f"Banned by {ctx.author.name}", icon_url=ctx.author.avatar)
@@ -447,7 +447,7 @@ class Moderation(commands.Cog):
         
         await safe_dm(member, embed)
 
-        guyu = load_mongo_dict("giyu", "kellymemory")
+        guyu = load_mongo_dict("Giyu", "kellymemory")
         giyu["block_list"].remove(member.id)
         em = Embed(
             title="Member Unbanned from Kelly Talk",
@@ -1338,33 +1338,17 @@ class Moderation(commands.Cog):
             if rank_reward:
                 txt = ""
                 for level, reward in rank_reward.items():
-                    txt += f"• Level {level} → "
+                    line = f"• {level} → "
+                    
                     for reward_type, value in reward.items():
-                        if reward_type in ["assignrole", "removerole", "rolechoice"]:
-                          try:
-                            role = ctx.guild.get_role(value)
-                            role_name = role.name if role else "Deleted Role"
-                            txt += f"{reward_type}: {role_name} "
-                          except:
-                            txt += f"• {reward_type} {value}\n"
-                        elif reward_type == "rolechoice":
-                            value = value[:10]
-                            text += f"{reward_type}: "
-                            for i in value:
-                                try:
-                                  role = ctx.guild.get_role(i)
-                                  role_name = role.name if role else "Deleted Role"
-                                  txt += f"{role_name} "
-                                except:
-                                  txt += f"Deleted "
-                            
-                        else:
-                            txt += f"{reward_type}: {value}\n"
-                    txt += "\n"
+                        line += reward_type + ","
+                    if len(line) > 26:
+                        line = line[:24] + ".."
+                    txt += line + "\n"
             else:
                 txt = "No rewards set yet."
 
-            em.add_field(name="Current Rewards", value=f"```{txt}```", inline=False)
+            em.add_field(name="Current Rewards", value=f"```{txt[:1500]}```", inline=False)
 
         update_embed()
 
@@ -1424,13 +1408,13 @@ class Moderation(commands.Cog):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True )
             nonlocal em, view, update_embed, add_btn, done_btn, reward, level
-            update_embed()
             add_btn.label = "Add More"
             view.clear_items()
             view.add_item(add_btn)
             view.add_item(done_btn)
             Server_Settings[guild_id]["rank_reward"][str(level)] = reward.copy()
             reward = { "assignrole": None, "removerole": None, "rolechoice": None, "custom": None, "cash": None, "aura": None, "gem": None, "nitro": None}
+            update_embed()
             await inter.response.edit_message(embed=em, view=view)
 
         async def on_done(inter: Interaction):
