@@ -1342,6 +1342,8 @@ class Moderation(commands.Cog):
                     line = f"• {level} → "
                     
                     for reward_type, value in reward.items():
+                        if not value:
+                            continue 
                         line += reward_type + ","
                     if len(line) > 26:
                         line = line[:24] + ".."
