@@ -52,76 +52,76 @@ A multipurpose AI bot who works just by chatting — no commands needed.
 <table>
 <tr>
 <td align="center">
-<img src="./assets/kellysleeping.png" width="100">
+<img src="./assets/kellysleeping.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellyannoyed.png" width="100">
+<img src="./assets/kellyannoyed.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellycute.png" width="100">
+<img src="./assets/kellycute.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellyhandraise.png" width="100">
+<img src="./assets/kellyhandraise.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellysimping.webp" width="100">
+<img src="./assets/kellysimping.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellygigle.png" width="100">
+<img src="./assets/kellygigle.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellyidontcare.png" width="100">
+<img src="./assets/kellyidontcare.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellyheart.png" width="100">
+<img src="./assets/kellyheart.gif" width="100">
 </td>
 <td>
 <img src="./assets/kellypinch.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellybweh.webp" width="100">
+<img src="./assets/kellybweh.gif" width="100">
 </td>
 <td>
 <img src="./assets/kellybored.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellyoho.webp" width="100">
+<img src="./assets/kellyoho.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellyok.png" width="100">
+<img src="./assets/kellyok.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellychips.webp" width="100">
+<img src="./assets/kellychips.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellyjuice.webp" width="100">
+<img src="./assets/kellyjuice.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellysalute.png" width="100">
+<img src="./assets/kellysalute.gif" width="100">
 </td>
 <td>
 <img src="./assets/kellyfight.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellypout.png" width="100">
+<img src="./assets/kellypout.gif" width="100">
 </td>
 <td>
 <img src="./assets/kellyvibing.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellypat.png" width="100">
+<img src="./assets/kellypat.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellypolice.png" width="100">
+<img src="./assets/kellypolice.gif" width="100">
 </td>
 <td>
 <img src="./assets/kellypopcorn.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellyenjoying.webp" width="100">
+<img src="./assets/kellyenjoying.gif" width="100">
 </td>
 <td>
-<img src="./assets/kellytired.png" width="100">
+<img src="./assets/kellytired.gif" width="100">
 </td>
 </tr>
 </table>
