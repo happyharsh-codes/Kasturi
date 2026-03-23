@@ -50,26 +50,6 @@ class Ayasaka:
         """
         uid = message.author.id
 
-        #New User Initialisation 
-        if message.author.id not in self._ayasaka["new_user"]:
-            prompt = f"You are Ayasaka, Kelly's Assistant - cute, sexy and gorgeous girl.\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
-            response = getResponse(message.content, prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
-            await self.ayasakasend(message.channel, response, message.author.id)
-            em = Embed(title= f"Hi I'm Ayasaka ", description="Hi I'm Ayasaka, Kelly's Personal Assistant. Kelly's schedules is my responsibility as you know Kelly gets busy very quickly with server stuff. So yeah I'm there for you when she's busy, I'll schedule your tasks, just call me. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
-            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayasaka_{randint(1,3)}.png")
-            dm_channel = message.author.dm_channel
-            self.kelly.memory.addUserChat(message.content, response, message.author.id, reply_by="Ayasaka")
-            if not dm_channel:
-                dm_channel = await message.author.create_dm()
-            try:
-                await dm_channel.send(embed = em)
-            except:
-                await self.ayasakasend(message.channel, em, message.author.id)
-            self.kelly.memory.modifyUserRelation(message.author.id, 2)
-            self._ayasaka["new_user"].append(message.author.id)
-            self._ayasaka.root._sync()
-            return True
-            
         # If Kelly is lazy, assistant manages
         if self.kelly.status == "lazy":
             if "Server owner" in type:
