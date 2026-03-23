@@ -193,6 +193,12 @@
       "Kelly values her privacy 🛡️\nDM access is granted only to close contacts.",
       "This channel is off-limits 🚷\nPublic chat is your only option.",
       "DM request denied ❌\nRules exist for a reason ⚖️"
+    ],
+    "blocked_words": [
+        "Watch you Language",
+        "That word is not allowed",
+        "Hey be respectful to others",
+        "That wont be tolerated here"
     ]
   },
 
