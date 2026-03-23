@@ -121,26 +121,6 @@ class Giyu:
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             return False 
 
-        #New User Initialisation 
-        if message.author.id not in self._giyu["new_user"]:
-            prompt = f"You are Giyu, Kelly's Chief Guard\nGenerate: Your Response in 20 words with 2-3 emoji. Generate a Initializing message for new user. name : {message.author.name} id: {message.author.id}"
-            response = getResponse(message.content, prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
-            await self.giyusend(message.channel, response, message.author.id)
-            em = Embed(title= f"Hi I'm Giyu {EMOJI2['giyuhi']}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
-            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
-            dm_channel = message.author.dm_channel
-            self.kelly.memory.addUserChat(message.content, response, message.author, reply_by="Giyu")
-            if not dm_channel:
-                dm_channel = await message.author.create_dm()
-            try:
-                await dm_channel.send(embed = em)
-            except:
-                await self.giyusend(message.channel, em, message.author.id)
-            self.kelly.memory.modifyUserRelation(message.author.id, 2)
-            self._giyu["new_user"].append(message.author.id)
-            self._giyu.root._sync()
-            return True
-
         #Blocked User
         elif message.author.id in self._giyu["block_list"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is already BANNED by kelly shoo him away.\nGenerate: Your Response in 20 words with emojis"
