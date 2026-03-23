@@ -29,22 +29,27 @@ class KellyMemory:
         all_user_chats = chats[-limit:]
         return ", ".join(all_user_chats)
 
-    def addUserChat(self, message, response, uid, reply_by="Kelly"):
+    def addUserChat(self, message, response, author, reply_by="Kelly"):
         """Store last conversation detail."""
         message = message.replace("\n", "").replace(":", "")
         response = response.replace("\n", "").replace(":", "")
 
-        user = self._memory["users"].get(str(uid))
+        user = self._memory["users"].get(str(author.id))
         line = f"User:{message}, {reply_by}:{response}"
 
         if not user:
-            self._memory["users"][str(uid)] = {
+            self._memory["users"][str(author.id)] = {
                 "chats": [line],
                 "behaviours": "",
                 "likes": [],
                 "dislikes": [],
                 "relations": 1,
             }
+            em = Embed(title="Hi I'm Kelly", description=f"Nice to meet you {author.display_name}. Feel free to talk to Kelly anytime just say Kelly and I'll be there. Please follow our chat rules and regulations.", timestamp = discord.utils.utcnow(), color = Color.gold())
+            view = View()
+            view.add_item(Button(style=ButtonStyle.secondary, custom_id= "global_intro_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>")))
+            view.add_item(Button(style=ButtonStyle.secondary, custom_id= "global_intro_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>")))
+            msg = safe_dm(member=author, embed = em, view=view)
         else:
             user["chats"].append(line)
             if len(user["chats"]) > 8:
