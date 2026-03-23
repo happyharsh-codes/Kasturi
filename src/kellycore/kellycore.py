@@ -255,7 +255,7 @@ class Kelly:
                 return
 
             # Setting up Prompt
-            prompt = f"""Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {mood},Persona: {persona},Relation: {relation}\nReply in 10–30 words, 0–3 emojis based on Moods, Persona and Relation. You can perform user command, save for later or deny. Giyu (guard) and Ayasaka (Assistant) call only when need."""
+            prompt = f"""Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {mood},Persona: {persona},Relation: {relation}\nReply in 10–30 words, 0–3 emojis based on Moods, Persona and Relation. You can perform user command, save for later or deny.If Member then Deny. Giyu (guard) and Ayasaka (Assistant) call only when need."""
             usermessage = f"{message.author.display_name} ({type}): {message.content}"
             
             #------ 3. Kelly Reply------#
@@ -268,7 +268,7 @@ class Kelly:
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
 
             #------ 4. Getting Convo summary------#
-            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-5 to +5)\nmood_shift: one from (happy,sad,depressed,angry,annoyed,lazy,sleepy,mischievous,none)\ninfo: one line about user behaviour\ncommand: command_name or null (from chat only)\nexecution: now|later|deny (extract from chat)"""
+            prompt2 = f"""You are Kelly's internal decision engine. Do NOT roleplay or chat. ONLY analyze.\nStatus:mood={mood},persona={persona}\nReturn ONLY valid JSON with fields:\nrespect_delta: int (-5 to +5)\nmood_shift: one from (happy,sad,depressed,angry,annoyed,lazy,sleepy,mischievous,none)\ncommand: command_name or null (from command list only)\nexecution: now|later|deny (extract from chat). Command List: [mute, unmute, kick, ban, warn, warn_action, mute_from_kelly, unmute_from_kelly, ban_from_kelly, unban_from_kelly, set_welcome_channel, set_social_channel, set_rank_channel, rank_rewards, automod, assignrole, removerole, lock, unlock, deafen, undeafen, clear, purge, slowmode, invites, cash, profile, activate, help, rank, top, bug]"""
             raw_result = getResponse(f"Id={message.author.id} {usermessage}\nKelly: {kelly_reply}", prompt2)
             try:
                 raw_result = raw_result.strip().lower()
