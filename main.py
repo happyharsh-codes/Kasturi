@@ -67,6 +67,7 @@ async def start():
     client.add_listener(bot.on_message_edit)
     client.add_listener(bot.on_message_delete)
     client.add_listener(bot.on_bulk_message_delete)
+    client.add_listener(bot.on_interaction)
     client.add_listener(bot.on_poll_vote_add)
     client.add_listener(bot.on_poll_vote_remove)
     client.add_listener(bot.on_reaction_add)
