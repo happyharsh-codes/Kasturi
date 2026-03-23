@@ -1,5 +1,5 @@
 # Meet Kelly — The Discord Queen Mod 👑 
-[![Join Kelly's Homeland](https://img.shields.io/badge/Join-Kelly's_Homeland-5865F2?style=plastic&logo=discord&logoColor=white&fontSize=32)](https://discord.gg/SVmpbpf9H7)
+[![Join Kelly's Homeland](https://img.shields.io/badge/Join-Kelly's_Homeland-5865F2?style=plastic&logo=discord&logoColor=white&fontSize=32)](https://discord.gg/q7TZVJuCMD)
 
 <p align="center">
   <img width="150" src="assets/kellyintro.gif" alt="Kelly Mood"/>
