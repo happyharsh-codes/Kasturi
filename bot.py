@@ -457,11 +457,11 @@ class Bot:
         for guild in self.client.guilds:
             for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
                 if any(x in channel.name.lower() for x in ("general","chat","chill", "lounge" ,"lobby")):
-                    await channel.send(embed=embed)
+                    #await channel.send(embed=embed)
                     break
             else:
                 for channel in [x for x in guild.text_channels if x.permissions_for(guild.me).send_messages]:
-                    await channel.send(embed=embed)
+                    #await channel.send(embed=embed)
                     break
             if Server_Settings[str(guild.id)]["invite_link"] != "N\\A":
                 continue
@@ -1202,6 +1202,56 @@ class Bot:
         )
         await self.send_log(guild, em, delete_after=100)
 
+    async def on_interaction(self, interaction):
+        if interaction.data["custom_id"].startswith("rolechoice_"):
+            _, guild_id, role_id = interaction.data["custom_id"].split("_")
+            await interaction.response.edit_message(view=None)
+            guild = self.get_guild(guild_id)
+            if not guild:
+                try: guild = await self.fetch_guild(guild_id)
+                except: return
+            member = guild.get_member(interaction.user.id)
+            if not member:
+                try: member = await guild.fetch_member(interaction.user.id)
+                except:
+                    await interaction.channel.send(embed=Embed(description="You are not in that guild"))
+                    return
+            role = guild.get_role(role_id)
+            if not role:
+                await interaction.channel.send("Role Not Found or gpt Deleted")
+                return
+            await member.add_roles(role)
+            await interaction.channel.send(embed=Embed(description=f"Congrats 🎉 You Received the {role.name} Role", color = role.color))
+
+        elif interaction.data["custom_id"] == "global_intro_left":
+            view = View()
+            go_left = Button(style=ButtonStyle.secondary, custom_id= "global_intro_left", row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+            go_right = Button(style=ButtonStyle.secondary, custom_id= "global_intro_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+            view.add_item(go_left)
+            view.add_item(go_right)
+            if "giyu" in interaction.message.embeds[0].title:
+                em = Embed(title="Hi I'm Kelly", description=f"Nice to meet you {author.display_name}. Feel free to talk to Kelly anytime just say Kelly and I'll be there. Please follow our chat rules and regulations.", timestamp = discord.utils.utcnow(), color = Color.gold())
+                em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
+                go_left.disabled = True
+            elif "ayasaka" in interaction.message.embeds[0].title:
+                em = Embed(title= f"Hi I'm Giyu {EMOJI2['giyuhi']}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
+                em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
+            await interaction.response.edit_message(embed= em, view = view)
+        elif interaction.data["custom_id"] == "global_intro_right":
+            view = View()
+            go_left = Button(style=ButtonStyle.secondary, custom_id= "global_intro_left", row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+            go_right = Button(style=ButtonStyle.secondary, custom_id= "global_intro_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+            view.add_item(go_left)
+            view.add_item(go_right)
+            if "kelly" in interaction.message.embeds[0].title:
+                em = Embed(title= f"Hi I'm Giyu {EMOJI2['giyuhi']}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
+                em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
+            elif "giyu" in interaction.message.embeds[0].title:
+                em = Embed(title= f"Hi I'm Ayasaka ", description="Hi I'm Ayasaka, Kelly's Personal Assistant. Kelly's schedules is my responsibility as you know Kelly gets busy very quickly with server stuff. So yeah I'm there for you when she's busy, I'll schedule your tasks, just call me. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
+                em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayasaka_{randint(1,3)}.png")
+                go_right.disabled = True
+            await interaction.response.edit_message(embed= em, view = view)
+        
     async def on_poll_vote_add(self, user, answer):
         guild = answer.poll.message.guild
         em = Embed(
@@ -1221,48 +1271,11 @@ class Bot:
         await self.send_log(guild, em, delete_after=100)
 
     async def on_reaction_add(self, reaction, user):
-        if user.bot:
-            return
-        guild = reaction.message.guild
-        if not guild:
-            return
-        if isinstance(message.channel, discord.DMChannel):
-            if reaction.emoji in "1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣":
-                level = 0
-                title = reaction.message.embeds[0].title.split()
-                for i in title:
-                    if i.isdigit():
-                        level = i
-                        break
-                role = Server_Settings[str(guild.id)]["rank_reward"][level]["rolechoice"]
-                roles = []
-                for r in role:
-                    try:
-                        ro = guild.get_role(r)
-                        if ro:
-                            roles.append(ro)
-                    except:
-                        continue
-                selected_role = roles["1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣".index(reaction.emoji)]
-                try:
-                    await message.author.remove_roles(roles - [selected_role])
-                    await message.author.add_roles(selected_role)
-                except:
-                    pass
+        pass
                     
     async def on_reaction_remove(self, reaction, user):
-        if user.bot:
-            return
-        guild = reaction.message.guild
-        if not guild:
-            return
-        em = Embed(
-            title="➖ Reaction Removed",
-            description=f"User: {user.mention}\nEmoji: {reaction.emoji}\nChannel: {reaction.message.channel.mention}",
-            color=Color.yellow()
-        )
-        await self.send_log(guild, em, delete_after=100)
-
+        pass
+        
     async def on_guild_role_create(self, role):
         guild = role.guild
         em = Embed(
