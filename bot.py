@@ -174,7 +174,10 @@ class Bot:
       try:
         ctx = await self.client.get_context(message)
         user = message.author.id
-        profile = GameProfile(message.author.id)
+        if message.author.id not in Profiles:
+            rewards.update({"cash": None, "gem": None, "Aura": None})
+        else:
+            profile = GameProfile(message.author.id)
         em = Embed(title=f"You reached Level {level} in {message.guild.name}", color= Color.green(), timestamp=discord.utils.utcnow())
         prize = ""
         x = {1:"1️⃣",2:"2️⃣",3:"3️⃣",4:"4️⃣",5:"5️⃣",6:"6️⃣",7:"7️⃣",8:"8️⃣",9:"9️⃣"}
@@ -984,6 +987,8 @@ class Bot:
             return
         if not message.author:
             return
+        if message.guild and not message.channel.permissions_for(message.guild.me).send_messages:
+            return
         
         author = message.author   
         guild = message.guild
@@ -1011,10 +1016,13 @@ class Bot:
                 if content.startswith(("kasturi ", "kelly ", "k ")):
                     if content.startswith("k "):
                         message.content = content.replace("k ", "???", 1)
+                        message.author = author
                     elif content.startswith("kelly "):
                         message.content = content.replace("kelly ", "???", 1)
+                        message.author = author
                     elif content.startswith("kasturi "):
-                        message.content = content.replace("kasturi ", "???", 1)          
+                        message.content = content.replace("kasturi ", "???", 1)
+                        message.author = author
                     await self.client.process_commands(message)
                 else:
                     await self.kelly.kellyQuery(message)
@@ -1137,6 +1145,7 @@ class Bot:
             if content.startswith("k "): message.content = content.replace("k ", "???", 1)
             elif content.startswith("kelly "): message.content = content.replace("kelly ", "???", 1)
             elif content.startswith("kasturi "): message.content = content.replace("kasturi ", "???", 1)          
+            message.author = author
             
             if self.kelly.status == "sleepy":
                 await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood)
