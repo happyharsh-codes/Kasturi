@@ -46,6 +46,7 @@ class KellyMemory:
                 "relations": 1,
             }
             em = Embed(title="Hi I'm Kelly", description=f"Nice to meet you {author.display_name}. Feel free to talk to Kelly anytime just say Kelly and I'll be there. Please follow our chat rules and regulations.", timestamp = discord.utils.utcnow(), color = Color.gold())
+            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
             view = View()
             view.add_item(Button(style=ButtonStyle.secondary, custom_id= "global_intro_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>")))
             view.add_item(Button(style=ButtonStyle.secondary, custom_id= "global_intro_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>")))
