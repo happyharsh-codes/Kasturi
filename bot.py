@@ -954,12 +954,11 @@ class Bot:
     async def on_presence_update(self, before, after):
         try:
             if before.status == discord.Status.offline and after.status != discord.Status.offline:
-                if randint(1,100) == 1: #Surprise
-                    self.kelly.ayasaka.addReminder("surprise", user_id= after.id, delay_minutes=10)
-                if randint(1,25) != 13: #10% chance
+                chance = randint(1,100)
+                if chance != 13: #1% chance
                     return
                 relation = self.kelly.memory.getUserRelation(after.id)
-                if relation < 10:
+                if relation < 4:
                     return
                 for guild in self.client.guilds:
                     member = guild.get_member(before.id)
@@ -970,13 +969,13 @@ class Bot:
                         continue 
                     try:
                         channel = await guild.fetch_channel(allowed_channels[0])
-                        response = self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis"))
+                        response = self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.kelly.mood.mood}. Reply in 10–30 words, 0–3 emojis based on Moods"))
                         await channel.send(f"{member.mention} {response}")
                     except:
-                        await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
+                        await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.kelly.mood.mood}. Reply in 10–30 words, 0–3 emojis based on Moods")))
                     return
                 else:
-                    await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", "You are kelly lively discord mod bot with sass and attitude. User just got online send a interactive message in 20 words with emojis")))
+                    await safe_dm(member, message= self.kelly.kellyEmojify(getResponse(f"*User: {member.name} just got online*", f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.kelly.mood.mood}. Reply in 10–30 words, 0–3 emojis based on Moods")))
                     return
         except Exception as e:
             await self.client.get_user(894072003533877279).send(f"Exception on presence change: {e}")
@@ -1544,8 +1543,8 @@ class Bot:
             Server_Settings[str(ctx.guild.id)]["premium"] -= 1
             if Server_Settings[str(ctx.guild.id)]["premium"] < 0:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
-            if randint(1, 10) == 8:
-                self.kelly.ayasaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
+            if randint(1, 15) == 8:
+                ctx.channel.send(choice(DATA["tips"]))
         except Exception as e:
             await self.me.send(f"Exception on command completion: {e}")
 
