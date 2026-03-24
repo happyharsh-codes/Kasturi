@@ -886,6 +886,14 @@ class Utility(commands.Cog):
         
         msg = await ctx.reply(embed=em,view=view)
 
+    @commands.hybrid_command(aliases=[], with_app_command = True, hidden=True)
+    @commands.cooldown(1,10, type = commands.BucketType.user )
+    @commands.has_permissions()
+    @commands.bot_has_permissions()
+    async def griha_pravesh(self, ctx, channel):
+        await ctx.reply(f"{channel.mention} set as griha pravesh")
+        Server_Settings[str(ctx.guild.id)]["griha_pravesh"] = channel.id
+        
 async def setup(bot):
     await bot.add_cog(Utility(bot))
     print("Loaded cogs: Utility")
