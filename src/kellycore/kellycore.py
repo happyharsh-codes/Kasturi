@@ -263,7 +263,7 @@ class Kelly:
                 msg = await message.channel.send(f"-# {choice(['thinking','busy','playing games','sleeping','yawning','drooling','watching','understanding','remembring','wondering','imagining','dreaming','creating','chatting','looking','helping'])}... {EMOJI[choice(list(EMOJI.keys()))]}")
                 assist = self.memory.getUserChats(message.author.id) #getting previous chats
                 kelly_reply = getResponse(usermessage, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
                 await msg.delete()
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
 
@@ -503,7 +503,7 @@ class Kelly:
                 async with message.channel.typing():
                     assist = self.memory.getUserChatData(message.author.id) #getting previous chats
                     kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                    self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
+                    self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
                     return await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
                     
         # Action chance
@@ -514,7 +514,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChats(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
             
         # 25% make friend
@@ -523,7 +523,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChats(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant=assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
                 return await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
             self.memory.addFriend(message.author.id)
         # 15% small reward
@@ -543,7 +543,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChats(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
                 return await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
             
         # 25% mute instead of ban
@@ -552,7 +552,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChats(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
                 await self.runCommand(message, "mute_from_kelly", {"member": message.author, "minutes":ranint(1,15), "reason": "Very Bad Relations with Kelly"})
         # 15% actual ban
@@ -561,7 +561,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChats(message.author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author.id) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))      
                 await self.runCommand(message, "ban_from_kelly", {"member": message.author, "reason": "Bad Relationship"})
         
