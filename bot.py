@@ -733,6 +733,10 @@ class Bot:
             try:
                 channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["welcome_channel"])
                 await channel.send(f"Welcome {member.mention} <:heart_draw:1428773561904140469>",embed=em)
+                if "griha_pravesh" in Server_Settings[str(member.guild.id)]:
+                    channel = await member.guild.fetch_channel(Server_Settings[str(member.guild.id)]["griha_pravesh"])
+                    await channel.send(f"Welcome {member.mention} <:heart_draw:1428773561904140469>",embed=em, delete_after=300)
+                
             except:
                 print("No perms allowed")
         #anti rapid join protection 
