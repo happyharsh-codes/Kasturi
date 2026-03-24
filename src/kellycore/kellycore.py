@@ -167,7 +167,7 @@ class Kelly:
                         return
                 msg = await channel.send(f"-#Processing {kemoji()}...", delete_after=10)
                 self.runCommand(msg, due, task["params"])
-                del schedules[due_str]
+                del schedules[due]
                 self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                 return
             else:
