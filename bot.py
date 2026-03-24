@@ -346,7 +346,7 @@ class Bot:
         changes = []
         if before.name != after.name:
             changes.append(f"Name: **{before.name}** → **{after.name}**")
-        if before.topic != after.topic:
+        if isisinstance(before, discord.TextChannel) and before.topic != after.topic:
             changes.append("Topic changed.")
         if not changes:
             return
