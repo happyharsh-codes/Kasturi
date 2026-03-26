@@ -1,4 +1,4 @@
-from __init__ import*
+lfrom __init__ import*
 import requests
 from apify_client import ApifyClient
 
@@ -140,14 +140,11 @@ class Dev_Tech_Tools(commands.Cog):
             return
             
         lang = ""
-        em = Embed(
-            title=f"🧠 Code Snippet ({language})",
-            description=f"```{language}\n{snippet[:100]}...```",
-            color=Color.blurple()
-        )
-        em.set_footer(text=f"Shared by {ctx.author.display_name}", icon_url=ctx.author.avatar)
-        
         LANG_CONFIG = {"python": {"run": ["python3", "-c"]}, "javascript": {"run": ["node", "-e"]}, "ruby": {"run": ["ruby", "-e"]}, "bash": {"run": ["bash", "-c"]},"php": {"run": ["php", "-r"]}, "cpp": { "compile": ["g++", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".cpp"},  "c": { "compile": ["gcc", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".c"},"java": {"compile": ["javac"], "run": ["java"], "extension": ".java"}}
+
+        em = Embed(title=f"🧠 Code Snippet",description=f"```{code[:1700]}```",color=Color.blurple(), timestamp= dicord.utils.utcnow())
+        em.set_footer(text=f"Used by {ctx.author.display_name}", icon_url=ctx.author.avatar)
+        
         
         def execute_code(lang, code):
             if lang not in LANG_CONFIG:
