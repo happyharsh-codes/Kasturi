@@ -758,7 +758,7 @@ class Games(commands.Cog):
             hunger_before = profile.hunger
             food = inter.data["custom_id"].split("-")[0]
             profile.inv_manager(food, -1)
-            await profile.health_manager(GAME['id'][food]["Health"] ,ctx)
+            await profile.hunger_manager(GAME['id'][food]["Health"] ,ctx)
             eatables = dict(profile.eatables)
             update()
             await inter.response.edit_message(embed=em, view=view)
