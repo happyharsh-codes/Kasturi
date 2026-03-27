@@ -1,4 +1,4 @@
-lfrom __init__ import*
+from __init__ import*
 import requests
 from apify_client import ApifyClient
 
