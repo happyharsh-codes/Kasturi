@@ -136,7 +136,7 @@ class Games(commands.Cog):
             elif inter.data["custom_id"] == "right":
                 page +=1
                 update(categories[page])
-            elif inter.data["label"] == "Shrink":
+            elif expand_btn.label == "Shrink":
                 update(categories[page])
                 expand_btn.label = "Expand"
             else:
@@ -451,7 +451,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))    
         await ctx.reply(embed= Embed(title=f"Hunting in the {loc.capitalize()}", description=rewards,color=Color.green()))
-        hunger_decrease = ranind(1,8)
+        hunger_decrease = randint(1,8)
         await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=[])
@@ -472,7 +472,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
         await ctx.reply(embed= Embed(title=f"Chopping in the {loc.capitalize()}", description=rewards,color=Color.green()))
-        hunger_decrease = ranind(1,8)
+        hunger_decrease = randint(,8)
         await profile.hunger_manager(-hunger_decrease, ctx)
         
     @commands.hybrid_command(aliases=[])
@@ -493,7 +493,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))  
         await ctx.reply(embed= Embed(title=f"Farming in the {loc.capitalize()}", description=rewards,color=Color.green()))
-        hunger_decrease = ranind(1,8)
+        hunger_decrease = randint(1,8)
         await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=[])
@@ -515,7 +515,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
         await ctx.reply(embed= Embed(title=f"Mining in the {loc.capitalize()}", description=rewards,color=Color.green()))
-        hunger_decrease = ranind(1,8)
+        hunger_decrease = randint(1,8)
         await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=[])
@@ -539,7 +539,7 @@ class Games(commands.Cog):
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
             
         await ctx.reply(embed= Embed(title=f"Fishing in the {loc.capitalize()}", description=rewards,color=Color.green()))
-        hunger_decrease = ranind(1,8)
+        hunger_decrease = randint(1,8)
         await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=["adv"])
@@ -563,7 +563,7 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))  
         await ctx.reply(embed= Embed(title=f"Adventure in the {loc.capitalize()}", description=rewards,color=Color.green()))
-        hunger_decrease = ranind(1,8)
+        hunger_decrease = randint(1,8)
         await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=["exp"])
@@ -601,7 +601,7 @@ class Games(commands.Cog):
             em = Embed(title="Explore",description=f"You explored around {new_place.capitalize()} and got:\n{rewards}",color=Color.green(), timestamp=discord.utils.utcnow())  
             profile.place_manager(new_place)
             em.set_footer(text=f"Explore by {ctx.author.display_name}",icon_url=ctx.author.avatar)  
-            hunger_decrease = ranind(1,8)
+            hunger_decrease = randint(1,8)
             await profile.hunger_manager(-hunger_decrease, ctx)
             return await ctx.send(f"{ctx.author.mention} Exploration Finished: You found a {new_place}! You can adventure here now using `k adventure`.", embed=em)
             
@@ -613,7 +613,7 @@ class Games(commands.Cog):
         profile.add_task("exploring", explore_time, msg.channel.id, msg.id, drops = drops, place = new_place)
         profile.activity = "exploring"
         profile.location = "exploring"
-        hunger_decrease = ranind(1,8)
+        hunger_decrease = randint(1,8)
         await profile.hunger_manager(-hunger_decrease, ctx)
 
     # ========= TRAVEL =========
@@ -645,7 +645,7 @@ class Games(commands.Cog):
             profile.activity = "travelling"
             msg = await ctx.send(file=gif, embed=em)
             profile.add_task("travelling", travel_time, msg.channel.id, msg.id, destination=loc)
-            hunger_decrease = ranind(1,8)
+            hunger_decrease = randint(1,8)
             await profile.hunger_manager(-hunger_decrease, ctx)
             return
             
@@ -697,7 +697,7 @@ class Games(commands.Cog):
             view.timeout = None
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("travelling", travel_time, msg.channel.id, msg.id, destination = loc)
-            hunger_decrease = ranind(1,8)
+            hunger_decrease = randint(1,8)
             await profile.hunger_manager(-hunger_decrease, ctx)
             return
               
@@ -832,7 +832,7 @@ class Games(commands.Cog):
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("building", build_time, msg.channel.id, msg.id, item = item_name, qty = qty)
             profile.activity = "building"
-            hunger_decrease = ranind(8,15)
+            hunger_decrease = randint(8,15)
             await profile.hunger_manager(-hunger_decrease, ctx)
             return
             
@@ -994,7 +994,7 @@ class Games(commands.Cog):
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("crafting", craft_time, msg.channel.id, msg.id, item = item_name, qty = qty)
             profile.activity = "crafting"
-            hunger_decrease = ranind(8,15)
+            hunger_decrease = randint(8,15)
             await profile.hunger_manager(-hunger_decrease, ctx)
             return
               
