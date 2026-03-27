@@ -1093,7 +1093,7 @@ class Bot:
                         Server_Settings[str(guild.id)]["rank_reward"] = {}
                 Server_Settings[str(guild.id)]["rank"][str(author.id)] += len(content)
                 if Profiles.get(str(author.id)):
-                    Profiles[str(author.id)]["assets"][cash] = Profiles[str(author.id)]["assets"].get("cash",0) + len(content)
+                    Profiles[str(author.id)]["assets"]["cash"] = Profiles[str(author.id)]["assets"].get("cash",0) + len(content)
             else: 
                 Server_Settings[str(guild.id)]["rank"][str(author.id)] = len(content)
                         
