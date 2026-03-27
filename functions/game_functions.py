@@ -435,13 +435,13 @@ class GameProfile:
 
     async def heal(self, ctx):
         if self.hunger != 100:
-            for due, task in self.tasks.copy().items():
+            for due, task in dict(self.tasks).items():
                 if task["name"] == "heal":
                     del self.tasks[due]
                     return
         if self.health == 100:
             return
-        for due, task in self.tasks.copy().items():
+        for due, task in dict(self.tasks).items():
                 if task["name"] == "starve":
                     break
         else:
@@ -449,11 +449,11 @@ class GameProfile:
                           
     async def _starve_to_death(self, ctx):
         if self.hunger > 0:
-            for due, task in self.tasks.copy().items():
+            for due, task in dict(self.tasks).items():
                 if task["name"] == "starve":
                     del self.tasks[due]
                     return 
-        for due, task in self.tasks.copy().items():
+        for due, task in dict(self.tasks).items():
                 if task["name"] == "starve":
                     break
         else:
@@ -461,11 +461,11 @@ class GameProfile:
         
     async def _internal_hunger_manager(self, ctx):
         if self.health > 80:
-            for due, task in self.tasks.copy().items():
+            for due, task in dict(self.tasks).items():
                 if task["name"] == "hunger":
                     del self.tasks[due]
         else:
-            for due, task in self.tasks.copy().items():
+            for due, task in dict(self.tasks).items():
                 if task["name"] == "hunger":
                     break
             else:
