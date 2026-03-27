@@ -755,14 +755,14 @@ class Games(commands.Cog):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal eatables, em, view, update, profile
-            health_before = profile.health
+            hunger_before = profile.hunger
             food = inter.data["custom_id"].split("-")[0]
             profile.inv_manager(food, -1)
             await profile.health_manager(GAME['id'][food]["Health"] ,ctx)
             eatables = dict(profile.eatables)
             update()
             await inter.response.edit_message(embed=em, view=view)
-            if health_before == 100:
+            if hunger_before == 100:
                 nonlocal emoji
                 await msg.channel.send(f"You are already too full {emoji}")
                 emoji = "🤮"
