@@ -27,7 +27,7 @@ class Games(commands.Cog):
         skills_text = "Skills: "
         no_skills = True
         for skill in profile.skills:
-            if profile.skills[skill] > 50:
+            if profile.skills[skill] > 0:
                 no_skills = False
                 skills_text += f"{skill} "
         if no_skills:
@@ -136,11 +136,16 @@ class Games(commands.Cog):
             elif inter.data["custom_id"] == "right":
                 page +=1
                 update(categories[page])
+            elif inter.data["label"] == "Shrink":
+                update(categories[page])
+                nonlocal expand_btn
+                expand_btn.label = "Expand"
             else:
-                nonlocal em, profile
+                nonlocal em, profile, expand_btn
                 selected_category = categories[page]
                 descrip = f"**{selected_category.title()}**\n"
                 items = profile.get(selected_category, {})
+                expand_btn.label = "Shrink"
                 
                 for item_key, val in items.items():
                     emoji = GAME["id"][item_key]["emoji"]
@@ -447,6 +452,8 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))    
         await ctx.reply(embed= Embed(title=f"Hunting in the {loc.capitalize()}", description=rewards,color=Color.green()))
+        hunger_decrease = ranind(1,8)
+        await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -466,7 +473,9 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
         await ctx.reply(embed= Embed(title=f"Chopping in the {loc.capitalize()}", description=rewards,color=Color.green()))
-
+        hunger_decrease = ranind(1,8)
+        await profile.hunger_manager(-hunger_decrease, ctx)
+        
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
@@ -485,6 +494,8 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))  
         await ctx.reply(embed= Embed(title=f"Farming in the {loc.capitalize()}", description=rewards,color=Color.green()))
+        hunger_decrease = ranind(1,8)
+        await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
@@ -505,6 +516,8 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
         await ctx.reply(embed= Embed(title=f"Mining in the {loc.capitalize()}", description=rewards,color=Color.green()))
+        hunger_decrease = ranind(1,8)
+        await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -527,6 +540,8 @@ class Games(commands.Cog):
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))
             
         await ctx.reply(embed= Embed(title=f"Fishing in the {loc.capitalize()}", description=rewards,color=Color.green()))
+        hunger_decrease = ranind(1,8)
+        await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=["adv"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -549,6 +564,8 @@ class Games(commands.Cog):
         if not rewards:
             return await ctx.reply(embed=Embed(description=f"{kemoji()} You have got nothing in this place 🤣! Make sure you are at the correct location with `k travel`. Discover new locations using `k explore`.",color=Color.blue()))  
         await ctx.reply(embed= Embed(title=f"Adventure in the {loc.capitalize()}", description=rewards,color=Color.green()))
+        hunger_decrease = ranind(1,8)
+        await profile.hunger_manager(-hunger_decrease, ctx)
 
     @commands.hybrid_command(aliases=["exp"])
     @commands.cooldown(1, 10, type=commands.BucketType.user)
@@ -585,6 +602,8 @@ class Games(commands.Cog):
             em = Embed(title="Explore",description=f"You explored around {new_place.capitalize()} and got:\n{rewards}",color=Color.green(), timestamp=discord.utils.utcnow())  
             profile.place_manager(new_place)
             em.set_footer(text=f"Explore by {ctx.author.display_name}",icon_url=ctx.author.avatar)  
+            hunger_decrease = ranind(1,8)
+            await profile.hunger_manager(-hunger_decrease, ctx)
             return await ctx.send(f"{ctx.author.mention} Exploration Finished: You found a {new_place}! You can adventure here now using `k adventure`.", embed=em)
             
         explore_time = randint(1000,3000)
@@ -595,6 +614,8 @@ class Games(commands.Cog):
         profile.add_task("exploring", explore_time, msg.channel.id, msg.id, drops = drops, place = new_place)
         profile.activity = "exploring"
         profile.location = "exploring"
+        hunger_decrease = ranind(1,8)
+        await profile.hunger_manager(-hunger_decrease, ctx)
 
     # ========= TRAVEL =========
 
@@ -625,6 +646,8 @@ class Games(commands.Cog):
             profile.activity = "travelling"
             msg = await ctx.send(file=gif, embed=em)
             profile.add_task("travelling", travel_time, msg.channel.id, msg.id, destination=loc)
+            hunger_decrease = ranind(1,8)
+            await profile.hunger_manager(-hunger_decrease, ctx)
             return
             
         go_btn = Button(style=ButtonStyle.green, custom_id="go", label="🏃 Go", disabled=True)
@@ -675,6 +698,8 @@ class Games(commands.Cog):
             view.timeout = None
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("travelling", travel_time, msg.channel.id, msg.id, destination = loc)
+            hunger_decrease = ranind(1,8)
+            await profile.hunger_manager(-hunger_decrease, ctx)
             return
               
           except Exception as e:
@@ -692,7 +717,7 @@ class Games(commands.Cog):
         #return_btn.callback = on_return
 
         msg = await ctx.reply(embed=em, view=view)
-
+        
     # ========= FEED / BUILD / STEAL =========
 
     @commands.hybrid_command(aliases=["eat", "food"])
@@ -808,6 +833,8 @@ class Games(commands.Cog):
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("building", build_time, msg.channel.id, msg.id, item = item_name, qty = qty)
             profile.activity = "building"
+            hunger_decrease = ranind(8,15)
+            await profile.hunger_manager(-hunger_decrease, ctx)
             return
             
         async def on_go(inter: Interaction):
@@ -968,7 +995,10 @@ class Games(commands.Cog):
             await inter.response.edit_message(embed=em, view=None)
             profile.add_task("crafting", craft_time, msg.channel.id, msg.id, item = item_name, qty = qty)
             profile.activity = "crafting"
+            hunger_decrease = ranind(8,15)
+            await profile.hunger_manager(-hunger_decrease, ctx)
             return
+              
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
         
