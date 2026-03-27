@@ -138,10 +138,9 @@ class Games(commands.Cog):
                 update(categories[page])
             elif inter.data["label"] == "Shrink":
                 update(categories[page])
-                nonlocal expand_btn
                 expand_btn.label = "Expand"
             else:
-                nonlocal em, profile, expand_btn
+                nonlocal em, profile
                 selected_category = categories[page]
                 descrip = f"**{selected_category.title()}**\n"
                 items = profile.get(selected_category, {})
