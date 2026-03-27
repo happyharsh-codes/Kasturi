@@ -3,6 +3,7 @@ import sys
 import re
 import time
 import math
+import copy
 import asyncio
 import requests
 import builtins
@@ -153,6 +154,9 @@ class MongoNestedDict(MutableMapping):
             return
         del self._data[key]
         self._sync()
+    
+    def copy(self):
+        return MongoNestedDict(copy.deepcopy(self))
 
     # ---------- Required mapping methods ----------
     def __iter__(self):
