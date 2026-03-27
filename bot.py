@@ -29,19 +29,19 @@ class Bot:
         except Exception:
             pass
 
-    async def add_user_infringement(self, message):
+    async def add_user_infringement(self, message, author):
         user_id = message.author.id
         guild_id = message.guild.id
         if str(user_id) in Server_Settings[str(guild_id)]["chat_infringement"]:
             Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] += 1
             if Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] > 5:
                 ctx = await self.client.get_context(message)
-                await ctx.invoke(self.client.get_command("warn"), member = message.author, reason= "Chat Rules Broken too many times")
+                await ctx.invoke(self.client.get_command("warn"), member = author, reason= "Chat Rules Broken too many times")
                 Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 0
         else:
             Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 1
             
-    async def chat_rate_limiter(self, message, session_id, chat_rate_limit):
+    async def chat_rate_limiter(self, message, author, session_id, chat_rate_limit):
         count = 0 # no of messages in last 5 seconds
         for time in Last[session_id]:
             if (datetime.now() - datetime.fromisoformat(time)).seconds <= 5:
@@ -57,11 +57,11 @@ class Bot:
             except:
                 pass
             await message.channel.send(f"{message.author.mention} You are sending messages too quickly", delete_after=5)
-            await self.add_user_infringement(message)
+            await self.add_user_infringement(message, author)
             return True
         return False 
 
-    async def emoji_spam(self, message, limit):
+    async def emoji_spam(self, message, author, limit):
         content = message.content
         unicode_count = len(UNICODE_EMOJI_RE.findall(content))
         discord_count = len(DISCORD_EMOJI_RE.findall(content))
@@ -72,46 +72,46 @@ class Bot:
                 await message.channel.send(f"{message.author.mention} Too many emojis! ({total}/{limit})",delete_after= 5 )
             except:
                 pass
-            await self.add_user_infringement(message)
+            await self.add_user_infringement(message, author)
             return True
         return False
         
-    async def mass_mention_block(self, message, limit):
+    async def mass_mention_block(self, message, author, limit):
       try:
         if message.mention_everyone:
             await message.delete()
             await message.channel.send(f"{message.author.mention} Mass mention blocked.", delete_after=4)
-            await self.add_user_infringement(message)
+            await self.add_user_infringement(message, author)
             return True
               
             
         if len(message.mentions) > limit:
             await message.delete()
             await message.channel.send(f"{message.author.mention} Too many mentions!", delete_after=4)
-            await self.add_user_infringement(message)
+            await self.add_user_infringement(message, author)
             return True  
         return False
       except:
         return False
 
-    async def caps_block(self, message):
+    async def caps_block(self, message, author):
         text = message.content
-        if len(text) < 6:   # small messages allowed
+        if len(text) < 7:   # small messages allowed
             return False
         letters = [c for c in text if c.isalpha()]
         if not letters:
             return True
         caps = sum(1 for c in letters if c.isupper())
         ratio = caps / len(letters)
-        if ratio > 0.20:
+        if ratio > 0.30:
             try: await message.delete()
             except: pass
             await message.channel.send(f"{message.author.mention} Too many CAPS.", delete_after=4)
-            await self.add_user_infringement(message)
+            await self.add_user_infringement(message, author)
             return True
         return False
         
-    async def link_filter(self, message, type):
+    async def link_filter(self, message, author, type):
         "type: suspicious links/ all links"
         SUSPICIOUS = ["grabify", "iplogger", "gyatt", "free-nitro", "robux-free"]
         content = message.content.lower()
@@ -122,29 +122,29 @@ class Bot:
             try: await message.delete()
             except: pass
             await message.channel.send(f"{message.author.mention} Links are not allowed.", delete_after= 5)
-            await self.add_user_infringement(message)
+            await self.add_user_infringement(message, author)
             return True
         if "suspicious" in type.lower():
             if any(bad in content for bad in SUSPICIOUS):
                 try: await message.delete()
                 except: pass
                 await message.channel.send(f"{message.author.mention} Suspicious link removed.", delete_after=5)
-                await self.add_user_infringement(message)
+                await self.add_user_infringement(message, author)
                 return True
         return False
         
-    async def nsfw_filter(self, message):
+    async def nsfw_filter(self, message, author):
         NSFW_WORDS = {"sex", "porn", "xnxx", "xvideos", "nude", "boobs", "dick"}
         content = message.content.lower()
         if any(word in content for word in NSFW_WORDS):
             try: await message.delete()
             except: pass
             await message.channel.send(f"{message.author.mention} NSFW content detected.", delete_after=5)
-            await self.add_user_infringement(message)
+            await self.add_user_infringement(message, author)
             return True
         return False 
 
-    async def duplicate_detector(self, message, session_id):
+    async def duplicate_detector(self, message, author, session_id):
         duplicate_count = 0
         old_msg_contents = []
         def similar(new_msg, old_msg):
@@ -167,13 +167,12 @@ class Bot:
         except:
             pass
         await message.channel.send(f"{message.author.mention} Duplicate messages Blocked", delete_after=5)
-        await self.add_user_infringement(message)
+        await self.add_user_infringement(message, author)
         return True
 
-    async def rankReward(self, message, rank_channel, rewards, level):
+    async def rankReward(self, message, author, rank_channel, rewards, level):
       try:
         ctx = await self.client.get_context(message)
-        user = message.author.id
         if message.author.id not in Profiles:
             rewards.update({"cash": None, "gem": None, "Aura": None})
         else:
@@ -203,11 +202,11 @@ class Bot:
             elif type == "assignrole":
                 role = message.guild.get_role(int(rewards))
                 if role:
-                    await ctx.invoke(self.client.get_command("assignrole"), member= user, role=role)
+                    await ctx.invoke(self.client.get_command("assignrole"), member= author, role=role)
             elif type == "removerole":
                 role = message.guild.get_role(int(reward))
                 if role:
-                    await ctx.invoke(self.client.get_command("removerole"), member= user, role=role)
+                    await ctx.invoke(self.client.get_command("removerole"), member= author, role=role)
             elif type == "rolechoice":
                 roles = []
                 for i in rewards:
@@ -222,7 +221,7 @@ class Bot:
                 return
         if prize:
             em.add_field(name="Prize", value = prize)
-        msg = await safe_dm(message.author, em, view=view)
+        msg = await safe_dm(author, em, view=view)
       except Exception as e:
         self.me.send(str(e))
     # ------------- TASK LOOPS -------------
@@ -1019,13 +1018,10 @@ class Bot:
                 if content.startswith(("kasturi ", "kelly ", "k ")):
                     if content.startswith("k "):
                         message.content = content.replace("k ", "???", 1)
-                        message.author = author
                     elif content.startswith("kelly "):
                         message.content = content.replace("kelly ", "???", 1)
-                        message.author = author
                     elif content.startswith("kasturi "):
                         message.content = content.replace("kasturi ", "???", 1)
-                        message.author = author
                     await self.client.process_commands(message)
                 else:
                     await self.kelly.kellyQuery(message)
@@ -1035,18 +1031,18 @@ class Bot:
         
         # ===== MODERATION ====
         automod = metadata["automod"]
-        if automod.get("emoji_spam") and await self.emoji_spam(message, automod.get("emoji_spam")): return
-        if automod.get("mass_mention_block") and await self.mass_mention_block(message, automod.get("mass_mention_block")): return
-        if automod.get("caps_block") and await self.caps_block(message): return
-        if automod.get("link_filter") and await self.link_filter(message, automod.get("link_filter")): return
-        if automod.get("nsfw_filter") and await self.nsfw_filter(message): return
+        if automod.get("emoji_spam") and await self.emoji_spam(message, author, automod.get("emoji_spam")): return
+        if automod.get("mass_mention_block") and await self.mass_mention_block(message, author, automod.get("mass_mention_block")): return
+        if automod.get("caps_block") and await self.caps_block(message, author): return
+        if automod.get("link_filter") and await self.link_filter(message, author, automod.get("link_filter")): return
+        if automod.get("nsfw_filter") and await self.nsfw_filter(message, author): return
         session_id = f"{author.id}_{channel.id}"
         if not Last[session_id]:
             Last[session_id] = { datetime.now().isoformat(): message.content }
         else:
             Last[session_id][datetime.now().isoformat()] =  message.content
-        if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, session_id, automod.get("chat_rate_limiter")): return 
-        if automod.get("duplicate_detector") and await self.duplicate_detector(message, session_id): return
+        if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, author, session_id, automod.get("chat_rate_limiter")): return 
+        if automod.get("duplicate_detector") and await self.duplicate_detector(message, author, session_id): return
         if await self.kelly.giyu.giyuFilter(message): return
             
         # ===== Deleting banned words ====
@@ -1091,13 +1087,15 @@ class Bot:
                         await rank_channel.send(f"{author.mention} has reached **Level {level+1}!** 🎉")
                         # Check for any Rank Rewards
                         if metadata["rank_reward"] and str(level+1) in metadata["rank_reward"]:
-                            await self.rankRewards(message, rank_channel, metadata["rank_reward"][str(level+1)], level+1)
+                            await self.rankRewards(message, author, rank_channel, metadata["rank_reward"][str(level+1)], level+1)
                     except:
                         Server_Settings[str(guild.id)]["rank_chanel"] = 0
                         Server_Settings[str(guild.id)]["rank_reward"] = {}
-                Server_Settings[str(guild.id)]["rank"][str(author.id)] += 2
+                Server_Settings[str(guild.id)]["rank"][str(author.id)] += len(content)
+                if Profiles.get(str(author.id)):
+                    Profiles[str(author.id)]["assets"][cash] = Profiles[str(author.id)]["assets"].get("cash",0) + len(content)
             else: 
-                Server_Settings[str(guild.id)]["rank"][str(author.id)] = 2
+                Server_Settings[str(guild.id)]["rank"][str(author.id)] = len(content)
                         
         # ===== Checking for afk user ====
         for afk in metadata['afk']:
@@ -1148,7 +1146,6 @@ class Bot:
             if content.startswith("k "): message.content = content.replace("k ", "???", 1)
             elif content.startswith("kelly "): message.content = content.replace("kelly ", "???", 1)
             elif content.startswith("kasturi "): message.content = content.replace("kasturi ", "???", 1)          
-            message.author = author
             
             if self.kelly.status == "sleepy":
                 await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood)
