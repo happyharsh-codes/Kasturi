@@ -890,7 +890,7 @@ class Utility(commands.Cog):
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def griha_pravesh(self, ctx, channel):
+    async def griha_pravesh(self, ctx, channel: discord.TextChannel):
         await ctx.reply(f"{channel.mention} set as griha pravesh")
         Server_Settings[str(ctx.guild.id)]["griha_pravesh"] = channel.id
         
