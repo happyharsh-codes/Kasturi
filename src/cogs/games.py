@@ -594,18 +594,12 @@ class Games(commands.Cog):
             profile.location = "exploring"
             profile.activity = "exploring"
             await ctx.send(file=gif, embed=em)
-            await asyncio.sleep(explore_time)
-            profile.location = new_place
-            profile.activity = "sleeping"
-            rewards = profile.reward_player(drops)  
-            em = Embed(title="Explore",description=f"You explored around {new_place.capitalize()} and got:\n{rewards}",color=Color.green(), timestamp=discord.utils.utcnow())  
-            profile.place_manager(new_place)
-            em.set_footer(text=f"Explore by {ctx.author.display_name}",icon_url=ctx.author.avatar)  
+            profile.add_task("exploring", explore_time, msg.channel.id, msg.id, drops = drops, place = new_place)
             hunger_decrease = randint(4,8)
             await profile.hunger_manager(-hunger_decrease, ctx)
             return await ctx.send(f"{ctx.author.mention} Exploration Finished: You found a {new_place}! You can adventure here now using `k adventure`.", embed=em)
             
-        explore_time = randint(1000,3000)
+        explore_time = randint(100,1000)
         em = Embed(title="Exploration",description=f"You started your adventurous exploration. Wait until you find something amazing.", color = Color.green(), timestamp=discord.utils.utcnow())
         em.set_image(url="attachment://travel.gif")
         gif = discord.File("travel.gif")
@@ -1464,29 +1458,123 @@ class Games(commands.Cog):
         robber_id = str(ctx.author.id)
         victim_id = str(user.id)
         if victim_id not in Profiles:
-            await ctx.send("Target profile not found.")
-            return
+            return await ctx.send(Embed(description="Target profile not found.", colour=Color.red()))
+        if victim_id == robber_id:
+            return await ctx.send(Embed(description="You cannot Rob on yourself.", colour=Color.red()))
         robber_aura = Profiles[robber_id]["aura"]
+        if robber_aura < 0:
+            return await ctx.send(Embed(description="You are in Aura Debt can't perform robbey 🥀.", colour=Color.red()))
+        robber_profile = GameProfile(robber_id)
+        victim_profile = GameProfile(victim_id)
         success_chance = max(5, min(70, 30 + robber_aura // 20))
         if randint(1, 100) > success_chance:
-            fine = 200
+            fine = min(robber_profile.assets.get("cash", 0) // 3, 100000)
             inv_manager(robber_id, "cash", -fine)
-            await ctx.send(f"You failed the bank rob and paid {fine} cash in fines.")
-            return
-        stolen = min(Profiles[victim_id]["assets"].get("cash", 0) // 2, 5000)
+            return await ctx.send(Embed(title= "Rob Failed", description=f"You failed the bank rob and paid ₹{fine} cash in fine.")
+        stolen = min(victim_profile.assets.get("cash", 0) // 2, 100000)
         if stolen <= 0:
-            await ctx.send("Victim has no money to steal.")
-            return
-        inv_manager(victim_id, "cash", -stolen)
-        inv_manager(robber_id, "cash", stolen)
-        await ctx.send(f"You robbed {stolen} cash from {user.mention}!")
+            return await ctx.send(Embed(description="Victim has no money to steal."))
+        victim_profile.inv_manager("cash", -stolen)
+        robber_profile.inv_manager("cash", stolen)
+        await ctx.send(Embed(title="Rob Successful", description=f"You robbed ₹{stolen} cash from {user.mention}!", colour= Color.green()))
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
     @has_profile()
     async def quest(self, ctx):
         """Complete quests to receive exciting rewards."""
-        await ctx.send("Quest system coming soon: Daily, Adventure, Buried Treasure, Premium.")
+        Quest = load_mongo_dict("quests", "server")
+        '''Quest = { "daily": {"requirements": {"hunt": 1, "chop": 1, "adv": 1, "farm": 1, "exp": 1}, "data": { "id": {"chop": 3} }, "rewards": {"item_1": "amt_1"} }}'''
+        daily = Quest["daily"]
+        weekly = Quests["weekly"]
+        left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
+        right = Button(style=ButtonStyle.secondary, custom_id= "right", emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
+        
+        id = str(ctx.author.id)
+        profile = GameProfile(id)
+        page = 0
+        daily_completed = True
+        weekly_completed = True
+        daily_descrip = ""
+        weekly_descrip = ""
+        for command, uses in daily["requirement"].items():
+            if command in daily["data"][id] and daily["data"][id][command] >= uses:
+                daily_descrip += f"✅ {command} x {uses}\n"
+            else:
+                daily_descrip += f"❌ {command} x {uses}\n"
+                daily_completed = False
+        
+        for command, uses in weekly["requirement"].items():
+            if command in weekly["data"][id] and weekly["data"][id][command] >= uses:
+                weekly_descrip += f"✅ {command} x {uses}\n"
+            else:
+                weekly_descrip += f"❌ {command} x {uses}\n"
+                weekly_completed = False
+        claim_daily = Button(style=ButtonStyle.green, custom_id= "claim_daily", label="Claim Daily", disabled = !daily_completed)
+        claim_weekly = Button(style=ButtonStyle.green, custom_id= "claim_weekly", label="Claim Weekly", disabled = !weekly_completed)
+        
+        em1 = Embed(title= "Daily Quest", description= daily_descrip, color = Color.green() if daily_completed else Color.red(), timestamp= discord.utils.utcnow())
+        em1 = Embed(title= "Weekly Quest", description= weekly_descrip, color = Color.green() if weekly_completed else Color.red(), timestamp= discord.utils.utcnow())
+
+        view = View(timeout= 45)
+        async def on_timeout():
+            nonlocal view, msg
+            msg.embeds[0].color = Color.light_grey()
+            for children in view.children:
+                children.disabled = True
+            await msg.edit(embed=em, view=view)
+        view.on_timeout = on_timeout
+
+        async def on_go(inter: Interaction):
+          try:
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal page, left, right, em1, em2, view, claim_daily, claim_weekly
+            if inter.data["custom_id"] == "left":
+                page -= 
+            else: page += 1
+            go_left.disabled = page == 0
+            go_right.disabled = page == 1
+            view.clear_items()
+            if page == 0:
+                em = em1
+                view.add_item(left)
+                view.add_item(claim_daily)
+                view.add_item(right)
+            elif page == 1:
+                em = em2
+                view.add_item(left)
+                view.add_item(claim_weekly)
+                view.add_item(right)
+            await inter.response.edit_message(embed=em, view=view)
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+
+        async def on_claim(inter: Interaction):
+          try:
+            if inter.user.id != ctx.author.id:
+                return await inter.response.send_message("This is not your interaction.", ephemeral=True)
+            nonlocal daily, weekly, profile
+            if inter.data["custom_id"] == "claim_daily":
+                rewards = daily["rewards"]
+                for item, amt in rewards.items():
+                    profile.inv_manager(item, atm)
+            else:
+                rewards = weekly["rewards"]
+                for item, amt in rewards.items():
+                    profile.inv_manager(item, atm)
+            em.description = "You have Successfully collected your reward. Come Again later for more exiting quests."
+            view.on_timeout = None
+            view = None
+            await inter.response.edit_message(embed=em, view=view)
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(e)
+        
+        left.callback = on_go
+        right.callback = on_go
+        claim_daily = on_claim
+        claim_weekly = on_claim
+        msg = await ctx.send(embed = em1, view = view)
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 86400, type=commands.BucketType.user)
