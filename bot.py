@@ -35,7 +35,8 @@ class Bot:
         if str(user_id) in Server_Settings[str(guild_id)]["chat_infringement"]:
             Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] += 1
             if Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] > 5:
-                ctx = await self.client.get_context(message)
+                new_message = await message.channel.send("-# Warning: Chat Infringement hit **5/5**...", delete_after=4)
+                ctx = await self.client.get_context(new_message)
                 await ctx.invoke(self.client.get_command("warn"), member = author, reason= "Chat Rules Broken too many times")
                 Server_Settings[str(guild_id)]["chat_infringement"][str(user_id)] = 0
         else:
