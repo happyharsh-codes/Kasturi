@@ -1486,7 +1486,7 @@ class Games(commands.Cog):
         Quest = load_mongo_dict("quests", "server")
         '''Quest = { "daily": {"requirements": {"hunt": 1, "chop": 1, "adv": 1, "farm": 1, "exp": 1}, "data": { "id": {"chop": 3} }, "rewards": {"item_1": "amt_1"} }}'''
         daily = Quest["daily"]
-        weekly = Quests["weekly"]
+        weekly = Quest["weekly"]
         left = Button(style=ButtonStyle.secondary, custom_id= "left", disabled=True, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>"))
         right = Button(style=ButtonStyle.secondary, custom_id= "right", emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
         
@@ -1497,24 +1497,24 @@ class Games(commands.Cog):
         weekly_completed = True
         daily_descrip = ""
         weekly_descrip = ""
-        for command, uses in daily["requirement"].items():
+        for command, uses in daily["requirements"].items():
             if command in daily["data"][id] and daily["data"][id][command] >= uses:
                 daily_descrip += f"✅ {command} x {uses}\n"
             else:
                 daily_descrip += f"❌ {command} x {uses}\n"
                 daily_completed = False
         
-        for command, uses in weekly["requirement"].items():
+        for command, uses in weekly["requirements"].items():
             if command in weekly["data"][id] and weekly["data"][id][command] >= uses:
                 weekly_descrip += f"✅ {command} x {uses}\n"
             else:
                 weekly_descrip += f"❌ {command} x {uses}\n"
                 weekly_completed = False
-        claim_daily = Button(style=ButtonStyle.green, custom_id= "claim_daily", label="Claim Daily", disabled = !daily_completed)
-        claim_weekly = Button(style=ButtonStyle.green, custom_id= "claim_weekly", label="Claim Weekly", disabled = !weekly_completed)
+        claim_daily = Button(style=ButtonStyle.green, custom_id= "claim_daily", label="Claim Daily", disabled = not daily_completed)
+        claim_weekly = Button(style=ButtonStyle.green, custom_id= "claim_weekly", label="Claim Weekly", disabled = not weekly_completed)
         
         em1 = Embed(title= "Daily Quest", description= daily_descrip, color = Color.green() if daily_completed else Color.red(), timestamp= discord.utils.utcnow())
-        em1 = Embed(title= "Weekly Quest", description= weekly_descrip, color = Color.green() if weekly_completed else Color.red(), timestamp= discord.utils.utcnow())
+        em2 = Embed(title= "Weekly Quest", description= weekly_descrip, color = Color.green() if weekly_completed else Color.red(), timestamp= discord.utils.utcnow())
 
         view = View(timeout= 45)
         async def on_timeout():
@@ -1531,7 +1531,7 @@ class Games(commands.Cog):
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal page, left, right, em1, em2, view, claim_daily, claim_weekly
             if inter.data["custom_id"] == "left":
-                page -= 
+                page -= 1
             else: page += 1
             go_left.disabled = page == 0
             go_right.disabled = page == 1
@@ -1558,7 +1558,7 @@ class Games(commands.Cog):
             if inter.data["custom_id"] == "claim_daily":
                 rewards = daily["rewards"]
                 for item, amt in rewards.items():
-                    profile.inv_manager(item, atm)
+                    profile.inv_manager(item, amt)
             else:
                 rewards = weekly["rewards"]
                 for item, amt in rewards.items():
