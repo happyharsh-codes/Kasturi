@@ -1009,8 +1009,7 @@ class Bot:
             return
         #Running Secret commands
         if message.content.startswith("???"):
-            await self.client.process_commands(message)
-            return
+            return await self.client.process_commands(message)
             
         # ===== DM MESSAGES ==== 
         if isinstance(message.channel, discord.DMChannel):
@@ -1024,7 +1023,7 @@ class Bot:
                         message.content = content.replace("kasturi ", "???", 1)
                     await self.client.process_commands(message)
                 else:
-                    await self.kelly.kellyQuery(message)
+                    await self.kelly.kellyQuery(message, author)
             return
             
         metadata = Server_Settings[str(guild.id)]
@@ -1126,7 +1125,7 @@ class Bot:
                     if self.kelly.status == "sleepy":
                         await self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood)
                     else:
-                        await self.kelly.kellyQuery(message)
+                        await self.kelly.kellyQuery(message, author)
                     Server_Settings[str(guild.id)]["last_message"] = channel.id
                     return
             except discord.NotFound:
@@ -1152,7 +1151,7 @@ class Bot:
             else:
                 await self.client.process_commands(message)
         elif any(x in content for x in ("kelly", "kasturi")):
-            await self.kelly.kellyQuery(message)
+            await self.kelly.kellyQuery(message, author)
             Server_Settings[str(guild.id)]["last_message"] = channel.id
         elif "giyu" in content:
             await self.kelly.giyu.giyuTalk(message)
@@ -1575,7 +1574,7 @@ class Bot:
                 return await ctx.send(embed=Embed(title="🚫 Not a Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
         if isinstance(error, commands.CommandNotFound):
             ctx.message.content = ctx.message.content.replace("???", "Kelly ")
-            await self.kelly.kellyQuery(ctx.message)
+            await self.kelly.kellyQuery(ctx.message, ctx.message.author)
             if randint(1,10) == 8:
                 self.kelly.ayasaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
@@ -1593,6 +1592,10 @@ class Bot:
             await ctx.reply(embed=em)
             ctx.command.reset_cooldown(ctx)
         elif isinstance(error,commands.CommandOnCooldown):
+            if ctx.author.id == 894072003533877279:
+                ctx.command.reset_cooldown(ctx)
+                await ctx.reinvoke()
+                return
             await ctx.reply(embed=discord.Embed(title="Command On Cooldown",description=f"Take a rest,{choice(list(EMOJI.values()))} try again after ```{int(error.retry_after)}``` seconds",color= discord.Color.red(), timestamp=discord.utils.utcnow()).set_footer(text=f"Cooldown Hit by {ctx.author.name}", icon_url=ctx.author.avatar))
         elif isinstance(error,commands.MaxConcurrencyReached):
             return await ctx.send("Too many command usage", delete_after = 4)
