@@ -211,7 +211,7 @@ class Kelly:
                 await message.reply(response)
                 del reminders[due_str]
                 return
-    async def kellyQuery(self, message: discord.Message):
+    async def kellyQuery(self, message: discord.Message, author):
         """
         Main handler for incoming user messages.
         Steps:
@@ -235,7 +235,7 @@ class Kelly:
             relation = self.memory.getUserRelation(message.author.id)
             behave = self.memory.getUserBehaviour(message.author.id)
             type = ""
-            author = message.author
+    
             if author.id == 894072003533877279:
                 type += "Creator "
             if isinstance(message.channel, discord.DMChannel):
@@ -306,9 +306,9 @@ class Kelly:
             if "respect_delta" in result:
                 rel = self.memory.modifyUserRelation(message.author.id, result["respect_delta"])
                 if rel == "friend":
-                    await self.thinkFriendAction(message)
+                    await self.thinkFriendAction(message, author)
                 elif rel == "ban":
-                    await self.thinkBanAction(message)
+                    await self.thinkBanAction(message, author)
 
             #making busy
             self.ayasaka.busy.addSchedules(guild = message.guild.name)
@@ -493,17 +493,17 @@ class Kelly:
                 message = message.replace(emoji, EMOJI[kellyemoji])
         return message
 
-    async def thinkFriendAction(self, message):
+    async def thinkFriendAction(self, message, author):
         """Bot thinks of making user a friend when respect is high."""
         # Think message
-        if message.author.id in self.memory._memory["friends"]:
+        if author.id in self.memory._memory["friends"]:
             if randint(1,10) == 5:
                 #------ Sending message------#
                 prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\nReply in 10–30 words, 0–3 emojis based on your mood\nYou already replied to user, send one more message continuing the chat.\n• If annoyed/angry → short & firm\n• If sleepy/lazy → delay or deflect\n• If mischievous → tease\n• If duty high → strict"""
                 async with message.channel.typing():
                     assist = self.memory.getUserChatData(message.author.id) #getting previous chats
                     kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                    self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
+                    self.memory.addUserChat(message.content, kelly_reply, author) #Saving chat
                     return await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
                     
         # Action chance
@@ -514,7 +514,7 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChats(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, author) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
             
         # 25% make friend
@@ -523,47 +523,47 @@ class Kelly:
             async with message.channel.typing():
                 assist = self.memory.getUserChats(message.author.id)
                 kelly_reply = getResponse(message.content, prompt, assistant=assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, author) #Saving chat
                 return await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
-            self.memory.addFriend(message.author.id)
+            self.memory.addFriend(author.id)
         # 15% small reward
         else:
             await message.channel.send("✨ You're special! Here's a small gift for being nice. Join official Server to recieve your reward")
             # Give reward logic here
 
-    async def thinkBanAction(self, message):
+    async def thinkBanAction(self, message, author):
         """Bot thinks of punishing the user when respect is low."""
         roll = randint(1, 100)
-        if message.author.id in self.memory._memory["friends"]:
-            self.memory.removeFriend(message.author.id)
+        if author.id in self.memory._memory["friends"]:
+            self.memory.removeFriend(author.id)
             
         # 60% think only
         if roll <= 60:
             promt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\n You already replied to user, but yoou think user is very rude but you tolerate this for now.\nReply in 10–30 words, 0–3 emojis based on your mood."
             async with message.channel.typing():
-                assist = self.memory.getUserChats(message.author.id) #getting previous chats
+                assist = self.memory.getUserChats(author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, author) #Saving chat
                 return await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
             
         # 25% mute instead of ban
         elif roll <= 85:
             prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\nYou already replied to user. You think user is very rude and you are angry and mute him. Reply in 10-30 words with 0-3 emojis."
             async with message.channel.typing():
-                assist = self.memory.getUserChats(message.author.id) #getting previous chats
+                assist = self.memory.getUserChats(author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, author) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel     
-                await self.runCommand(message, "mute_from_kelly", {"member": message.author, "minutes":ranint(1,15), "reason": "Very Bad Relations with Kelly"})
+                await self.runCommand(message, "mute_from_kelly", {"member": author, "minutes":randint(1,15), "reason": "Very Bad Relations with Kelly"})
         # 15% actual ban
         else:
             prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}.You are Kelly sassy lively Discord Mod Bot, You already replied to user. You think user is very rude and you are angry and you ban him finally no mercy. Reply in 10-30 words with 0-3 emojis."
             async with message.channel.typing():
-                assist = self.memory.getUserChats(message.author.id) #getting previous chats
+                assist = self.memory.getUserChats(author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
+                self.memory.addUserChat(message.content, kelly_reply, author) #Saving chat
                 await message.reply(self.kellyEmojify(kelly_reply))      
-                await self.runCommand(message, "ban_from_kelly", {"member": message.author, "reason": "Bad Relationship"})
+                await self.runCommand(message, "ban_from_kelly", {"member": author, "reason": "Bad Relationship"})
         
     async def remind(self, task):
         prompt = f"Roleplay Kelly, a Discord Mod (human like with mood and sass). You have to {task['task']} user. Keep chat alive fun and interesting.\nGenerate response in 20 words with 0-4 emojiy."
