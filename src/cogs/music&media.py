@@ -236,6 +236,7 @@ class Music_and_Media(commands.Cog):
             em.set_thumbnail(url= track.artwork)  
             await ctx.send(embed=em)
         else:
+            player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
             await player.play(track)
             
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
