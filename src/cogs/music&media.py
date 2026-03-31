@@ -66,7 +66,7 @@ class MusicController:
         async def on_rewind(interaction):
             if await self.check(interaction):
                 return
-            rewinded, required, voters, members = self.add_voter("pause", interaction.user.id)
+            rewinded, required, voters, members = self.add_voter("rewind", interaction.user.id)
             if rewinded:
                 await self.player.seek(0)
                 self.clear_voters()
@@ -79,7 +79,7 @@ class MusicController:
         async def on_skip(interaction):
             if await self.check(interaction):
                 return
-            skipped, required, voters, members = self.add_voter("pause", interaction.user.id)
+            skipped, required, voters, members = self.add_voter("skip", interaction.user.id)
             if skipped:
                 await self.player.stop()
                 self.clear_voters()
@@ -179,9 +179,11 @@ class Music_and_Media(commands.Cog):
         guild = player.guild
         guild_id = guild.id
         controller = self.controllers.get(guild_id)
+        members = [m for m in player.channel.members if not m.bot]
+
         if not controller:
             return
-        if len(player.channel.members) <= 1:
+        if len(members) == 0:
             self.controllers.pop(guild_id, None)
             await controller.ctx.send(embed=Embed(description="No Active Listerns, Leaving Vc..."))
             return await player.stop()
@@ -212,22 +214,14 @@ class Music_and_Media(commands.Cog):
             return  
         if not permissions.speak:  
             await ctx.reply("I do not have permissions to speak in this channel. Please join another channel and try again", delete_after = 12)  
-            return  
-        voice_client = ctx.guild.voice_client  
-        if voice_client:  
-            if voice_client.is_playing() and voice_client.channel.id != channel.id:  
-                await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in <#{voice_client.channel.id}>", color = Color.red()))  
-                return  
-            else:  
-                await voice_client.move_to(channel)
-        else:  
-            voice_client = await channel.connect()
-            if str(ctx.guild.id) in self.player:  
-                self.player.pop(str(ctx.guild.id))  
+            return 
         player: wavelink.Player = ctx.voice_client
-        guild_id = ctx.guild.id
         if not player:
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            self.controllers.pop(ctx.guild.id, None)
+        if player.playing and player.channel.id != channel.id:  
+                return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in <#{voice_client.channel.id}>", color = Color.red()))  
+        guild_id = ctx.guild.id
         tracks = await wavelink.Playable.search(query)
         if not tracks: 
             return await ctx.send(embed= Embed(title= "Unable to Find this song", description= "Uable to find any song with the given name anywhere. Please try again using more specific name", color = Color.greyple()))
