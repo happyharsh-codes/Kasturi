@@ -47,7 +47,7 @@ class MusicController:
                 return
             paused, required, voters, members = self.add_voter("pause", interaction.user.id, interaction)
             if paused:
-                await self.player.pause(True)
+                await self.player.pause()
                 self.clear_voters()
                 em.title = "⏸️ Song Paused"
                 em.set_footer(text=f"Song Paused by {voters}/{members}")
@@ -91,7 +91,7 @@ class MusicController:
         async def on_play(interaction):
             if await self.check(interaction):
                 return
-            self.player.pause(False)
+            self.player.resume()
             em.title = "▶️ Now Playing"
             view.clear_items()
             view.add_item(rewind)
@@ -187,16 +187,16 @@ class Music_and_Media(commands.Cog):
             self.controllers.pop(guild_id, None)
             await controller.ctx.send(embed=Embed(description="No Active Listerns, Leaving Vc..."))
             return await player.stop()
-        if not player.queue.is_empty():
+        try:
             next_track = player.queue.get()
             await player.play(next_track)
             ctx = controller.ctx
             await controller.send_player(ctx)
-        else:
+        except:
             await player.disconnect()
             self.controllers.pop(guild.id, None)
       except Exception as e:
-        await self.client.get_user(894072003533877279).send(e)
+        await self.client.get_user(894072003533877279).send(str(e))
         
     @commands.hybrid_command(aliases=["p"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
@@ -235,7 +235,7 @@ class Music_and_Media(commands.Cog):
         if guild_id not in self.controllers:
             self.controllers[guild_id] = MusicController(ctx, player)
         controller = self.controllers[guild_id]
-        if player.playing:
+        if player.is_playing():
             estimated_duration = 0
             for itrack in player.queue:
                 estimated_duration += itrack.length
