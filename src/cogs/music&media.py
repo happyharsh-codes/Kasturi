@@ -128,6 +128,7 @@ class Music_and_Media(commands.Cog):
         lyrics.callback = on_lyrics
         msg = await ctx.send(embed= em, view= view)
       except Exception as e:
+        print(e)
         await self.client.get_user(894072003533877279).send(str(e))
         
     def clear_voters(self, guild_id):
@@ -136,7 +137,8 @@ class Music_and_Media(commands.Cog):
         self.pause_votes.pop(guild_id, None)
         
     async def add_voter(self, vote_for, voter_id, interaction, guild_id, player):
-        """returns True if now majority have voted else returns False"""
+      """returns True if now majority have voted else returns False"""
+      try:
         channel = player.channel
         members = [m for m in channel.members if not m.bot]
         required = max(1, math.ceil(len(members) * 0.6))
@@ -157,7 +159,9 @@ class Music_and_Media(commands.Cog):
         if len(votes[guild_id]) >= required:
             return True, required, len(votes[guild_id]), len(members)
         return False, required, len(votes[guild_id]), len(members)
-        
+      except Exception as e:
+          print(e)
+          
     @commands.Cog.listener("on_wavelink_track_start")     
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
       try:
@@ -168,6 +172,7 @@ class Music_and_Media(commands.Cog):
         await self.send_player(player.home, player)
         self.clear_voters(player.guild.id)
       except Exception as e:
+        print(e)
         await self.client.get_user(894072003533877279).send(str(e))
         
     @commands.Cog.listener("on_wavelink_track_end")
@@ -181,6 +186,7 @@ class Music_and_Media(commands.Cog):
         members = [m for m in player.channel.members if not m.bot]
         if len(members) == 0 and hasattr(player, "home") and player.home:
             await player.home.send(embed=Embed(description="No Active Listerns, Leaving Vc..."))
+            print("0 members listening so disconnected")
             return await player.disconnect()
         try:
             next_track = player.queue.get()
@@ -188,8 +194,10 @@ class Music_and_Media(commands.Cog):
         except Exception:
             await asyncio.sleep(120)
             if not player.playing:
+                print("timed out so disconnecting")
                 await player.disconnect()
       except Exception as e:
+        print(e)
         await self.client.get_user(894072003533877279).send(str(e))
         
     @commands.hybrid_command(aliases=["p"])
