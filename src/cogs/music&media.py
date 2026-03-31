@@ -89,7 +89,7 @@ class Music_and_Media(commands.Cog):
         async def on_play(interaction):
             if await self.check(player, interaction):
                 return
-            player.resume()
+            await player.resume()
             em.title = "▶️ Now Playing"
             view.clear_items()
             view.add_item(rewind)
@@ -104,7 +104,8 @@ class Music_and_Media(commands.Cog):
                 return
             lyrics.disabled = True
             em2 = Embed(title= "Lyrics", description= "Lyrics are coming...", color=Color.purple())
-            return await interaction.response.send_message(embed=em2, view=view)
+            await interaction.response.edit_message(view=view)
+            return await interaction.followup.send(embed=em2)
             
         pause.callback = on_pause
         play.callback = on_play
@@ -112,7 +113,7 @@ class Music_and_Media(commands.Cog):
         skip.callback = on_skip
         lyrics.callback = on_lyrics
    
-        view = View(timeout=duration)
+        view = View(timeout=min(duration, 600))
         async def on_timeout():
             nonlocal em, msg, view, pause, rewind, skip, lyrics
             for children in view.children:
@@ -149,8 +150,8 @@ class Music_and_Media(commands.Cog):
             votes = self.rewind_votes
         if guild_id in votes:
             if voter_id in votes[guild_id]:
-                await interaction.response.send_message("You have already voted for this one", ephemeral= True)
-                return False, required, len(votes[guild_id]), members
+                await interaction.followup.send("You have already voted for this one", ephemeral= True)
+                return False, required, len(votes[guild_id]), len(members)
             votes[guild_id].append(voter_id)
         else:
             votes[guild_id] = [voter_id]
@@ -166,6 +167,7 @@ class Music_and_Media(commands.Cog):
             return
         track: wavelink.Playable = payload.track
         await self.send_player(player.home, player)
+        self.clear_voters(player.guild.id)
       except Exception as e:
         await self.client.get_user(894072003533877279).send(str(e))
         
@@ -184,7 +186,7 @@ class Music_and_Media(commands.Cog):
         try:
             next_track = player.queue.get()
             await player.play(next_track)
-        except:
+        except Exception:
             await player.disconnect()
       except Exception as e:
         await self.client.get_user(894072003533877279).send(str(e))
