@@ -210,11 +210,6 @@ class Music_and_Media(commands.Cog):
         if not permissions.speak:  
             await ctx.reply("I do not have permissions to speak in this channel. Please join another channel and try again", delete_after = 12)  
             return 
-        player: wavelink.Player = ctx.voice_client
-        if not player:
-            player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-        if player.playing and player.channel.id != channel.id:  
-                return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
         tracks = await wavelink.Playable.search(query)
         if not tracks: 
             return await ctx.send(embed= Embed(title= "Unable to Find this song", description= "Uable to find any song with the given name anywhere. Please try again using more specific name", color = Color.greyple()))
@@ -222,6 +217,11 @@ class Music_and_Media(commands.Cog):
         duration = track.length // 1000
         minutes = duration // 60
         seconds = duration % 60
+        player: wavelink.Player = ctx.voice_client
+        if not player:
+            player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+        if player.playing and player.channel.id != channel.id:  
+            return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
         player.home = ctx.channel
         if player.playing:
             estimated_duration = player.current.length - player.position
@@ -229,7 +229,7 @@ class Music_and_Media(commands.Cog):
                 estimated_duration += itrack.length
             estimated_duration = estimated_duration // 1000
             estimated_time = f"{estimated_duration//60}:{estimated_duration%60:02d}"
-            player.queue.put(track)
+            player.queue.put_wait(track)
             em = Embed(title="🎶 Song Added in Queue", description= f"[**{track.title}**]({track.uri})\n**Artist**: {track.author}\n**Duration**: {minutes}:{seconds:02d}\n**Queue No**: {player.queue.count}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
             em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
             em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
@@ -302,7 +302,6 @@ class Music_and_Media(commands.Cog):
         if not player:
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
