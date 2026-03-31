@@ -26,7 +26,8 @@ class MusicController:
             return True
         return False
         
-    async def send_player(self, ctx, track):
+    async def send_player(self, ctx):
+        track = self.player.current
         em = Embed(color= Color.green())
         em.set_author(name= "▶️ Now Playing")
         em.title = f"{<:youtube:1432179973367533578> {track.title}"
@@ -109,17 +110,17 @@ class MusicController:
             lyrics.disabled = True
             return await interaction.response.edit_message("Lyrics", view=view)
             
-        pause.callback = self.on_pause
-        play.callback = self.on_play
-        rewind.callback = self.on_rewind
-        skip.callback = self.on_skip
-        lyrics.callback = self.on_lyrics
+        pause.callback = on_pause
+        play.callback = on_play
+        rewind.callback = on_rewind
+        skip.callback = on_skip
+        lyrics.callback = on_lyrics
    
         view = View(timeout=100)
         async def on_timeout():
             nonlocal em, msg, view, pause, rewind, skip, lyrics
             for children in view.children:
-                children.disabled = Ture
+                children.disabled = True
             em.color = Color.light_grey()
             await msg.edit(embed=em, view=view)
             
@@ -132,9 +133,9 @@ class MusicController:
         msg = await ctx.send(embed= em, view= view)
 
     def clear_voters(self):
-        self.skip_votes = 0
-        self.rewind_votes = 0
-        self.skip_votes = 0
+        self.skip_votes.clear()
+        self.rewind_votes.clear()
+        self.skip_votes.clear()
         
     async def add_voter(self, vote_for, voter_id):
         """returns True if now majority have voted else returns False"""
@@ -146,7 +147,7 @@ class MusicController:
             if voter_id in self.skip_votes:
                 await self.ctx.send("You have already voted for this one", ephemeral= True)
                 return False, required, self.skip_votes
-            self.skip_votes.append(voter_id)
+            self.skip_votes.add(voter_id)
             if len(self.skip_votes) >= required:
                 return True, required, self.skip_votes, members
             return False, required, self.skip_votes, members
@@ -154,7 +155,7 @@ class MusicController:
             if voter_id in self.pause_votes:
                 await self.ctx.send("You have already voted for this one", ephemeral= True)
                 return False, required, self.pause_votes
-            self.pause_votes.append(voter_id)
+            self.pause_votes.add(voter_id)
             if len(self.pause_votes) >= required:
                 return True, required, self.pause_votes, members
             return False, required, self.pause_votes, members
@@ -162,7 +163,7 @@ class MusicController:
             if voter_id in self.rewind_votes:
                 await self.ctx.send("You have already voted for this one", ephemeral= True)
                 return False, required, self.rewind_votes
-            self.rewind_votes.append(voter_id)
+            self.rewind_votes.add(voter_id)
             if len(self.rewind_votes) >= required:
                 return True, required, self.rewind_votes, members
             return False, required, self.rewind_votes, members
@@ -170,23 +171,29 @@ class MusicController:
 class Music_and_Media(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.music_system = []
+        self.controllers = {}
         
     @commands.Cog.listener("on_wavelink_track_end")
-    async def on_track_end(payload: wavelink.TrackEndEventPayload):
-        voice = ctx.guild.voice_client
+    async def on_track_end(self, payload: wavelink.TrackEndEventPayload):
         player = payload.player
-        if not voice:
-            await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-            return await player.stop()
+        guild = player.guild
+        guild_id = guild.id
+        controller = self.controllers.get(guild_id)
+        if not controller:
+            return
         if len(voice.channel.members) - 1 == 0:
-            await ctx.send(embed = Embed(description= "No Active listeners leaving VC..."))
+            self.controllers.pop(guild_id, None)
+            await controller.ctx.send(embed=Embed(description="No Active Listerns, Leaving Vc..."))
             return await player.stop()
         if player.queue:
             next_track = player.queue.get()
             await player.play(next_track)
-            await send_player(ctx, next_track)
-    
+            ctx = controller.ctx
+            await controller.send_player(ctx, next_track)
+        else:
+            await player.disconnect()
+            self.controllers.pop(guild.id, None)
+            
     @commands.hybrid_command(aliases=["p"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
@@ -218,6 +225,7 @@ class Music_and_Media(commands.Cog):
             if str(ctx.guild.id) in self.player:  
                 self.player.pop(str(ctx.guild.id))  
         player: wavelink.Player = ctx.voice_client
+        guild_id = ctx.guild.id
         if not player:
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
         tracks = await wavelink.Playable.search(query)
@@ -228,6 +236,9 @@ class Music_and_Media(commands.Cog):
         minutes = duration // 60
         seconds = duration % 60
         player.home = ctx.channel
+        if guild_id not in self.controllers:
+            self.controllers[guild_id] = MusicController(ctx, player)
+        controller = self.controllers[guild_id]
         if player.playing:
             estimated_duration = 0
             for itrack in player.queue:
@@ -242,7 +253,7 @@ class Music_and_Media(commands.Cog):
             await ctx.send(embed=em)
         else:
             await player.play(track)
-            await self.send_player(ctx, track)    
+            await controller.send_player(ctx)    
         
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -250,13 +261,24 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def queue(self, ctx):  
         """Shows the songs queue list 🎵"""
-        if str(ctx.guild.id) in self.player and self.player[str(ctx.guild.id)]:
-            songs = self.player[str(ctx.guild.id)]
+        if ctx.guild.id) in self.controllers:
+            controller = self.controllers[ctx.guild.id]
         else:
             await ctx.send(embed= Embed(description= "Playlist empty. Play songs using `play` command"))
             return
-        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = "\n".join([f"{i}. [**{song['title']}**]({song['link']}) - {song['duration']}" for i, song in enumerate(songs)]) , color = Color.purple())  
-        em.set_footer(text= f"Requested by {ctx.author.name} | At {datetime.now(UTC).strftime('%m-%d %H:%M')}" , icon_url= ctx.author.avatar)  
+        player = controller.player 
+        if not player.queue:
+            await ctx.send(embed= Embed(description= "Playlist empty. Play songs using `play` command"))
+            return
+        descrip = ""
+        for i, track in enumerate(player.queue):
+            duration = track.length // 1000
+            minutes = duration // 60
+            seconds = duration % 60
+            description += f"**{i+1}**. [**{track.title}**]({track.uri}) - {minutes}:{seconds:02d}\n" 
+        em = Embed(title = "🎶 Upcoming Playlist 🎶", description = descrip, color = Color.purple())
+        em.set_author(name = ctx.author.display_name, icon_url=ctx.author.avatar)
+        em.set_footer(text= f"Requested by {ctx.author.name}")  
         await ctx.send(embed = em)  
       
     @commands.hybrid_command(aliases=[])  
@@ -265,16 +287,15 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def skip(self, ctx):  
         """Skips the current playing song. Requires voting from all vc members."""  
-        music = self.player.get(str(ctx.guild.id), None)  
+        controller = self.controllers.get(ctx.guild.id, None)  
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        music = music[0]
         voice = ctx.guild.voice_client
         if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
-                self.player.pop(str(ctx.guild.id))
+                self.controller.pop(str(ctx.guild.id))
             except:
                 pass
             return 
@@ -284,7 +305,7 @@ class Music_and_Media(commands.Cog):
         else:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, music)
+        await controller.send_player(ctx)
         
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -292,16 +313,15 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def stop(self, ctx):  
         """Stops playing the current song. Requires voting from all vc members."""  
-        music = self.player.get(str(ctx.guild.id), None)  
+        controller = self.controllers.get(ctx.guild.id, None)  
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        music = music[0]
         voice = ctx.guild.voice_client
         if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
-                self.player.pop(str(ctx.guild.id))
+                self.controller.pop(str(ctx.guild.id))
             except:
                 pass
             return 
@@ -311,7 +331,7 @@ class Music_and_Media(commands.Cog):
         else:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, music)
+        await controller.send_player(ctx)
 
     @commands.hybrid_command(aliases=["np"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -319,16 +339,15 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def now_playing(self, ctx):  
         """Shows the current song playing."""  
-        music = self.player.get(str(ctx.guild.id), None)  
+        controller = self.controllers.get(ctx.guild.id, None)  
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        music = music[0]
         voice = ctx.guild.voice_client
         if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
-                self.player.pop(str(ctx.guild.id))
+                self.controller.pop(str(ctx.guild.id))
             except:
                 pass
             return 
@@ -338,7 +357,7 @@ class Music_and_Media(commands.Cog):
         else:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, music)
+        await controller.send_player(ctx)
 
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -346,16 +365,15 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def lyrics(self, ctx):  
         """Shows lyrics for the current song"""  
-        music = self.player.get(str(ctx.guild.id), None)  
+        controller = self.controllers.get(ctx.guild.id, None)  
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        music = music[0]
         voice = ctx.guild.voice_client
         if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
-                self.player.pop(str(ctx.guild.id))
+                self.controller.pop(str(ctx.guild.id))
             except:
                 pass
             return 
@@ -365,7 +383,7 @@ class Music_and_Media(commands.Cog):
         else:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, music)
+        await controller.send_player(ctx)
 
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -373,16 +391,15 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def rewind(self, ctx):  
         """Rewinds the current song. Requires voting from all vc members."""  
-        music = self.player.get(str(ctx.guild.id), None)  
+        controller = self.controllers.get(ctx.guild.id, None)  
         if not music:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        music = music[0]
         voice = ctx.guild.voice_client
         if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
             try:
-                self.player.pop(str(ctx.guild.id))
+                self.controller.pop(str(ctx.guild.id))
             except:
                 pass
             return 
@@ -392,7 +409,7 @@ class Music_and_Media(commands.Cog):
         else:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, music)
+        await controller.send_player(ctx)
   
 async def setup(bot):  
     await bot.add_cog(Music_and_Media(bot))  
