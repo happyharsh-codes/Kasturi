@@ -220,6 +220,7 @@ class Music_and_Media(commands.Cog):
         player: wavelink.Player = ctx.voice_client
         if not player:
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+            await player.play(track)
         if player.playing and player.channel.id != channel.id:  
             return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
         player.home = ctx.channel
@@ -234,10 +235,7 @@ class Music_and_Media(commands.Cog):
             em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
             em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
             em.set_thumbnail(url= track.artwork)  
-            await ctx.send(embed=em)
-        else:
-            player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            await player.play(track)
+            await ctx.send(embed=em) 
             
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
