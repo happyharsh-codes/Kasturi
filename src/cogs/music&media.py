@@ -219,7 +219,7 @@ class Music_and_Media(commands.Cog):
         seconds = duration % 60
         player: wavelink.Player = ctx.voice_client
         if not player:
-            player.queue.put_wait(track)
+            await player.queue.put_wait(track)
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
         if player.playing and player.channel.id != channel.id:  
             return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
