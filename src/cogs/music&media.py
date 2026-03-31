@@ -7,6 +7,7 @@ class Music_and_Media(commands.Cog):
         self.skip_votes = {}
         self.pause_votes = {}
         self.rewind_votes = {}
+        self.default_text_channels = {}  
 
     async def check(self, player, interaction):
         if not interaction.user.voice:
@@ -20,9 +21,8 @@ class Music_and_Media(commands.Cog):
             return True
         return False
         
-    async def send_player(self, ctx, player):
+    async def send_player(self, ctx, player, track):
       try:
-        track = player.current
         em = Embed(color= Color.green())
         em.set_author(name= "▶️ Now Playing")
         em.title = f"<:youtube:1432179973367533578> {track.title}"
@@ -168,7 +168,19 @@ class Music_and_Media(commands.Cog):
         player: wavelink.Player | None = payload.player
         if not player:
             return
-        await self.send_player(player.home, player)
+        track: wavelink.Playable = payload.track
+        if not hasattr(player, "home"):
+            if player.guild.id in self.default_text_channels:
+                player.home = self.default_text_channels[player.guild.id]
+            else:
+                for channel in player.guild.text_channels:
+                    if channel.permissions_for(player.guild.me).send_messages:
+                        player.home = channel
+                        self.default_text_channels[player.guild.id] = channel
+                        break
+                else:
+                    return
+        await self.send_player(player.home, player, track)
         self.clear_voters(player.guild.id)
       except Exception as e:
         print(e)
@@ -233,6 +245,7 @@ class Music_and_Media(commands.Cog):
             return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
         if not hasattr(player, "home"):
             player.home = ctx.channel
+            self.default_text_channels[ctx.guild.id] = ctx.channel
         elif player.home != ctx.channel:
             await ctx.send(f"You can only play songs in {player.home.mention}, as the player has already started there.")
             return
@@ -248,6 +261,7 @@ class Music_and_Media(commands.Cog):
             em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
             em.set_thumbnail(url= track.artwork)  
             await ctx.send(embed=em)
+            return
         await player.play(track)
         return
       except Exception as e:
@@ -289,8 +303,8 @@ class Music_and_Media(commands.Cog):
             return
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
-            return  
-        await self.send_player(ctx, player)
+            return
+        await self.send_player(ctx, player, player.current)
         
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -305,7 +319,7 @@ class Music_and_Media(commands.Cog):
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, player)
+        await self.send_player(ctx, player, player.current)
 
     @commands.hybrid_command(aliases=["np"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -320,7 +334,7 @@ class Music_and_Media(commands.Cog):
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, player)
+        await self.send_player(ctx, player, player.current)
 
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -335,7 +349,7 @@ class Music_and_Media(commands.Cog):
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, player)
+        await self.send_player(ctx, player, player.current)
 
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -350,7 +364,7 @@ class Music_and_Media(commands.Cog):
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await self.send_player(ctx, player)
+        await self.send_player(ctx, player, player.current)
   
 async def setup(bot):  
     await bot.add_cog(Music_and_Media(bot))  
