@@ -265,7 +265,10 @@ class Music_and_Media(commands.Cog):
         await player.play(track)
         return
       except Exception as e:
-        print(str(e))
+        etype, value, tb = sys.exc_info()
+        full_error = ''.join(traceback.format_exception(etype, value, tb))
+        print("".join(traceback.format_exception(etype, value, tb)))
+
           
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
