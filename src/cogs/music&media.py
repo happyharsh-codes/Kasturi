@@ -1,8 +1,4 @@
-from __init__ import*
-import yt_dlp
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-import sclib
+from __init__ import
 import lyricsgenius 
 
 class MusicController:
@@ -27,6 +23,7 @@ class MusicController:
         return False
         
     async def send_player(self, ctx):
+      try:
         track = self.player.current
         em = Embed(color= Color.green())
         em.set_author(name= "▶️ Now Playing")
@@ -131,7 +128,9 @@ class MusicController:
         view.add_item(skip)
         
         msg = await ctx.send(embed= em, view= view)
-
+      except Exception as e:
+        await self.client.get_user(894072003533877279).send(e)
+        
     def clear_voters(self):
         self.skip_votes.clear()
         self.rewind_votes.clear()
@@ -175,6 +174,7 @@ class Music_and_Media(commands.Cog):
         
     @commands.Cog.listener("on_wavelink_track_end")
     async def on_track_end(self, payload: wavelink.TrackEndEventPayload):
+      try:
         player = payload.player
         guild = player.guild
         guild_id = guild.id
@@ -187,7 +187,7 @@ class Music_and_Media(commands.Cog):
             self.controllers.pop(guild_id, None)
             await controller.ctx.send(embed=Embed(description="No Active Listerns, Leaving Vc..."))
             return await player.stop()
-        if not player.queue.is_empty:
+        if not player.queue.is_empty():
             next_track = player.queue.get()
             await player.play(next_track)
             ctx = controller.ctx
@@ -195,7 +195,9 @@ class Music_and_Media(commands.Cog):
         else:
             await player.disconnect()
             self.controllers.pop(guild.id, None)
-            
+      except Exception as e:
+        await self.client.get_user(894072003533877279).send(e)
+        
     @commands.hybrid_command(aliases=["p"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
