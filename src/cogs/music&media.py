@@ -197,7 +197,8 @@ class Music_and_Media(commands.Cog):
     @commands.has_permissions()
     @commands.bot_has_permissions()
     async def play(self, ctx, *, query: str):
-        """Plays the Song music 🎶 on your VC"""  
+      """Plays the Song music 🎶 on your VC""" 
+      try:
         #Joining Vc  
         if not ctx.author.voice or not ctx.author.voice.channel:  
             await ctx.reply("You must be in a voice channel to run this command", delete_after= 12)  
@@ -221,8 +222,8 @@ class Music_and_Media(commands.Cog):
         player: wavelink.Player = ctx.voice_client
         if not player:
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            await player.play(track)
             player.home = ctx.channel
+            await player.play(track)
             return
         if player.playing and player.channel.id != channel.id:  
             return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
@@ -240,6 +241,9 @@ class Music_and_Media(commands.Cog):
             em.set_thumbnail(url= track.artwork)  
             await ctx.send(embed=em)
             return
+      except Exception as e:
+        await self.client.get_user(894072003533877279).send(str(e))
+        
             
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
