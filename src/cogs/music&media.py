@@ -187,7 +187,9 @@ class Music_and_Media(commands.Cog):
             next_track = player.queue.get()
             await player.play(next_track)
         except Exception:
-            await player.disconnect()
+            asyncio.sleep(120)
+            if not player.playing:
+                await player.disconnect()
       except Exception as e:
         await self.client.get_user(894072003533877279).send(str(e))
         
@@ -220,7 +222,6 @@ class Music_and_Media(commands.Cog):
         player: wavelink.Player = ctx.voice_client
         if not player:
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            await player.queue.put_wait(track)
         if player.playing and player.channel.id != channel.id:  
             return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
         player.home = ctx.channel
@@ -237,7 +238,7 @@ class Music_and_Media(commands.Cog):
             em.set_thumbnail(url= track.artwork)  
             await ctx.send(embed=em)
         else:
-            await player.play(player.queue.get())
+            await player.play(track)
             
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
