@@ -129,7 +129,7 @@ class Music_and_Media(commands.Cog):
         
         msg = await ctx.send(embed= em, view= view)
       except Exception as e:
-        await self.client.get_user(894072003533877279).send(e)
+        await self.client.get_user(894072003533877279).send(str(e))
         
     def clear_voters(self, guild_id):
         self.skip_votes.pop(guild_id, None)
@@ -180,14 +180,14 @@ class Music_and_Media(commands.Cog):
         if not player.channel:
             return
         members = [m for m in player.channel.members if not m.bot]
-        if len(members) == 0:
+        if len(members) == 0 and hasattr(player, "home") and player.home:
             await player.home.send(embed=Embed(description="No Active Listerns, Leaving Vc..."))
             return await player.disconnect()
         try:
             next_track = player.queue.get()
             await player.play(next_track)
         except Exception:
-            asyncio.sleep(120)
+            await asyncio.sleep(120)
             if not player.playing:
                 await player.disconnect()
       except Exception as e:
@@ -238,8 +238,7 @@ class Music_and_Media(commands.Cog):
             em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
             em.set_thumbnail(url= track.artwork)  
             await ctx.send(embed=em)
-        else:
-            await player.play(track)
+        
             
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
