@@ -219,8 +219,8 @@ class Music_and_Media(commands.Cog):
         seconds = duration % 60
         player: wavelink.Player = ctx.voice_client
         if not player:
+            player.queue.put_wait(track)
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            await player.play(track)
         if player.playing and player.channel.id != channel.id:  
             return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
         player.home = ctx.channel
@@ -230,12 +230,14 @@ class Music_and_Media(commands.Cog):
                 estimated_duration += itrack.length
             estimated_duration = estimated_duration // 1000
             estimated_time = f"{estimated_duration//60}:{estimated_duration%60:02d}"
-            player.queue.put_wait(track)
+            await player.queue.put_wait(track)
             em = Embed(title="🎶 Song Added in Queue", description= f"[**{track.title}**]({track.uri})\n**Artist**: {track.author}\n**Duration**: {minutes}:{seconds:02d}\n**Queue No**: {player.queue.count}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
             em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
             em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
             em.set_thumbnail(url= track.artwork)  
-            await ctx.send(embed=em) 
+            await ctx.send(embed=em)
+        else:
+            await player.play(player.queue.get())
             
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
