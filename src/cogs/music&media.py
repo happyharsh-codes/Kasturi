@@ -5,44 +5,123 @@ from spotipy.oauth2 import SpotifyClientCredentials
 import sclib
 import lyricsgenius 
 
-class Music_and_Media(commands.Cog):
-    def __init__(self, client: commands.Bot):
-        self.client = client
-        self.sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
-            client_id= os.getenv("SPOTIFY_ID"),
-            client_secret= os.getenv("SPOTIFY_SECRET")
-        ))
-        self.player = {}
+class MusicController:
+    def __init__(self, ctx, player):
+        self.player = player
+        self.ctx = ctx
+        self.skip_votes = set()
+        self.pause_votes = set()
+        self.rewind_votes = set()
 
-    async def send_player(self, ctx, music):
+    async def check(self, interaction):
+        player = interaction.guild.voice_client
+        if not interaction.user.voice:
+            await interaction.response.send_message("❌ You must be in a voice channel.", ephemeral=True )
+            return True
+        if not player or not player.channel:
+            await interaction.response.send_message("❌ I'm not connected to a voice channel.",ephemeral=True)
+            return True
+        if interaction.user.voice.channel != player.channel:
+            await interaction.response.send_message("❌ You must be in the same voice channel as me.",ephemeral=True)
+            return True
+        return False
+        
+    async def send_player(self, ctx, track):
         em = Embed(color= Color.green())
         em.set_author(name= "▶️ Now Playing")
-        em.title = f"{music['emoji']} {music['title']}"
-        em.url = music["link"]
-        em.description = f"**Artist**: {','.join(music['artists'])}\n**Duration**: {music['duration']}"
-        em.set_thumbnail(url= music["thumbnail_url"])
+        em.title = f"{<:youtube:1432179973367533578> {track.title}"
+        em.url = track.uri
+        duration = track.length // 1000
+        minutes = duration // 60
+        seconds = duration % 60
+        em.description = f"**Artist**: {track.author}\n**Duration**: {minutes}:{seconds:02d}"
+        em.set_thumbnail(url= f"https://img.youtube.com/vi/{track.identifier}/hqdefault.jpg")
         em.set_footer(text= "⟡ Operate Music Player with buttons")
-        
+
         pause = Button(style=ButtonStyle.secondary, custom_id="pause", label="⏸️")
         play = Button(style=ButtonStyle.secondary, custom_id="play", label="▶️", disabled = True)
         rewind = Button(style=ButtonStyle.secondary, custom_id="rewind", label="⏮️")
         skip = Button(style=ButtonStyle.secondary, custom_id="skip", label="⏭️")
         lyrics = Button(style=ButtonStyle.secondary, custom_id="lyrics", label="📝")
 
-        pause.callback = self.music_player
-        play.callback = self.music_player
-        rewind.callback = self.music_player
-        skip.callback = self.music_player
-        lyrics.callback = self.music_player
+        async def on_pause(self, interaction):
+            if await self.check(interaction):
+                return
+            paused, required, voters, members = self.add_voter("pause")
+            if paused:
+                await self.player.pause(True)
+                self.clear_votes()
+                em.title = "⏸️ Song Paused"
+                em.set_footer(text=f"Song Paused by {voters}/{members}")
+                view.clear_items()
+                view.add_item(rewind)
+                view.add_item(play)
+                view.add_item(lyrics)
+                view.add_item(skip)
+                return await interaction.response.edit_message(embed=em, view= view)
+            em.set_footer(text= f"\nPausing, {voters}/{members} ({required} votes required)")
+            return await interaction.response.edit_message(embed=em)
         
+        async def on_rewind(self, interaction):
+            if await self.check(interaction):
+                return
+            rewinded, required, voters, members = self.add_voter("pause")
+            if rewinded:
+                await self.player.seek(0)
+                self.clear_votes()
+                em.title = "⏮️ Song Rewinded"
+                em.set_footer(text=f"Song Rewinded by {voters}/{members}")
+                return await interaction.response.edit_message(embed=em, view= view)
+            em.set_footer(text= f"\nRewinding, {voters}/{members} ({required} votes required)")
+            return await interaction.response.edit_message(embed=em)
+
+        async def on_skip(self, interaction):
+            if await self.check(interaction):
+                return
+            skipped, required, voters, members = self.add_voter("pause")
+            if skipped:
+                await self.player.stop()
+                self.clear_votes()
+                em.title = "⏭️ Song Skipped"
+                em.set_footer(text=f"Song Skipped by {voters}/{members}")
+                if not self.player.queue:
+                    skip.disabled = True
+                return await interaction.response.edit_message(embed=em, view= view)
+            em.set_footer(text= f"\nSkipping, {voters}/{members} ({required} votes required)")
+            return await interaction.response.edit_message(embed=em)
+
+        async def on_play(self, interaction):
+            if await self.check(interaction):
+                return
+            self.player.pause(False)
+            em.title = "▶️ Now Playing"
+            view.clear_items()
+            view.add_item(rewind)
+            view.add_item(pause)
+            view.add_item(lyrics)
+            view.add_item(skip)
+            self.clear_votes()
+            return await interaction.response.edit_message(embed=em, view=view)
+
+        async def on_lyrics(self, interaction):
+            if await self.check(interaction):
+                return
+            lyrics.disabled = True
+            return await interaction.response.edit_message("Lyrics", view=view)
+            
+        pause.callback = self.on_pause
+        play.callback = self.on_play
+        rewind.callback = self.on_rewind
+        skip.callback = self.on_skip
+        lyrics.callback = self.on_lyrics
+   
         view = View(timeout=100)
         async def on_timeout():
-            nonlocal msg, view, pause, rewind, skip, lyrics
-            pause.disabled = True
-            rewind.disabled = True
-            skip.disabled = True 
-            lyrics.disabled = True
-            await msg.edit(view=view)
+            nonlocal em, msg, view, pause, rewind, skip, lyrics
+            for children in view.children:
+                children.disabled = Ture
+            em.color = Color.light_grey()
+            await msg.edit(embed=em, view=view)
             
         view.on_timeout = on_timeout
         view.add_item(rewind)
@@ -51,233 +130,68 @@ class Music_and_Media(commands.Cog):
         view.add_item(skip)
         
         msg = await ctx.send(embed= em, view= view)
+
+    def clear_voters(self):
+        self.skip_votes = 0
+        self.rewind_votes = 0
+        self.skip_votes = 0
         
-    async def play_next(self, ctx, start = False):
+    async def add_voter(self, vote_for, voter_id):
+        """returns True if now majority have voted else returns False"""
+        channel = self.player.channel
+        members = [m for m in channel.members if not m.bot]
+        required = max(1, math.ceil(len(members) * 0.6))
+        
+        if vote_for == "skip":
+            if voter_id in self.skip_votes:
+                await self.ctx.send("You have already voted for this one", ephemeral= True)
+                return False, required, self.skip_votes
+            self.skip_votes.append(voter_id)
+            if len(self.skip_votes) >= required:
+                return True, required, self.skip_votes, members
+            return False, required, self.skip_votes, members
+        if vote_for == "pause":
+            if voter_id in self.pause_votes:
+                await self.ctx.send("You have already voted for this one", ephemeral= True)
+                return False, required, self.pause_votes
+            self.pause_votes.append(voter_id)
+            if len(self.pause_votes) >= required:
+                return True, required, self.pause_votes, members
+            return False, required, self.pause_votes, members
+        if vote_for == "rewind":
+            if voter_id in self.rewind_votes:
+                await self.ctx.send("You have already voted for this one", ephemeral= True)
+                return False, required, self.rewind_votes
+            self.rewind_votes.append(voter_id)
+            if len(self.rewind_votes) >= required:
+                return True, required, self.rewind_votes, members
+            return False, required, self.rewind_votes, members
+            
+class Music_and_Media(commands.Cog):
+    def __init__(self, client: commands.Bot):
+        self.client = client
+        self.music_system = []
+        
+    @commands.Cog.listener("on_wavelink_track_end")
+    async def on_track_end(payload: wavelink.TrackEndEventPayload):
         voice = ctx.guild.voice_client
+        player = payload.player
         if not voice:
             await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-            try:
-                self.player.pop(str(ctx.guild.id))
-            except:
-                pass
-            return 
+            return await player.stop()
         if len(voice.channel.members) - 1 == 0:
-            await ctx.send(embed = Embed(description= "No listeners leaving VC..."))
-            try: 
-                self.player.pop(str(ctx.guild.id))
-                await ctx.guild.voice_client.disconnect()
-            except:
-                pass
-            return
-        if not start:
-            self.player[str(ctx.guild.id)].pop(0)
-        if self.player[str(ctx.guild.id)] == []:
-            await ctx.send(embed = Embed(title= "Queue Finished \nLeaving VC . . ."),color = Color.dark_gold())
-            self.player.pop(str(ctx.guild.id))
-            try:
-                ctx.guild.voice_client.disconnect()
-            except:
-                pass
-            return
-            
-        #sending music player
-        music = self.player[str(ctx.guild.id)][0]
-        await self.send_player(ctx, music)
-        
-        #start streaming
-        ffmpeg_options = {
-        "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 -protocol_whitelist file,http,https,tcp,tls,crypto",
-        "options": "-vn -c:a libopus -b:a 96k -af volume=1.0"
-        }
-        
-        try:
-            if not voice or not voice.channel:
-                return  # don't error if voice disconnected
-            loop = asyncio.get_event_loop()
-            source = await loop.run_in_executor(
-            None,
-            lambda: discord.FFmpegOpusAudio(music["audio_url"], **ffmpeg_options)
-            )
-            #source = await discord.FFmpegOpusAudio.from_probe(music["audio_url"], **ffmpeg_options)
-            voice.play(source,after=lambda e: asyncio.run_coroutine_threadsafe(self.play_next(ctx), ctx.bot.loop))
-        except Exception as e:
-            if ctx.guild.voice_client:
-                await ctx.guild.voice_client.disconnect()
-            await ctx.send("Music stopped due to an unexpected error", delete_after=30)
-            await ctx.bot.get_user(894072003533877279).send(f"Error in music player: {e}")
+            await ctx.send(embed = Embed(description= "No Active listeners leaving VC..."))
+            return await player.stop()
+        if player.queue:
+            next_track = player.queue.get()
+            await player.play(next_track)
+            await send_player(ctx, next_track)
     
-    async def music_player(self, interaction: Interaction):
-      try:
-        if not str(interaction.guild_id) in self.player:
-            return
-        music = self.player[str(interaction.guild_id)][0]
-        pressed = interaction.data["custom_id"]
-        em = interaction.message.embeds[0]
-
-        voice = interaction.guild.voice_client
-        if not voice:
-            return 
-        if interaction.user.voice is None or interaction.user.voice.channel.id != voice.channel.id:
-            return
-            
-        member_count = len(voice.channel.members) - 1#for own
-        majority = math.ceil(0.7 * member_count)
-        voted = 0
-        description = interaction.message.embeds[0].description.lower()
-
-        view = View(timeout=120)
-        async def on_timeout():
-            nonlocal view, pause, rewind, skip, lyrics
-            pause.disabled = True
-            rewind.disabled = True
-            skip.disabled = True 
-            lyrics.disabled = True
-            await interaction.response.edit_message(view=view)
-        view.on_timeout = on_timeout
-        
-        pause = Button(style=ButtonStyle.secondary, custom_id="pause", label="⏸️")
-        play = Button(style=ButtonStyle.secondary, custom_id="play", label="▶️")
-        rewind = Button(style=ButtonStyle.secondary, custom_id="rewind", label="⏮️")
-        skip = Button(style=ButtonStyle.secondary, custom_id="skip", label="⏭️")
-        lyrics = Button(style=ButtonStyle.secondary, custom_id="lyrics", label="📝")
-
-        pause.callback = self.music_player
-        play.callback = self.music_player
-        rewind.callback = self.music_player
-        skip.callback = self.music_player
-        lyrics.callback = self.music_player
-
-        view.add_item(rewind)
-        view.add_item(pause)
-        view.add_item(lyrics)
-        view.add_item(skip)
-        
-        if pressed == "pause":
-            if "pause_voters" in music:
-                voted = music["pause_voters"] + 1
-                self.player[str(interaction.guild_id)][0]["pause_voters"] += 1
-            else:
-                self.player[str(interaction.guild_id)][0]["pause_voters"] = 1
-                voted = 1
-            if voted >= majority:  
-                em.set_author(name="▶️ Song Paused")
-                em.description = f"Paused by **{voted}**/**{member_count}** Members."
-                voice.pause()
-                view.clear_items()
-                view.add_item(rewind)
-                view.add_item(play)
-                view.add_item(lyrics)
-                view.add_item(skip)
-            else:
-                em.description = f"\nPausing, **{voted}**/**{member_count}** (**{majority}** votes required)"
-        elif pressed == "play":
-            voice.resume()
-            view.clear_items()
-            view.add_item(rewind)
-            view.add_item(pause)
-            view.add_item(lyrics)
-            view.add_item(skip)
-        elif pressed == "rewind":
-            if "rewind_voters" in music:
-                voted = music["rewind_voters"] + 1
-                self.player[str(interaction.guild_id)][0]["rewind_voters"] += 1
-            else:
-                self.player[str(interaction.guild_id)][0]["rewind_voters"] = 1
-                voted = 1
-            if voted >= majority:  
-                em.set_author(name="⏮️ Song Rewinded")
-                em.description = f"Rewinded by **{voted}**/**{member_count}** Members"
-                self.player[str(interaction.guild_id)].insert(1, music)
-                voice.stop()
-            else:
-                em.description = f"\nRewinding, **{voted}**/**{member_count}** (**{majority}** votes required)"
-        
-        elif pressed == "skip":
-            if "skip_voters" in music:
-                voted = music["skip_voters"] + 1
-                self.player[str(interaction.guild_id)][0]["skip_voters"] += 1
-            else:
-                self.player[str(interaction.guild_id)][0]["skip_voters"] = 1
-                voted = 1
-            if voted >= majority:  
-                em.set_author(name="⏭️ Song Skipped")
-                em.description = f"Skipped by **{voted}**/**{member_count}** Members"
-                voice.stop()
-                pause.disabled = True
-                rewind.disabled = True
-                skip.disabled = True
-                lyrics.disabled = True
-            else:
-                em.description = f"\nSkipping, **{voted}**/**{member_count}** (**{majority}** votes required)"
-        
-        elif pressed == "lyrics":
-            async with interaction.channel.typing():
-                try:
-                    lyrics = GENIUS.search_song(music['title'])
-                    await interaction.message.channel.send(f"**Lyrics for {lyrics.title}**\n```{lyrics.lyrics[:1900]}```")
-                except:
-                    await interaction.channel.send("Couldn't get any lyrics for this song")
-            lyrics.disabled = True
-        
-        await interaction.response.edit_message(embed=em, view=view)
-      except Exception as e:
-        await interaction.channel.send("Unexpected error: Music Player stopped working", delete_after=30)
-        await self.client.get_user(894072003533877279).send(f"Error in music player: {e}")
-    
-    async def search_song(self, track_name):
-        results = self.sp.search(track_name ,limit=1, type= "track")
-        track = {"title": "", "artists": [], "duration": "0:0",  "link": "", "thumbnail_url": "", "emoji": "<:spotify:1432179988647645336>", "audio_url": ""}
-        tracks = results["tracks"]["items"][0]
-        ydl_opts = {
-            "format": "bestaudio[abr<=96]/best",
-            "noplaylist": True,
-            "quiet": True,
-            "nopart": True,
-            #"extract_flat": True,
-            "default_search": "ytsearch",
-            "cookiefile": "assets//cookie.txt",
-            "youtube_include_dash_manifest": False,
-            "youtube_include_hsl_manifest": False
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:  
-            loop = asyncio.get_event_loop()
-            info = await loop.run_in_executor(
-            None,
-            lambda: ydl.extract_info(f"ytsearch1: {track_name}", download=False)
-            ) 
-            if not info:
-                return None
-            if "entries" in info and len(info["entries"])>0:
-                info = info["entries"][0]
-            track["audio_url"] = info["url"]
-            track["thumbnail_url"] = info.get("thumbnail", None)
-            duration = info.get("duration", 0)
-            if (duration%60) < 10:
-                track["duration"] = f"{duration//60}:0{duration%60}"
-            else:
-                track["duration"] = f"{duration//60}:{duration%60}"
-        if tracks:
-            for artist in tracks["artists"]:
-                track["artists"].append(artist["name"])
-            track["title"] = f"{tracks['name']}"
-            track["link"] = tracks["external_urls"]["spotify"]
-            if track["duration"] == "0:00":
-                duration = tracks.get("duration_ms", 0)//1000
-                track["duration"] = f"{duration//60}:{duration%60}"
-            track["thumbnail_url"] = tracks["album"]["images"][0]["url"]
-        else:
-            track["emoji"] = "<:youtube:1432179973367533578>"
-            track["title"] = info["title"]
-            track["artists"] = info["artists"]
-            track["link"] = info["webpage_url"]
-
-        return track
-
     @commands.hybrid_command(aliases=["p"])
     @commands.cooldown(1,10, type = commands.BucketType.user )
     @commands.has_permissions()
     @commands.bot_has_permissions()
-    async def play(self, ctx, *, search: str):
+    async def play(self, ctx, *, query: str):
         """Plays the Song music 🎶 on your VC"""  
         #Joining Vc  
         if not ctx.author.voice or not ctx.author.voice.channel:  
@@ -303,36 +217,33 @@ class Music_and_Media(commands.Cog):
             voice_client = await channel.connect()
             if str(ctx.guild.id) in self.player:  
                 self.player.pop(str(ctx.guild.id))  
-        async with ctx.typing():
-            msg = await ctx.send("-# 🔍 Searching for song <a:musicloader:1433171921524232302> ")
-            music_track = await self.search_song(search)  
-            await msg.delete()
-        if not music_track:  
-            em = Embed(title= "Unable to Find song", description= "We are unable to find any song with the given name 😔 anywhere on Spotify, Youtube, SoundCloud, etx. Please forgive us and try again using more specific name", color = Color.greyple())  
-            await ctx.send(embed=em)  
-            return  
-        seconds = 0
-        if str(ctx.guild.id) in self.player:  
-            for song in self.player[str(ctx.guild.id)]:  
-                duration = song["duration"]  
-                seconds += (int(duration.split(":")[0])*60) + int(duration.split(":")[1])  
-            if (seconds%60) < 10:
-                estimated_time = f"{seconds//60}:0{seconds%60}"  
-            else:
-                estimated_time = f"{seconds//60}:{seconds%60}"  
-        else:  
-            estimated_time = "00:00"  
-        em = Embed(title="🎶 Song Added in Queue", description= f"[**{music_track['title']}**]({music_track['link']})\n**Artist**: {','.join(music_track['artists'])}\n**Duration**: {music_track['duration']}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
-        em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
-        em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar)  
-        em.set_thumbnail(url= music_track["thumbnail_url"])  
-        await ctx.send(embed= em)  
-        if str(ctx.guild.id) in self.player:  
-            self.player[str(ctx.guild.id)].append(music_track)  
-        else:  
-            self.player[str(ctx.guild.id)] = [music_track]  
-            await self.play_next(ctx, start = True)  
-  
+        player: wavelink.Player = ctx.voice_client
+        if not player:
+            player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
+        tracks = await wavelink.Playable.search(query)
+        if not tracks: 
+            return await ctx.send(embed= Embed(title= "Unable to Find this song", description= "Uable to find any song with the given name anywhere. Please try again using more specific name", color = Color.greyple()))
+        track = tracks[0]
+        duration = track.length // 1000
+        minutes = duration // 60
+        seconds = duration % 60
+        player.home = ctx.channel
+        if player.playing:
+            estimated_duration = 0
+            for itrack in player.queue:
+                estimated_duration += itrack.duration
+            estimated_duration = estimated_duration // 1000
+            estimated_time = f"{estimated_duration//60}:{estimated_duration%60:02d}"
+            player.queue.put(track)
+            em = Embed(title="🎶 Song Added in Queue", description= f"[**{track.title}**]({track.uri})\n**Artist**: {track.author}\n**Duration**: {minutes}:{seconds:02d}\n**Queue No**: {len(player.queue)}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
+            em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
+            em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
+            em.set_thumbnail(url= f"https://img.youtube.com/vi/{track.identifier}/hqdefault.jpg")  
+            await ctx.send(embed=em)
+        else:
+            await player.play(track)
+            await self.send_player(ctx, track)    
+        
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
