@@ -1,15 +1,14 @@
 from __init__ import*
 import lyricsgenius 
 
-class MusicController:
-    def __init__(self, ctx, player):
-        self.player = player
-        self.ctx = ctx
-        self.skip_votes = set()
-        self.pause_votes = set()
-        self.rewind_votes = set()
+class Music_and_Media(commands.Cog):
+    def __init__(self, client: commands.Bot):
+        self.client = client
+        self.skip_votes = {}
+        self.pause_votes = {}
+        self.rewind_votes = {}
 
-    async def check(self, interaction):
+    async def check(self, player, interaction):
         player = interaction.guild.voice_client
         if not interaction.user.voice:
             await interaction.response.send_message("❌ You must be in a voice channel.", ephemeral=True )
@@ -22,7 +21,7 @@ class MusicController:
             return True
         return False
         
-    async def send_player(self, ctx):
+    async def send_player(self, ctx, player):
       try:
         track = self.player.current
         em = Embed(color= Color.green())
@@ -43,12 +42,12 @@ class MusicController:
         lyrics = Button(style=ButtonStyle.secondary, custom_id="lyrics", label="📝")
 
         async def on_pause(interaction):
-            if await self.check(interaction):
+            if await self.check(player, interaction):
                 return
-            paused, required, voters, members = self.add_voter("pause", interaction.user.id, interaction)
+            paused, required, voters, members = self.add_voter("pause", interaction.user.id, interaction, ctx.guild.id, player)
             if paused:
                 await self.player.pause()
-                self.clear_voters()
+                self.clear_voters(ctx.guild.id)
                 em.title = "⏸️ Song Paused"
                 em.set_footer(text=f"Song Paused by {voters}/{members}")
                 view.clear_items()
@@ -61,12 +60,12 @@ class MusicController:
             return await interaction.response.edit_message(embed=em)
         
         async def on_rewind(interaction):
-            if await self.check(interaction):
+            if await self.check(player, interaction):
                 return
-            rewinded, required, voters, members = self.add_voter("rewind", interaction.user.id, interaction)
+            rewinded, required, voters, members = self.add_voter("rewind", interaction.user.id, interaction, ctx.guild.id, player)
             if rewinded:
                 await self.player.seek(0)
-                self.clear_voters()
+                self.clear_voters(ctx.guild.id)
                 em.title = "⏮️ Song Rewinded"
                 em.set_footer(text=f"Song Rewinded by {voters}/{members}")
                 return await interaction.response.edit_message(embed=em, view= view)
@@ -74,12 +73,12 @@ class MusicController:
             return await interaction.response.edit_message(embed=em)
 
         async def on_skip(interaction):
-            if await self.check(interaction):
+            if await self.check(player, interaction):
                 return
-            skipped, required, voters, members = self.add_voter("skip", interaction.user.id, interaction)
+            skipped, required, voters, members = self.add_voter("skip", interaction.user.id, interaction, ctx.guild.id, player)
             if skipped:
-                await self.player.stop()
-                self.clear_voters()
+                await self.player.skip(force=True)
+                self.clear_voters(ctx.guild.id)
                 em.title = "⏭️ Song Skipped"
                 em.set_footer(text=f"Song Skipped by {voters}/{members}")
                 if not self.player.queue:
@@ -89,7 +88,7 @@ class MusicController:
             return await interaction.response.edit_message(embed=em)
 
         async def on_play(interaction):
-            if await self.check(interaction):
+            if await self.check(player, interaction):
                 return
             self.player.resume()
             em.title = "▶️ Now Playing"
@@ -98,11 +97,11 @@ class MusicController:
             view.add_item(pause)
             view.add_item(lyrics)
             view.add_item(skip)
-            self.clear_voters()
+            self.clear_voters(ctx.guild.id)
             return await interaction.response.edit_message(embed=em, view=view)
 
         async def on_lyrics(interaction):
-            if await self.check(interaction):
+            if await self.check(player, interaction):
                 return
             lyrics.disabled = True
             return await interaction.response.edit_message("Lyrics", view=view)
@@ -131,70 +130,63 @@ class MusicController:
       except Exception as e:
         await self.client.get_user(894072003533877279).send(e)
         
-    def clear_voters(self):
-        self.skip_votes.clear()
-        self.rewind_votes.clear()
-        self.pause_votes.clear()
+    def clear_voters(self, guild_id):
+        self.skip_votes.pop(guild_id, None)
+        self.rewind_votes.pop(guild_id, None)
+        self.pause_votes.pop(guild_id, None)
         
-    async def add_voter(self, vote_for, voter_id, interaction):
+    async def add_voter(self, vote_for, voter_id, interaction, guild_id, player):
         """returns True if now majority have voted else returns False"""
-        channel = self.player.channel
+        channel = player.channel
         members = [m for m in channel.members if not m.bot]
         required = max(1, math.ceil(len(members) * 0.6))
         
         if vote_for == "skip":
-            if voter_id in self.skip_votes:
-                await interaction.response.send_message("You have already voted for this one", ephemeral= True)
-                return False, required, self.skip_votes, members
-            self.skip_votes.add(voter_id)
-            if len(self.skip_votes) >= required:
-                return True, required, self.skip_votes, members
-            return False, required, self.skip_votes, members
-        if vote_for == "pause":
-            if voter_id in self.pause_votes:
-                await interaction.response.send_message("You have already voted for this one", ephemeral= True)
-                return False, required, self.pause_votes, members
-            self.pause_votes.add(voter_id)
-            if len(self.pause_votes) >= required:
-                return True, required, self.pause_votes, members
-            return False, required, self.pause_votes, members
-        if vote_for == "rewind":
-            if voter_id in self.rewind_votes:
-                await interaction.response.send_message("You have already voted for this one", ephemeral= True)
-                return False, required, self.rewind_votes, members
-            self.rewind_votes.add(voter_id)
-            if len(self.rewind_votes) >= required:
-                return True, required, self.rewind_votes, members
-            return False, required, self.rewind_votes, members
+            votes = self.skip_votes
+        elif vote_for == "pause":
+            votes = self.pause_votes
+        elif vote_for == "rewind":
+            vites = self.rewind_votes
             
-class Music_and_Media(commands.Cog):
-    def __init__(self, client: commands.Bot):
-        self.client = client
-        self.controllers = {}
+        if guild_id in votes:
+            if voter_id in votes[guild_id]:
+                await interaction.response.send_message("You have already voted for this one", ephemeral= True)
+                return False, required, len(votes[guild_id]), members
+            votes[guild_id].append(voter_id)
+        else:
+            votes[guild_id] = [voter_id]
+        if len(votes[guild_id]) >= required:
+            return True, required, len(votes[guild_id]), members
+        return False, required, len(votes[guild_id]), members
+        
+    @commands.Cog.listener("on_wavelink_track_start")     
+    async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
+      try:
+        player: wavelink.Player | None = payload.player
+        if not player:
+            return
+        track: wavelink.Playable = payload.track
+        await self.send_player(player.home, player)
+      except Exception as e:
+        await self.client.get_user(894072003533877279).send(str(e))
         
     @commands.Cog.listener("on_wavelink_track_end")
     async def on_track_end(self, payload: wavelink.TrackEndEventPayload):
       try:
-        player = payload.player
-        guild = player.guild
-        guild_id = guild.id
-        controller = self.controllers.get(guild_id)
-        members = [m for m in player.channel.members if not m.bot]
-
-        if not controller:
+        player: wavelink.Player | None = payload.player
+        if not player:
             return
+        if not player.channel:
+            return
+        members = [m for m in player.channel.members if not m.bot]
         if len(members) == 0:
-            self.controllers.pop(guild_id, None)
-            await controller.ctx.send(embed=Embed(description="No Active Listerns, Leaving Vc..."))
-            return await player.stop()
+            await player.home.send(embed=Embed(description="No Active Listerns, Leaving Vc..."))
+            return await player.disconnect()
         try:
             next_track = player.queue.get()
             await player.play(next_track)
-            ctx = controller.ctx
-            await controller.send_player(ctx)
         except:
             await player.disconnect()
-            self.controllers.pop(guild.id, None)
       except Exception as e:
         await self.client.get_user(894072003533877279).send(str(e))
         
@@ -220,10 +212,8 @@ class Music_and_Media(commands.Cog):
         player: wavelink.Player = ctx.voice_client
         if not player:
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            self.controllers.pop(ctx.guild.id, None)
         if player.playing and player.channel.id != channel.id:  
-                return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in <#{player.channel.id}>", color = Color.red()))  
-        guild_id = ctx.guild.id
+                return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
         tracks = await wavelink.Playable.search(query)
         if not tracks: 
             return await ctx.send(embed= Embed(title= "Unable to Find this song", description= "Uable to find any song with the given name anywhere. Please try again using more specific name", color = Color.greyple()))
@@ -232,24 +222,21 @@ class Music_and_Media(commands.Cog):
         minutes = duration // 60
         seconds = duration % 60
         player.home = ctx.channel
-        if guild_id not in self.controllers:
-            self.controllers[guild_id] = MusicController(ctx, player)
-        controller = self.controllers[guild_id]
-        if player.is_playing():
+        if player.playing:
             estimated_duration = 0
             for itrack in player.queue:
                 estimated_duration += itrack.length
             estimated_duration = estimated_duration // 1000
             estimated_time = f"{estimated_duration//60}:{estimated_duration%60:02d}"
             player.queue.put(track)
-            em = Embed(title="🎶 Song Added in Queue", description= f"[**{track.title}**]({track.uri})\n**Artist**: {track.author}\n**Duration**: {minutes}:{seconds:02d}\n**Queue No**: {len(player.queue)}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
+            em = Embed(title="🎶 Song Added in Queue", description= f"[**{track.title}**]({track.uri})\n**Artist**: {track.author}\n**Duration**: {minutes}:{seconds:02d}\n**Queue No**: {player.queue.count}\n**Estimated time before playing**: {estimated_time}", color = Color.purple())  
             em.set_author(name= ctx.author.name, icon_url= ctx.author.avatar)  
             em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
-            em.set_thumbnail(url= f"https://img.youtube.com/vi/{track.identifier}/hqdefault.jpg")  
+            em.set_thumbnail(url= track.artwork)  
             await ctx.send(embed=em)
         else:
             await player.play(track)
-            await controller.send_player(ctx)    
+            await self.send_player(ctx, player)    
         
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -257,13 +244,11 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def queue(self, ctx):  
         """Shows the songs queue list 🎵"""
-        if ctx.guild.id in self.controllers:
-            controller = self.controllers[ctx.guild.id]
-        else:
+        player: wavelink.Player = ctx.voice_client
+        if not player:
             await ctx.send(embed= Embed(description= "Playlist empty. Play songs using `play` command"))
-            return
-        player = controller.player 
-        if player.queue.is_empty:
+            return 
+        if player.queue.count == 0:
             await ctx.send(embed= Embed(description= "Playlist empty. Play songs using `play` command"))
             return
         descrip = ""
@@ -283,22 +268,14 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def skip(self, ctx):  
         """Skips the current playing song. Requires voting from all vc members."""  
-        controller = self.controllers.get(ctx.guild.id, None)  
-        if not controller:  
+        player: wavelink.Player = ctx.voice_client
+        if not player:
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        voice = ctx.guild.voice_client
-        if not voice:
-            await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-            try:
-                self.controller.pop(str(ctx.guild.id))
-            except:
-                pass
-            return 
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await controller.send_player(ctx)
+        await self.send_player(ctx, player)
         
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -306,22 +283,14 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def stop(self, ctx):  
         """Stops playing the current song. Requires voting from all vc members."""  
-        controller = self.controllers.get(ctx.guild.id, None)  
-        if not controller:  
+        player: wavelink.Player = ctx.voice_client
+        if not player:
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        voice = ctx.guild.voice_client
-        if not voice:
-            await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-            try:
-                self.controller.pop(str(ctx.guild.id))
-            except:
-                pass
-            return 
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await controller.send_player(ctx)
+        await self.send_player(ctx, player)
 
     @commands.hybrid_command(aliases=["np"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -329,22 +298,15 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def now_playing(self, ctx):  
         """Shows the current song playing."""  
-        controller = self.controllers.get(ctx.guild.id, None)  
-        if not controller:  
+        player: wavelink.Player = ctx.voice_client
+        if not player:
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        voice = ctx.guild.voice_client
-        if not voice:
-            await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-            try:
-                self.controller.pop(str(ctx.guild.id))
-            except:
-                pass
-            return 
+        
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:  
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await controller.send_player(ctx)
+        await self.send_player(ctx, player)
 
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -352,22 +314,14 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def lyrics(self, ctx):  
         """Shows lyrics for the current song"""  
-        controller = self.controllers.get(ctx.guild.id, None)  
-        if not controller:  
+        player: wavelink.Player = ctx.voice_client
+        if not player:
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        voice = ctx.guild.voice_client
-        if not voice:
-            await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-            try:
-                self.controller.pop(str(ctx.guild.id))
-            except:
-                pass
-            return 
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await controller.send_player(ctx)
+        await self.send_player(ctx, player)
 
     @commands.hybrid_command(aliases=[])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
@@ -375,22 +329,14 @@ class Music_and_Media(commands.Cog):
     @commands.bot_has_permissions()  
     async def rewind(self, ctx):  
         """Rewinds the current song. Requires voting from all vc members."""  
-        controller = self.controllers.get(ctx.guild.id, None)  
-        if not controller:  
+        player: wavelink.Player = ctx.voice_client
+        if not player:  
             await ctx.send(embed=Embed(description="No Track is playing currently.",color = Color.red()))  
             return
-        voice = ctx.guild.voice_client
-        if not voice:
-            await ctx.send(embed= Embed(title="No voice channel connected, stopped playing"))
-            try:
-                self.controller.pop(str(ctx.guild.id))
-            except:
-                pass
-            return 
         if not ctx.author.voice or ctx.author.voice.channel != player.channel:
             await ctx.send(embed= Embed(description="You are not in a voice channel or in a different voice channel than the bot.", color=Color.red()))  
             return  
-        await controller.send_player(ctx)
+        await self.send_player(ctx, player)
   
 async def setup(bot):  
     await bot.add_cog(Music_and_Media(bot))  
