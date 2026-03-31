@@ -1544,7 +1544,8 @@ class Bot:
             Server_Settings[str(ctx.guild.id)]["premium"] -= 1
             if Server_Settings[str(ctx.guild.id)]["premium"] < 0:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
-            if randint(1, 15) == 8:
+            tips = randint(1, 15) 
+            if tips == 8:
                 ctx.channel.send(choice(DATA["tips"]))
         except Exception as e:
             await self.me.send(f"Exception on command completion: {e}")
@@ -1556,7 +1557,8 @@ class Bot:
     async def after_any_command(self, ctx):
         try:
             await ctx._typing.__aexit__(None, None, None)
-            if randint(1,100) == 51:
+            surprise = randint(1,100) 
+            if surprise == 51:
                 self.kelly.ayasaka.addReminder("surprise", message_id=ctx.message.id, channel_id=ctx.message.channel.id, user_id= ctx.author.id, delay_minutes=10)
         except Exception:
             pass
@@ -1576,8 +1578,9 @@ class Bot:
         if isinstance(error, commands.CommandNotFound):
             ctx.message.content = ctx.message.content.replace("???", "Kelly ")
             await self.kelly.kellyQuery(ctx.message, ctx.message.author)
-            if randint(1,10) == 8:
-                self.kelly.ayasaka.addReminder("tip", message_id=ctx.message.id, channel_id= ctx.message.channel.id, delay_minutes=randint(1,25))
+            tip = randint(1,10)
+            if tip  == 8:
+                ctx.channel.send(choice(DATA["tips"]))
         elif isinstance(error, commands.BadArgument) or isinstance(error, commands.TooManyArguments):
             em = Embed(title="🚫 Invalid Command Usage",description="The command was used incorrectly.\nUse `k help <command>` to see proper usage and examples.",color=Color.red())
             await ctx.send(embed= em)
