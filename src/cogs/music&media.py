@@ -168,7 +168,6 @@ class Music_and_Media(commands.Cog):
         player: wavelink.Player | None = payload.player
         if not player:
             return
-        track: wavelink.Playable = payload.track
         await self.send_player(player.home, player)
         self.clear_voters(player.guild.id)
       except Exception as e:
@@ -230,12 +229,13 @@ class Music_and_Media(commands.Cog):
         player: wavelink.Player = ctx.voice_client
         if not player:
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
-            player.home = ctx.channel
-            await player.play(track)
-            return
         if player.playing and player.channel.id != channel.id:  
             return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
-        player.home = ctx.channel
+        if not hasattr(player, "home"):
+            player.home = ctx.channel
+        elif player.home != ctx.channel:
+            await ctx.send(f"You can only play songs in {player.home.mention}, as the player has already started there.")
+            return
         if player.playing:
             estimated_duration = player.current.length - player.position
             for itrack in player.queue:
@@ -248,7 +248,8 @@ class Music_and_Media(commands.Cog):
             em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
             em.set_thumbnail(url= track.artwork)  
             await ctx.send(embed=em)
-            return
+        await player.play(track)
+        return
       except Exception as e:
         print(str(e))
           
