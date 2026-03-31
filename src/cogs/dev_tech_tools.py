@@ -142,7 +142,7 @@ class Dev_Tech_Tools(commands.Cog):
         lang = ""
         LANG_CONFIG = {"python": {"run": ["python3", "-c"]}, "javascript": {"run": ["node", "-e"]}, "ruby": {"run": ["ruby", "-e"]}, "bash": {"run": ["bash", "-c"]},"php": {"run": ["php", "-r"]}, "cpp": { "compile": ["g++", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".cpp"},  "c": { "compile": ["gcc", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".c"},"java": {"compile": ["javac"], "run": ["java"], "extension": ".java"}}
 
-        em = Embed(title=f"🧠 Code Snippet",description=f"```{code[:1700]}```",color=Color.blurple(), timestamp= dicord.utils.utcnow())
+        em = Embed(title=f"🧠 Code Snippet",description=f"```{code[:1700]}```",color=Color.blurple(), timestamp= discord.utils.utcnow())
         em.set_footer(text=f"Used by {ctx.author.display_name}", icon_url=ctx.author.avatar)
         
         
