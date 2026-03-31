@@ -9,7 +9,6 @@ class Music_and_Media(commands.Cog):
         self.rewind_votes = {}
 
     async def check(self, player, interaction):
-        player = interaction.guild.voice_client
         if not interaction.user.voice:
             await interaction.response.send_message("❌ You must be in a voice channel.", ephemeral=True )
             return True
@@ -23,7 +22,7 @@ class Music_and_Media(commands.Cog):
         
     async def send_player(self, ctx, player):
       try:
-        track = self.player.current
+        track = player.current
         em = Embed(color= Color.green())
         em.set_author(name= "▶️ Now Playing")
         em.title = f"<:youtube:1432179973367533578> {track.title}"
@@ -46,7 +45,7 @@ class Music_and_Media(commands.Cog):
                 return
             paused, required, voters, members = self.add_voter("pause", interaction.user.id, interaction, ctx.guild.id, player)
             if paused:
-                await self.player.pause()
+                await player.pause()
                 self.clear_voters(ctx.guild.id)
                 em.title = "⏸️ Song Paused"
                 em.set_footer(text=f"Song Paused by {voters}/{members}")
@@ -64,7 +63,7 @@ class Music_and_Media(commands.Cog):
                 return
             rewinded, required, voters, members = self.add_voter("rewind", interaction.user.id, interaction, ctx.guild.id, player)
             if rewinded:
-                await self.player.seek(0)
+                await player.seek(0)
                 self.clear_voters(ctx.guild.id)
                 em.title = "⏮️ Song Rewinded"
                 em.set_footer(text=f"Song Rewinded by {voters}/{members}")
@@ -77,11 +76,11 @@ class Music_and_Media(commands.Cog):
                 return
             skipped, required, voters, members = self.add_voter("skip", interaction.user.id, interaction, ctx.guild.id, player)
             if skipped:
-                await self.player.skip(force=True)
+                await player.skip(force=True)
                 self.clear_voters(ctx.guild.id)
                 em.title = "⏭️ Song Skipped"
                 em.set_footer(text=f"Song Skipped by {voters}/{members}")
-                if not self.player.queue:
+                if player.queue.count == 0:
                     skip.disabled = True
                 return await interaction.response.edit_message(embed=em, view= view)
             em.set_footer(text= f"\nSkipping, {voters}/{members} ({required} votes required)")
@@ -90,7 +89,7 @@ class Music_and_Media(commands.Cog):
         async def on_play(interaction):
             if await self.check(player, interaction):
                 return
-            self.player.resume()
+            player.resume()
             em.title = "▶️ Now Playing"
             view.clear_items()
             view.add_item(rewind)
@@ -104,7 +103,8 @@ class Music_and_Media(commands.Cog):
             if await self.check(player, interaction):
                 return
             lyrics.disabled = True
-            return await interaction.response.edit_message("Lyrics", view=view)
+            em2 = Embed(title= "Lyrics", description= "Lyrics are coming...", color=Color.purple())
+            return await interaction.response.send_message(embed=em2, view=view)
             
         pause.callback = on_pause
         play.callback = on_play
@@ -112,7 +112,7 @@ class Music_and_Media(commands.Cog):
         skip.callback = on_skip
         lyrics.callback = on_lyrics
    
-        view = View(timeout=100)
+        view = View(timeout=duration)
         async def on_timeout():
             nonlocal em, msg, view, pause, rewind, skip, lyrics
             for children in view.children:
@@ -146,8 +146,7 @@ class Music_and_Media(commands.Cog):
         elif vote_for == "pause":
             votes = self.pause_votes
         elif vote_for == "rewind":
-            vites = self.rewind_votes
-            
+            votes = self.rewind_votes
         if guild_id in votes:
             if voter_id in votes[guild_id]:
                 await interaction.response.send_message("You have already voted for this one", ephemeral= True)
@@ -156,8 +155,8 @@ class Music_and_Media(commands.Cog):
         else:
             votes[guild_id] = [voter_id]
         if len(votes[guild_id]) >= required:
-            return True, required, len(votes[guild_id]), members
-        return False, required, len(votes[guild_id]), members
+            return True, required, len(votes[guild_id]), len(members)
+        return False, required, len(votes[guild_id]), len(members)
         
     @commands.Cog.listener("on_wavelink_track_start")     
     async def on_wavelink_track_start(self, payload: wavelink.TrackStartEventPayload) -> None:
@@ -223,7 +222,7 @@ class Music_and_Media(commands.Cog):
         seconds = duration % 60
         player.home = ctx.channel
         if player.playing:
-            estimated_duration = 0
+            estimated_duration = player.current.length - player.position
             for itrack in player.queue:
                 estimated_duration += itrack.length
             estimated_duration = estimated_duration // 1000
@@ -236,8 +235,7 @@ class Music_and_Media(commands.Cog):
             await ctx.send(embed=em)
         else:
             await player.play(track)
-            await self.send_player(ctx, player)    
-        
+            
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
