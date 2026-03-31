@@ -1458,25 +1458,25 @@ class Games(commands.Cog):
         robber_id = str(ctx.author.id)
         victim_id = str(user.id)
         if victim_id not in Profiles:
-            return await ctx.send(Embed(description="Target profile not found.", colour=Color.red()))
+            return await ctx.send(embed=Embed(description="Target profile not found.", colour=Color.red()))
         if victim_id == robber_id:
-            return await ctx.send(Embed(description="You cannot Rob on yourself.", colour=Color.red()))
+            return await ctx.send(embed=Embed(description="You cannot Rob on yourself.", colour=Color.red()))
         robber_aura = Profiles[robber_id]["aura"]
         if robber_aura < 0:
-            return await ctx.send(Embed(description="You are in Aura Debt can't perform robbey 🥀.", colour=Color.red()))
+            return await ctx.send(embed=Embed(description="You are in Aura Debt can't perform robbey 🥀.", colour=Color.red()))
         robber_profile = GameProfile(robber_id)
         victim_profile = GameProfile(victim_id)
         success_chance = max(5, min(70, 30 + robber_aura // 20))
         if randint(1, 100) > success_chance:
             fine = min(robber_profile.assets.get("cash", 0) // 3, 100000)
             inv_manager(robber_id, "cash", -fine)
-            return await ctx.send(Embed(title= "Rob Failed", description=f"You failed the bank rob and paid ₹{fine} cash in fine.")
+            return await ctx.send(embed=Embed(title= "Rob Failed", description=f"You failed the bank rob and paid ₹{fine} cash in fine."))
         stolen = min(victim_profile.assets.get("cash", 0) // 2, 100000)
         if stolen <= 0:
-            return await ctx.send(Embed(description="Victim has no money to steal."))
+            return await ctx.send(embed=Embed(description="Victim has no money to steal."))
         victim_profile.inv_manager("cash", -stolen)
         robber_profile.inv_manager("cash", stolen)
-        await ctx.send(Embed(title="Rob Successful", description=f"You robbed ₹{stolen} cash from {user.mention}!", colour= Color.green()))
+        await ctx.send(embed= Embed(title="Rob Successful", description=f"You robbed ₹{stolen} cash from {user.mention}!", colour= Color.green()))
 
     @commands.hybrid_command(aliases=[])
     @commands.cooldown(1, 3600, type=commands.BucketType.user)
