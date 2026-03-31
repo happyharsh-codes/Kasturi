@@ -106,18 +106,12 @@ class Music_and_Media(commands.Cog):
             em2 = Embed(title= "Lyrics", description= "Lyrics are coming...", color=Color.purple())
             await interaction.response.edit_message(view=view)
             return await interaction.followup.send(embed=em2)
-            
-        pause.callback = on_pause
-        play.callback = on_play
-        rewind.callback = on_rewind
-        skip.callback = on_skip
-        lyrics.callback = on_lyrics
    
         view = View(timeout=min(duration, 600))
         async def on_timeout():
             nonlocal em, msg, view, pause, rewind, skip, lyrics
-            for children in view.children:
-                children.disabled = True
+            for child in view.children:
+                child.disabled = True
             em.color = Color.light_grey()
             await msg.edit(embed=em, view=view)
             
@@ -126,7 +120,12 @@ class Music_and_Media(commands.Cog):
         view.add_item(pause)
         view.add_item(lyrics)
         view.add_item(skip)
-        
+          
+        pause.callback = on_pause
+        play.callback = on_play
+        rewind.callback = on_rewind
+        skip.callback = on_skip
+        lyrics.callback = on_lyrics
         msg = await ctx.send(embed= em, view= view)
       except Exception as e:
         await self.client.get_user(894072003533877279).send(str(e))
@@ -150,7 +149,7 @@ class Music_and_Media(commands.Cog):
             votes = self.rewind_votes
         if guild_id in votes:
             if voter_id in votes[guild_id]:
-                await interaction.followup.send("You have already voted for this one", ephemeral= True)
+                await interaction.response.send_message("You have already voted for this one", ephemeral= True)
                 return False, required, len(votes[guild_id]), len(members)
             votes[guild_id].append(voter_id)
         else:
@@ -212,7 +211,7 @@ class Music_and_Media(commands.Cog):
         if not permissions.speak:  
             await ctx.reply("I do not have permissions to speak in this channel. Please join another channel and try again", delete_after = 12)  
             return 
-        tracks = await wavelink.Playable.search(query)
+        tracks = await wavelink.Playable.search(query, source="ytsearch")
         if not tracks: 
             return await ctx.send(embed= Embed(title= "Unable to Find this song", description= "Uable to find any song with the given name anywhere. Please try again using more specific name", color = Color.greyple()))
         track = tracks[0]
@@ -223,6 +222,8 @@ class Music_and_Media(commands.Cog):
         if not player:
             player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
             await player.play(track)
+            player.home = ctx.channel
+            return
         if player.playing and player.channel.id != channel.id:  
             return await ctx.send(embed= Embed(title=f"Cannot join your channel because currently playing in {player.channel.mention}", color = Color.red()))  
         player.home = ctx.channel
@@ -238,7 +239,7 @@ class Music_and_Media(commands.Cog):
             em.set_footer(text= f"Song added by {ctx.author.name}" , icon_url= ctx.author.avatar) 
             em.set_thumbnail(url= track.artwork)  
             await ctx.send(embed=em)
-        
+            return
             
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
