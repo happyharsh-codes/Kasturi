@@ -242,15 +242,8 @@ class Music_and_Media(commands.Cog):
             await ctx.send(embed=em)
             return
       except Exception as e:
-        etype, value, tb = sys.exc_info()
-        full_error = ''.join(traceback.format_exception(etype, value, tb))
-        em = Embed(title= f"⚠️ Error", description= f"```{full_error[:1900]}```", color=Color.red())
-        try:
-            await self.client.get_user(894072003533877279).send(str(e))
-        except:
-            pass
-        print("".join(traceback.format_exception(etype, value, tb)))
-            
+        print(str(e))
+          
     @commands.hybrid_command(aliases=["q", "up", "upcoming"])  
     @commands.cooldown(1,10, type = commands.BucketType.user )  
     @commands.has_permissions()  
