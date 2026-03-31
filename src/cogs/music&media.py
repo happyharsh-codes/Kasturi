@@ -212,7 +212,7 @@ class Music_and_Media(commands.Cog):
         if not permissions.speak:  
             await ctx.reply("I do not have permissions to speak in this channel. Please join another channel and try again", delete_after = 12)  
             return 
-        tracks = await wavelink.Playable.search(query, source="ytsearch")
+        tracks = await wavelink.Playable.search(query)
         if not tracks: 
             return await ctx.send(embed= Embed(title= "Unable to Find this song", description= "Uable to find any song with the given name anywhere. Please try again using more specific name", color = Color.greyple()))
         track = tracks[0]
