@@ -1546,7 +1546,7 @@ class Bot:
                 Server_Settings[str(ctx.guild.id)]["premium"] = 0
             tips = randint(1, 15) 
             if tips == 8:
-                ctx.channel.send(choice(DATA["tips"]))
+                await ctx.channel.send(choice(DATA["tips"]))
         except Exception as e:
             await self.me.send(f"Exception on command completion: {e}")
 
