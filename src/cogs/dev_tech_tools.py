@@ -182,7 +182,7 @@ class Dev_Tech_Tools(commands.Cog):
                 for f in ["temp_code.c", "temp_code.cpp", "temp_code.java", "temp_code.class", "temp_out", "temp_out.exe"]:
                     if os.path.exists(f): os.remove(f)
         
-        language_select = Select(custom_id="language_select", placeholder="Select Language", required= True, min_values=1, max_values=1, options = [SelectOption(label=i.title(), value=i) for i in list(LAN_CONFIG.keys())])
+        language_select = Select(custom_id="language_select", placeholder="Select Language", required= True, min_values=1, max_values=1, options = [SelectOption(label=i.title(), value=i) for i in list(LANG_CONFIG.keys())])
         compile = Button(style=ButtonStyle.green, label="Run", custom_id="compile", disabled=True)                                                            
         
         async def on_select(inter):
@@ -236,6 +236,14 @@ class Dev_Tech_Tools(commands.Cog):
 
         for item in CLIENT7.dataset(run["defaultDatasetId"]).iterate_items():
             data.update(item)
+        if not data['fullName']:
+            em = Embed(title="📷 Instagram Lookup",description=f"[{data['username']}]({data['url']}) **{data['followersCount']}** Followers **|** **{data['followsCount']}** Following **|** **{data['postsCount']}** Posts\n{data['biography']}",color=Color.purple())
+            em.set_thumbnail(url=data.get("profilePicUrlHD", None))
+            em.set_author(name=username, icon_url=data.get("profilePicUrlHD", None))
+            em.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.avatar)
+        
+            return await ctx.send(embed=em)
+            
         for item in data.get("latestPosts", []):
             posts.append({
                 "url": item["url"],
