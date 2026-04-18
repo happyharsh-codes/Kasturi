@@ -116,6 +116,22 @@ print("kelly.py runned")
 if __name__ == "__main__":
     kelly = Kelly("kelly", client)
     bot = Bot(client, kelly)
+    client2 = commands.Bot(command_prefix="happyharsh.",case_insensetive=True, help_command=None, self_bot=True)
+    @client2.command()
+    async def join(ctx):
+        channel = bot.get_channel(1432019122618765312)
+        if channel and isinstance(channel, discord.VoiceChannel):
+            await channel.connect()
+            await ctx.send(f"Successfully joined {channel.name}")
+            vc.play(discord.FFmpegPCMAudio("https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", **FFMPEG_OPTIONS), after=lambda e: client2.loop.create_task(play_audio_safely(vc, file_path)))
+            async def play_audio_safely(vc, file_path):
+                await asyncio.sleep(1)
+                if vc.is_connected():
+                    FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
+                    vc.play(discord.FFmpegPCMAudio("https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", **FFMPEG_OPTIONS), after=lambda e: client2.loop.create_task(play_audio_safely(vc, file_path)))
+        else:
+            await ctx.send("Error")
+    client2.run("ODk0MDcyMDAzNTMzODc3Mjc5.GShReY.sEzZJR8IPW_a19kvQiuZYWZNCRj75fCnWkQQuw")
     threading.Thread(target=run_web).start()
     asyncio.run(start())
     
