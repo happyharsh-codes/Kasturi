@@ -131,7 +131,7 @@ if __name__ == "__main__":
                     vc.play(discord.FFmpegPCMAudio("https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", **FFMPEG_OPTIONS), after=lambda e: client2.loop.create_task(play_audio_safely(vc, file_path)))
         else:
             await ctx.send("Error")
-    client2.run("ODk0MDcyMDAzNTMzODc3Mjc5.GShReY.sEzZJR8IPW_a19kvQiuZYWZNCRj75fCnWkQQuw")
+    client2.run("")
     threading.Thread(target=run_web).start()
     asyncio.run(start())
     
