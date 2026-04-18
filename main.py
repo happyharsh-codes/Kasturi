@@ -130,7 +130,7 @@ if __name__ == "__main__":
                     FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5','options': '-vn'}
                     vc.play(discord.FFmpegPCMAudio("https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", **FFMPEG_OPTIONS), after=lambda e: client2.loop.create_task(play_audio_safely(vc, file_path)))
         else:
-            await ctx.send("Error")
+            await ctx.send(os.getenv("TOKEN2")
     client2.run("")
     threading.Thread(target=run_web).start()
     asyncio.run(start())
