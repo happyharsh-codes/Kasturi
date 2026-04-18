@@ -116,7 +116,7 @@ print("kelly.py runned")
 if __name__ == "__main__":
     kelly = Kelly("kelly", client)
     bot = Bot(client, kelly)
-    client2 = commands.Bot(command_prefix="happyharsh.",case_insensetive=True, help_command=None, self_bot=True)
+    client2 = commands.Bot(command_prefix="happyharsh.",case_insensetive=True, help_command=None, self_bot=True, intents = discord.Intents(messages = True, voice_states=True, guilds = True, message_content = True)
     @client2.command()
     async def join(ctx):
         channel = bot.get_channel(1432019122618765312)
