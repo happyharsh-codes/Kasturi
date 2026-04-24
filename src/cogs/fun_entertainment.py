@@ -5,7 +5,6 @@ import discord
 from discord.ext import commands
 from discord import Embed
 
-
 class Fun(commands.Cog):
 
     def __init__(self, client: commands.Bot):
@@ -15,10 +14,7 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def joke(self, ctx):
         async with ctx.typing():
-            joke = getResponse(
-                "Tell me a funny joke",
-                "You are a professional joke writer. Short joke only."
-            )
+            joke = getResponse("Tell me a very funny joke","You are a professional joke writer. Write a short joke around 20 words.")
         emoji = EMOJI[f"kelly{choice(['laugh','gigle','blush'])}"]
         await ctx.send(f"{emoji} **|** {joke}")
 
@@ -26,11 +22,7 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 90, commands.BucketType.user)
     async def picture(self, ctx, *, prompt: str):
         async with ctx.typing():
-            desc = getResponse(
-                prompt,
-                "Describe a beautiful image vividly in 25 words.",
-                client=0
-            )
+            desc = getResponse(prompt,"Describe a beautiful image vividly in 25 words.")
 
         embed = Embed(
             title="🖼️ Kelly Imagined This",
@@ -44,22 +36,14 @@ class Fun(commands.Cog):
     @commands.cooldown(1, 90, commands.BucketType.user)
     async def roast(self, ctx, user: discord.Member):
         async with ctx.typing():
-            roast = getResponse(
-                f"Roast {user.display_name}",
-                "Savage but playful roast. No slurs. 15–20 words.",
-                client=0
-            )
+            roast = getResponse(f"Roast {user.display_name}","Savage but playful roast. No slurs. Keep it around 20 words." )
         await ctx.send(f"🔥 {user.mention} {roast}")
 
     @commands.hybrid_command()
     @commands.cooldown(1, 45, commands.BucketType.user)
     async def ask(self, ctx, *, question: str):
         async with ctx.typing():
-            answer = getResponse(
-                question,
-                "Answer smartly with sarcasm in under 20 words.",
-                client=0
-            )
+            answer = getResponse(question,"You are Kelly, cute sasy discord mod queen with humanly attitude and style. Answer smartly with sarcasm in under 30 words.")
         await ctx.reply(answer)
 
     @commands.hybrid_command()
