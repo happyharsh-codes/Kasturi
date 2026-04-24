@@ -138,14 +138,15 @@ class Dev_Tech_Tools(commands.Cog):
         if not code:
             await ctx.send(embed=Embed(title="❌ Please provide a code snippet.",color=Color.red()))
             return
-            
+        if not code.startswith("```"):
+            return await ctx.send(embed=Embed(title,="❌ Please provide a code block.", colour=Color.red()))
+        code = code.replace("```", "")
         lang = ""
         LANG_CONFIG = {"python": {"run": ["python3", "-c"]}, "javascript": {"run": ["node", "-e"]}, "ruby": {"run": ["ruby", "-e"]}, "bash": {"run": ["bash", "-c"]},"php": {"run": ["php", "-r"]}, "cpp": { "compile": ["g++", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".cpp"},  "c": { "compile": ["gcc", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".c"},"java": {"compile": ["javac"], "run": ["java"], "extension": ".java"}}
-
+        
         em = Embed(title=f"🧠 Code Snippet",description=f"```{code[:1700]}```",color=Color.blurple(), timestamp= discord.utils.utcnow())
         em.set_footer(text=f"Used by {ctx.author.display_name}", icon_url=ctx.author.avatar)
-        
-        
+             
         def execute_code(lang, code):
             if lang not in LANG_CONFIG:
                 return f"Language {lang} not supported."
@@ -199,16 +200,21 @@ class Dev_Tech_Tools(commands.Cog):
             await inter.response.edit_message(view=view)
 
         async def on_compile(inter):
+          try:
             if inter.user.id != ctx.author.id:
                 await inter.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return
-            nonlocal execute_code, lang
+            nonlocal execute_code, lang, msg
             output = execute_code(lang, code)
+            await msg.edit(view=None)
+            await interaction.response.send_message(embed=Embed(title="Output", description=output, color = Color.red() if "Error" in output else Color.green()))
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(str(e))
         
         async def on_timeout():
             nonlocal em, msg
             em.color = Color.greyple()
-            msg.edit(embed=em, view=None)
+            await msg.edit(embed=em, view=None)
             
         view = View(timeout=45)
         view.add_item(language_select)
