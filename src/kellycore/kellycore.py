@@ -539,7 +539,7 @@ class Kelly:
             
         # 60% think only
         if roll <= 60:
-            promt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\n You already replied to user, but yoou think user is very rude but you tolerate this for now.\nReply in 10–30 words, 0–3 emojis based on your mood."
+            prompt = f"Roleplay Kelly — cute, sassy, human-like Discord mod with moods and personality.\nMood: {self.status}\n You already replied to user, but yoou think user is very rude but you tolerate this for now.\nReply in 10–30 words, 0–3 emojis based on your mood."
             async with message.channel.typing():
                 assist = self.memory.getUserChats(author.id) #getting previous chats
                 kelly_reply = getResponse(message.content, prompt, assistant= assist)
