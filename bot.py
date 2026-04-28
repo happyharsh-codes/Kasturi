@@ -1027,7 +1027,7 @@ class Bot:
             em.add_field(name= "Help", value="Get Help using `k help` command")
             em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
             return await message.channel.send(embed=em)
-        elif self.client.user.mention in content
+        elif self.client.user.mention in content:
             if "deactivate" in content:
                 if channel.id not in metadata["allowed_channels"]:
                     await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
