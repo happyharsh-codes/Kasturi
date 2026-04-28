@@ -144,6 +144,16 @@ class Kelly:
             cmd = self.client.get_command(cmd_name)
             ctx = await self.client.get_context(message)
             print(f"### Running command {cmd_name} with {params}")
+            for param in list(params.keys()):
+              try:
+                if param == "user" or param == "member":
+                    params[param] = await self.client.fetch_user(params[param])
+                elif param == "channel":
+                    params[param] = await self.client.fetch_channel(params[param])
+                elif param == "role":
+                    params[param] = await ctx.guild.fetch_role(params[param])
+              except:
+                  return -1
             await ctx.invoke(cmd, **params)
 
         except Exception as e:
