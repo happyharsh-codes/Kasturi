@@ -1000,16 +1000,7 @@ class Bot:
             return
         if message.guild and not message.channel.permissions_for(message.guild.me).send_messages:
             return
-        if message.content == self.client.user.mention:
-            em = discord.Embed(title= f"{kemoji()} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
-            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
-            em.add_field(name= "Help", value="Get Help using `k help` command")
-            em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
-            return await message.channel.send(embed=em)
-        else:
-            content = content.replace(self.client.user.mention, "kelly")
-        
-        
+            
         author = message.author   
         guild = message.guild
         channel = message.channel
@@ -1028,7 +1019,25 @@ class Bot:
         #Running Secret commands
         if message.content.startswith("???"):
             return await self.client.process_commands(message)
-            
+
+        # ===== Handelling Bot Mentions =====
+        if message.content == self.client.user.mention:
+            em = discord.Embed(title= f"{kemoji()} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
+            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
+            em.add_field(name= "Help", value="Get Help using `k help` command")
+            em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
+            return await message.channel.send(embed=em)
+        elif self.client.user.mention in content
+            if "deactivate" in content:
+                if channel.id not in metadata["allowed_channels"]:
+                    await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
+                    return
+                Server_Settings[str(guild.id)]["allowed_channels"].remove(channel.id)
+                await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{channel}> was succesfully deactivated !!", color= discord.Colour.green()))
+                return
+            else:
+                content = content.replace(self.client.user.mention, "kelly")
+        
         # ===== DM MESSAGES ==== 
         if isinstance(message.channel, discord.DMChannel):
             if self.kelly.giyu.giyuQuery(message, self.kelly.mood.mood):
@@ -1072,16 +1081,6 @@ class Bot:
                 except:
                     print("No delete message perms")
                 break
-        
-        # ===== Handelling Bot mentions ====
-        if self.client.user.mention in content:
-            if "deactivate" in content:
-                if channel.id not in metadata["allowed_channels"]:
-                    await message.channel.send("Ayoo that channel isn't even activated!! What are you doing idiot.")
-                    return
-                Server_Settings[str(guild.id)]["allowed_channels"].remove(channel.id)
-                await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{channel}> was succesfully deactivated !!", color= discord.Colour.green()))
-                return
             
         # ===== Giving xp ====
         if metadata["rank_channel"] != 0:
