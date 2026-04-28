@@ -29,7 +29,7 @@ class KellyMemory:
         all_user_chats = chats[-limit:]
         return ", ".join(all_user_chats)
 
-    def addUserChat(self, message, response, author, reply_by="Kelly"):
+    async def addUserChat(self, message, response, author, reply_by="Kelly"):
         """Store last conversation detail."""
         message = message.replace("\n", "").replace(":", "")
         response = response.replace("\n", "").replace(":", "")
@@ -50,7 +50,7 @@ class KellyMemory:
             view = View()
             view.add_item(Button(style=ButtonStyle.secondary, custom_id= "global_intro_left", disabled=True, row=0, emoji=discord.PartialEmoji.from_str("<:leftarrow:1427527800533024839>")))
             view.add_item(Button(style=ButtonStyle.secondary, custom_id= "global_intro_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>")))
-            msg = safe_dm(member=author, embed = em, view=view)
+            msg = await safe_dm(member=author, embed = em, view=view)
         else:
             user["chats"].append(line)
             if len(user["chats"]) > 8:
