@@ -88,14 +88,15 @@ class Dev_Tech_Tools(commands.Cog):
             return await ctx.reply("No Video found for the search")
 
         def updator():
-            nonlocal em, videos, page, view, left, right
+            nonlocal em, videos, page, view, left, right, length
             current_vid = videos[page-1]
             em.title = f"**{current_vid['title']}**"
             em.url = current_vid["link"]
             em.set_image(url=current_vid["thumbnail_url"])
             em.set_author(name=current_vid["author"], icon_url=current_vid["avatar_url"])
             em.set_footer(text=f"Showing video {page} out of {length} | {ctx.author.id}", icon_url=ctx.author.avatar)
-            
+            right.disabled = (page == length)
+           
             watch = Button(style=ButtonStyle.link, url=current_vid["link"], label="Watch", row=0)
             view.clear_items()
             view.add_item(left)
@@ -242,7 +243,9 @@ class Dev_Tech_Tools(commands.Cog):
 
         for item in CLIENT7.dataset(run["defaultDatasetId"]).iterate_items():
             data.update(item)
-        if not data['fullName']:
+        if not 'username' in data:
+            return await ctx.send(embed= Embed(title=":x: Username Not Found", color=Color.red()))
+        if not 'fullName' in data:
             em = Embed(title="📷 Instagram Lookup",description=f"[{data['username']}]({data['url']}) **{data['followersCount']}** Followers **|** **{data['followsCount']}** Following **|** **{data['postsCount']}** Posts\n{data['biography']}",color=Color.purple())
             em.set_thumbnail(url=data.get("profilePicUrlHD", None))
             em.set_author(name=username, icon_url=data.get("profilePicUrlHD", None))
@@ -284,6 +287,7 @@ class Dev_Tech_Tools(commands.Cog):
             view.add_item(right)
 
         async def onleftright(interaction: Interaction):
+          try:
             if interaction.user.id != ctx.author.id:
                 await interaction.response.send_message(embed = Embed(description= "This interaction is not for you", color = Color.red()), ephemeral= True)
                 return
@@ -296,7 +300,9 @@ class Dev_Tech_Tools(commands.Cog):
                 page += 1
             updator()
             await interaction.response.edit_message(embed=em, view=view)
-
+          except Exception as e:
+            await self.client.get_user(894072003533877279).send(str(e))
+        
         async def on_timeout():
             nonlocal em, msg
             em.color = Color.greyple()
