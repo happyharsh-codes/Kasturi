@@ -139,7 +139,7 @@ class Dev_Tech_Tools(commands.Cog):
             await ctx.send(embed=Embed(title="❌ Please provide a code snippet.",color=Color.red()))
             return
         if not code.startswith("```"):
-            return await ctx.send(embed=Embed(title,="❌ Please provide a code block.", colour=Color.red()))
+            return await ctx.send(embed=Embed(title="❌ Please provide a code block.", color=Color.red()))
         code = code.replace("```", "")
         lang = ""
         LANG_CONFIG = {"python": {"run": ["python3", "-c"]}, "javascript": {"run": ["node", "-e"]}, "ruby": {"run": ["ruby", "-e"]}, "bash": {"run": ["bash", "-c"]},"php": {"run": ["php", "-r"]}, "cpp": { "compile": ["g++", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".cpp"},  "c": { "compile": ["gcc", "-o", "temp_out"],"run": ["./temp_out"],"extension": ".c"},"java": {"compile": ["javac"], "run": ["java"], "extension": ".java"}}
