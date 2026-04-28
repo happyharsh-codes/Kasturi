@@ -1,5 +1,6 @@
 from __init__ import *
 from functions.game_functions import*
+from difflib import SequenceMatcher
 
 UNICODE_EMOJI_RE = re.compile(r"[\U0001F300-\U0001FAFF]")
 DISCORD_EMOJI_RE = re.compile(r"<a?:\w+:\d+>")
@@ -44,10 +45,11 @@ class Bot:
             
     async def chat_rate_limiter(self, message, author, session_id, chat_rate_limit):
         count = 0 # no of messages in last 5 seconds
+        delete_count = 0
         for time in Last[session_id]:
             if (datetime.now() - datetime.fromisoformat(time)).seconds <= 5:
                 count += 1
-        if count > chat_rate_limit:
+        if count >= chat_rate_limit:
             try:
                 async for msg in message.channel.histoty(limit=100):
                     if delete_count >= count:
@@ -83,9 +85,7 @@ class Bot:
             await message.delete()
             await message.channel.send(f"{message.author.mention} Mass mention blocked.", delete_after=4)
             await self.add_user_infringement(message, author)
-            return True
-              
-            
+            return True     
         if len(message.mentions) > limit:
             await message.delete()
             await message.channel.send(f"{message.author.mention} Too many mentions!", delete_after=4)
@@ -97,7 +97,7 @@ class Bot:
 
     async def caps_block(self, message, author):
         text = message.content
-        if len(text) < 7:   # small messages allowed
+        if len(text) < 9:   # small messages allowed
             return False
         letters = [c for c in text if c.isalpha()]
         if not letters:
@@ -146,30 +146,39 @@ class Bot:
         return False 
 
     async def duplicate_detector(self, message, author, session_id):
-        duplicate_count = 0
-        old_msg_contents = []
-        def similar(new_msg, old_msg):
-            return new_msg == old_msg
-        for time, old_msg in Last[session_id].items():
-            if similar(old_msg, message.content):
-                duplicate_count += 1
-                old_msg_contents.append(old_msg)
-        if duplicate_count < 3:
+        def normalize(msg: str):
+            msg = msg.lower()
+            msg = re.sub(r"<a?:\w+:\d+>", "", msg)
+            msg = re.sub(r"[\U00010000-\U0010ffff]","",msg)
+            msg = re.sub(r"[*_~`>|]", "", msg)
+            msg = re.sub(r"(.)\1{2,}", r"\1\1", msg)
+            msg = re.sub(r"[^\w\s]", "", msg)
+            msg = re.sub(r"\s+", " ", msg).strip()
+            return msg
+            
+        def similarity(a,b):
+            return SequenceMatcher(None,a,b).ratio()
+        
+        current = normalize(message.content)
+        if len(current) < 7:
             return False
-        delete_count = 0
-        try:
-            async for msg in channel.history(limit=100):
-                if delete_count >= 3:
-                    break
-                if msg.author == message.author and msg.content in old_msg_contents:
-                    try: await msg.delete()
-                    except: pass
-                    delete_count += 1
-        except:
-            pass
-        await message.channel.send(f"{message.author.mention} Duplicate messages Blocked", delete_after=5)
-        await self.add_user_infringement(message, author)
-        return True
+        matches = []
+        async for old_msg in message.channel.history(limit=100):
+            content = normalize(old_msg.content)
+            if old_msg == message:
+                continue
+            score = similarity(current, content)
+            if score >= 0.88:
+                matches.append(old)
+        if len(matches) >= 2:
+            try:
+                await message.delete()
+            except:
+                pass
+            await message.channel.send(f"{message.author.mention} Duplicate messages Blocked", delete_after=5)
+            await self.add_user_infringement(message, author)
+            return True
+        return False
 
     async def rankReward(self, message, author, rank_channel, rewards, level):
       try:
@@ -218,13 +227,12 @@ class Bot:
                 for i, role in enumerate(roles):
                     view.add_item(Button(label=x[i], custom_id=f"rolechoice_{message.guild.id}_{role.id}"), style=ButtonStyle.secondary)
                 em.add_field(name = "Custom Role Choice", value = "\n".join([f"{x[i]}: {role.name}" for i, role in enumerate(roles)]))
-        if "assignrole" in r and "removerole" in r and len(r) == 2:
-                return
         if prize:
             em.add_field(name="Prize", value = prize)
         msg = await safe_dm(author, em, view=view)
       except Exception as e:
         self.me.send(str(e))
+          
     # ------------- TASK LOOPS -------------
 
     @tasks.loop(seconds=15)
@@ -1031,19 +1039,20 @@ class Bot:
         
         # ===== MODERATION ====
         automod = metadata["automod"]
-        if automod.get("emoji_spam") and await self.emoji_spam(message, author, automod.get("emoji_spam")): return
-        if automod.get("mass_mention_block") and await self.mass_mention_block(message, author, automod.get("mass_mention_block")): return
-        if automod.get("caps_block") and await self.caps_block(message, author): return
-        if automod.get("link_filter") and await self.link_filter(message, author, automod.get("link_filter")): return
-        if automod.get("nsfw_filter") and await self.nsfw_filter(message, author): return
         session_id = f"{author.id}_{channel.id}"
         if not Last[session_id]:
             Last[session_id] = { datetime.now().isoformat(): message.content }
         else:
             Last[session_id][datetime.now().isoformat()] =  message.content
-        if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, author, session_id, automod.get("chat_rate_limiter")): return 
-        if automod.get("duplicate_detector") and await self.duplicate_detector(message, author, session_id): return
-        if await self.kelly.giyu.giyuFilter(message): return
+        if author.id != guild.owner_id or author.top_role <= guild.me.top_role:
+            if automod.get("emoji_spam") and await self.emoji_spam(message, author, automod.get("emoji_spam")): return
+            if automod.get("mass_mention_block") and await self.mass_mention_block(message, author, automod.get("mass_mention_block")): return
+            if automod.get("caps_block") and await self.caps_block(message, author): return
+            if automod.get("link_filter") and await self.link_filter(message, author, automod.get("link_filter")): return
+            if automod.get("nsfw_filter") and await self.nsfw_filter(message, author): return
+            if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, author, session_id, automod.get("chat_rate_limiter")): return 
+            if automod.get("duplicate_detector") and await self.duplicate_detector(message, author, session_id): return
+            if await self.kelly.giyu.giyuFilter(message): return
             
         # ===== Deleting banned words ====
         for word in metadata["banned_words"]:
@@ -1176,13 +1185,17 @@ class Bot:
         em.add_field(name="Before", value=before.content[:1024] or "*(empty)*", inline=False)
         em.add_field(name="After", value=after.content[:1024] or "*(empty)*", inline=False)
         await self.send_log(guild, em)
+        author = before.author
         automod = Server_Settings[str(guild.id)]["automod"]
-        if automod.get("emoji_spam"): await self.emoji_spam(after, automod.get("emoji_spam"))
-        if automod.get("mass_mention_block"): await self.mass_mention_block(after, automod.get("mass_mention_block"))
-        if automod.get("caps_block"): await self.caps_block(after)
-        if automod.get("link_filter"): await self.link_filter(after, automod.get("link_filter"))
-        if automod.get("nsfw_filter"): await self.nsfw_filter(after)
-        await self.kelly.giyu.giyuFilter(after)
+        if author.id != guild.owner_id or author.top_role <= guild.me.top_role:
+            if automod.get("emoji_spam") and await self.emoji_spam(message, author, automod.get("emoji_spam")): return
+            if automod.get("mass_mention_block") and await self.mass_mention_block(message, author, automod.get("mass_mention_block")): return
+            if automod.get("caps_block") and await self.caps_block(message, author): return
+            if automod.get("link_filter") and await self.link_filter(message, author, automod.get("link_filter")): return
+            if automod.get("nsfw_filter") and await self.nsfw_filter(message, author): return
+            if automod.get("chat_rate_limiter") and await self.chat_rate_limiter(message, author, session_id, automod.get("chat_rate_limiter")): return 
+            if automod.get("duplicate_detector") and await self.duplicate_detector(message, author, session_id): return
+            if await self.kelly.giyu.giyuFilter(message): return
             
     async def on_message_delete(self, message):
         if message.author.bot:
