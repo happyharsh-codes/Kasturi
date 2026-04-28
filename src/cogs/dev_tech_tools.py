@@ -207,7 +207,7 @@ class Dev_Tech_Tools(commands.Cog):
             nonlocal execute_code, lang, msg
             output = execute_code(lang, code)
             await msg.edit(view=None)
-            await interaction.response.send_message(embed=Embed(title="Output", description=output, color = Color.red() if "Error" in output else Color.green()))
+            await inter.response.send_message(embed=Embed(title="Output", description=output, color = Color.red() if "Error" in output else Color.green()))
           except Exception as e:
             await self.client.get_user(894072003533877279).send(str(e))
         
