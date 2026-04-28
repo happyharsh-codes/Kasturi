@@ -51,13 +51,13 @@ class Kelly:
         params = {}
         content = message.content
         if "member" in command.clean_params:
-            params["member"] = message.mentions[0] if message.mentions else author
+            params["member"] = message.mentions[0].id if message.mentions else author.id
         if "user" in command.clean_params:
-            params["user"] = message.mentions[0] if message.mentions else author
+            params["user"] = message.mentions[0].id if message.mentions else author.id
         if "channel" in command.clean_params:
-            params["channel"] = message.channel_mentions[0] if message.channel_mentions else message.channel
+            params["channel"] = message.channel_mentions[0].id if message.channel_mentions else message.channel.id
         if "role" in command.clean_params:
-            params["role"] = message.role_mentions[0] if message.role_mentions else None
+            params["role"] = message.role_mentions[0].id if message.role_mentions else None
         for time_param in ("minutes", "seconds", "hours", "days"):
             if time_param not in command.clean_params:
                 continue
