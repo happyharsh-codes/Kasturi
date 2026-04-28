@@ -1160,76 +1160,64 @@ class Games(commands.Cog):
         profile = GameProfile(ctx.author.id)
         categories = ["Eatables", "Animals", "Plants", "Assets", "Tools", "Weapons", "Vehicles", "Minerals", "Builds"]
         category_select = Select(custom_id="category",placeholder="Select Category",options=[SelectOption(label=i, value=i.lower()) for i in categories],max_values=1,min_values=1)
-        levels = ["Common", "Unique", "Rare", "Epic", "Legendary"]
-        level_select = Select(custom_id="level", disabled=True,placeholder="Select Level",options=[SelectOption(label=i, value=i.lower()) for i in levels],max_values=1,min_values=1)
+        item_select = Select(custom_id="items_select",placeholder="Select Level",options=[],max_values=1,min_values=1)
         buy = Button(label = "Buy for ₹", custom_id="buy", style= ButtonStyle.green)
         left_btn = Button(emoji="<:leftarrow:1427527800533024839>", custom_id="left", style=ButtonStyle.blurple, disabled=True)
         right_btn = Button(emoji="<:rightarrow:1427527709403119646>", custom_id="right", style=ButtonStyle.blurple)
         remove_btn = Button(emoji="➖", custom_id="remove", style=ButtonStyle.blurple, disabled=True)
         add_btn = Button(emoji="➕", custom_id="add", style=ButtonStyle.blurple)
             
-        page = 0
+        page = 1
         qty = 1
         buy_items = {}
+        length = 0
+        category = ""
             
         em = Embed(title="Shop", description="Select item category and level you want to buy", color = Color.green())
         em.set_footer(text=f"Buy by {ctx.author.display_name}", icon_url= ctx.author.avatar)
 
         view = View(timeout = 40)
         view.add_item(category_select)
-        view.add_item(level_select)
 
         def update():
-            nonlocal em, page, buy_items, qty, buy, profile
-            item_name = list(buy_items.keys())[page]
-            item = GAME["id"][item_name]
-            em.description = f"**{item_name.replace('_',' ').title()}**\nCategory: {item['category']}\nLevel: {item['level']}\nPrice: {item['buy']}\nQuantity: {qty}"
+            nonlocal em, page, buy_items, qty, buy, profile, category
+            item_name = list(buy_items.keys())[page-1]
+            item = buy_items[item_name]
+            em.description = f"**{item_name.replace('_',' ').title()}**\nCategory: {category.title()}\nLevel: {item['level']}\nPrice: ₹{item['buy']}\nQuantity: {qty}"
             em.set_thumbnail(url=get_emoji_url(item['emoji']))
             amount = item["buy"] * qty
             buy.label = f"₹{amount}"
             buy.disabled = not profile.inv_searcher('cash' , amount)
-            em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page+1} of {len(buy_items)}", icon_url=ctx.author.avatar)
+            em.set_footer(text=f"Buy by {ctx.author.display_name} | Page {page} of {len(buy_items)}", icon_url=ctx.author.avatar)
                 
         async def on_select(inter: Interaction):
           try:
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal category_select, buy, level_select, em, view, profile, buy_items, left_btn, right_btn, add_btn, remove_btn, page
+            nonlocal category_select, buy, item_select, view, em, buy_items, left_btn, right_btn, add_btn, remove_btn, page, length, category
             selected = inter.data["values"][0]
-            if inter.data["custom_id"] == "level":
-                select = level_select
+            if inter.data["custom_id"] == "item":
+                page = list(buy_items.keys()).index(selected) + 1
+                update()
+            else:
+                category = selected
+                buy_items = {}
+                for item, val in GAME["id"].items():
+                    if val["category"] == selected and "buy" in val:
+                        buy_items[item] = {"emoji": val["emoji"], "buy": val["buy"], "info": val.get("info", "item"), "level": val["level"]}
+                length = len(buy_items)
+                item_select.options = [SelectOption(label=i.replace("_"," ").title(), value=i, description=val["info"], emoji=val["emoji"]) for i, val in buy_items.items()]
                 view.clear_items()
                 view.add_item(category_select)
-                view.add_item(level_select)
+                view.add_item(item_select)
                 view.add_item(left_btn)
                 view.add_item(remove_btn)
                 view.add_item(buy)
                 view.add_item(add_btn)
                 view.add_item(right_btn)
-
-                for option in category_select.options:
-                    if option.default:
-                        category = option.value
-                        break
-                if selected.split()[0] == "common": level = 1
-                elif selected.split()[0] == "unique": level = 2
-                elif selected.split()[0] == "rare": level = 3
-                elif selected.split()[0] == "epic": level = 4
-                else: level = 5
-
-                buy_items = {}
-                page = 0
-                for key, val in GAME["id"].items():
-                    if val["category"] == category and val["level"] == level:
-                        if not "buy" in val:
-                            continue
-                        buy_items[key] = val["buy"]
                 update()
-            else:
-                select = category_select
-                level_select.disabled = False
-            for option in select.options:
-                option.default = option.value == selected
+                for option in category_select.options:
+                    option.default = option.value == selected
             await inter.response.edit_message(embed = em, view=view)
           except Exception as e:
             await self.client.get_user(894072003533877279).send(e)
@@ -1239,11 +1227,11 @@ class Games(commands.Cog):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
             nonlocal em, view, msg, qty, buy_items, page
-            item_name = list(buy_items.keys())[page]
-            emoji = GAME['id'][item_name]['emoji']
-            profile.inv_manager('cash', -qty*buy_items[item_name])
+            item_name = list(buy_items.keys())[page-1]
+            item = buy_items[item_name]
+            profile.inv_manager('cash', -qty*item["buy"])
             profile.inv_manager(item_name, +qty)
-            em.description = f"Buying Successful. You successfully bought {item_name.replace('_',' ').title()} {emoji} x {qty} for ₹{qty*buy_items[item_name]}"
+            em.description = f"Buying Successful. You successfully bought {item_name.replace('_',' ').title()} {item["emoji"]} x {qty} for ₹{qty*item['buy']}"
             view.on_timeout = None
             view = None
             await inter.response.edit_message(embed = em, view=None)
@@ -1253,13 +1241,13 @@ class Games(commands.Cog):
         async def on_qty(inter: Interaction):
             if inter.user.id != ctx.author.id:
                 return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-            nonlocal em, view, msg, buy, remove_btn, profile, buy_items, qty, page
+            nonlocal em, view, buy, remove_btn, profile, buy_items, qty, page
             if inter.data["custom_id"] == "add":
                 qty += 1
             else:
                 qty -= 1
             remove_btn.disabled = qty == 1
-            item = GAME['id'][list(buy_items.keys())[page]]
+            item = buy_items[list(buy_items.keys())[page-1]]
             amount = qty * item['buy']
             buy.disabled = not profile.inv_searcher('cash' , amount)
             update()
@@ -1273,8 +1261,8 @@ class Games(commands.Cog):
                 page -= 1
             else:
                 page += 1
-            left_btn.disabled = page == 0
-            right_btn.disabled = page == len(buy_items) - 1
+            left_btn.disabled = page == 1
+            right_btn.disabled = page == len(buy_items)
             update()
             await inter.response.edit_message(embed = em, view = view)
                 
@@ -1285,7 +1273,7 @@ class Games(commands.Cog):
             await msg.edit(embed=em, view=view)
 
         category_select.callback = on_select
-        level_select.callback = on_select
+        item_select.callback = on_select
         buy.callback = on_buy
         left_btn.callback = on_move
         right_btn.callback = on_move
@@ -1296,14 +1284,26 @@ class Games(commands.Cog):
         if item:
             item = item.replace(' ', '_').lower()
             if item not in GAME['id']:
-                return
+                return await ctx.reply(":x: Invalid Item")
             item = GAME['id'][item]
             category= item['category']
-            level = item['level']
-            for o, i in GAME['id'].items():
-                if i["category"] == category and i["level"] == level:
-                    buy_items[o] = i["buy"]
+            buy_items = {}
+            for item, val in GAME["id"].items():
+                if val["category"] == category and "buy" in val:
+                    buy_items[item] = {"emoji": val["emoji"], "buy": val["buy"], "info": val.get("info", "item"), "level": val["level"]}
+            length = len(buy_items)
+            item_select.options = [SelectOption(label=i.replace("_"," ").title(), value=i, description=val["info"], emoji=val["emoji"]) for i, val in buy_items.items()]
+            view.clear_items()
+            view.add_item(category_select)
+            view.add_item(item_select)
+            view.add_item(left_btn)
+            view.add_item(remove_btn)
+            view.add_item(buy)
+            view.add_item(add_btn)
+            view.add_item(right_btn)
             update()
+            for option in category_select.options:
+                option.default = option.value == selected
         msg = await ctx.send(embed=em, view=view)
         return
             
@@ -1364,9 +1364,9 @@ class Games(commands.Cog):
                     expand.disabled = False
                     inv_items = profile.get(category, {})
                     for i in inv_items:
-                        if GAME["id"][i]["level"] <= level:
+                        if GAME["id"][i]["level"] <= level and "sell" in GAME["id"][i]:
                             filtered_inv_items[i] = inv_items[i]
-                    em.description = f"**{category.title()}**\n{selected.title()}"
+                    em.description = f"**{category.title()}\n{selected.title()}**\n"
                     for i in filtered_inv_items:
                         em.description += GAME["id"][i]["emoji"]
                         amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
@@ -1386,9 +1386,9 @@ class Games(commands.Cog):
                     view.add_item(level_select)
                     descrip = f"{selected.title()}\n"
                     for index, level in enumerate(["Common", "Unique", "Rare", "Epic", "Legendary"]):
-                        items = [ GAME["id"][item]['emoji'] for item in profile.get(selected)  if GAME["id"][item]["level"] == (index+1)]
+                        items = [ GAME["id"][item]['emoji'] for item in profile.get(selected)  if GAME["id"][item]["level"] == (index+1) and 'sell' in GAME["id"][item] ]
                         if items:
-                            descrip += f"{level}\n{' '.join(items)}\n"
+                            descrip += f"**{level}**\n{' '.join(items)}\n"
                     em.description = descrip
                 for option in select.options:
                     option.default = option.value == selected
@@ -1429,7 +1429,7 @@ class Games(commands.Cog):
                 elif levels.split()[0] == "epic": level = 4
                 else: level = 5
     
-                em.description = f"**{category}**\n"
+                em.description = "\n".join(em.description.split("\n")[:2]) + "\n"
                 for i in filtered_inv_items:
                     em.description += f"{i} {GAME['id'][i]['emoji']} x {filtered_inv_items[i]} = ₹{GAME['id'][i]['sell'] * filtered_inv_items[i]}\n"
                     amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
