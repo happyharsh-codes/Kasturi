@@ -72,7 +72,7 @@ async def perform_task(task, uid, client):
         await channel.send(f"<@{uid}>", embed= em)
 
     elif task["name"] == "travelling":
-        await channel.send(embed=Embed(title=f"<@{uid}> You have reached {task['destination'].title()}", color=Color.green()))
+        await channel.send(f"<@{uid}>", embed=Embed(title=f"You have reached {task['destination'].title()}", color=Color.green()))
         profile.location = task["destination"]
 
     elif task["name"] == "crafting" or task["name"] == "building":
@@ -169,8 +169,8 @@ def has_profile():
             return False 
         if msg.content.lower() == code:
             Profiles[str(ctx.author.id)] = {"name": ctx.author.name, "activity": "sleeping", "health": 100,"hunger": 100, "location": "home", "aura":0, "skills": {}, "eatables": {}, "plants": {}, "animals": {}, "assets": {"cash": 100,"gem": 50,"orb": 1}, "builds": {}, "tools": {}, "weapons": {}, "vehicles": {}, "minerals": {}, "quests": {}, "places": {}, "tasks": {}, "reminders": {}}
-            em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile created successfully. Start playing eith game commands now: `hunt`, `chop`, `adv`, `mine`, `work`, `school`, `craft`, `use`, `eat` ...\n:white_check_mark: You obatained bonous ₹100 cash {GAME['id']['cash']['emoji']}\n:white_check_mark: You obtained 50 gems {GAME['id']['gem']['emoji']} and 1 Dark Magic Orb {GAME['id']['orb']['emoji']}\nUse `k games` to get more help and info.",color=Color.green())
-            em.set_footer(text=f"{ctx.author.name} created acc at {timestamp(ctx)}", icon_url= ctx.author.avatar)
+            em = Embed(title="Profile Created Successfully", description=f"{ctx.author.mention} your profile created successfully. Start playing eith game commands now: `hunt`, `chop`, `adv`, `mine`, `work`, `school`, `craft`, `use`, `eat` ...\n:white_check_mark: You obatained bonous ₹100 cash {GAME['id']['cash']['emoji']}\n:white_check_mark: You obtained 50 gems {GAME['id']['gem']['emoji']} and 1 Dark Magic Orb {GAME['id']['orb']['emoji']}\nUse `k games` to get more help and info.", timestamp= dicord.utils.utcnow(),color=Color.green())
+            em.set_footer(text=f"{ctx.author.name} created acc", icon_url= ctx.author.avatar)
             await ctx.send(embed = em)
         else:
             emoji = EMOJI[f"kelly{choice(['annoyed', 'laugh', 'gigle', 'waiting', 'idontcare', 'chips', 'bweh', 'bweh'])}"]
@@ -279,7 +279,7 @@ def not_busy():
             await asyncio.sleep(1)
             remaining = datetime.fromisoformat(duration_iso) - datetime.now()
             remaining_seconds = max(0, remaining.total_seconds())
-            await msg.edit(embed=get_embed())
+            await msg.edit(embed=get_embed(), view=view)
             sec_count += 1
             if sec_count > 10:
                 return False
