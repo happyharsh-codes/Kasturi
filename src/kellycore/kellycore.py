@@ -263,7 +263,7 @@ class Kelly:
                 msg = await message.channel.send(f"-# {choice(['thinking','busy','playing games','sleeping','yawning','drooling','watching','understanding','remembring','wondering','imagining','dreaming','creating','chatting','looking','helping'])}... {EMOJI[choice(list(EMOJI.keys()))]}")
                 assist = self.memory.getUserChats(message.author.id) #getting previous chats
                 kelly_reply = getResponse(usermessage, prompt, assistant= assist)
-                self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
+                await self.memory.addUserChat(message.content, kelly_reply, message.author) #Saving chat
                 await msg.delete()
                 await message.reply(self.kellyEmojify(kelly_reply))  #Replying in channel
 
