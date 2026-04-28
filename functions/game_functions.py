@@ -72,7 +72,7 @@ async def perform_task(task, uid, client):
         await channel.send(f"<@{uid}>", embed= em)
 
     elif task["name"] == "travelling":
-        await channel.send(f"<@{uid}> You have reached {task['destination'].title()}")
+        await channel.send(embed=Embed(title=f"<@{uid}> You have reached {task['destination'].title()}", color=Color.green()))
         profile.location = task["destination"]
 
     elif task["name"] == "crafting" or task["name"] == "building":
@@ -109,8 +109,9 @@ async def perform_task(task, uid, client):
         try: message = await channel.fetch_message(task["message"])
         except: return -1
         ctx = await client.get_context(message)
-        await profile.health_manager(-randint(1,10), ctx)
-    
+        await profile.health_manager(-randint(7,10), ctx)
+        await ctx.send(f"<@{uid}>", embed=Embed(title="You are Starving from hunger!!!", description=f"{health_string(profile.health)}\n{hunger_string(profile.hunger)}", color=Color.orange()))
+        
     elif task["name"] == "heal":
         try: message = await channel.fetch_message(task["message"])
         except: return -1
@@ -200,14 +201,19 @@ def not_busy():
 
         remaining = datetime.fromisoformat(duration_iso) - datetime.now()
         remaining_seconds = max(0, remaining.total_seconds())
-
+        
+        # Create view with cancel button
+        view = View(timeout=None)
+        cancel = Button(label="✖️ Cancel", custom_id=activity, style=ButtonStyle.secondary)
+        speed_up = Button(label="⏩ Speed up", custom_id="speed_up", style= ButtonStyle.green, disabled=True)
         # Initialize embed
         def get_embed():
             minutes, seconds = divmod(remaining_seconds, 60)
             percentage_completed = min(100, max(int((task["duration"] - remaining_seconds) / task["duration"] * 100), 0))
             blocks = int(percentage_completed // 10)
             percentage_bar = "▓" * blocks + "░" * (10 - blocks)
-
+            if percentage_completed == 100:
+                view.clear_items()
             titles = {
                 "sleeping": "Currently Sleeping",
                 "working": "Currently Busy Working",
@@ -242,10 +248,6 @@ def not_busy():
 
         if activity == "sleeping":
             return True
-
-        # Create view with cancel button
-        view = View(timeout=None)
-        cancel = Button(label="✖️ Cancel", custom_id=activity, style=ButtonStyle.secondary)
 
         async def on_cancel(inter: Interaction):
             if inter.user.id != ctx.author.id:
@@ -409,12 +411,12 @@ class GameProfile:
     async def health_manager(self, health, ctx):
         self.health += health
         if self.health <= 0:
-            if self.hunger == 0:
+            if self.health == 0:
                 await self.kill("You starved to death", ctx)
             else:
                 await self.kill("You died due to critical health loss", ctx)
         elif self.health <= 20:
-            await ctx.send(f"{ctx.author.mention} Your heath is too low!!!")
+            await ctx.send(f"{ctx.author.mention}", embed=Embed(title="You health is too low!!!", description=health_string(self.health), color=Color.orange()))
         elif self.health > 100:
             self.health = 100
         if self.hunger == 0:
@@ -426,7 +428,7 @@ class GameProfile:
             self.hunger = 0
             await self._starve_to_death(ctx)
         elif self.hunger <= 20:
-            await ctx.send(f"{ctx.author.mention} You are low on food!!!")
+            await ctx.send(f"{ctx.author.mention}", embed=Embed(title="You are low on food!!!", description= hunger_string(self.hunger), color=Color.orange()))
         elif self.hunger >= 100:
             self.hunger = 100
             await self.heal(ctx)
@@ -441,11 +443,7 @@ class GameProfile:
                     return
         if self.health == 100:
             return
-        for due, task in dict(self.tasks).items():
-                if task["name"] == "starve":
-                    break
-        else:
-            self.add_task("heal", randint(1,15), ctx.channel.id, ctx.message.id)
+        self.add_task("heal", randint(1,15), ctx.channel.id, ctx.message.id)
                           
     async def _starve_to_death(self, ctx):
         if self.hunger > 0:
@@ -453,23 +451,15 @@ class GameProfile:
                 if task["name"] == "starve":
                     del self.tasks[due]
                     return 
-        for due, task in dict(self.tasks).items():
-                if task["name"] == "starve":
-                    break
-        else:
-            self.add_task("starve", randint(1,10), ctx.channel.id, ctx.message.id)
+        self.add_task("starve", 40, ctx.channel.id, ctx.message.id)
         
     async def _internal_hunger_manager(self, ctx):
-        if self.health > 80:
+        if self.health > 30:
             for due, task in dict(self.tasks).items():
                 if task["name"] == "hunger":
                     del self.tasks[due]
         else:
-            for due, task in dict(self.tasks).items():
-                if task["name"] == "hunger":
-                    break
-            else:
-                self.add_task("hunger", randint(1,200), ctx.channel.id, ctx.message.id, val = -randint(1,7))
+            self.add_task("hunger", randint(1,200), ctx.channel.id, ctx.message.id, val = -randint(1,6))
 
     async def kill(self, reason, ctx):
         await ctx.send(f"{ctx.author.mention}", embed = Embed(title="You Died", description= reason, color = Color.red(), timestamp=discord.utils.utcnow()))
