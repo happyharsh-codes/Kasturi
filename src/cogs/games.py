@@ -133,9 +133,11 @@ class Games(commands.Cog):
             if inter.data["custom_id"] == "left":
                 page -= 1
                 update(categories[page])
+                expand_btn.label = "Expand"
             elif inter.data["custom_id"] == "right":
                 page +=1
                 update(categories[page])
+                expand_btn.label = "Expand"
             elif expand_btn.label == "Shrink":
                 update(categories[page])
                 expand_btn.label = "Expand"
@@ -359,9 +361,14 @@ class Games(commands.Cog):
         )
         study_btn = Button(label="Study", custom_id="study", style=ButtonStyle.green, disabled=True)
 
+        gained_skills = [skills for skills, val in profile.skills.items() if val > 0]
+        if gained_skills:
+            description = "\n".join([f"{skill.title()} {(profile.skills[skill]//10) * '▓'}{(10 - profile.skills[skill]//10) * '░'}" for skill in gained_skills])
+        else:
+            description= "\n".join([f"{skill.title()} {'░'*10}" for skill in random.sample(list(time_req.keys()),3)])
         em = action_embed(
             "Skills to Learn",
-            "Select your skills to learn. It requires time and patience, but helps in `k work`.",
+            "Select your skills to learn. It requires time and patience, but helps in `k work`\n"+description,
             Color.green(),
             f"School by {ctx.author.name}",
             ctx.author.avatar,
@@ -1330,9 +1337,10 @@ class Games(commands.Cog):
               try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-                nonlocal category_select, sell, level_select, em, view, profile, amount, filtered_inv_items
+                nonlocal category_select, sell, level_select, em, view, profile, amount, filtered_inv_items, expand
                 selected = inter.data["values"][0]
                 if inter.data["custom_id"] == "level":
+                    expand.disabled = False
                     select = level_select
                     view.clear_items()
                     view.add_item(category_select)
@@ -1358,7 +1366,7 @@ class Games(commands.Cog):
                     for i in inv_items:
                         if GAME["id"][i]["level"] <= level:
                             filtered_inv_items[i] = inv_items[i]
-                    em.description = f"**{category}**\n"
+                    em.description = f"**{category.title()}**\n{selected.title()}"
                     for i in filtered_inv_items:
                         em.description += GAME["id"][i]["emoji"]
                         amount += GAME["id"][i]["sell"] * filtered_inv_items[i]
@@ -1370,7 +1378,18 @@ class Games(commands.Cog):
                     
                 else:
                     select = category_select
+                    for option in level_select.options:
+                        option.default = False
                     level_select.disabled = False
+                    view.clear_items()
+                    view.add_item(category_select)
+                    view.add_item(level_select)
+                    descrip = f"{selected.title()}\n"
+                    for index, level in enumerate(["Common", "Unique", "Rare", "Epic", "Legendary"]):
+                        items = [ GAME["id"][item]['emoji'] for item in profile.get(selected)  if GAME["id"][item]["level"] == (index+1)]
+                        if items:
+                            descrip += f"{level}\n{' '.join(items)}\n"
+                    em.description = descrip
                 for option in select.options:
                     option.default = option.value == selected
                 await inter.response.edit_message(embed = em, view=view)
@@ -1394,7 +1413,8 @@ class Games(commands.Cog):
               try:
                 if inter.user.id != ctx.author.id:
                     return await inter.response.send_message("This is not your interaction.", ephemeral=True)
-                nonlocal em, view, msg, amount, profile, category_select, level_select, filtered_inv_items
+                nonlocal em, view, msg, amount, profile, category_select, level_select, filtered_inv_items, expand
+                expand.disabled = True
                 for option in category_select.options:
                     if option.default:
                         category = option.value
