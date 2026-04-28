@@ -165,8 +165,8 @@ class Kelly:
                         del schedules[due_str]
                         self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                         return
-                msg = await channel.send(f"-#Processing {kemoji()}...", delete_after=10)
-                self.runCommand(msg, due, task["params"])
+                msg = await channel.send(f"-# Processing {kemoji()}...", delete_after=7)
+                await self.runCommand(msg, due, task["params"])
                 del schedules[due]
                 self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                 return
