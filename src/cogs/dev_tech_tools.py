@@ -158,11 +158,11 @@ class Dev_Tech_Tools(commands.Cog):
                     filename = f"temp_code{config['extension']}"
                     with open(filename, "w") as f:
                         f.write(code)
-                # Compile step
-                compile_cmd = config["compile"] + [filename]
-                comp = subprocess.run(compile_cmd, capture_output=True, text=True)
-                if comp.returncode != 0:
-                    return f"Compilation Error:\n{comp.stderr}"
+                    # Compile step
+                    compile_cmd = config["compile"] + [filename]
+                    comp = subprocess.run(compile_cmd, capture_output=True, text=True)
+                    if comp.returncode != 0:
+                        return f"Compilation Error:\n{comp.stderr}"
             
                 # Run step
                 run_cmd = config["run"]
