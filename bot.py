@@ -169,7 +169,7 @@ class Bot:
                 continue
             score = similarity(current, content)
             if score >= 0.88:
-                matches.append(old)
+                matches.append(content)
         if len(matches) >= 2:
             try:
                 await message.delete()
@@ -1000,6 +1000,15 @@ class Bot:
             return
         if message.guild and not message.channel.permissions_for(message.guild.me).send_messages:
             return
+        if message.content == self.client.user.mention:
+            em = discord.Embed(title= f"{kemoji()} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
+            em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
+            em.add_field(name= "Help", value="Get Help using `k help` command")
+            em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
+            return await message.channel.send(embed=em)
+        else:
+            content = content.replace(self.client.user.mention, "kelly")
+        
         
         author = message.author   
         guild = message.guild
@@ -1073,16 +1082,7 @@ class Bot:
                 Server_Settings[str(guild.id)]["allowed_channels"].remove(channel.id)
                 await message.channel.send(embed=discord.Embed(title="Channel Deactivated",description=f"<#{channel}> was succesfully deactivated !!", color= discord.Colour.green()))
                 return
-            if message.content == self.client.user.mention:
-                em = discord.Embed(title= f"{kemoji()} **Kelly is Here**", description= "Hi I'm Kelly Nice to meet you", colour= discord.Colour.green())
-                em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
-                em.add_field(name= "Help", value="Get Help using `k help` command")
-                em.add_field(name= "Chat with me",value=f"Chat with me say `kelly hii` ")
-                await message.channel.send(embed=em)
-                return
-            else:
-                content = content.replace(self.client.user.mention, "kelly")
-        
+            
         # ===== Giving xp ====
         if metadata["rank_channel"] != 0:
             if metadata["rank"][str(author.id)]:
