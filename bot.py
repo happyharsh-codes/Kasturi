@@ -231,7 +231,7 @@ class Bot:
             em.add_field(name="Prize", value = prize)
         msg = await safe_dm(author, em, view=view)
       except Exception as e:
-        self.me.send(str(e))
+        await self.me.send(str(e))
           
     # ------------- TASK LOOPS -------------
 
