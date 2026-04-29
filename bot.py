@@ -160,7 +160,7 @@ class Bot:
             return SequenceMatcher(None,a,b).ratio()
         
         current = normalize(message.content)
-        if len(current) < 7:
+        if len(current) < 9:
             return False
         matches = []
         async for old_msg in message.channel.history(limit=100):
@@ -1084,11 +1084,17 @@ class Bot:
             
         # ===== Giving xp ====
         if metadata["rank_channel"] != 0:
+            if len(content) < 10:
+                rank_points = 2
+            elif len(content) < 20:
+                rank_points = 4
+            else:
+                rank_points = 5
             if metadata["rank"][str(author.id)]:
                 total_xp = metadata["rank"][str(author.id)]
                 level = math.floor( (math.sqrt(1+(8 * total_xp / 15)) - 1) / 2)
                 max_xp = ((level+1)*(level+2)*15)//2
-                total_xp += 2
+                total_xp += rank_points
                 if total_xp > max_xp:
                     try:
                         rank_channel = await message.guild.fetch_channel(metadata["rank_channel"])
@@ -1096,22 +1102,22 @@ class Bot:
                         # Check for any Rank Rewards
                         if metadata["rank_reward"] and str(level+1) in metadata["rank_reward"]:
                             await self.rankRewards(message, author, rank_channel, metadata["rank_reward"][str(level+1)], level+1)
-                    except:
+                    except Exception as e:
+                        await self.me.send(str(e))
                         Server_Settings[str(guild.id)]["rank_chanel"] = 0
                         Server_Settings[str(guild.id)]["rank_reward"] = {}
-                Server_Settings[str(guild.id)]["rank"][str(author.id)] += len(content)
+                Server_Settings[str(guild.id)]["rank"][str(author.id)] += rank_points
                 if Profiles.get(str(author.id)):
-                    Profiles[str(author.id)]["assets"]["cash"] = Profiles[str(author.id)]["assets"].get("cash",0) + len(content)
+                    Profiles[str(author.id)]["assets"]["cash"] = Profiles[str(author.id)]["assets"].get("cash",0) + rank_points
             else: 
-                Server_Settings[str(guild.id)]["rank"][str(author.id)] = len(content)
+                Server_Settings[str(guild.id)]["rank"][str(author.id)] = rank_points
                         
         # ===== Checking for afk user ====
-        for afk in metadata['afk']:
-            if id == afk:
-                Server_Settings[str(guild.id)]['afk'].remove(afk)
-                break
-            elif self.client.get_user(afk) and self.client.get_user(afk).mentioned_in(message):
-                await channel.send(embed= Embed(description=f"Please don’t mention **@{self.client.get_user(afk).display_name}** — they are currently AFK.",color=Color.red()))
+        if author.id in metadata['afk']:
+            Server_Settings[str(guild.id)]['afk'].remove(author.id)
+        for x in message.mentions:
+            if x.id in metadata["afk"]:
+                await channel.send(embed= Embed(description=f"Please don’t mention **<@{x.id}>** — They are currently AFK.",color=Color.red()))
         
         # ===== Checking for allowed channel ====
         if metadata["allowed_channels"] != [] and channel.id not in metadata["allowed_channels"] and content.startswith(("kasturi", "kelly")):
