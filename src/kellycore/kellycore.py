@@ -172,7 +172,7 @@ class Kelly:
                     try:
                         channel = await self.client.fetch_channel(task["channel"])
                     except:
-                        del schedules[due_str]
+                        del schedules[due]
                         self.status = "busy" if self.ayasaka.busy.isBusy() else "active"
                         return
                 msg = await channel.send(f"-# Processing {kemoji()}...", delete_after=7)
