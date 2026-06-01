@@ -137,7 +137,7 @@ class Giyu:
         elif str(message.author.id) in self._giyu["muted"]:
             prompt = f"You are Giyu, Kelly's Chief Guard\nThis user is muted by kelly for sometime, shoo him away.\nGenerate: Your Response in 20 words with emojis"
             response = getResponse(f"{message.author.display_name}: {message.content}", prompt, assistant=self.kelly.memory.getUserChats(message.author.id))
-            self.kelly.memory.addUserChat(message.content, response, message.authorq, reply_by="Giyu")
+            self.kelly.memory.addUserChat(message.content, response, message.author, reply_by="Giyu")
             await self.giyusend(message.channel, self.giyuEmojify(response), message.author.id)
             return False
 
