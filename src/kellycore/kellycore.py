@@ -147,7 +147,7 @@ class Kelly:
             for param in list(params.keys()):
               try:
                 if param == "user" or param == "member":
-                    params[param] = await self.client.fetch_user(params[param])
+                    params[param] = await self.client.fetch_member(params[param])
                 elif param == "channel":
                     params[param] = await self.client.fetch_channel(params[param])
                 elif param == "role":
