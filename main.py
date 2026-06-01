@@ -18,7 +18,7 @@ def run_web():
     server.serve_forever()
 
 intents = discord.Intents(messages = True, moderation = True, guilds = True, message_content = True, dm_messages = True, members = True, presences = True, dm_reactions = True, reactions = True, emojis = True, emojis_and_stickers = True, voice_states= True, guild_scheduled_events = True)
-client = commands.Bot(command_prefix="???",case_insensetive=True, help_command=None,intents=intents)
+client = commands.Bot(command_prefix="???",case_insensitive=True, help_command=None,intents=intents)
 
 async def start():
     for file in os.listdir("src/cogs/"):
