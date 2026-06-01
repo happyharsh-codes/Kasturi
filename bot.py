@@ -1262,11 +1262,11 @@ class Bot:
             go_right = Button(style=ButtonStyle.secondary, custom_id= "global_intro_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
             view.add_item(go_left)
             view.add_item(go_right)
-            if "giyu" in interaction.message.embeds[0].title:
+            if "giyu" in interaction.message.embeds[0].title.lower():
                 em = Embed(title="Hi I'm Kelly", description=f"Nice to meet you {author.display_name}. Feel free to talk to Kelly anytime just say Kelly and I'll be there. Please follow our chat rules and regulations.", timestamp = discord.utils.utcnow(), color = Color.gold())
                 em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/kellyintro.gif")
                 go_left.disabled = True
-            elif "ayasaka" in interaction.message.embeds[0].title:
+            elif "ayasaka" in interaction.message.embeds[0].title.lower():
                 em = Embed(title= f"Hi I'm Giyu {EMOJI2['giyuhi']}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
                 em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
             await interaction.response.edit_message(embed= em, view = view)
@@ -1276,10 +1276,10 @@ class Bot:
             go_right = Button(style=ButtonStyle.secondary, custom_id= "global_intro_right", row=0, emoji=discord.PartialEmoji.from_str("<:rightarrow:1427527709403119646>"))
             view.add_item(go_left)
             view.add_item(go_right)
-            if "kelly" in interaction.message.embeds[0].title:
+            if "kelly" in interaction.message.embeds[0].title.lower():
                 em = Embed(title= f"Hi I'm Giyu {EMOJI2['giyuhi']}", description="Hi I'm Giyu Kelly's Personal Bodyguard. Kelly's security is my responsibility as you know so dms off unless Kelly adds you in friend list. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
                 em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/giyu_{randint(1,14)}.png")
-            elif "giyu" in interaction.message.embeds[0].title:
+            elif "giyu" in interaction.message.embeds[0].title.lower():
                 em = Embed(title= f"Hi I'm Ayasaka ", description="Hi I'm Ayasaka, Kelly's Personal Assistant. Kelly's schedules is my responsibility as you know Kelly gets busy very quickly with server stuff. So yeah I'm there for you when she's busy, I'll schedule your tasks, just call me. Alright so keep chatting in servers with Kelly. Respect boundaries and follow chat policy.", color = Color.green())
                 em.set_thumbnail(url= f"https://raw.githubusercontent.com/happyharsh-codes/Kasturi/refs/heads/main/assets/ayasaka_{randint(1,3)}.png")
                 go_right.disabled = True
