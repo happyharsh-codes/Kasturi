@@ -51,7 +51,7 @@ class Bot:
                 count += 1
         if count >= chat_rate_limit:
             try:
-                async for msg in message.channel.histoty(limit=100):
+                async for msg in message.channel.history(limit=100):
                     if delete_count >= count:
                         break
                     if msg.author == message.author:
@@ -225,7 +225,7 @@ class Bot:
                         roles.append(role)
                 view = View(timeout=None)
                 for i, role in enumerate(roles):
-                    view.add_item(Button(label=x[i], custom_id=f"rolechoice_{message.guild.id}_{role.id}"), style=ButtonStyle.secondary)
+                    view.add_item(Button(label=x[i], custom_id=f"rolechoice_{message.guild.id}_{role.id}", style=ButtonStyle.secondary))
                 em.add_field(name = "Custom Role Choice", value = "\n".join([f"{x[i]}: {role.name}" for i, role in enumerate(roles)]))
         if prize:
             em.add_field(name="Prize", value = prize)
@@ -383,7 +383,7 @@ class Bot:
         pass
 
     async def on_typing(self, channel, user, when):
-        if not Relation[str(user.id)]:
+        if self.kelly.memory.getUserRelation(user.id) < 10:
             return
         if randint(1,200) == 101: #Special reward
             self.kelly.ayasaka.addReminder("surprise", channel_id=channel.id, user_id= user.id, delay_minutes=20)     
@@ -484,7 +484,7 @@ class Bot:
                         break
             except:
                 pass
-            if not invites:
+            if not invite:
                 for channel in guild.text_channels:
                     try:
                         invite = await channel.create_invite(max_age=0, max_uses=0)
@@ -605,7 +605,7 @@ class Bot:
             em.add_field(name="Reason", value="Bot was kicked or server deleted")
         em.add_field(name="Invite Link", value=invite)
         
-        em.set_thumbnail(url=guild.icon)
+        em.set_thumbnail(url=guild.icon.url if guild.icon else None)
         await me.send(embed=em)
         del Server_Settings[str(guild.id)]
         del Invite_Cache[str(guild.id)]
@@ -872,7 +872,7 @@ class Bot:
         except:
             reason= "No reason provided"
         em = Embed(title= f"You were Banned from {guild.name}", description= f"**Reason:** {reason}", color = Color.red())
-        em.set_thumbnail(url=guild.icon)
+        em.set_thumbnail(url=guild.icon.url if guild.icon else None)
         em.set_footer(text = "If you believe this was a mistake please forgive us.")
         view = View()
         button = Button(style=ButtonStyle.primary, custom_id= "revive", label = "Click to Say your Last Words")
@@ -1121,7 +1121,7 @@ class Bot:
         
         # ===== Checking for allowed channel ====
         if metadata["allowed_channels"] != [] and channel.id not in metadata["allowed_channels"] and content.startswith(("kasturi", "kelly")):
-            channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild)]["allowed_channels"]])
+            channels_str = ",".join([f"<#{id}>" for id in Server_Settings[str(guild.id)]["allowed_channels"]])
             await channel.send(f"-# Tsk tsk~ {kemoji()} Kelly only chats in the activated channels: {channels_str}", delete_after = 8)
             return
         elif metadata["allowed_channels"] == [] and content.startswith(("k ", "kelly", "kasturi")) and not "activate" in content:
@@ -1193,6 +1193,12 @@ class Bot:
         author = before.author
         automod = Server_Settings[str(guild.id)]["automod"]
         if author.id != guild.owner_id or author.top_role <= guild.me.top_role:
+            message = after
+            session_id = f"{author.id}_{channel.id}"
+            if not Last[session_id]:
+                Last[session_id] = { datetime.now().isoformat(): message.content }
+            else:
+                Last[session_id][datetime.now().isoformat()] =  message.content
             if automod.get("emoji_spam") and await self.emoji_spam(message, author, automod.get("emoji_spam")): return
             if automod.get("mass_mention_block") and await self.mass_mention_block(message, author, automod.get("mass_mention_block")): return
             if automod.get("caps_block") and await self.caps_block(message, author): return
@@ -1233,9 +1239,9 @@ class Bot:
         if interaction.data["custom_id"].startswith("rolechoice_"):
             _, guild_id, role_id = interaction.data["custom_id"].split("_")
             await interaction.response.edit_message(view=None)
-            guild = self.get_guild(guild_id)
+            guild = self.client.get_guild(guild_id)
             if not guild:
-                try: guild = await self.fetch_guild(guild_id)
+                try: guild = await self.client.fetch_guild(int(guild_id))
                 except: return
             member = guild.get_member(interaction.user.id)
             if not member:
@@ -1243,7 +1249,7 @@ class Bot:
                 except:
                     await interaction.channel.send(embed=Embed(description="You are not in that guild"))
                     return
-            role = guild.get_role(role_id)
+            role = guild.get_role(int(role_id))
             if not role:
                 await interaction.channel.send("Role Not Found or gpt Deleted")
                 return
@@ -1594,7 +1600,7 @@ class Bot:
             if "NoneType" in str(error) and "id" in str(error):
                 return await ctx.send(embed=Embed(title="🚫 Not a Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
         if isinstance(error, commands.CommandNotFound):
-            ctx.message.content = ctx.message.content.replace("???", "Kelly ")
+            await ctx.message.content = ctx.message.content.replace("???", "Kelly ")
             await self.kelly.kellyQuery(ctx.message, ctx.message.author)
             tip = randint(1,10)
             if tip  == 8:
