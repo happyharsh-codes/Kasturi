@@ -57,7 +57,7 @@ class Ayasaka:
             if "Moderator" in type and randint (1,5) == 1:
                 return True
             command = None
-            for cmd in self.client.commands:
+            for cmd in self.kelly.client.commands:
                 if cmd.name in message.content or any(alias in message.content for alias in cmd.aliases):
                     command = cmd.name
                     params = self.kelly.get_command_params(cmd, message)
