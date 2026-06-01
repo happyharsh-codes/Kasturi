@@ -22,7 +22,6 @@ class KellyMood:
         return max(self.mood, key=self.mood.get)
                 
     def generateRandomMood(self):
-        from random import randint
         mood = {}
         mood["happy"] = randint(1,100)
         mood["sleepy"] = randint(1,100)
