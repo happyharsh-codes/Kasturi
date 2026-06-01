@@ -1600,7 +1600,7 @@ class Bot:
             if "NoneType" in str(error) and "id" in str(error):
                 return await ctx.send(embed=Embed(title="🚫 Not a Dm Command", description="This command does not work in dms. Try again it in Server only", color =Color.red()))
         if isinstance(error, commands.CommandNotFound):
-            await ctx.message.content = ctx.message.content.replace("???", "Kelly ")
+            ctx.message.content = ctx.message.content.replace("???", "Kelly ")
             await self.kelly.kellyQuery(ctx.message, ctx.message.author)
             tip = randint(1,10)
             if tip  == 8:
